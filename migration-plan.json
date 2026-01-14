@@ -1,0 +1,41 @@
+{
+  "task_id": "agent-task-20260114-0011",
+  "title": "Migration plan: Modals - DeviceSettingsModal",
+  "description": "Миграция модального окна настроек устройства (DeviceSettingsModal) из Fusion в Evolusion.",
+  "author": "gemini-cli",
+  "timestamp": "2026-01-14T13:05:00Z",
+  "source_root": "C:\\CODE\\fusion",
+  "target_root": "C:\\CODE\\evolusion",
+  "human_approval_required": true,
+  "destructive": false,
+  "preconditions": {
+    "archive_required": false,
+    "dry_run_must_pass": true
+  },
+  "files": [
+    {
+      "path": "src/domains/ui/DeviceSettingsModal.svelte",
+      "action": "create",
+      "reason": "Миграция React DeviceSettingsModal.tsx → Svelte 5.",
+      "source_reference": {
+        "file": "C:\\CODE\\fusion\\components\\DeviceSettingsModal.tsx"
+      }
+    }
+  ],
+  "commits": {
+    "branch": "agent/feature-modals-device-settings",
+    "commit_messages": [
+      "feat(modals): implement DeviceSettingsModal"
+    ]
+  },
+  "tests_to_run_before_merge": {
+    "typecheck": true,
+    "lint": true,
+    "build": true
+  },
+  "constraints_and_rules": {
+    "no_new_public_api": true,
+    "file_line_limit": 1000,
+    "always_create_branch_and_pr": true
+  }
+}
