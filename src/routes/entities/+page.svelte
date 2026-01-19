@@ -1,101 +1,117 @@
+
 <script lang="ts">
-  import { haStore, entityList } from '../../domains/ha/store';
+  import { haStore } from '../../domains/ha/store';
+  import { uiDashboardState, selectFilteredEntities } from '../../domains/ui/store';
   import EntityList from '../../domains/ui/EntityList.svelte';
-  import { extractDomain } from '$lib/utils';
   
-  let searchQuery = $state('');
-  let selectedDomain = $state<string | null>(null);
+  // Binding variables to update store
+  let searchQuery = $state($uiDashboardState.filters.search || '');
+  let selectedDomain = $state($uiDashboardState.filters.domain || '');
   
-  let filtered = $derived($entityList.filter((entity) => {
-    const matchesSearch = 
-      entity.entity_id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (entity.attributes.friendly_name || '').toLowerCase().includes(searchQuery.toLowerCase());
-    
-    const domain = extractDomain(entity.entity_id);
-    const matchesDomain = !selectedDomain || domain === selectedDomain;
-    
-    return matchesSearch && matchesDomain;
-  }));
+  function updateFilters() {
+    uiDashboardState.update(s => ({
+      ...s,
+      filters: {
+        ...s.filters,
+        search: searchQuery,
+        domain: selectedDomain === '' ? undefined : selectedDomain
+      }
+    }));
+  }
 </script>
 
 <div class="page-entities">
-  <h1>All Entities</h1>
+  <div class="page-header">
+    <h1>All Entities</h1>
+  </div>
   
   {#if $haStore.isLoading}
-    <p>Loading entities...</p>
+    <div class="loading">Loading entities...</div>
   {:else if $haStore.error}
     <p class="error">Error: {$haStore.error}</p>
-  {:else if $entityList.length === 0}
+  {:else if $selectFilteredEntities.length === 0 && !$uiDashboardState.filters.search && !$uiDashboardState.filters.domain}
     <p>No entities connected. Check your Home Assistant settings.</p>
   {:else}
-    <div class="filters">
-      <input 
-        type="text" 
-        placeholder="Search entities..." 
-        bind:value={searchQuery}
-        class="search-input"
-      />
-      <select bind:value={selectedDomain} class="domain-select">
-        <option value={null}>All domains</option>
-        <option value="light">Lights</option>
-        <option value="switch">Switches</option>
-        <option value="sensor">Sensors</option>
-        <option value="binary_sensor">Binary Sensors</option>
-        <option value="climate">Climate</option>
-        <option value="cover">Covers</option>
-        <option value="media_player">Media Players</option>
-      </select>
-    </div>
-    
-    <div class="results-count">
-      Showing {filtered.length} of {$entityList.length} entities
+    <div class="controls">
+      <div class="filters">
+        <input 
+          type="text" 
+          placeholder="Search entities..." 
+          bind:value={searchQuery}
+          oninput={updateFilters}
+          class="search-input"
+        />
+        <select bind:value={selectedDomain} onchange={updateFilters} class="domain-select">
+          <option value="">All domains</option>
+          <option value="light">Lights</option>
+          <option value="switch">Switches</option>
+          <option value="sensor">Sensors</option>
+          <option value="binary_sensor">Binary Sensors</option>
+          <option value="climate">Climate</option>
+          <option value="cover">Covers</option>
+          <option value="media_player">Media Players</option>
+          <option value="script">Scripts</option>
+          <option value="automation">Automations</option>
+        </select>
+      </div>
+      
+      <div class="results-count">
+        Showing {$selectFilteredEntities.length} entities
+      </div>
     </div>
 
-    <EntityList entities={filtered} />
+    <EntityList entities={$selectFilteredEntities} />
   {/if}
 </div>
 
 <style>
   .page-entities {
     padding: 1rem;
-    max-width: 800px;
+    max-width: 1000px;
     margin: 0 auto;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .page-header {
+    margin-bottom: 1.5rem;
+  }
+  
+  .controls {
+    margin-bottom: 1rem;
+    background: var(--bg-card);
+    padding: 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--border-primary);
   }
   
   .filters {
     display: flex;
     gap: 1rem;
-    margin-bottom: 1rem;
+    margin-bottom: 0.5rem;
     flex-wrap: wrap;
   }
   
   .search-input {
     flex: 1;
     min-width: 200px;
-    padding: 0.5rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 1rem;
   }
 
   .domain-select {
-    padding: 0.5rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 1rem;
-    background-color: white;
+    min-width: 150px;
   }
   
   .results-count {
-    margin-bottom: 1rem;
-    color: #666;
+    color: var(--text-secondary);
     font-size: 0.9rem;
+    text-align: right;
   }
   
   .error {
-    color: #d32f2f;
+    color: var(--accent-error);
     padding: 1rem;
-    background-color: #ffebee;
+    background-color: var(--bg-chip);
     border-radius: 4px;
   }
 </style>

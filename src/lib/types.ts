@@ -35,6 +35,7 @@ export interface HAStoreState {
 	isLoading: boolean;
 	error: string | null;
 	entities: Map<string, HAEntity>;
+	problemEntities: Set<string>; // Optimized index for unavailable/unknown
 	latency?: number; // Connection latency in ms
 }
 

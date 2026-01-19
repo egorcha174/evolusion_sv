@@ -9,16 +9,13 @@ export const haStore = writable<HAStoreState>({
 	isLoading: false,
 	error: null,
 	entities: new Map(),
+	problemEntities: new Set(),
 	latency: undefined
 });
 
 // Derived stores for UI
 export const entityList: Readable<HAEntity[]> = derived(haStore, ($store) => {
 	return Array.from($store.entities.values());
-});
-
-export const connectedEntities: Readable<HAEntity[]> = derived(haStore, ($store) => {
-	return Array.from($store.entities.values()).filter((e: HAEntity) => e.state !== 'unavailable');
 });
 
 // Internal client instance and intervals
@@ -32,12 +29,26 @@ let updateFrame: number | null = null;
 
 function flushUpdates() {
 	haStore.update((s) => {
-		// Clone only once per frame
+		// Clone collections
 		const newEntities = new Map(s.entities);
+		const newProblems = new Set(s.problemEntities);
+
 		updateBuffer.forEach((state, id) => {
 			newEntities.set(id, state);
+			
+			// Update problem index
+			if (state.state === 'unavailable' || state.state === 'unknown') {
+				newProblems.add(id);
+			} else {
+				newProblems.delete(id);
+			}
 		});
-		return { ...s, entities: newEntities };
+
+		return { 
+			...s, 
+			entities: newEntities,
+			problemEntities: newProblems
+		};
 	});
 	
 	updateBuffer.clear();
@@ -67,16 +78,24 @@ export async function initializeHAConnection(url: string, token: string): Promis
 		// Initial data fetch
 		const states = await client.getStates();
 		
-		// Bulk initial update - no need to batch here as it's one atomic operation
+		// Bulk initial update
 		haStore.update((s) => {
 			const newEntities = new Map<string, HAEntity>();
+			const newProblems = new Set<string>();
+
 			states.forEach((state) => {
-				newEntities.set(state.entity_id, mapStateToEntity(state));
+				const entity = mapStateToEntity(state);
+				newEntities.set(state.entity_id, entity);
+				if (entity.state === 'unavailable' || entity.state === 'unknown') {
+					newProblems.add(state.entity_id);
+				}
 			});
+
 			return {
 				...s,
 				isConnected: true,
-				entities: newEntities
+				entities: newEntities,
+				problemEntities: newProblems
 			};
 		});
 
@@ -143,6 +162,7 @@ export async function disconnectHA(): Promise<void> {
 		...s,
 		isConnected: false,
 		entities: new Map(),
+		problemEntities: new Set(),
 		error: null,
 		latency: undefined
 	}));

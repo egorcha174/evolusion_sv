@@ -1,34 +1,34 @@
 
 <script lang="ts">
   import { dndzone, type DndEvent } from 'svelte-dnd-action';
-  import { dashboardItems, type GridItem } from './dashboardStore';
+  import { selectVisibleDashboardCards, type DashboardGridItem } from './store';
   import { saveLayout } from '../app/store';
   import { activeTabId } from '../app/tabsStore';
   import DeviceCard from './DeviceCard.svelte';
   
-  let items = $state<GridItem[]>([]);
+  // We sync local state for DND performance, but source is store
+  let items = $state<DashboardGridItem[]>([]);
   let isDragging = $state(false);
   const flipDurationMs = 200;
   
-  // Sync items from store when not dragging
   $effect(() => {
     if (!isDragging) {
-      items = $dashboardItems;
+      items = $selectVisibleDashboardCards;
     }
   });
 
-  function handleDndConsider(e: CustomEvent<DndEvent<GridItem>>) {
+  function handleDndConsider(e: CustomEvent<DndEvent<DashboardGridItem>>) {
     items = e.detail.items;
     isDragging = true;
   }
 
-  function handleDndFinalize(e: CustomEvent<DndEvent<GridItem>>) {
+  function handleDndFinalize(e: CustomEvent<DndEvent<DashboardGridItem>>) {
     items = e.detail.items;
     isDragging = false;
     
     // Only save global layout if we are on Home tab (MVP limitation)
     if ($activeTabId === 'home') {
-      const newOrder = items.map(i => i.entity_id);
+      const newOrder = items.map(i => i.id);
       saveLayout(newOrder);
     }
   }
@@ -38,10 +38,9 @@
   {#if items.length === 0}
     <div class="empty-state">
       {#if $activeTabId === 'home'}
-        No dashboard devices found. Add lights, switches, or media players to Home Assistant.
+        No dashboard devices found.
       {:else}
-        No devices found for "{$activeTabId.replace('_', ' ')}". <br>
-        <small>Rename devices in Home Assistant to include the room name.</small>
+        No devices found for "{$activeTabId.replace('_', ' ')}".
       {/if}
     </div>
   {:else}
@@ -58,7 +57,6 @@
     >
       {#each items as item (item.id)}
         <div class="grid-item">
-          <!-- Lazy render card contents if needed, but for now standard render is fast enough -->
           <DeviceCard entity={item} />
         </div>
       {/each}
