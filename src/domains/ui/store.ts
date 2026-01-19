@@ -1,9 +1,9 @@
 import { browser } from '$app/environment';
 import { writable } from 'svelte/store';
 
-export const infoPanelWidth = writable<number>(320);
+export const sidebarWidth = writable<number>(280);
 
-const STORAGE_KEY = 'evolusion.infoPanel.width';
+const STORAGE_KEY = 'evolusion.sidebar.width';
 
 export function loadUIState(): void {
   if (!browser) return;
@@ -11,9 +11,9 @@ export function loadUIState(): void {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
       const w = parseInt(stored, 10);
-      // Valid range check matching InfoPanel constraints
-      if (!isNaN(w) && w >= 280 && w <= 500) {
-        infoPanelWidth.set(w);
+      // Valid range check: min 200, max 500
+      if (!isNaN(w) && w >= 200 && w <= 500) {
+        sidebarWidth.set(w);
       }
     }
   } catch (e) {
@@ -25,7 +25,7 @@ export function saveUIState(width: number): void {
   if (!browser) return;
   try {
     localStorage.setItem(STORAGE_KEY, width.toString());
-    infoPanelWidth.set(width);
+    sidebarWidth.set(width);
   } catch (e) {
     console.error('Failed to save UI state', e);
   }

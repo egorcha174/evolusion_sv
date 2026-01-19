@@ -1,23 +1,79 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
   import { haStore } from '../ha/store';
+  import { sidebarWidth, loadUIState, saveUIState } from './store';
   
   let timeStr = $state(new Date().toLocaleTimeString('ru-RU', { 
         hour: '2-digit', 
         minute: '2-digit'
   }));
 
-  $effect(() => {
+  // Resizing state
+  let width = $state(280);
+  let isResizing = $state(false);
+
+  onMount(() => {
+    loadUIState();
+    
+    // Subscribe to store updates
+    const unsub = sidebarWidth.subscribe(w => width = w);
+
     const interval = setInterval(() => {
       timeStr = new Date().toLocaleTimeString('ru-RU', { 
         hour: '2-digit', 
         minute: '2-digit'
       });
     }, 1000);
-    return () => clearInterval(interval);
+    
+    return () => {
+      clearInterval(interval);
+      unsub();
+    };
   });
+
+  function startResize(e: MouseEvent) {
+    e.preventDefault();
+    isResizing = true;
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', stopResize);
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none'; // Prevent selection while dragging
+  }
+
+  function handleMouseMove(e: MouseEvent) {
+    if (!isResizing) return;
+    
+    let newWidth = e.clientX;
+    
+    // Constraints
+    if (newWidth < 240) newWidth = 240;
+    if (newWidth > 480) newWidth = 480;
+    
+    width = newWidth;
+    // We update local state immediately for smooth animation, 
+    // but save to store/persistence only on stop to avoid hammering localStorage
+  }
+
+  function stopResize() {
+    if (isResizing) {
+      isResizing = false;
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', stopResize);
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+      saveUIState(width);
+    }
+  }
 </script>
 
-<div class="sidebar">
+<aside class="sidebar" style="width: {width}px">
+  <!-- Resize Handle -->
+  <!-- svelte-ignore a11y_no_static_element_interactions -->
+  <div 
+    class="resize-handle" 
+    onmousedown={startResize}
+  ></div>
+
   <!-- Widget: Clock -->
   <div class="widget clock-widget">
     <div class="time">{timeStr}</div>
@@ -70,12 +126,11 @@
        {/if}
     </div>
   </div>
-</div>
+</aside>
 
 <style>
   .sidebar {
     position: relative;
-    width: 280px; /* Slightly wider for widgets */
     height: 100%;
     background: var(--bg-sidebar);
     border-right: 1px solid var(--border-primary);
@@ -88,6 +143,23 @@
     color: var(--text-secondary);
     box-shadow: 2px 0 10px rgba(0,0,0,0.02);
     flex-shrink: 0;
+    transition: width 0.05s linear; /* Fast response */
+    overflow-x: hidden;
+  }
+
+  .resize-handle {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 6px;
+    height: 100%;
+    cursor: col-resize;
+    z-index: 60;
+    transition: background 0.2s;
+  }
+  
+  .resize-handle:hover, .sidebar:hover .resize-handle {
+    background: rgba(128, 128, 128, 0.1);
   }
 
   /* Widgets General */
@@ -110,6 +182,7 @@
     color: var(--text-primary);
     font-variant-numeric: tabular-nums;
     margin-bottom: 0.25rem;
+    white-space: nowrap;
   }
 
   .date {
@@ -118,6 +191,7 @@
     text-transform: uppercase;
     letter-spacing: 1px;
     font-weight: 500;
+    white-space: nowrap;
   }
 
   /* Weather */
@@ -153,6 +227,7 @@
     font-size: 0.85rem;
     color: var(--text-muted);
     text-transform: capitalize;
+    white-space: nowrap;
   }
 
   /* Camera */
@@ -201,14 +276,16 @@
     justify-content: center;
     gap: 10px;
     padding: 0.5rem;
-    background: var(--bg-card); /* Subtle card bg for status */
+    background: var(--bg-card);
     border-radius: 8px;
+    white-space: nowrap;
   }
 
   .status-dot {
     width: 8px;
     height: 8px;
     border-radius: 50%;
+    flex-shrink: 0;
   }
 
   .status-dot.connected {
