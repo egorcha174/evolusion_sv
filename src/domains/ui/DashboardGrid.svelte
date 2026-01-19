@@ -3,6 +3,7 @@
   import { dndzone, type DndEvent } from 'svelte-dnd-action';
   import { entityList } from '../ha/store';
   import { layoutConfig, saveLayout } from '../app/store';
+  import { activeTabId } from '../app/tabsStore';
   import DeviceCard from './DeviceCard.svelte';
   import { extractDomain } from '$lib/utils';
   
@@ -13,33 +14,50 @@
   let isDragging = $state(false);
   const flipDurationMs = 200;
   
-  // Sync entities with layout order
+  // Sync entities with layout order and active tab
   $effect(() => {
     // Prevent re-shuffling while user is dragging
     if (isDragging) return;
 
     const allEntities = $entityList;
     const order = $layoutConfig.cardOrder;
+    const currentTab = $activeTabId;
     
-    // Filter for dashboard-relevant entities
-    const relevant = allEntities.filter(entity => {
+    // 1. Filter for dashboard-relevant entities
+    let relevant = allEntities.filter(entity => {
       const domain = extractDomain(entity.entity_id);
-      return ['light', 'switch', 'climate', 'media_player', 'cover', 'lock', 'script'].includes(domain);
+      return ['light', 'switch', 'climate', 'media_player', 'cover', 'lock', 'script', 'input_boolean'].includes(domain);
     });
+
+    // 2. Filter by Active Tab (Fake Room Logic for MVP)
+    // If tab is 'home', show everything.
+    // If tab is 'living_room', show entities with 'living' in ID or Name.
+    if (currentTab !== 'home') {
+      const searchTerms = currentTab.split('_'); // e.g. "living_room" -> ["living", "room"]
+      
+      relevant = relevant.filter(e => {
+        const name = (e.attributes.friendly_name || '').toLowerCase();
+        const id = e.entity_id.toLowerCase();
+        // Check if any part of the tab ID is present in entity
+        return searchTerms.some(term => name.includes(term) || id.includes(term));
+      });
+    }
 
     let sorted: GridItem[] = [];
 
-    if (order.length > 0) {
-      // 1. Map existing order to entities
+    // 3. Apply Sort Order (Only for Home tab currently, as layoutConfig is global in MVP)
+    if (currentTab === 'home' && order.length > 0) {
+      // Map existing order to entities
       const orderedItems = order
         .map(id => relevant.find(e => e.entity_id === id))
         .filter(e => e !== undefined);
       
-      // 2. Append new entities that are not yet in the order
+      // Append new entities that are not yet in the order
       const newItems = relevant.filter(e => !order.includes(e.entity_id));
       
       sorted = [...orderedItems, ...newItems] as GridItem[];
     } else {
+      // For specific rooms, just default sort for now
       sorted = relevant as GridItem[];
     }
 
@@ -56,16 +74,23 @@
     items = e.detail.items;
     isDragging = false;
     
-    // Save new order
-    const newOrder = items.map(i => i.entity_id);
-    saveLayout(newOrder);
+    // Only save global layout if we are on Home tab (MVP limitation)
+    if ($activeTabId === 'home') {
+      const newOrder = items.map(i => i.entity_id);
+      saveLayout(newOrder);
+    }
   }
 </script>
 
 <div class="dashboard-grid">
   {#if items.length === 0}
     <div class="empty-state">
-      No dashboard devices found. Add lights, switches, or media players to Home Assistant.
+      {#if $activeTabId === 'home'}
+        No dashboard devices found. Add lights, switches, or media players to Home Assistant.
+      {:else}
+        No devices found for "{$activeTabId.replace('_', ' ')}". <br>
+        <small>Rename devices in Home Assistant to include the room name.</small>
+      {/if}
     </div>
   {:else}
     <div 
@@ -73,7 +98,8 @@
       use:dndzone={{
         items, 
         flipDurationMs,
-        dropTargetStyle: { outline: '2px dashed #2196f3', outlineOffset: '-2px', borderRadius: '12px' } 
+        dropTargetStyle: { outline: '2px dashed var(--accent-primary)', outlineOffset: '-2px', borderRadius: '12px' },
+        dragDisabled: $activeTabId !== 'home' /* Disable drag on filtered tabs for now */
       }}
       onconsider={handleDndConsider}
       onfinalize={handleDndFinalize}
@@ -114,10 +140,10 @@
   .empty-state {
     text-align: center;
     padding: 3rem;
-    background: #fff;
+    background: var(--bg-card);
     border-radius: 8px;
-    color: #757575;
-    border: 1px dashed #ccc;
+    color: var(--text-muted);
+    border: 1px dashed var(--border-primary);
   }
   
   @media (max-width: 600px) {
