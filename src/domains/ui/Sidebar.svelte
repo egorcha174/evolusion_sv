@@ -46,15 +46,17 @@
   </div>
 
   <div class="status-info">
-    <div class="status-item">
-      <span class="label">Status:</span>
-      <span class="value">
-        {#if $haStore.isConnected}
-          <span style="color: var(--accent-success)">●</span> Connected
-        {:else}
-          <span style="color: var(--accent-error)">●</span> Offline
-        {/if}
-      </span>
+    <div class="status-row">
+       {#if $haStore.isConnected}
+          <div class="status-dot connected"></div>
+          <span class="status-text">Connected</span>
+       {:else if $haStore.isLoading}
+          <div class="status-dot loading"></div>
+          <span class="status-text">Connecting...</span>
+       {:else}
+          <div class="status-dot disconnected"></div>
+          <span class="status-text">Offline</span>
+       {/if}
     </div>
   </div>
 </div>
@@ -151,17 +153,42 @@
     padding-top: 1rem;
   }
 
-  .status-item {
+  .status-row {
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    gap: 10px;
+    padding: 0 0.5rem;
   }
 
-  .value {
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+  }
+
+  .status-dot.connected {
+    background-color: var(--accent-success);
+    animation: blink 2s infinite ease-in-out;
+  }
+
+  .status-dot.loading {
+    background-color: var(--accent-warning);
+    animation: blink 0.5s infinite ease-in-out;
+  }
+
+  .status-dot.disconnected {
+    background-color: var(--accent-error);
+  }
+
+  .status-text {
+    font-weight: 500;
     color: var(--text-primary);
-    display: flex;
-    align-items: center;
-    gap: 6px;
+  }
+
+  @keyframes blink {
+    0% { opacity: 1; }
+    50% { opacity: 0.4; }
+    100% { opacity: 1; }
   }
 
   @media (max-width: 768px) {

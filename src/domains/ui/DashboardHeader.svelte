@@ -2,7 +2,6 @@
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
   import { tabs, activeTabId, isEditMode, setActiveTab, toggleEditMode } from '../app/tabsStore';
-  import { haStore } from '../ha/store';
   import 'iconify-icon';
 
   let isMobileMenuOpen = $state(false);
@@ -48,7 +47,6 @@
     
     <div class="logo">
       <iconify-icon icon="mdi:home-assistant" width="24" class="logo-icon"></iconify-icon>
-      <span class="logo-text">Evolusion</span>
     </div>
 
     <nav class="desktop-tabs">
@@ -74,19 +72,6 @@
   </div>
 
   <div class="header-right">
-    <div class="status">
-      <span class="indicator" class:connected={$haStore.isConnected}></span>
-      <span class="status-text">
-        {#if $haStore.isConnected}
-          Connected
-        {:else if $haStore.isLoading}
-          Connecting...
-        {:else}
-          Disconnected
-        {/if}
-      </span>
-    </div>
-
     <div class="menu-container">
       <button class="icon-btn" onclick={toggleKebabMenu}>
         <iconify-icon icon="mdi:dots-vertical" width="24"></iconify-icon>
@@ -247,28 +232,6 @@
     height: 1px;
     background: var(--border-divider);
     margin: 0.25rem 0;
-  }
-  
-  .status {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    font-size: 0.9rem;
-    color: var(--text-secondary);
-    background: var(--bg-chip);
-    padding: 0.4rem 0.8rem;
-    border-radius: 20px;
-  }
-  
-  .indicator {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--state-off);
-  }
-  
-  .indicator.connected {
-    background: var(--accent-success);
   }
 
   .mobile-only { display: none; }
