@@ -1,16 +1,25 @@
 <script lang="ts">
   import type { HAEntity } from '$lib/types';
   import { extractDomain, isToggleable as checkToggleable } from '$lib/utils';
+  import { toggleEntity } from '../ha/store';
   
   let { entity }: { entity: HAEntity } = $props();
   
   let isToggling = $state(false);
+  let error = $state<string | null>(null);
   
-  async function toggleEntity() {
-    isToggling = true;
-    console.log('Toggle entity:', entity.entity_id, 'current state:', entity.state);
-    // TODO: Implement actual service call in E1-05
-    setTimeout(() => { isToggling = false; }, 500);
+  async function handleToggle() {
+    try {
+      isToggling = true;
+      error = null;
+      await toggleEntity(entity.entity_id);
+      // Success! Entity updates via WebSocket subscription automatically
+    } catch (err: any) {
+      console.error('Toggle error:', err);
+      error = err.message || 'Toggle failed';
+    } finally {
+      isToggling = false;
+    }
   }
   
   let domain = $derived(extractDomain(entity.entity_id));
@@ -22,6 +31,9 @@
   <div class="entity-info">
     <div class="entity-name">{displayName}</div>
     <div class="entity-id">{entity.entity_id}</div>
+    {#if error}
+      <div class="error-text">{error}</div>
+    {/if}
   </div>
   
   <div class="entity-state">
@@ -30,7 +42,7 @@
   
   {#if isToggleable}
     <button 
-      onclick={toggleEntity} 
+      onclick={handleToggle} 
       disabled={isToggling}
       class="action-button"
     >
@@ -53,8 +65,11 @@
   .entity-row[data-domain="light"] { border-left: 4px solid #ffc107; }
   .entity-row[data-domain="switch"] { border-left: 4px solid #2196f3; }
   .entity-row[data-domain="sensor"] { border-left: 4px solid #4caf50; }
+  .entity-row[data-domain="binary_sensor"] { border-left: 4px solid #8bc34a; }
   .entity-row[data-domain="climate"] { border-left: 4px solid #ff9800; }
   .entity-row[data-domain="cover"] { border-left: 4px solid #9c27b0; }
+  .entity-row[data-domain="media_player"] { border-left: 4px solid #3f51b5; }
+  .entity-row[data-domain="lock"] { border-left: 4px solid #e91e63; }
   
   .entity-info {
     flex: 1;
@@ -75,6 +90,12 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+
+  .error-text {
+    font-size: 0.75rem;
+    color: #d32f2f;
+    margin-top: 0.25rem;
   }
   
   .entity-state {
@@ -105,7 +126,7 @@
   }
   
   .action-button:disabled {
-    opacity: 0.5;
+    opacity: 0.6;
     cursor: not-allowed;
   }
 </style>
