@@ -47,12 +47,6 @@
         {Math.round((entity.attributes.brightness / 255) * 100)}%
       </div>
     {/if}
-    
-    {#if entity.attributes.temperature !== undefined}
-      <div class="attribute">
-        {entity.attributes.temperature}°
-      </div>
-    {/if}
   </div>
   
   <div class="card-footer">
@@ -75,15 +69,15 @@
 
 <style>
   .card {
-    background: var(--bg-card, white);
+    background: var(--bg-card);
     border-radius: 16px;
-    box-shadow: var(--shadow-card, 0 2px 8px rgba(0, 0, 0, 0.04));
+    box-shadow: var(--shadow-card);
     padding: 1rem;
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
     transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
-    border: 1px solid var(--border, rgba(0,0,0,0.05));
+    border: 1px solid var(--border-card);
     height: 100%;
     position: relative;
     overflow: hidden;
@@ -91,18 +85,12 @@
   
   .card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08); /* Could var this too */
+    background: var(--bg-card-hover);
   }
   
-  /* Domain specific styling */
-  .card[data-domain="light"][data-state="on"] {
-    border-color: var(--warning, #ffd700);
-    box-shadow: 0 4px 12px rgba(255, 215, 0, 0.15);
-  }
-  
-  .card[data-domain="switch"][data-state="on"] {
-    border-color: var(--success, #4caf50);
-    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.15);
+  /* Active Border Highlight */
+  .card[data-state="on"] {
+    border-color: var(--state-on);
   }
 
   .card-header {
@@ -117,25 +105,15 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--text-secondary, #555);
-    background: var(--bg-page, #f5f5f5); /* Use page bg for neutral icon bg */
+    color: var(--text-secondary);
+    background: var(--bg-page); 
     border-radius: 50%;
     transition: all 0.3s;
   }
 
   .card[data-state="on"] .icon {
-    background: rgba(33, 150, 243, 0.1);
-    color: var(--primary, #2196f3);
-  }
-
-  .card[data-domain="light"][data-state="on"] .icon {
-    background: rgba(255, 193, 7, 0.1);
-    color: var(--warning, #ffc107);
-  }
-
-  .card[data-domain="switch"][data-state="on"] .icon {
-    background: rgba(76, 175, 80, 0.1);
-    color: var(--success, #4caf50);
+    background: var(--state-on); /* Or a lighter opacity version if supported */
+    color: var(--text-on-accent);
   }
   
   .name {
@@ -144,7 +122,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    color: var(--text-primary, #333);
+    color: var(--text-name);
     flex: 1;
   }
   
@@ -164,13 +142,13 @@
     font-size: 0.85rem;
     font-weight: 500;
     text-transform: capitalize;
-    color: var(--text-secondary, #777);
+    color: var(--text-status);
   }
   
   .attribute {
     font-size: 0.8rem;
-    color: var(--text-secondary, #888);
-    background: var(--bg-page, #f0f0f0);
+    color: var(--text-muted);
+    background: var(--bg-chip);
     padding: 2px 6px;
     border-radius: 4px;
   }
@@ -186,8 +164,8 @@
     padding: 0.6rem;
     border: none;
     border-radius: 10px;
-    background: var(--bg-page, #f0f0f0);
-    color: var(--text-secondary, #444);
+    background: var(--bg-chip);
+    color: var(--text-secondary);
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -197,16 +175,16 @@
   }
   
   .toggle-btn:hover:not(:disabled) {
-    opacity: 0.8;
+    background: var(--bg-chip-active);
   }
   
   .toggle-btn.on {
-    background: var(--primary, #2196f3);
-    color: var(--text-inverted, white);
+    background: var(--widget-switch-on);
+    color: var(--text-on-accent);
   }
   
   .error {
-    color: var(--error, #d32f2f);
+    color: var(--accent-error);
     font-size: 0.75rem;
     margin-top: 0.25rem;
   }

@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { appState, saveServerConfig } from '../../domains/app/store';
 	import { themeSettings } from '../../domains/ui/theme/store';
+  import { BUILTIN_THEMES } from '../../domains/ui/theme/defaults';
 	import type { ServerConfig } from '$lib/types';
 
 	let url = $state('');
@@ -8,7 +9,6 @@
 	let message = $state('');
 	let messageType = $state<'info' | 'error' | 'success'>('info');
 
-	// Initialize form from store if available
 	$effect(() => {
 		if ($appState.activeServer && url === '' && token === '') {
 			url = $appState.activeServer.url;
@@ -68,6 +68,15 @@
 	  });
 	}
 
+  function handleThemeChange(e: Event) {
+    const activeThemeId = (e.target as HTMLSelectElement).value;
+    themeSettings.update(s => {
+      const next = { ...s, activeThemeId };
+      themeSettings.save(next);
+      return next;
+    });
+  }
+
 	function handleScheduleChange(field: 'darkStart' | 'darkEnd', value: string) {
 	   themeSettings.update(s => {
 	    const next = { ...s, schedule: { ...s.schedule, [field]: value } };
@@ -84,12 +93,21 @@
   <section class="settings-section">
     <h2>Appearance</h2>
     <div class="form-group">
-      <label for="theme-mode">Theme Mode</label>
+      <label for="theme-mode">Mode</label>
       <select id="theme-mode" value={$themeSettings.mode} onchange={handleThemeModeChange}>
         <option value="auto">Auto (System)</option>
         <option value="day">Day (Always Light)</option>
         <option value="night">Night (Always Dark)</option>
         <option value="schedule">Schedule</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="theme-select">Theme</label>
+      <select id="theme-select" value={$themeSettings.activeThemeId} onchange={handleThemeChange}>
+        {#each BUILTIN_THEMES as theme}
+          <option value={theme.id}>{theme.name}</option>
+        {/each}
       </select>
     </div>
 
@@ -169,7 +187,7 @@
   .settings-section {
     margin-bottom: 3rem;
     padding-bottom: 2rem;
-    border-bottom: 1px solid var(--border, #eee);
+    border-bottom: 1px solid var(--border-divider);
   }
   
   .settings-section:last-child {
@@ -178,18 +196,18 @@
 
 	h1 {
 		margin-bottom: 2rem;
-    color: var(--text-primary, #333);
+    color: var(--text-primary);
 	}
   
   h2 {
     font-size: 1.25rem;
     margin-bottom: 1rem;
-    color: var(--text-primary, #333);
+    color: var(--text-primary);
   }
 
 	.description {
 		margin-bottom: 2rem;
-		color: var(--text-secondary, #666);
+		color: var(--text-secondary);
 	}
 
 	.form-group {
@@ -200,18 +218,18 @@
 		display: block;
 		margin-bottom: 0.5rem;
 		font-weight: 500;
-    color: var(--text-primary, #333);
+    color: var(--text-primary);
 	}
 
 	input, select {
 		width: 100%;
 		padding: 0.75rem;
-		border: 1px solid var(--border, #ccc);
+		border: 1px solid var(--border-input);
 		border-radius: 4px;
 		font-size: 1rem;
 		box-sizing: border-box;
-    background: var(--bg-input, white);
-    color: var(--text-primary, #333);
+    background: var(--bg-input);
+    color: var(--text-primary);
 	}
 
   .schedule-inputs {
@@ -223,7 +241,7 @@
 		display: block;
 		margin-top: 0.25rem;
 		font-size: 0.85rem;
-		color: var(--text-secondary, #888);
+		color: var(--text-muted);
 	}
 
 	.actions {
@@ -241,14 +259,14 @@
 	}
 
 	.btn-primary {
-		background-color: var(--primary, #03a9f4);
-		color: var(--text-inverted, white);
+		background-color: var(--accent-primary);
+		color: var(--text-on-accent);
 	}
 
 	.btn-secondary {
-		background-color: var(--bg-input, #e0e0e0);
-		color: var(--text-primary, #333);
-    border: 1px solid var(--border, #ccc);
+		background-color: var(--bg-chip);
+		color: var(--text-primary);
+    border: 1px solid var(--border-input);
 	}
 
 	.message {
@@ -257,7 +275,7 @@
 		border-radius: 4px;
 	}
 
-	.message.info { background-color: rgba(33, 150, 243, 0.1); color: var(--primary, #0d47a1); }
-	.message.success { background-color: rgba(76, 175, 80, 0.1); color: var(--success, #1b5e20); }
-	.message.error { background-color: rgba(244, 67, 54, 0.1); color: var(--error, #b71c1c); }
+	.message.info { background-color: var(--bg-chip); color: var(--accent-info); }
+	.message.success { background-color: var(--bg-chip-active); color: var(--accent-success); }
+	.message.error { background-color: var(--bg-chip); color: var(--accent-error); }
 </style>

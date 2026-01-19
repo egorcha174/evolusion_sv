@@ -1,13 +1,11 @@
 <script lang="ts">
   import { haStore } from '../ha/store';
   
-  // Helper to format time safely
   let timeStr = $state(new Date().toLocaleTimeString('ru-RU', { 
         hour: '2-digit', 
         minute: '2-digit'
   }));
 
-  // Update time every minute
   $effect(() => {
     const interval = setInterval(() => {
       timeStr = new Date().toLocaleTimeString('ru-RU', { 
@@ -36,7 +34,7 @@
   </div>
 
   <div class="quick-links">
-    <a href="/" class="link">
+    <a href="/" class="link active">
       <iconify-icon icon="mdi:view-dashboard"></iconify-icon> Dashboard
     </a>
     <a href="/entities" class="link">
@@ -52,9 +50,9 @@
       <span class="label">Status:</span>
       <span class="value">
         {#if $haStore.isConnected}
-          <span style="color: #4caf50">●</span> Connected
+          <span style="color: var(--accent-success)">●</span> Connected
         {:else}
-          <span style="color: #f44336">●</span> Offline
+          <span style="color: var(--accent-error)">●</span> Offline
         {/if}
       </span>
     </div>
@@ -68,21 +66,25 @@
     top: 0;
     width: 260px;
     height: 100vh;
-    background: #1e1e1e;
-    border-right: 1px solid #333;
+    background: var(--bg-sidebar);
+    border-right: 1px solid var(--border-primary);
     padding: 1.5rem 1rem;
     display: flex;
     flex-direction: column;
     gap: 2rem;
     overflow-y: auto;
     z-index: 100;
-    color: #fff;
-    box-shadow: 2px 0 10px rgba(0,0,0,0.2);
+    color: var(--text-secondary); /* Sidebar usually dark or distinctive */
+    box-shadow: 2px 0 10px rgba(0,0,0,0.1);
   }
+
+  /* Specific override if sidebar needs light text on dark bg regardless of theme? 
+     No, use palette values. Themes will handle contrast.
+  */
 
   .weather-section {
     text-align: center;
-    border-bottom: 1px solid #333;
+    border-bottom: 1px solid var(--border-divider);
     padding-bottom: 1.5rem;
     margin-bottom: 1rem;
   }
@@ -91,25 +93,18 @@
     font-size: 2.5rem;
     font-weight: 300;
     margin-bottom: 0.5rem;
-    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-    color: #fff;
-  }
-
-  .weather-main {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
+    color: var(--text-primary);
   }
 
   .temp {
     font-size: 1.5rem;
     font-weight: 600;
-    color: #aaa;
+    color: var(--text-muted);
   }
 
   .condition {
     font-size: 0.85rem;
-    color: #777;
+    color: var(--text-muted);
     text-transform: uppercase;
     letter-spacing: 1px;
   }
@@ -124,11 +119,10 @@
     padding: 0.85rem 1rem;
     background: transparent;
     border-radius: 8px;
-    color: #ccc;
+    color: var(--text-secondary);
     cursor: pointer;
     font-size: 0.95rem;
     transition: all 0.2s;
-    text-decoration: none;
     display: flex;
     align-items: center;
     gap: 12px;
@@ -136,12 +130,14 @@
   }
 
   .link:hover {
-    background: #2d2d2d;
-    color: #fff;
+    background: var(--bg-sidebar-active-item);
+    color: var(--text-primary);
   }
-
-  .link :global(iconify-icon) {
-    font-size: 1.2rem;
+  
+  /* Example active state */
+  .link.active {
+    color: var(--accent-primary);
+    background: var(--bg-sidebar-active-item);
   }
 
   .status-info {
@@ -150,8 +146,8 @@
     flex-direction: column;
     gap: 0.5rem;
     font-size: 0.85rem;
-    color: #aaa;
-    border-top: 1px solid #333;
+    color: var(--text-muted);
+    border-top: 1px solid var(--border-divider);
     padding-top: 1rem;
   }
 
@@ -161,25 +157,14 @@
     align-items: center;
   }
 
-  .label {
-    font-weight: 600;
-  }
-
   .value {
-    color: #fff;
+    color: var(--text-primary);
     display: flex;
     align-items: center;
     gap: 6px;
   }
 
   @media (max-width: 768px) {
-    .sidebar {
-      width: 0;
-      padding: 0;
-      overflow: hidden;
-      /* For MVP, simply hide sidebar on mobile or require a hamburger menu later */
-      /* Transforming it to a bottom bar or similar would be better, but keeping simple for now */
-      display: none; 
-    }
+    .sidebar { display: none; }
   }
 </style>

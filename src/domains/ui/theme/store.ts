@@ -1,8 +1,8 @@
 import { writable, derived, get } from 'svelte/store';
 import { browser } from '$app/environment';
-import type { ThemeSettings, ThemeDefinition } from '$lib/types';
+import type { ThemeSettings, ThemeDefinition, ThemePalette, ColorScheme } from '$lib/types';
 import { DEFAULT_THEME, BUILTIN_THEMES } from './defaults';
-import { generateCssVariables } from './utils';
+import { generateThemeCss } from './utils';
 
 const STORAGE_KEY = 'evolusion_theme_settings';
 
@@ -12,10 +12,11 @@ const DEFAULT_SETTINGS: ThemeSettings = {
   schedule: {
     darkStart: '22:00',
     darkEnd: '07:00'
-  }
+  },
+  customThemes: []
 };
 
-// 1. Settings Store
+// --- Settings Store ---
 function createSettingsStore() {
   const { subscribe, set, update } = writable<ThemeSettings>(DEFAULT_SETTINGS);
 
@@ -29,7 +30,8 @@ function createSettingsStore() {
         const stored = localStorage.getItem(STORAGE_KEY);
         if (stored) {
           const parsed = JSON.parse(stored);
-          set({ ...DEFAULT_SETTINGS, ...parsed }); // Merge to ensure new fields exist
+          // Merge to ensure new properties exist if schema changed
+          set({ ...DEFAULT_SETTINGS, ...parsed });
         }
       } catch (e) {
         console.error('Failed to load theme settings', e);
@@ -45,66 +47,71 @@ function createSettingsStore() {
 
 export const themeSettings = createSettingsStore();
 
-// 2. System State (Media Query & Time)
+// --- Environment Stores ---
 export const systemPrefersDark = writable<boolean>(false);
-export const isScheduleDark = writable<boolean>(false);
+export const timeOfDayMinutes = writable<number>(0);
 
 if (browser) {
-  // Setup Media Query Listener
+  // 1. System Preference
   const mq = window.matchMedia('(prefers-color-scheme: dark)');
   systemPrefersDark.set(mq.matches);
   mq.addEventListener('change', (e) => systemPrefersDark.set(e.matches));
 
-  // Setup Schedule Timer
-  const checkSchedule = () => {
-    const settings = get(themeSettings);
-    if (settings.mode !== 'schedule') return;
-
+  // 2. Time Tracker (for Schedule)
+  const updateTime = () => {
     const now = new Date();
-    const current = now.getHours() * 60 + now.getMinutes();
-    
-    const [startH, startM] = settings.schedule.darkStart.split(':').map(Number);
-    const [endH, endM] = settings.schedule.darkEnd.split(':').map(Number);
-    const start = startH * 60 + startM;
-    const end = endH * 60 + endM;
-
-    // Handle cross-midnight intervals (e.g. 22:00 to 07:00)
-    let isDark = false;
-    if (start < end) {
-      isDark = current >= start && current < end;
-    } else {
-      isDark = current >= start || current < end;
-    }
-    isScheduleDark.set(isDark);
+    timeOfDayMinutes.set(now.getHours() * 60 + now.getMinutes());
   };
-
-  // Check every minute
-  setInterval(checkSchedule, 60000);
-  // Also check immediately when settings change (handled in derived store somewhat, but timer triggers updates)
-  themeSettings.subscribe(() => checkSchedule());
+  updateTime();
+  setInterval(updateTime, 60000); // Check every minute
 }
 
-// 3. Derived Effective Mode (Is Dark?)
-export const isDarkMode = derived(
-  [themeSettings, systemPrefersDark, isScheduleDark],
-  ([$settings, $systemDark, $scheduleDark]) => {
-    switch ($settings.mode) {
-      case 'day': return false;
-      case 'night': return true;
-      case 'auto': return $systemDark;
-      case 'schedule': return $scheduleDark;
-      default: return false;
-    }
-  }
-);
+// --- Derived State ---
+export const themeState = derived(
+  [themeSettings, systemPrefersDark, timeOfDayMinutes],
+  ([$settings, $systemDark, $minutes]) => {
+    
+    // 1. Determine Scheme
+    let scheme: ColorScheme = 'light';
 
-// 4. Derived CSS Variables
-export const cssVariables = derived(
-  [themeSettings, isDarkMode],
-  ([$settings, $isDark]) => {
-    // Find active theme (builtin or custom - currently only builtin supported in MVP logic)
-    const theme = BUILTIN_THEMES.find(t => t.id === $settings.activeThemeId) || DEFAULT_THEME;
-    const palette = $isDark ? theme.dark : theme.light;
-    return generateCssVariables(palette);
+    if ($settings.mode === 'day') {
+      scheme = 'light';
+    } else if ($settings.mode === 'night') {
+      scheme = 'dark';
+    } else if ($settings.mode === 'auto') {
+      scheme = $systemDark ? 'dark' : 'light';
+    } else if ($settings.mode === 'schedule') {
+      const [sH, sM] = $settings.schedule.darkStart.split(':').map(Number);
+      const [eH, eM] = $settings.schedule.darkEnd.split(':').map(Number);
+      const start = sH * 60 + sM;
+      const end = eH * 60 + eM;
+      
+      let isDarkTime = false;
+      if (start < end) {
+        // Simple interval (e.g. 10:00 to 20:00)
+        isDarkTime = $minutes >= start && $minutes < end;
+      } else {
+        // Cross midnight (e.g. 22:00 to 07:00)
+        isDarkTime = $minutes >= start || $minutes < end;
+      }
+      scheme = isDarkTime ? 'dark' : 'light';
+    }
+
+    // 2. Find Active Theme
+    const allThemes = [...BUILTIN_THEMES, ...$settings.customThemes];
+    const activeTheme = allThemes.find(t => t.id === $settings.activeThemeId) || DEFAULT_THEME;
+
+    // 3. Select Palette
+    const palette: ThemePalette = scheme === 'dark' ? activeTheme.dark : activeTheme.light;
+
+    // 4. Generate CSS
+    const css = generateThemeCss(palette);
+
+    return {
+      scheme,
+      activeTheme,
+      palette,
+      css
+    };
   }
 );
