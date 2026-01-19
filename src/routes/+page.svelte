@@ -4,25 +4,23 @@
 </script>
 
 <div class="dashboard-page">
-  <div class="page-header">
-    <h1>Dashboard</h1>
-  </div>
-  
   {#if $haStore.isLoading}
-    <div class="state-container">
+    <div class="status-message">
       <div class="spinner"></div>
       <p>Connecting to Home Assistant...</p>
     </div>
   {:else if $haStore.error}
-    <div class="state-container error">
+    <div class="status-message error">
+      <iconify-icon icon="mdi:alert-circle" width="48"></iconify-icon>
       <h3>Connection Error</h3>
       <p>{$haStore.error}</p>
       <a href="/settings" class="btn">Check Settings</a>
     </div>
   {:else if !$haStore.isConnected}
-    <div class="state-container">
+    <div class="status-message warning">
+      <iconify-icon icon="mdi:lan-disconnect" width="48"></iconify-icon>
       <h3>Not Connected</h3>
-      <p>Please configure your server connection.</p>
+      <p>Please configure your server connection in Settings.</p>
       <a href="/settings" class="btn">Go to Settings</a>
     </div>
   {:else}
@@ -32,48 +30,52 @@
 
 <style>
   .dashboard-page {
-    padding: 1rem;
-    max-width: 1200px;
+    width: 100%;
+    max-width: 1400px;
     margin: 0 auto;
   }
-  
-  .page-header {
-    margin-bottom: 1.5rem;
-  }
 
-  h1 {
-    margin: 0;
-    font-size: 1.75rem;
-    color: #333;
-  }
-  
-  .state-container {
+  .status-message {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 3rem;
-    background: white;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    padding: 4rem 2rem;
     text-align: center;
-    min-height: 200px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+    margin-top: 2rem;
+    min-height: 300px;
+    color: #666;
+  }
+
+  .status-message.error {
+    color: #d32f2f;
+    background: #fffafa;
+    border: 1px solid #ffcdd2;
+  }
+
+  .status-message.warning {
+    color: #ed6c02;
+    background: #fff8e1;
+    border: 1px solid #ffecb3;
   }
   
-  .error {
-    background-color: #ffebee;
-    color: #c62828;
+  .status-message h3 {
+    margin: 1rem 0 0.5rem 0;
   }
-  
+
   .btn {
     display: inline-block;
-    margin-top: 1rem;
-    padding: 0.5rem 1rem;
+    margin-top: 1.5rem;
+    padding: 0.75rem 1.5rem;
     background-color: #2196f3;
     color: white;
     text-decoration: none;
-    border-radius: 4px;
-    font-weight: 500;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: background 0.2s;
   }
   
   .btn:hover {
@@ -83,8 +85,8 @@
   .spinner {
     width: 40px;
     height: 40px;
-    border: 4px solid #f3f3f3;
-    border-top: 4px solid #2196f3;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #2196f3;
     border-radius: 50%;
     animation: spin 1s linear infinite;
     margin-bottom: 1rem;

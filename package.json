@@ -22,6 +22,7 @@
     "vite": "^5.0.0"
   },
   "dependencies": {
-    "svelte-dnd-action": "^0.9.54"
+    "svelte-dnd-action": "^0.9.54",
+    "iconify-icon": "^1.0.8"
   }
 }
