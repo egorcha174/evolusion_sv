@@ -1,13 +1,16 @@
+
 <script lang="ts">
   import type { HAEntity } from '$lib/types';
   import { toggleEntity } from '../ha/store';
   import { extractDomain } from '$lib/utils';
   import { getIcon } from '$lib/icons';
+  import { lazyLoad } from '$lib/actions';
   
   let { entity }: { entity: HAEntity } = $props();
   
   let isToggling = $state(false);
   let error = $state<string | null>(null);
+  let isLoaded = $state(false); // Lazy load state
   
   async function handleToggle() {
     try {
@@ -21,6 +24,10 @@
     }
   }
   
+  function handleEnter() {
+    isLoaded = true;
+  }
+  
   let domain = $derived(extractDomain(entity.entity_id));
   let displayName = $derived(entity.attributes.friendly_name || entity.entity_id);
   let isOn = $derived(entity.state === 'on' || entity.state === 'open' || entity.state === 'unlocked');
@@ -29,41 +36,51 @@
   let icon = $derived(getIcon(domain));
 </script>
 
-<div class="card" data-domain={domain} data-state={isOn ? 'on' : 'off'}>
-  <div class="card-header">
-    <div class="icon">
-      <iconify-icon icon={icon} width="24" height="24"></iconify-icon>
-    </div>
-    <div class="name" title={displayName}>{displayName}</div>
-  </div>
-  
-  <div class="card-body">
-    <div class="state-display">
-      <span class="state-text">{entity.state}</span>
+<div 
+  class="card" 
+  data-domain={domain} 
+  data-state={isOn ? 'on' : 'off'}
+  use:lazyLoad
+  onenter={handleEnter}
+>
+  {#if !isLoaded}
+    <div class="skeleton"></div>
+  {:else}
+    <div class="card-header">
+      <div class="icon">
+        <iconify-icon icon={icon} width="24" height="24"></iconify-icon>
+      </div>
+      <div class="name" title={displayName}>{displayName}</div>
     </div>
     
-    {#if entity.attributes.brightness !== undefined}
-      <div class="attribute">
-        {Math.round((entity.attributes.brightness / 255) * 100)}%
+    <div class="card-body">
+      <div class="state-display">
+        <span class="state-text">{entity.state}</span>
       </div>
+      
+      {#if entity.attributes.brightness !== undefined}
+        <div class="attribute">
+          {Math.round((entity.attributes.brightness / 255) * 100)}%
+        </div>
+      {/if}
+    </div>
+    
+    <div class="card-footer">
+      {#if isToggleable}
+        <button 
+          onclick={handleToggle}
+          disabled={isToggling}
+          class="toggle-btn"
+          class:on={isOn}
+        >
+          {isToggling ? '...' : isOn ? 'Off' : 'On'}
+        </button>
+      {/if}
+    </div>
+    
+    {#if error}
+      <div class="error">{error}</div>
     {/if}
-  </div>
-  
-  <div class="card-footer">
-    {#if isToggleable}
-      <button 
-        onclick={handleToggle}
-        disabled={isToggling}
-        class="toggle-btn"
-        class:on={isOn}
-      >
-        {isToggling ? '...' : isOn ? 'Off' : 'On'}
-      </button>
-    {/if}
-  </div>
-  
-  {#if error}
-    <div class="error">{error}</div>
   {/if}
 </div>
 
@@ -79,6 +96,7 @@
     transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
     border: 1px solid var(--border-card);
     height: 100%;
+    min-height: 130px; /* Minimum height for skeleton */
     position: relative;
     overflow: hidden;
   }
@@ -187,5 +205,19 @@
     color: var(--accent-error);
     font-size: 0.75rem;
     margin-top: 0.25rem;
+  }
+
+  .skeleton {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, var(--bg-chip) 25%, var(--bg-page) 50%, var(--bg-chip) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 12px;
+  }
+
+  @keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
   }
 </style>
