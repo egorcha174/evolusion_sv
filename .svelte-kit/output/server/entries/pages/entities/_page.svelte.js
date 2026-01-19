@@ -1,4 +1,4 @@
-import { e as ensure_array_like, s as store_get, u as unsubscribe_stores } from "../../../chunks/index2.js";
+import { e as ensure_array_like, c as store_get, u as unsubscribe_stores } from "../../../chunks/index2.js";
 import { e as entityList, h as haStore } from "../../../chunks/store.js";
 import { a as attr } from "../../../chunks/attributes.js";
 import { e as escape_html } from "../../../chunks/escaping.js";

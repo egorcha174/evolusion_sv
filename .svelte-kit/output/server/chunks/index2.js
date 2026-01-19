@@ -751,9 +751,16 @@ function attributes(attrs, css_hash, classes, styles, flags = 0) {
   }
   return attr_str;
 }
+function stringify(value) {
+  return typeof value === "string" ? value : value == null ? "" : value + "";
+}
 function attr_class(value, hash, directives) {
   var result = to_class(value, hash, directives);
   return result ? ` class="${escape_html(result, true)}"` : "";
+}
+function attr_style(value, directives) {
+  var result = to_style(value, directives);
+  return result ? ` style="${escape_html(result, true)}"` : "";
 }
 function store_get(store_values, store_name, store) {
   if (store_name in store_values && store_values[store_name][0] === store) {
@@ -781,10 +788,12 @@ function ensure_array_like(array_like_or_iterator) {
   return [];
 }
 export {
-  attr_class as a,
+  attr_style as a,
+  attr_class as b,
+  store_get as c,
   ensure_array_like as e,
   is_passive_event as i,
   render as r,
-  store_get as s,
+  stringify as s,
   unsubscribe_stores as u
 };

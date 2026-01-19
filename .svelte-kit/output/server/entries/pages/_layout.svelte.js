@@ -1,32 +1,13 @@
 import "clsx";
 import { h as haStore } from "../../chunks/store.js";
-import { s as store_get, u as unsubscribe_stores, a as attr_class } from "../../chunks/index2.js";
+import { a as attr_style, s as stringify, b as attr_class, c as store_get, u as unsubscribe_stores } from "../../chunks/index2.js";
 import { e as escape_html } from "../../chunks/escaping.js";
 import "iconify-icon";
-function Sidebar($$renderer, $$props) {
+function InfoPanel($$renderer, $$props) {
   $$renderer.component(($$renderer2) => {
-    var $$store_subs;
-    let timeStr = /* @__PURE__ */ (/* @__PURE__ */ new Date()).toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
-    $$renderer2.push(`<div class="sidebar svelte-5d5q0c"><div class="weather-section svelte-5d5q0c"><div class="time svelte-5d5q0c">${escape_html(
-      timeStr
-    )}</div> <div class="weather-main svelte-5d5q0c"><div class="temp svelte-5d5q0c">`);
-    if (store_get($$store_subs ??= {}, "$haStore", haStore).entities.has("weather.home")) {
-      $$renderer2.push("<!--[-->");
-      $$renderer2.push(`${escape_html(store_get($$store_subs ??= {}, "$haStore", haStore).entities.get("weather.home")?.attributes.temperature ?? "--")}°`);
-    } else {
-      $$renderer2.push("<!--[!-->");
-      $$renderer2.push(`--°`);
-    }
-    $$renderer2.push(`<!--]--></div> <div class="condition svelte-5d5q0c">Home</div></div></div> <div class="quick-links svelte-5d5q0c"><a href="/" class="link svelte-5d5q0c"><iconify-icon icon="mdi:view-dashboard"></iconify-icon> Dashboard</a> <a href="/entities" class="link svelte-5d5q0c"><iconify-icon icon="mdi:format-list-bulleted"></iconify-icon> Entities</a> <a href="/settings" class="link svelte-5d5q0c"><iconify-icon icon="mdi:cog"></iconify-icon> Settings</a></div> <div class="status-info svelte-5d5q0c"><div class="status-item svelte-5d5q0c"><span class="label svelte-5d5q0c">Status:</span> <span class="value svelte-5d5q0c">`);
-    if (store_get($$store_subs ??= {}, "$haStore", haStore).isConnected) {
-      $$renderer2.push("<!--[-->");
-      $$renderer2.push(`<span style="color: #4caf50">●</span> Connected`);
-    } else {
-      $$renderer2.push("<!--[!-->");
-      $$renderer2.push(`<span style="color: #f44336">●</span> Offline`);
-    }
-    $$renderer2.push(`<!--]--></span></div></div></div>`);
-    if ($$store_subs) unsubscribe_stores($$store_subs);
+    let width = 320;
+    let timeStr = "";
+    $$renderer2.push(`<aside class="info-panel svelte-rjw8n6"${attr_style(`width: ${stringify(width)}px`)}><div class="resize-handle svelte-rjw8n6"></div> <div class="panel-content svelte-rjw8n6"><div class="section clock-section svelte-rjw8n6"><div class="clock svelte-rjw8n6">${escape_html(timeStr)}</div></div> <div class="section weather-section svelte-rjw8n6"><div class="card weather-card svelte-rjw8n6"><span class="placeholder-text svelte-rjw8n6">Weather Widget (TODO)</span></div></div> <div class="section camera-section svelte-rjw8n6"><div class="card camera-card svelte-rjw8n6"><span class="placeholder-text svelte-rjw8n6">Camera Feed (TODO)</span></div></div></div></aside>`);
   });
 }
 function Header($$renderer, $$props) {
@@ -56,13 +37,13 @@ function Header($$renderer, $$props) {
 function _layout($$renderer, $$props) {
   $$renderer.component(($$renderer2) => {
     let { children } = $$props;
-    $$renderer2.push(`<div class="layout-container">`);
-    Sidebar($$renderer2);
-    $$renderer2.push(`<!----> `);
+    $$renderer2.push(`<div class="layout-container svelte-12qhfyh">`);
+    InfoPanel($$renderer2);
+    $$renderer2.push(`<!----> <div class="main-content svelte-12qhfyh"><div class="header-wrapper">`);
     Header($$renderer2);
-    $$renderer2.push(`<!----> <main class="svelte-12qhfyh">`);
+    $$renderer2.push(`<!----></div> <main class="svelte-12qhfyh">`);
     children($$renderer2);
-    $$renderer2.push(`<!----></main></div>`);
+    $$renderer2.push(`<!----></main></div></div>`);
   });
 }
 export {
