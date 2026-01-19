@@ -1,68 +1,20 @@
+
 <script lang="ts">
-  import { onMount } from 'svelte';
   import { dndzone, type DndEvent } from 'svelte-dnd-action';
-  import { entityList } from '../ha/store';
-  import { layoutConfig, saveLayout } from '../app/store';
+  import { dashboardItems, type GridItem } from './dashboardStore';
+  import { saveLayout } from '../app/store';
   import { activeTabId } from '../app/tabsStore';
   import DeviceCard from './DeviceCard.svelte';
-  import { extractDomain } from '$lib/utils';
   
-  // We need to extend the entity with an 'id' for svelte-dnd-action
-  type GridItem = any & { id: string };
-
   let items = $state<GridItem[]>([]);
   let isDragging = $state(false);
   const flipDurationMs = 200;
   
-  // Sync entities with layout order and active tab
+  // Sync items from store when not dragging
   $effect(() => {
-    // Prevent re-shuffling while user is dragging
-    if (isDragging) return;
-
-    const allEntities = $entityList;
-    const order = $layoutConfig.cardOrder;
-    const currentTab = $activeTabId;
-    
-    // 1. Filter for dashboard-relevant entities
-    let relevant = allEntities.filter(entity => {
-      const domain = extractDomain(entity.entity_id);
-      return ['light', 'switch', 'climate', 'media_player', 'cover', 'lock', 'script', 'input_boolean'].includes(domain);
-    });
-
-    // 2. Filter by Active Tab (Fake Room Logic for MVP)
-    // If tab is 'home', show everything.
-    // If tab is 'living_room', show entities with 'living' in ID or Name.
-    if (currentTab !== 'home') {
-      const searchTerms = currentTab.split('_'); // e.g. "living_room" -> ["living", "room"]
-      
-      relevant = relevant.filter(e => {
-        const name = (e.attributes.friendly_name || '').toLowerCase();
-        const id = e.entity_id.toLowerCase();
-        // Check if any part of the tab ID is present in entity
-        return searchTerms.some(term => name.includes(term) || id.includes(term));
-      });
+    if (!isDragging) {
+      items = $dashboardItems;
     }
-
-    let sorted: GridItem[] = [];
-
-    // 3. Apply Sort Order (Only for Home tab currently, as layoutConfig is global in MVP)
-    if (currentTab === 'home' && order.length > 0) {
-      // Map existing order to entities
-      const orderedItems = order
-        .map(id => relevant.find(e => e.entity_id === id))
-        .filter(e => e !== undefined);
-      
-      // Append new entities that are not yet in the order
-      const newItems = relevant.filter(e => !order.includes(e.entity_id));
-      
-      sorted = [...orderedItems, ...newItems] as GridItem[];
-    } else {
-      // For specific rooms, just default sort for now
-      sorted = relevant as GridItem[];
-    }
-
-    // Add 'id' required by dndzone
-    items = sorted.map(e => ({ ...e, id: e.entity_id }));
   });
 
   function handleDndConsider(e: CustomEvent<DndEvent<GridItem>>) {
@@ -99,13 +51,14 @@
         items, 
         flipDurationMs,
         dropTargetStyle: { outline: '2px dashed var(--accent-primary)', outlineOffset: '-2px', borderRadius: '12px' },
-        dragDisabled: $activeTabId !== 'home' /* Disable drag on filtered tabs for now */
+        dragDisabled: $activeTabId !== 'home'
       }}
       onconsider={handleDndConsider}
       onfinalize={handleDndFinalize}
     >
       {#each items as item (item.id)}
         <div class="grid-item">
+          <!-- Lazy render card contents if needed, but for now standard render is fast enough -->
           <DeviceCard entity={item} />
         </div>
       {/each}
@@ -123,16 +76,14 @@
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 1rem;
-    min-height: 100px; /* Ensure drop zone area */
+    min-height: 100px;
   }
   
-  /* Required for DnD animation */
   .grid-item {
-    display: flex; /* Fix for some layout issues during drag */
+    display: flex;
     flex-direction: column;
   }
 
-  /* Make sure the card fills the grid item height if needed */
   .grid-item :global(.card) {
     height: 100%;
   }
