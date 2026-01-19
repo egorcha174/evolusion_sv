@@ -1,0 +1,1 @@
+import{f as t,a as e}from"../chunks/DYWGbwQD.js";import"../chunks/pQbN8BSX.js";import{n as p}from"../chunks/BWA2oz35.js";var r=t("<h1>Evolusion</h1> <p>SvelteKit dashboard base.</p> <p>Status: Ready for development.</p>",1);function f(o){var a=r();p(4),e(o,a)}export{f as component};
