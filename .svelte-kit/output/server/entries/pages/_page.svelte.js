@@ -28,6 +28,22 @@ var INSTRUCTION_IDs$1 = {
   DND_ZONE_DRAG_DISABLED: "dnd-zone-drag-disabled"
 };
 _ID_TO_INSTRUCTION = {}, _defineProperty(_ID_TO_INSTRUCTION, INSTRUCTION_IDs$1.DND_ZONE_ACTIVE, "Tab to one the items and press space-bar or enter to start dragging it"), _defineProperty(_ID_TO_INSTRUCTION, INSTRUCTION_IDs$1.DND_ZONE_DRAG_DISABLED, "This is a disabled drag and drop list"), _ID_TO_INSTRUCTION;
+const iconMap = {
+  light: "mdi:lightbulb",
+  switch: "mdi:power-plug",
+  cover: "mdi:window-closed",
+  climate: "mdi:thermometer",
+  media_player: "mdi:music",
+  sensor: "mdi:gauge",
+  binary_sensor: "mdi:circle-outline",
+  lock: "mdi:lock",
+  weather: "mdi:weather-partly-cloudy",
+  script: "mdi:script-text-outline",
+  input_boolean: "mdi:toggle-switch"
+};
+function getIcon(domain) {
+  return iconMap[domain] || "mdi:help-circle";
+}
 function DeviceCard($$renderer, $$props) {
   $$renderer.component(($$renderer2) => {
     let { entity } = $$props;
@@ -43,23 +59,11 @@ function DeviceCard($$renderer, $$props) {
       "input_boolean",
       "script"
     ].includes(domain);
-    function getIcon(dom, state) {
-      const icons = {
-        light: state ? "💡" : "🌙",
-        switch: state ? "✅" : "❌",
-        cover: "🪟",
-        climate: "🌡️",
-        media_player: "🎵",
-        lock: state ? "🔓" : "🔒",
-        script: "📜"
-      };
-      return icons[dom] || "📱";
-    }
-    let icon = getIcon(domain, isOn);
-    $$renderer2.push(`<div class="card svelte-vmg48c"${attr("data-domain", domain)}${attr("data-state", isOn ? "on" : "off")}><div class="card-header svelte-vmg48c"><div class="icon svelte-vmg48c">${escape_html(icon)}</div> <div class="name svelte-vmg48c"${attr("title", displayName)}>${escape_html(displayName)}</div></div> <div class="card-body svelte-vmg48c"><div class="state-display svelte-vmg48c"><span class="state-text svelte-vmg48c">${escape_html(entity.state)}</span></div> `);
+    let icon = getIcon(domain);
+    $$renderer2.push(`<div class="card svelte-vmg48c"${attr("data-domain", domain)}${attr("data-state", isOn ? "on" : "off")}><div class="card-header svelte-vmg48c"><div class="icon svelte-vmg48c"><iconify-icon${attr("icon", icon)} width="24" height="24"></iconify-icon></div> <div class="name svelte-vmg48c"${attr("title", displayName)}>${escape_html(displayName)}</div></div> <div class="card-body svelte-vmg48c"><div class="state-display svelte-vmg48c"><span class="state-text svelte-vmg48c">${escape_html(entity.state)}</span></div> `);
     if (entity.attributes.brightness !== void 0) {
       $$renderer2.push("<!--[-->");
-      $$renderer2.push(`<div class="attribute svelte-vmg48c">Brightness: ${escape_html(Math.round(entity.attributes.brightness / 255 * 100))}%</div>`);
+      $$renderer2.push(`<div class="attribute svelte-vmg48c">${escape_html(Math.round(entity.attributes.brightness / 255 * 100))}%</div>`);
     } else {
       $$renderer2.push("<!--[!-->");
     }
@@ -109,20 +113,20 @@ function DashboardGrid($$renderer, $$props) {
 function _page($$renderer, $$props) {
   $$renderer.component(($$renderer2) => {
     var $$store_subs;
-    $$renderer2.push(`<div class="dashboard-page svelte-1uha8ag"><div class="page-header svelte-1uha8ag"><h1 class="svelte-1uha8ag">Dashboard</h1></div> `);
+    $$renderer2.push(`<div class="dashboard-page svelte-1uha8ag">`);
     if (store_get($$store_subs ??= {}, "$haStore", haStore).isLoading) {
       $$renderer2.push("<!--[-->");
-      $$renderer2.push(`<div class="state-container svelte-1uha8ag"><div class="spinner svelte-1uha8ag"></div> <p class="svelte-1uha8ag">Connecting to Home Assistant...</p></div>`);
+      $$renderer2.push(`<div class="status-message svelte-1uha8ag"><div class="spinner svelte-1uha8ag"></div> <p class="svelte-1uha8ag">Connecting to Home Assistant...</p></div>`);
     } else {
       $$renderer2.push("<!--[!-->");
       if (store_get($$store_subs ??= {}, "$haStore", haStore).error) {
         $$renderer2.push("<!--[-->");
-        $$renderer2.push(`<div class="state-container error svelte-1uha8ag"><h3 class="svelte-1uha8ag">Connection Error</h3> <p class="svelte-1uha8ag">${escape_html(store_get($$store_subs ??= {}, "$haStore", haStore).error)}</p> <a href="/settings" class="btn svelte-1uha8ag">Check Settings</a></div>`);
+        $$renderer2.push(`<div class="status-message error svelte-1uha8ag"><iconify-icon icon="mdi:alert-circle" width="48" class="svelte-1uha8ag"></iconify-icon> <h3 class="svelte-1uha8ag">Connection Error</h3> <p class="svelte-1uha8ag">${escape_html(store_get($$store_subs ??= {}, "$haStore", haStore).error)}</p> <a href="/settings" class="btn svelte-1uha8ag">Check Settings</a></div>`);
       } else {
         $$renderer2.push("<!--[!-->");
         if (!store_get($$store_subs ??= {}, "$haStore", haStore).isConnected) {
           $$renderer2.push("<!--[-->");
-          $$renderer2.push(`<div class="state-container svelte-1uha8ag"><h3 class="svelte-1uha8ag">Not Connected</h3> <p class="svelte-1uha8ag">Please configure your server connection.</p> <a href="/settings" class="btn svelte-1uha8ag">Go to Settings</a></div>`);
+          $$renderer2.push(`<div class="status-message warning svelte-1uha8ag"><iconify-icon icon="mdi:lan-disconnect" width="48" class="svelte-1uha8ag"></iconify-icon> <h3 class="svelte-1uha8ag">Not Connected</h3> <p class="svelte-1uha8ag">Please configure your server connection in Settings.</p> <a href="/settings" class="btn svelte-1uha8ag">Go to Settings</a></div>`);
         } else {
           $$renderer2.push("<!--[!-->");
           DashboardGrid($$renderer2);
