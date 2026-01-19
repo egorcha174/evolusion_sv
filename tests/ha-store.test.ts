@@ -59,7 +59,7 @@ class MockWebSocket {
 }
 
 // Inject mock
-(global as any).WebSocket = MockWebSocket;
+(globalThis as any).WebSocket = MockWebSocket;
 
 test.describe('HA Store', () => {
   const URL = 'http://localhost:8123';
@@ -132,8 +132,8 @@ test.describe('HA Store', () => {
 
   test('Handles connection error', async () => {
     // Override MockWebSocket to fail
-    const OriginalMock = (global as any).WebSocket;
-    (global as any).WebSocket = class FailSocket extends MockWebSocket {
+    const OriginalMock = (globalThis as any).WebSocket;
+    (globalThis as any).WebSocket = class FailSocket extends MockWebSocket {
        constructor(url: string) {
            super(url);
            setTimeout(() => {
@@ -154,6 +154,6 @@ test.describe('HA Store', () => {
     expect(state.error).not.toBeNull();
 
     // Restore Mock
-    (global as any).WebSocket = OriginalMock;
+    (globalThis as any).WebSocket = OriginalMock;
   });
 });

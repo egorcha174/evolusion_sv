@@ -102,7 +102,7 @@ class MockWebSocket {
 }
 
 // Inject mock into global scope for the test environment
-(global as any).WebSocket = MockWebSocket;
+(globalThis as any).WebSocket = MockWebSocket;
 
 test.describe('HAClient', () => {
   let client: HAClient;
