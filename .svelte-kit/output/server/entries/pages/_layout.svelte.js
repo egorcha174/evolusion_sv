@@ -1,7 +1,7 @@
 import "clsx";
 import "../../chunks/store.js";
-import { a as attr_style, s as stringify, e as ensure_array_like, b as store_get, c as attr_class, u as unsubscribe_stores } from "../../chunks/index2.js";
-import { e as escape_html } from "../../chunks/escaping.js";
+import { a as attr_style, s as stringify, e as ensure_array_like, b as store_get, c as attr_class, u as unsubscribe_stores, h as head } from "../../chunks/index2.js";
+import { _ as escape_html } from "../../chunks/context.js";
 import { w as writable } from "../../chunks/index.js";
 import "@sveltejs/kit/internal";
 import "../../chunks/exports.js";
@@ -9,6 +9,12 @@ import "../../chunks/utils.js";
 import "@sveltejs/kit/internal/server";
 import "../../chunks/state.svelte.js";
 import "iconify-icon";
+import { c as cssVariables } from "../../chunks/store2.js";
+function html(value) {
+  var html2 = String(value ?? "");
+  var open = "<!---->";
+  return open + html2 + "<!---->";
+}
 function InfoPanel($$renderer, $$props) {
   $$renderer.component(($$renderer2) => {
     let width = 320;
@@ -73,10 +79,20 @@ function DashboardHeader($$renderer, $$props) {
     if ($$store_subs) unsubscribe_stores($$store_subs);
   });
 }
+function ThemeInjector($$renderer, $$props) {
+  $$renderer.component(($$renderer2) => {
+    var $$store_subs;
+    head("nh1qkz", $$renderer2, ($$renderer3) => {
+      $$renderer3.push(`${html(`<style id="theme-styles">${store_get($$store_subs ??= {}, "$cssVariables", cssVariables)}</style>`)}`);
+    });
+    if ($$store_subs) unsubscribe_stores($$store_subs);
+  });
+}
 function _layout($$renderer, $$props) {
   $$renderer.component(($$renderer2) => {
     let { children } = $$props;
-    $$renderer2.push(`<div class="layout-container svelte-12qhfyh">`);
+    ThemeInjector($$renderer2);
+    $$renderer2.push(`<!----> <div class="layout-container svelte-12qhfyh">`);
     InfoPanel($$renderer2);
     $$renderer2.push(`<!----> <div class="main-content svelte-12qhfyh">`);
     DashboardHeader($$renderer2);

@@ -1,9 +1,8 @@
-import { c as attr_class, e as ensure_array_like, b as store_get, u as unsubscribe_stores } from "../../chunks/index2.js";
+import { d as attr, c as attr_class, e as ensure_array_like, b as store_get, u as unsubscribe_stores } from "../../chunks/index2.js";
 import { h as haStore } from "../../chunks/store.js";
 import "clsx";
 import { e as extractDomain } from "../../chunks/utils2.js";
-import { a as attr } from "../../chunks/attributes.js";
-import { e as escape_html } from "../../chunks/escaping.js";
+import { _ as escape_html } from "../../chunks/context.js";
 function _defineProperty(obj, key, value) {
   if (key in obj) {
     Object.defineProperty(obj, key, {

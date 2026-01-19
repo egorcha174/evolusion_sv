@@ -1740,6 +1740,22 @@ function untrack(fn) {
     untracking = previous_untracking;
   }
 }
+const ATTR_REGEX = /[&"<]/g;
+const CONTENT_REGEX = /[&<]/g;
+function escape_html(value, is_attr) {
+  const str = String(value ?? "");
+  const pattern = is_attr ? ATTR_REGEX : CONTENT_REGEX;
+  pattern.lastIndex = 0;
+  let escaped = "";
+  let last = 0;
+  while (pattern.test(str)) {
+    const i = pattern.lastIndex - 1;
+    const ch = str[i];
+    escaped += str.substring(last, i) + (ch === "&" ? "&amp;" : ch === '"' ? "&quot;" : "&lt;");
+    last = i + 1;
+  }
+  return escaped + str.substring(last);
+}
 function subscribe_to_store(store, run, invalidate) {
   if (store == null) {
     run(void 0);
@@ -1796,7 +1812,7 @@ function get_parent_context(ssr_context2) {
   return null;
 }
 export {
-  noop as $,
+  getContext as $,
   internal_set as A,
   Batch as B,
   COMMENT_NODE as C,
@@ -1823,19 +1839,20 @@ export {
   flushSync as X,
   mutable_source as Y,
   setContext as Z,
-  getContext as _,
+  escape_html as _,
   HYDRATION_END as a,
-  STALE_REACTION as a0,
-  set_ssr_context as a1,
-  ssr_context as a2,
-  push as a3,
-  pop as a4,
-  subscribe_to_store as a5,
-  ELEMENT_PRESERVE_ATTRIBUTE_CASE as a6,
-  ELEMENT_IS_INPUT as a7,
-  ELEMENT_IS_NAMESPACED as a8,
-  safe_not_equal as a9,
-  run_all as aa,
+  noop as a0,
+  STALE_REACTION as a1,
+  set_ssr_context as a2,
+  ssr_context as a3,
+  push as a4,
+  pop as a5,
+  subscribe_to_store as a6,
+  ELEMENT_PRESERVE_ATTRIBUTE_CASE as a7,
+  ELEMENT_IS_INPUT as a8,
+  ELEMENT_IS_NAMESPACED as a9,
+  safe_not_equal as aa,
+  run_all as ab,
   HYDRATION_START as b,
   HYDRATION_START_ELSE as c,
   get as d,

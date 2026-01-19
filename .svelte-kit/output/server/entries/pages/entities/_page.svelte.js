@@ -1,7 +1,6 @@
-import { e as ensure_array_like, b as store_get, u as unsubscribe_stores } from "../../../chunks/index2.js";
+import { d as attr, e as ensure_array_like, b as store_get, u as unsubscribe_stores } from "../../../chunks/index2.js";
 import { e as entityList, h as haStore } from "../../../chunks/store.js";
-import { a as attr } from "../../../chunks/attributes.js";
-import { e as escape_html } from "../../../chunks/escaping.js";
+import { _ as escape_html } from "../../../chunks/context.js";
 import { e as extractDomain, i as isToggleable } from "../../../chunks/utils2.js";
 function EntityRow($$renderer, $$props) {
   $$renderer.component(($$renderer2) => {
