@@ -3,7 +3,7 @@
   import { appState, loadLayout, loadServerConfig } from '../domains/app/store';
   import { initializeHAConnection, disconnectHA } from '../domains/ha/store';
   import InfoPanel from '../domains/ui/InfoPanel.svelte';
-  import Header from '../domains/ui/Header.svelte';
+  import DashboardHeader from '../domains/ui/DashboardHeader.svelte';
   import 'iconify-icon';
   import '../app.css';
   
@@ -31,9 +31,7 @@
 
   <!-- Right Side: Main Application Content -->
   <div class="main-content">
-    <div class="header-wrapper">
-      <Header />
-    </div>
+    <DashboardHeader />
     
     <main>
       {@render children()}
@@ -70,23 +68,9 @@
     overflow-y: auto; /* Scroll is here */
   }
 
-  /* Override fixed positioning from Header component to fit in flex flow */
-  :global(.header) {
-    position: sticky !important;
-    top: 0 !important;
-    left: 0 !important;
-    width: 100% !important;
-    z-index: 40 !important;
-    /* Reset margins if any */
-    margin: 0 !important;
-  }
-
   main {
-    /* Reset margins from previous fixed sidebar layout */
-    margin-left: 0 !important; 
-    margin-top: 0 !important;
-    padding: 2rem;
     flex: 1;
+    padding: 2rem;
   }
 
   @media (max-width: 768px) {
