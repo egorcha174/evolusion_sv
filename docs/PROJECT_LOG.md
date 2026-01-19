@@ -27,3 +27,4 @@
 | 2024-05-22 | T-FIX-02 | e-fix-sidebar | Fix Sidebar Visibility | Add Sidebar to layout, fix positioning and theme contrast | src/routes/+layout.svelte, src/domains/ui/Sidebar.svelte, src/domains/ui/theme/defaults.ts | Visual Check | **Completed** | Next | ... |
 | 2024-05-22 | T-FIX-03 | e-fix-layout | Unify Sidebar | Remove InfoPanel, keep only Sidebar with status and nav | src/routes/+layout.svelte, src/domains/ui/Sidebar.svelte | Visual Check | **Completed** | Next | ... |
 | 2024-05-22 | T-UI-03 | e-ui-info-sidebar | Info Sidebar | Convert Sidebar to info-only (Clock, Weather, Camera), remove nav | src/domains/ui/Sidebar.svelte | Visual Check | **Completed** | Next | ... |
+| 2024-05-22 | T-UI-04 | e-ui-resizable-sidebar | Resizable Sidebar | Add drag handle and persistence for sidebar width | src/domains/ui/store.ts, src/domains/ui/Sidebar.svelte | Manual Verify | **Completed** | Next | ... |
