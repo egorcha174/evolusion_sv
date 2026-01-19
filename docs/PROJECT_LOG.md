@@ -26,3 +26,4 @@
 | 2024-05-22 | T-UI-02 | e4-06-ui-cleanup | UI Cleanup | Remove logo text, move status to sidebar | src/domains/ui/DashboardHeader.svelte, src/domains/ui/Sidebar.svelte | Manual Verify | **Completed** | Next | ... |
 | 2024-05-22 | T-FIX-02 | e-fix-sidebar | Fix Sidebar Visibility | Add Sidebar to layout, fix positioning and theme contrast | src/routes/+layout.svelte, src/domains/ui/Sidebar.svelte, src/domains/ui/theme/defaults.ts | Visual Check | **Completed** | Next | ... |
 | 2024-05-22 | T-FIX-03 | e-fix-layout | Unify Sidebar | Remove InfoPanel, keep only Sidebar with status and nav | src/routes/+layout.svelte, src/domains/ui/Sidebar.svelte | Visual Check | **Completed** | Next | ... |
+| 2024-05-22 | T-UI-03 | e-ui-info-sidebar | Info Sidebar | Convert Sidebar to info-only (Clock, Weather, Camera), remove nav | src/domains/ui/Sidebar.svelte | Visual Check | **Completed** | Next | ... |
