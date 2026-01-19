@@ -87,27 +87,26 @@ export class HAClient {
       event_type: eventType 
     });
     
-    // In HA WebSocket, the subscription ID is the command ID.
-    // The `_sendCommand` logic for subscription needs to know to return the ID, not the result object.
-    // However, strictly speaking, HA returns a result message.
-    // We register the subscription handler *after* success or pre-emptively?
-    // Actually, HA events come with "id": <subscription_id>.
-    // So we map the command ID (which becomes subscription ID) to a handler.
-    
-    // For specific events, we might want a specific handler.
-    // But for now, we just ensure we track it.
-    
     return id; 
   }
 
   unsubscribe(subscriptionId: number): void {
-    // Send unsubscribe (fire and forget or wait?)
     this._send({ 
       type: 'unsubscribe_events', 
       subscription: subscriptionId 
     }).catch(console.error);
     
     this.subscriptions.delete(subscriptionId);
+  }
+
+  async callService(domain: string, service: string, serviceData: Record<string, any> = {}): Promise<void> {
+    // Reuse _sendCommand to handle request/response correlation with ID
+    await this._sendCommand({
+      type: 'call_service',
+      domain,
+      service,
+      service_data: serviceData
+    });
   }
 
   onStateChange(callback: (event: StateChangedEvent) => void): void {
@@ -189,7 +188,6 @@ export class HAClient {
         break;
 
       case 'pong':
-        // Handle pong if we implemented ping
         break;
         
       default:
@@ -209,13 +207,11 @@ export class HAClient {
     const pending = this.pendingCommands.get(data.id);
     if (pending) {
       if (data.success) {
-        // Special case: if we asked for subscription, result is just success/fail. 
-        // We want to resolve with the ID so the caller knows the subscription ID.
-        // But for get_states, we want data.result.
         if (data.result !== undefined) {
            pending.resolve(data.result);
         } else {
            // Assume it was a command where ID is the important return (like subscribe)
+           // or a void command like call_service
            pending.resolve(data.id);
         }
       } else {

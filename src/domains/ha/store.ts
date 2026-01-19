@@ -109,6 +109,51 @@ export function getEntity(entityId: string): HAEntity | undefined {
 	return state.entities.get(entityId);
 }
 
+// Action Functions
+
+export async function callService(
+  domain: string,
+  service: string,
+  serviceData: Record<string, any>
+): Promise<void> {
+  if (!client || !client.isConnected()) {
+    throw new Error('Not connected to Home Assistant');
+  }
+
+  await client.callService(domain, service, serviceData);
+}
+
+export async function toggleEntity(entityId: string): Promise<void> {
+	if (!client || !client.isConnected()) {
+		throw new Error('Not connected to Home Assistant');
+	}
+
+	const state = get(haStore);
+	const entity = state.entities.get(entityId);
+	
+	if (!entity) {
+		throw new Error(`Entity ${entityId} not found`);
+	}
+
+	const domain = entityId.split('.')[0];
+
+	if (domain === 'light' || domain === 'switch') {
+		await client.callService(domain, 'toggle', { entity_id: entityId });
+	} else if (domain === 'cover') {
+		await client.callService(domain, 'toggle', { entity_id: entityId });
+	} else if (domain === 'input_boolean') {
+		await client.callService('input_boolean', 'toggle', { entity_id: entityId });
+	} else if (domain === 'lock') {
+		const service = entity.state === 'locked' ? 'unlock' : 'lock';
+		await client.callService('lock', service, { entity_id: entityId });
+	} else if (domain === 'script') {
+		await client.callService('script', 'turn_on', { entity_id: entityId });
+	} else {
+		// Try generic toggle for other domains if needed, or error
+		throw new Error(`Cannot toggle entity with domain: ${domain}`);
+	}
+}
+
 // Helper to map raw HAState (contracts) to HAEntity (app type)
 // Currently they are identical, but good to have the separation layer
 function mapStateToEntity(state: HAState): HAEntity {
