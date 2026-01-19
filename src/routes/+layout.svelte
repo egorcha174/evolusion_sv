@@ -4,6 +4,7 @@
   import { initializeHAConnection, disconnectHA } from '../domains/ha/store';
   import InfoPanel from '../domains/ui/InfoPanel.svelte';
   import DashboardHeader from '../domains/ui/DashboardHeader.svelte';
+  import ThemeInjector from '../domains/ui/theme/ThemeInjector.svelte';
   import 'iconify-icon';
   import '../app.css';
   
@@ -25,6 +26,8 @@
   });
 </script>
 
+<ThemeInjector />
+
 <div class="layout-container">
   <!-- Left Side: InfoPanel (Visible on desktop) -->
   <InfoPanel />
@@ -44,11 +47,12 @@
     margin: 0;
     padding: 0;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-    background: #f5f7fa;
-    color: #333;
-    /* Ensure body allows full height flex layout */
+    /* Use variables with fallback */
+    background: var(--bg-page, #f5f7fa);
+    color: var(--text-primary, #333);
     height: 100vh;
     overflow: hidden;
+    transition: background-color 0.2s ease, color 0.2s ease;
   }
 
   .layout-container {
@@ -62,10 +66,10 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    min-width: 0; /* Prevent flex overflow */
+    min-width: 0;
     position: relative;
     height: 100%;
-    overflow-y: auto; /* Scroll is here */
+    overflow-y: auto;
   }
 
   main {

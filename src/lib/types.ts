@@ -35,3 +35,54 @@ export interface HAStoreState {
 	error: string | null;
 	entities: Map<string, HAEntity>;
 }
+
+// --- Theming System ---
+
+export type ThemeMode = 'auto' | 'schedule' | 'day' | 'night';
+
+export interface ThemePalette {
+	// Backgrounds
+	bgPage: string;
+	bgCard: string;
+	bgHeader: string;
+	bgSidebar: string;
+	bgInput: string;
+	bgDropdown: string;
+	
+	// Text
+	textPrimary: string;
+	textSecondary: string;
+	textInverted: string;
+	
+	// Brand / Status
+	primary: string;
+	success: string;
+	warning: string;
+	error: string;
+	
+	// Borders & Dividers
+	border: string;
+	divider: string;
+	
+	// Effects
+	shadowCard: string;
+}
+
+export interface ThemeDefinition {
+	id: string;
+	name: string;
+	isBuiltIn: boolean;
+	description?: string;
+	author?: string;
+	light: ThemePalette;
+	dark: ThemePalette;
+}
+
+export interface ThemeSettings {
+	mode: ThemeMode;
+	activeThemeId: string;
+	schedule: {
+		darkStart: string; // HH:mm
+		darkEnd: string;   // HH:mm
+	};
+}

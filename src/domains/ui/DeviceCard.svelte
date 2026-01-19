@@ -26,15 +26,12 @@
   let isOn = $derived(entity.state === 'on' || entity.state === 'open' || entity.state === 'unlocked');
   let isToggleable = $derived(['light', 'switch', 'cover', 'lock', 'input_boolean', 'script'].includes(domain));
   
-  // Use the helper, but we might want to override for specific states later. 
-  // For now, we use the static domain icon mapping as requested.
   let icon = $derived(getIcon(domain));
 </script>
 
 <div class="card" data-domain={domain} data-state={isOn ? 'on' : 'off'}>
   <div class="card-header">
     <div class="icon">
-      <!-- Using iconify-icon custom element -->
       <iconify-icon icon={icon} width="24" height="24"></iconify-icon>
     </div>
     <div class="name" title={displayName}>{displayName}</div>
@@ -78,15 +75,15 @@
 
 <style>
   .card {
-    background: white;
+    background: var(--bg-card, white);
     border-radius: 16px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    box-shadow: var(--shadow-card, 0 2px 8px rgba(0, 0, 0, 0.04));
     padding: 1rem;
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
     transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
-    border: 1px solid rgba(0,0,0,0.05);
+    border: 1px solid var(--border, rgba(0,0,0,0.05));
     height: 100%;
     position: relative;
     overflow: hidden;
@@ -94,18 +91,17 @@
   
   .card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08); /* Could var this too */
   }
   
-  /* Domain specific styling - Subtle backgrounds */
+  /* Domain specific styling */
   .card[data-domain="light"][data-state="on"] {
-    background: white; /* Clean look, maybe add glow to icon instead? */
-    border-color: #ffd700;
+    border-color: var(--warning, #ffd700);
     box-shadow: 0 4px 12px rgba(255, 215, 0, 0.15);
   }
   
   .card[data-domain="switch"][data-state="on"] {
-    border-color: #4caf50;
+    border-color: var(--success, #4caf50);
     box-shadow: 0 4px 12px rgba(76, 175, 80, 0.15);
   }
 
@@ -121,25 +117,25 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #555;
-    background: #f5f5f5;
+    color: var(--text-secondary, #555);
+    background: var(--bg-page, #f5f5f5); /* Use page bg for neutral icon bg */
     border-radius: 50%;
     transition: all 0.3s;
   }
 
   .card[data-state="on"] .icon {
-    background: #e3f2fd;
-    color: #2196f3;
+    background: rgba(33, 150, 243, 0.1);
+    color: var(--primary, #2196f3);
   }
 
   .card[data-domain="light"][data-state="on"] .icon {
-    background: #fff8e1;
-    color: #ffc107;
+    background: rgba(255, 193, 7, 0.1);
+    color: var(--warning, #ffc107);
   }
 
   .card[data-domain="switch"][data-state="on"] .icon {
-    background: #e8f5e9;
-    color: #4caf50;
+    background: rgba(76, 175, 80, 0.1);
+    color: var(--success, #4caf50);
   }
   
   .name {
@@ -148,7 +144,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    color: #333;
+    color: var(--text-primary, #333);
     flex: 1;
   }
   
@@ -168,13 +164,13 @@
     font-size: 0.85rem;
     font-weight: 500;
     text-transform: capitalize;
-    color: #777;
+    color: var(--text-secondary, #777);
   }
   
   .attribute {
     font-size: 0.8rem;
-    color: #888;
-    background: #f0f0f0;
+    color: var(--text-secondary, #888);
+    background: var(--bg-page, #f0f0f0);
     padding: 2px 6px;
     border-radius: 4px;
   }
@@ -190,8 +186,8 @@
     padding: 0.6rem;
     border: none;
     border-radius: 10px;
-    background: #f0f0f0;
-    color: #444;
+    background: var(--bg-page, #f0f0f0);
+    color: var(--text-secondary, #444);
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s ease;
@@ -201,20 +197,16 @@
   }
   
   .toggle-btn:hover:not(:disabled) {
-    background: #e0e0e0;
+    opacity: 0.8;
   }
   
   .toggle-btn.on {
-    background: #2196f3;
-    color: white;
-  }
-  
-  .toggle-btn.on:hover:not(:disabled) {
-    background: #1976d2;
+    background: var(--primary, #2196f3);
+    color: var(--text-inverted, white);
   }
   
   .error {
-    color: #d32f2f;
+    color: var(--error, #d32f2f);
     font-size: 0.75rem;
     margin-top: 0.25rem;
   }
