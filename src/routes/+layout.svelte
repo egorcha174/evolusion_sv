@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { loadServerConfig, appState } from '../domains/app/store';
+	import { loadServerConfig, loadLayout, appState } from '../domains/app/store';
 	import { initializeHAConnection, disconnectHA, haStore } from '../domains/ha/store';
 	import { onMount } from 'svelte';
 
@@ -7,6 +7,7 @@
 
 	onMount(() => {
 		loadServerConfig();
+		loadLayout();
 	});
 
 	// Reactive connection management
@@ -14,10 +15,8 @@
 		const active = $appState.activeServer;
 		if (active?.url && active?.token) {
 			// Initialize connection when config is available
-			// Note: initializeHAConnection handles disconnect logic internally if already connected
 			initializeHAConnection(active.url, active.token);
 		} else {
-			// Disconnect if no config
 			disconnectHA();
 		}
 	});

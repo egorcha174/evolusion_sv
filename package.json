@@ -20,5 +20,8 @@
     "svelte-check": "^3.6.0",
     "typescript": "^5.0.0",
     "vite": "^5.0.0"
+  },
+  "dependencies": {
+    "svelte-dnd-action": "^0.9.54"
   }
 }

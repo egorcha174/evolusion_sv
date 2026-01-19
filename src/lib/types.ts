@@ -11,6 +11,11 @@ export interface AppState {
 	activeServer: ServerConfig | null;
 }
 
+export interface LayoutConfig {
+	cardOrder: string[];
+	timestamp: number;
+}
+
 export interface HAEntity {
 	entity_id: string;
 	state: string;
