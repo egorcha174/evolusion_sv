@@ -39,6 +39,7 @@ declare module '$env/static/private' {
 	export const ComSpec: string;
 	export const DriverData: string;
 	export const EDITOR: string;
+	export const EFC_6752_1592913036: string;
 	export const GEMINI_API_KEY: string;
 	export const GIT_ASKPASS: string;
 	export const GOOGLE_CLOUD_PROJECT: string;
@@ -148,6 +149,7 @@ declare module '$env/dynamic/private' {
 		ComSpec: string;
 		DriverData: string;
 		EDITOR: string;
+		EFC_6752_1592913036: string;
 		GEMINI_API_KEY: string;
 		GIT_ASKPASS: string;
 		GOOGLE_CLOUD_PROJECT: string;
