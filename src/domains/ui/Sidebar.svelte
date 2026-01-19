@@ -12,16 +12,24 @@
         hour: '2-digit', 
         minute: '2-digit'
       });
-    }, 1000); // Updated to 1s
+    }, 1000);
     return () => clearInterval(interval);
   });
 </script>
 
 <div class="sidebar">
-  <div class="weather-section">
+  <!-- Widget: Clock -->
+  <div class="widget clock-widget">
     <div class="time">{timeStr}</div>
-    
-    <div class="weather-main">
+    <div class="date">{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}</div>
+  </div>
+
+  <!-- Widget: Weather -->
+  <div class="widget weather-widget">
+    <div class="weather-icon">
+       <iconify-icon icon="mdi:weather-partly-cloudy" width="48"></iconify-icon>
+    </div>
+    <div class="weather-info">
       <div class="temp">
         {#if $haStore.entities.has('weather.home')}
           {$haStore.entities.get('weather.home')?.attributes.temperature ?? '--'}°
@@ -29,22 +37,25 @@
           --°
         {/if}
       </div>
-      <div class="condition">Home</div>
+      <div class="condition">
+         {#if $haStore.entities.has('weather.home')}
+            {$haStore.entities.get('weather.home')?.state ?? 'Unknown'}
+         {:else}
+            Home
+         {/if}
+      </div>
     </div>
   </div>
 
-  <div class="quick-links">
-    <a href="/" class="link active">
-      <iconify-icon icon="mdi:view-dashboard"></iconify-icon> Dashboard
-    </a>
-    <a href="/entities" class="link">
-      <iconify-icon icon="mdi:format-list-bulleted"></iconify-icon> Entities
-    </a>
-    <a href="/settings" class="link">
-      <iconify-icon icon="mdi:cog"></iconify-icon> Settings
-    </a>
+  <!-- Widget: Camera (Placeholder) -->
+  <div class="widget camera-widget">
+    <div class="camera-placeholder">
+      <iconify-icon icon="mdi:cctv" width="32"></iconify-icon>
+      <span>Front Door</span>
+    </div>
   </div>
 
+  <!-- Status Info (Bottom) -->
   <div class="status-info">
     <div class="status-row">
        {#if $haStore.isConnected}
@@ -64,11 +75,11 @@
 <style>
   .sidebar {
     position: relative;
-    width: 260px;
+    width: 280px; /* Slightly wider for widgets */
     height: 100%;
     background: var(--bg-sidebar);
     border-right: 1px solid var(--border-primary);
-    padding: 1.5rem 1rem;
+    padding: 2rem 1.5rem;
     display: flex;
     flex-direction: column;
     gap: 2rem;
@@ -79,80 +90,119 @@
     flex-shrink: 0;
   }
 
-  .weather-section {
+  /* Widgets General */
+  .widget {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+  }
+
+  /* Clock */
+  .clock-widget {
     text-align: center;
-    border-bottom: 1px solid var(--border-divider);
-    padding-bottom: 1.5rem;
-    margin-bottom: 1rem;
   }
 
   .time {
-    font-size: 2.5rem;
-    font-weight: 300;
-    margin-bottom: 0.5rem;
+    font-size: 3.5rem;
+    font-weight: 200;
+    line-height: 1;
     color: var(--text-primary);
+    font-variant-numeric: tabular-nums;
+    margin-bottom: 0.25rem;
+  }
+
+  .date {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 500;
+  }
+
+  /* Weather */
+  .weather-widget {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    background: var(--bg-card);
+    padding: 1rem;
+    border-radius: 16px;
+    border: 1px solid var(--border-card);
+  }
+
+  .weather-icon {
+    color: var(--accent-info);
+  }
+
+  .weather-info {
+    display: flex;
+    flex-direction: column;
   }
 
   .temp {
-    font-size: 1.5rem;
+    font-size: 2rem;
     font-weight: 600;
-    color: var(--text-muted);
+    color: var(--text-primary);
+    line-height: 1;
   }
 
   .condition {
     font-size: 0.85rem;
     color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 1px;
+    text-transform: capitalize;
   }
 
-  .quick-links {
+  /* Camera */
+  .camera-widget {
+    width: 100%;
+    aspect-ratio: 16/9;
+    background: #000;
+    border-radius: 12px;
+    overflow: hidden;
+    position: relative;
+    border: 1px solid var(--border-primary);
+  }
+
+  .camera-placeholder {
+    width: 100%;
+    height: 100%;
     display: flex;
     flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255,255,255,0.5);
+    background: linear-gradient(45deg, #1a1a1a, #2a2a2a);
     gap: 0.5rem;
   }
-
-  .link {
-    padding: 0.85rem 1rem;
-    background: transparent;
-    border-radius: 8px;
-    color: var(--text-secondary);
-    cursor: pointer;
-    font-size: 0.95rem;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-weight: 500;
-    text-decoration: none;
-  }
-
-  .link:hover {
-    background: var(--bg-sidebar-active-item);
-    color: var(--text-primary);
-  }
   
-  .link.active {
-    color: var(--accent-primary);
-    background: var(--bg-sidebar-active-item);
+  .camera-placeholder span {
+    font-size: 0.8rem;
+    font-weight: 500;
   }
 
+  /* Status (Bottom) */
   .status-info {
     margin-top: auto;
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
     font-size: 0.85rem;
     color: var(--text-muted);
     border-top: 1px solid var(--border-divider);
-    padding-top: 1rem;
+    padding-top: 1.5rem;
+    width: 100%;
   }
 
   .status-row {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 10px;
-    padding: 0 0.5rem;
+    padding: 0.5rem;
+    background: var(--bg-card); /* Subtle card bg for status */
+    border-radius: 8px;
   }
 
   .status-dot {
