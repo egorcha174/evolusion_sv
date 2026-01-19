@@ -3,7 +3,6 @@
   import { appState, loadLayout, loadServerConfig } from '../domains/app/store';
   import { initializeHAConnection, disconnectHA } from '../domains/ha/store';
   import Sidebar from '../domains/ui/Sidebar.svelte';
-  import InfoPanel from '../domains/ui/InfoPanel.svelte';
   import DashboardHeader from '../domains/ui/DashboardHeader.svelte';
   import ThemeInjector from '../domains/ui/theme/ThemeInjector.svelte';
   import 'iconify-icon';
@@ -30,12 +29,9 @@
 <ThemeInjector />
 
 <div class="layout-container">
-  <!-- Left Nav -->
+  <!-- Left Nav & Info -->
   <Sidebar />
   
-  <!-- Info Panel (Desktop) -->
-  <InfoPanel />
-
   <!-- Right Side: Main Application Content -->
   <div class="main-content">
     <DashboardHeader />

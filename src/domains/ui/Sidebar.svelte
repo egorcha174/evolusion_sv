@@ -12,7 +12,7 @@
         hour: '2-digit', 
         minute: '2-digit'
       });
-    }, 10000);
+    }, 1000); // Updated to 1s
     return () => clearInterval(interval);
   });
 </script>
@@ -63,9 +63,9 @@
 
 <style>
   .sidebar {
-    position: relative; /* Changed from fixed */
+    position: relative;
     width: 260px;
-    height: 100%; /* Fill flex container */
+    height: 100%;
     background: var(--bg-sidebar);
     border-right: 1px solid var(--border-primary);
     padding: 1.5rem 1rem;
@@ -76,7 +76,7 @@
     z-index: 50;
     color: var(--text-secondary);
     box-shadow: 2px 0 10px rgba(0,0,0,0.02);
-    flex-shrink: 0; /* Prevent shrinking */
+    flex-shrink: 0;
   }
 
   .weather-section {
@@ -132,7 +132,6 @@
     color: var(--text-primary);
   }
   
-  /* Example active state */
   .link.active {
     color: var(--accent-primary);
     background: var(--bg-sidebar-active-item);
