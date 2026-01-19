@@ -2,6 +2,7 @@
   import type { HAEntity } from '$lib/types';
   import { toggleEntity } from '../ha/store';
   import { extractDomain } from '$lib/utils';
+  import { getIcon } from '$lib/icons';
   
   let { entity }: { entity: HAEntity } = $props();
   
@@ -25,26 +26,17 @@
   let isOn = $derived(entity.state === 'on' || entity.state === 'open' || entity.state === 'unlocked');
   let isToggleable = $derived(['light', 'switch', 'cover', 'lock', 'input_boolean', 'script'].includes(domain));
   
-  // Determine icon based on domain and state
-  function getIcon(dom: string, state: boolean): string {
-    const icons: Record<string, string> = {
-      light: state ? '💡' : '🌙',
-      switch: state ? '✅' : '❌',
-      cover: '🪟',
-      climate: '🌡️',
-      media_player: '🎵',
-      lock: state ? '🔓' : '🔒',
-      script: '📜'
-    };
-    return icons[dom] || '📱';
-  }
-
-  let icon = $derived(getIcon(domain, isOn));
+  // Use the helper, but we might want to override for specific states later. 
+  // For now, we use the static domain icon mapping as requested.
+  let icon = $derived(getIcon(domain));
 </script>
 
 <div class="card" data-domain={domain} data-state={isOn ? 'on' : 'off'}>
   <div class="card-header">
-    <div class="icon">{icon}</div>
+    <div class="icon">
+      <!-- Using iconify-icon custom element -->
+      <iconify-icon icon={icon} width="24" height="24"></iconify-icon>
+    </div>
     <div class="name" title={displayName}>{displayName}</div>
   </div>
   
@@ -55,7 +47,7 @@
     
     {#if entity.attributes.brightness !== undefined}
       <div class="attribute">
-        Brightness: {Math.round((entity.attributes.brightness / 255) * 100)}%
+        {Math.round((entity.attributes.brightness / 255) * 100)}%
       </div>
     {/if}
     
@@ -87,42 +79,36 @@
 <style>
   .card {
     background: white;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
     padding: 1rem;
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
-    transition: all 0.3s ease;
-    border: 1px solid transparent;
+    transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+    border: 1px solid rgba(0,0,0,0.05);
+    height: 100%;
+    position: relative;
+    overflow: hidden;
   }
   
   .card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
   }
   
-  /* Domain specific styling */
+  /* Domain specific styling - Subtle backgrounds */
   .card[data-domain="light"][data-state="on"] {
-    background: linear-gradient(135deg, #fff9c4, #fff176);
-    border-color: #fdd835;
+    background: white; /* Clean look, maybe add glow to icon instead? */
+    border-color: #ffd700;
+    box-shadow: 0 4px 12px rgba(255, 215, 0, 0.15);
   }
   
   .card[data-domain="switch"][data-state="on"] {
-    background: linear-gradient(135deg, #e3f2fd, #bbdefb);
-    border-color: #64b5f6;
-  }
-  
-  .card[data-domain="cover"][data-state="on"] {
-    background: linear-gradient(135deg, #e0f2f1, #b2dfdb);
-    border-color: #4db6ac;
+    border-color: #4caf50;
+    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.15);
   }
 
-  .card[data-domain="lock"][data-state="on"] { /* Unlocked */
-     background: linear-gradient(135deg, #ffebee, #ffcdd2);
-     border-color: #e57373;
-  }
-  
   .card-header {
     display: flex;
     gap: 0.75rem;
@@ -130,46 +116,67 @@
   }
   
   .icon {
-    font-size: 1.75rem;
-    line-height: 1;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #555;
+    background: #f5f5f5;
+    border-radius: 50%;
+    transition: all 0.3s;
+  }
+
+  .card[data-state="on"] .icon {
+    background: #e3f2fd;
+    color: #2196f3;
+  }
+
+  .card[data-domain="light"][data-state="on"] .icon {
+    background: #fff8e1;
+    color: #ffc107;
+  }
+
+  .card[data-domain="switch"][data-state="on"] .icon {
+    background: #e8f5e9;
+    color: #4caf50;
   }
   
   .name {
     font-weight: 600;
-    font-size: 1rem;
+    font-size: 0.95rem;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
     color: #333;
+    flex: 1;
   }
   
   .card-body {
     display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
+    align-items: center;
+    gap: 0.5rem;
     flex: 1;
+    min-height: 24px;
   }
   
   .state-display {
-    background: rgba(0, 0, 0, 0.05);
-    padding: 0.35rem 0.5rem;
-    border-radius: 6px;
-    text-align: center;
-    align-self: flex-start;
-    min-width: 60px;
+    padding: 0;
   }
   
   .state-text {
     font-size: 0.85rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    color: #555;
-    letter-spacing: 0.5px;
+    font-weight: 500;
+    text-transform: capitalize;
+    color: #777;
   }
   
   .attribute {
     font-size: 0.8rem;
-    color: #666;
+    color: #888;
+    background: #f0f0f0;
+    padding: 2px 6px;
+    border-radius: 4px;
   }
   
   .card-footer {
@@ -182,19 +189,19 @@
     flex: 1;
     padding: 0.6rem;
     border: none;
-    border-radius: 8px;
-    background: #e0e0e0;
-    color: #333;
+    border-radius: 10px;
+    background: #f0f0f0;
+    color: #444;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s ease;
     text-transform: uppercase;
-    font-size: 0.85rem;
+    font-size: 0.75rem;
     letter-spacing: 0.5px;
   }
   
   .toggle-btn:hover:not(:disabled) {
-    background: #d5d5d5;
+    background: #e0e0e0;
   }
   
   .toggle-btn.on {
@@ -206,17 +213,9 @@
     background: #1976d2;
   }
   
-  .toggle-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-  
   .error {
     color: #d32f2f;
     font-size: 0.75rem;
     margin-top: 0.25rem;
-    background: #ffebee;
-    padding: 0.25rem;
-    border-radius: 4px;
   }
 </style>

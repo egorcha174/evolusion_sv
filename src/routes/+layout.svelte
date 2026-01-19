@@ -1,109 +1,60 @@
 <script lang="ts">
-	import { loadServerConfig, loadLayout, appState } from '../domains/app/store';
-	import { initializeHAConnection, disconnectHA, haStore } from '../domains/ha/store';
-	import { onMount } from 'svelte';
+  import { onMount } from 'svelte';
+  import { appState, loadLayout, loadServerConfig } from '../domains/app/store';
+  import { initializeHAConnection, disconnectHA } from '../domains/ha/store';
+  import Sidebar from '../domains/ui/Sidebar.svelte';
+  import Header from '../domains/ui/Header.svelte';
+  import 'iconify-icon';
+  import '../app.css';
+  
+  let { children } = $props();
 
-	let { children } = $props();
+  onMount(async () => {
+    await loadServerConfig();
+    await loadLayout();
+  });
 
-	onMount(() => {
-		loadServerConfig();
-		loadLayout();
-	});
-
-	// Reactive connection management
-	$effect(() => {
-		const active = $appState.activeServer;
-		if (active?.url && active?.token) {
-			// Initialize connection when config is available
-			initializeHAConnection(active.url, active.token);
-		} else {
-			disconnectHA();
-		}
-	});
+  // Reactive connection management
+  $effect(() => {
+    const active = $appState.activeServer;
+    if (active?.url && active?.token) {
+      initializeHAConnection(active.url, active.token);
+    } else {
+      disconnectHA();
+    }
+  });
 </script>
 
-<div class="app-layout">
-	<header class="app-header">
-		<div class="brand">Evolusion</div>
-		<nav>
-			<a href="/">Dashboard</a>
-			<a href="/entities">All Entities</a>
-			<a href="/settings">Settings</a>
-		</nav>
-		<div class="status-indicator">
-			{#if $haStore.isLoading}
-				<span class="badge loading">Connecting...</span>
-			{:else if $haStore.isConnected}
-				<span class="badge connected">Online</span>
-			{:else if $haStore.error}
-				<span class="badge error">Error</span>
-			{:else}
-				<span class="badge disconnected">Offline</span>
-			{/if}
-		</div>
-	</header>
+<div class="layout-container">
+  <Sidebar />
+  <Header />
 
-	<main>
-		{@render children()}
-	</main>
+  <main>
+    {@render children()}
+  </main>
 </div>
 
 <style>
-	:global(body) {
-		margin: 0;
-		font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-		background-color: #f5f5f5;
-		color: #333;
-	}
+  :global(body) {
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    background: #f5f7fa;
+    color: #333;
+  }
 
-	.app-header {
-		display: flex;
-		align-items: center;
-		padding: 0 1rem;
-		height: 64px;
-		background-color: #fff;
-		box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-	}
+  main {
+    margin-left: 260px; /* Match sidebar width */
+    margin-top: 64px; /* Match header height */
+    padding: 2rem;
+    min-height: calc(100vh - 64px);
+    transition: margin-left 0.3s ease;
+  }
 
-	.brand {
-		font-weight: bold;
-		font-size: 1.25rem;
-		margin-right: 2rem;
-		color: #03a9f4;
-	}
-
-	nav {
-		flex: 1;
-	}
-
-	nav a {
-		margin-right: 1.5rem;
-		text-decoration: none;
-		color: #555;
-		font-weight: 500;
-	}
-
-	nav a:hover {
-		color: #000;
-	}
-
-	.status-indicator {
-		font-size: 0.85rem;
-	}
-
-	.badge {
-		padding: 0.25rem 0.5rem;
-		border-radius: 4px;
-		color: white;
-		font-weight: 500;
-	}
-	
-	.badge.loading { background-color: #ff9800; }
-	.badge.connected { background-color: #4caf50; }
-	.badge.error { background-color: #f44336; }
-	.badge.disconnected { background-color: #9e9e9e; }
-
-	main {
-		padding: 1rem;
-	}
+  @media (max-width: 768px) {
+    main {
+      margin-left: 0;
+      padding: 1rem;
+    }
+  }
 </style>
