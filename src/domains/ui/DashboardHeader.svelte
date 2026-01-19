@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { goto } from '$app/navigation';
+  import { page } from '$app/stores';
   import { tabs, activeTabId, isEditMode, setActiveTab, toggleEditMode } from '../app/tabsStore';
   import { haStore } from '../ha/store';
   import 'iconify-icon';
@@ -13,6 +15,11 @@
   function handleTabClick(id: string) {
     setActiveTab(id);
     isMobileMenuOpen = false;
+    
+    // Check if we need to navigate home
+    if ($page.url.pathname !== '/') {
+      goto('/');
+    }
   }
 
   function handleRefresh() {
