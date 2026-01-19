@@ -16,7 +16,7 @@
 		}
 	});
 
-	function handleSave() {
+	async function handleSave() {
 		message = '';
 		if (!url) {
 			message = 'Server URL is required.';
@@ -40,9 +40,14 @@
 			name: 'Home Assistant'
 		};
 
-		saveServerConfig(config);
-		message = 'Configuration saved.';
-		messageType = 'success';
+		try {
+			await saveServerConfig(config);
+			message = 'Configuration saved securely.';
+			messageType = 'success';
+		} catch (error) {
+			message = 'Failed to save configuration.';
+			messageType = 'error';
+		}
 	}
 
 	function handleTest() {

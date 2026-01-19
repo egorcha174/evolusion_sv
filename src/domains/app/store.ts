@@ -1,36 +1,46 @@
 import { browser } from '$app/environment';
 import { writable } from 'svelte/store';
 import type { AppState, ServerConfig } from '$lib/types';
+import { getOrCreateEncryptionKey, encrypt, decrypt } from '../ha/crypto';
 
 // Global app state using Svelte Store
 export const appState = writable<AppState>({
 	activeServer: null
 });
 
-const STORAGE_KEY = 'app_server_config';
+const STORAGE_KEY = 'app_server_config_encrypted';
 
-export function loadServerConfig(): void {
+export async function loadServerConfig(): Promise<void> {
 	if (!browser) return;
 	try {
-		const stored = localStorage.getItem(STORAGE_KEY);
-		if (stored) {
-			const config = JSON.parse(stored);
+		const encrypted = localStorage.getItem(STORAGE_KEY);
+		if (encrypted) {
+			const key = await getOrCreateEncryptionKey();
+			const configStr = await decrypt(encrypted, key);
+			const config = JSON.parse(configStr);
 			if (config && config.url && config.token) {
 				appState.update(s => ({ ...s, activeServer: config }));
 			}
 		}
 	} catch (e) {
 		console.error('Failed to load server config', e);
+		// Clear corrupted data
+		localStorage.removeItem(STORAGE_KEY);
 	}
 }
 
-export function saveServerConfig(config: ServerConfig): void {
+export async function saveServerConfig(config: ServerConfig): Promise<void> {
 	if (!browser) return;
 	try {
-		localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
+		const key = await getOrCreateEncryptionKey();
+		const configStr = JSON.stringify(config);
+		const encrypted = await encrypt(configStr, key);
+		
+		localStorage.setItem(STORAGE_KEY, encrypted);
 		appState.update(s => ({ ...s, activeServer: config }));
 	} catch (e) {
 		console.error('Failed to save server config', e);
+		throw e;
 	}
 }
 
