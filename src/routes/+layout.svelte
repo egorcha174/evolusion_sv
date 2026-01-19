@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import { appState, loadLayout, loadServerConfig } from '../domains/app/store';
   import { initializeHAConnection, disconnectHA } from '../domains/ha/store';
+  import Sidebar from '../domains/ui/Sidebar.svelte';
   import InfoPanel from '../domains/ui/InfoPanel.svelte';
   import DashboardHeader from '../domains/ui/DashboardHeader.svelte';
   import ThemeInjector from '../domains/ui/theme/ThemeInjector.svelte';
@@ -29,7 +30,10 @@
 <ThemeInjector />
 
 <div class="layout-container">
-  <!-- Left Side: InfoPanel (Visible on desktop) -->
+  <!-- Left Nav -->
+  <Sidebar />
+  
+  <!-- Info Panel (Desktop) -->
   <InfoPanel />
 
   <!-- Right Side: Main Application Content -->

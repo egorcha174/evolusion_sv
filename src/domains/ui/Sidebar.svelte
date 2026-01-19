@@ -63,11 +63,9 @@
 
 <style>
   .sidebar {
-    position: fixed;
-    left: 0;
-    top: 0;
+    position: relative; /* Changed from fixed */
     width: 260px;
-    height: 100vh;
+    height: 100%; /* Fill flex container */
     background: var(--bg-sidebar);
     border-right: 1px solid var(--border-primary);
     padding: 1.5rem 1rem;
@@ -75,14 +73,11 @@
     flex-direction: column;
     gap: 2rem;
     overflow-y: auto;
-    z-index: 100;
-    color: var(--text-secondary); /* Sidebar usually dark or distinctive */
-    box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+    z-index: 50;
+    color: var(--text-secondary);
+    box-shadow: 2px 0 10px rgba(0,0,0,0.02);
+    flex-shrink: 0; /* Prevent shrinking */
   }
-
-  /* Specific override if sidebar needs light text on dark bg regardless of theme? 
-     No, use palette values. Themes will handle contrast.
-  */
 
   .weather-section {
     text-align: center;
@@ -129,6 +124,7 @@
     align-items: center;
     gap: 12px;
     font-weight: 500;
+    text-decoration: none;
   }
 
   .link:hover {

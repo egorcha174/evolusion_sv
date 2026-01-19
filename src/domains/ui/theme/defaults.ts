@@ -11,8 +11,8 @@ const defaultLight: ThemePalette = {
   bgCard: '#ffffff',
   bgCardHover: '#fbfbfb',
   bgHeader: '#ffffff',
-  bgSidebar: '#1e2430',
-  bgSidebarActiveItem: '#2c3545',
+  bgSidebar: '#ffffff', /* Changed to light */
+  bgSidebarActiveItem: '#f0f2f5', /* Changed to light grey */
   bgInput: '#ffffff',
   bgChip: '#e4e6eb',
   bgChipActive: '#e7f3ff',

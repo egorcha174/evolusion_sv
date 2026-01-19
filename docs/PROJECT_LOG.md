@@ -24,3 +24,4 @@
 | 2024-05-22 | T-UI-01 | e4-05-tabs-logic | Tabs Logic | Implement filtering by active tab | src/domains/ui/DashboardGrid.svelte, src/domains/ui/DashboardHeader.svelte | Manual Verify | **Completed** | Next | Entities filter by name matching tab ID. |
 | 2024-05-22 | T-FIX-01 | e-fix-nav | Fix Tab Navigation | Navigate to home when clicking tabs from other pages | src/domains/ui/DashboardHeader.svelte | Manual Verify | **Completed** | Next | ... |
 | 2024-05-22 | T-UI-02 | e4-06-ui-cleanup | UI Cleanup | Remove logo text, move status to sidebar | src/domains/ui/DashboardHeader.svelte, src/domains/ui/Sidebar.svelte | Manual Verify | **Completed** | Next | ... |
+| 2024-05-22 | T-FIX-02 | e-fix-sidebar | Fix Sidebar Visibility | Add Sidebar to layout, fix positioning and theme contrast | src/routes/+layout.svelte, src/domains/ui/Sidebar.svelte, src/domains/ui/theme/defaults.ts | Visual Check | **Completed** | Next | ... |
