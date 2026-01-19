@@ -1,3 +1,4 @@
+
 // Re-export HA contracts
 export * from '../domains/ha/contracts/messages';
 
@@ -34,6 +35,7 @@ export interface HAStoreState {
 	isLoading: boolean;
 	error: string | null;
 	entities: Map<string, HAEntity>;
+	latency?: number; // Connection latency in ms
 }
 
 // --- Theming System ---

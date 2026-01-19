@@ -1,3 +1,4 @@
+
 # Project Log
 
 | Date (UTC) | Task ID | Step ID | Title | Goal | Files Changed | Verification | Status | Next Step | Notes |
@@ -28,3 +29,4 @@
 | 2024-05-22 | T-FIX-03 | e-fix-layout | Unify Sidebar | Remove InfoPanel, keep only Sidebar with status and nav | src/routes/+layout.svelte, src/domains/ui/Sidebar.svelte | Visual Check | **Completed** | Next | ... |
 | 2024-05-22 | T-UI-03 | e-ui-info-sidebar | Info Sidebar | Convert Sidebar to info-only (Clock, Weather, Camera), remove nav | src/domains/ui/Sidebar.svelte | Visual Check | **Completed** | Next | ... |
 | 2024-05-22 | T-UI-04 | e-ui-resizable-sidebar | Resizable Sidebar | Add drag handle and persistence for sidebar width | src/domains/ui/store.ts, src/domains/ui/Sidebar.svelte | Manual Verify | **Completed** | Next | ... |
+| 2024-05-22 | T-REF-01 | e-refactor-perf | Performance Audit | Batching updates, centralized time, latency check | src/domains/ha/store.ts, src/domains/ha/api.ts, src/domains/app/time.ts, src/domains/ui/Sidebar.svelte | Manual Verify | **Completed** | Next | ... |

@@ -1,3 +1,4 @@
+
 import type { 
   AuthMessage, 
   GetStatesMessage, 
@@ -108,6 +109,12 @@ export class HAClient {
       service_data: serviceData
     });
   }
+  
+  async ping(): Promise<number> {
+    const start = performance.now();
+    await this._sendCommand({ type: 'ping' });
+    return performance.now() - start;
+  }
 
   onStateChange(callback: (event: StateChangedEvent) => void): void {
     this.stateChangeCallbacks.add(callback);
@@ -188,6 +195,7 @@ export class HAClient {
         break;
 
       case 'pong':
+        this._handleResult(data as any); // Pong also uses ID matching
         break;
         
       default:
@@ -206,7 +214,7 @@ export class HAClient {
   private _handleResult(data: ResultMessage) {
     const pending = this.pendingCommands.get(data.id);
     if (pending) {
-      if (data.success) {
+      if (data.success || data.type === 'pong' as any) {
         if (data.result !== undefined) {
            pending.resolve(data.result);
         } else {

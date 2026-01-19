@@ -1,3 +1,4 @@
+
 import { writable, derived, get, type Readable } from 'svelte/store';
 import { HAClient } from './api';
 import type { HAStoreState, HAEntity, StateChangedEvent, HAState } from '$lib/types';
@@ -7,7 +8,8 @@ export const haStore = writable<HAStoreState>({
 	isConnected: false,
 	isLoading: false,
 	error: null,
-	entities: new Map()
+	entities: new Map(),
+	latency: undefined
 });
 
 // Derived stores for UI
@@ -19,12 +21,39 @@ export const connectedEntities: Readable<HAEntity[]> = derived(haStore, ($store)
 	return Array.from($store.entities.values()).filter((e: HAEntity) => e.state !== 'unavailable');
 });
 
-// Internal client instance
+// Internal client instance and intervals
 let client: HAClient | null = null;
+let pingInterval: ReturnType<typeof setInterval> | null = null;
+
+// --- Update Batching Mechanism ---
+// This prevents hundreds of re-renders per second when many events fire at once.
+let updateBuffer = new Map<string, HAEntity>();
+let updateFrame: number | null = null;
+
+function flushUpdates() {
+	haStore.update((s) => {
+		// Clone only once per frame
+		const newEntities = new Map(s.entities);
+		updateBuffer.forEach((state, id) => {
+			newEntities.set(id, state);
+		});
+		return { ...s, entities: newEntities };
+	});
+	
+	updateBuffer.clear();
+	updateFrame = null;
+}
+
+function scheduleUpdate(entityId: string, newState: HAEntity) {
+	updateBuffer.set(entityId, newState);
+	
+	if (!updateFrame) {
+		updateFrame = requestAnimationFrame(flushUpdates);
+	}
+}
+// --------------------------------
 
 export async function initializeHAConnection(url: string, token: string): Promise<void> {
-	// Prevent duplicate connection attempts if already connecting/connected to same config?
-	// For MVP, we simply disconnect previous and connect new.
 	if (client) {
 		await disconnectHA();
 	}
@@ -38,7 +67,7 @@ export async function initializeHAConnection(url: string, token: string): Promis
 		// Initial data fetch
 		const states = await client.getStates();
 		
-		// Update store with initial states
+		// Bulk initial update - no need to batch here as it's one atomic operation
 		haStore.update((s) => {
 			const newEntities = new Map<string, HAEntity>();
 			states.forEach((state) => {
@@ -56,10 +85,11 @@ export async function initializeHAConnection(url: string, token: string): Promis
 		client.onStateChange((event: StateChangedEvent) => {
 			if (event.data.new_state) {
 				updateEntity(event.data.entity_id, mapStateToEntity(event.data.new_state));
-			} else {
-				// Entity removed? Handle if needed. For now just ignore null new_state
 			}
 		});
+
+		// Start Heartbeat/Ping
+		startPingLoop();
 
 	} catch (error: any) {
 		console.error('HA Connection failed:', error);
@@ -68,7 +98,6 @@ export async function initializeHAConnection(url: string, token: string): Promis
 			isConnected: false,
 			error: error.message || 'Connection failed'
 		}));
-		// Ensure client is cleaned up if connection failed partway
 		if (client) {
 			try {
 				await client.disconnect();
@@ -80,7 +109,32 @@ export async function initializeHAConnection(url: string, token: string): Promis
 	}
 }
 
+function startPingLoop() {
+	if (pingInterval) clearInterval(pingInterval);
+	
+	// Initial ping
+	measureLatency();
+
+	// Ping every 30 seconds
+	pingInterval = setInterval(measureLatency, 30000);
+}
+
+async function measureLatency() {
+	if (!client || !client.isConnected()) return;
+	try {
+		const ms = await client.ping();
+		haStore.update(s => ({ ...s, latency: Math.round(ms) }));
+	} catch (e) {
+		console.warn('Ping failed', e);
+	}
+}
+
 export async function disconnectHA(): Promise<void> {
+	if (pingInterval) {
+		clearInterval(pingInterval);
+		pingInterval = null;
+	}
+
 	if (client) {
 		await client.disconnect();
 		client = null;
@@ -88,20 +142,15 @@ export async function disconnectHA(): Promise<void> {
 	haStore.update((s) => ({
 		...s,
 		isConnected: false,
-		entities: new Map(), // Clear data on disconnect
-		error: null
+		entities: new Map(),
+		error: null,
+		latency: undefined
 	}));
 }
 
 export function updateEntity(entityId: string, newState: HAEntity): void {
-	haStore.update((s) => {
-		// Create a new Map to ensure Svelte store reactivity detects the change
-		// Optimization: In very large lists, this might be slow. 
-		// For MVP it's acceptable.
-		const newEntities = new Map(s.entities);
-		newEntities.set(entityId, newState);
-		return { ...s, entities: newEntities };
-	});
+	// Use the batched scheduler instead of direct store update
+	scheduleUpdate(entityId, newState);
 }
 
 export function getEntity(entityId: string): HAEntity | undefined {
@@ -149,13 +198,10 @@ export async function toggleEntity(entityId: string): Promise<void> {
 	} else if (domain === 'script') {
 		await client.callService('script', 'turn_on', { entity_id: entityId });
 	} else {
-		// Try generic toggle for other domains if needed, or error
 		throw new Error(`Cannot toggle entity with domain: ${domain}`);
 	}
 }
 
-// Helper to map raw HAState (contracts) to HAEntity (app type)
-// Currently they are identical, but good to have the separation layer
 function mapStateToEntity(state: HAState): HAEntity {
 	return {
 		entity_id: state.entity_id,

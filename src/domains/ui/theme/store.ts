@@ -1,8 +1,10 @@
-import { writable, derived, get } from 'svelte/store';
+
+import { writable, derived } from 'svelte/store';
 import { browser } from '$app/environment';
-import type { ThemeSettings, ThemeDefinition, ThemePalette, ColorScheme } from '$lib/types';
+import type { ThemeSettings, ThemePalette, ColorScheme } from '$lib/types';
 import { DEFAULT_THEME, BUILTIN_THEMES } from './defaults';
 import { generateThemeCss } from './utils';
+import { minutesOfDay } from '../../app/time';
 
 const STORAGE_KEY = 'evolusion_theme_settings';
 
@@ -30,7 +32,6 @@ function createSettingsStore() {
         const stored = localStorage.getItem(STORAGE_KEY);
         if (stored) {
           const parsed = JSON.parse(stored);
-          // Merge to ensure new properties exist if schema changed
           set({ ...DEFAULT_SETTINGS, ...parsed });
         }
       } catch (e) {
@@ -49,26 +50,16 @@ export const themeSettings = createSettingsStore();
 
 // --- Environment Stores ---
 export const systemPrefersDark = writable<boolean>(false);
-export const timeOfDayMinutes = writable<number>(0);
 
 if (browser) {
-  // 1. System Preference
   const mq = window.matchMedia('(prefers-color-scheme: dark)');
   systemPrefersDark.set(mq.matches);
   mq.addEventListener('change', (e) => systemPrefersDark.set(e.matches));
-
-  // 2. Time Tracker (for Schedule)
-  const updateTime = () => {
-    const now = new Date();
-    timeOfDayMinutes.set(now.getHours() * 60 + now.getMinutes());
-  };
-  updateTime();
-  setInterval(updateTime, 60000); // Check every minute
 }
 
 // --- Derived State ---
 export const themeState = derived(
-  [themeSettings, systemPrefersDark, timeOfDayMinutes],
+  [themeSettings, systemPrefersDark, minutesOfDay],
   ([$settings, $systemDark, $minutes]) => {
     
     // 1. Determine Scheme
@@ -88,10 +79,8 @@ export const themeState = derived(
       
       let isDarkTime = false;
       if (start < end) {
-        // Simple interval (e.g. 10:00 to 20:00)
         isDarkTime = $minutes >= start && $minutes < end;
       } else {
-        // Cross midnight (e.g. 22:00 to 07:00)
         isDarkTime = $minutes >= start || $minutes < end;
       }
       scheme = isDarkTime ? 'dark' : 'light';
