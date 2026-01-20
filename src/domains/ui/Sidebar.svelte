@@ -4,7 +4,7 @@
   import { haStore } from '../ha/store';
   import { sidebarWidth, loadUIState, saveUIState } from './store';
   import { timeString } from '../app/time';
-  import { weatherStore, initWeather, destroyWeather } from '../../lib/weather/store';
+  import { weatherStore, initWeather, destroyWeather, weatherSettings } from '../../lib/weather/store';
   
   // Resizing state
   let width = $state(280);
@@ -61,6 +61,10 @@
     if (ms < 150) return 'var(--accent-warning)';
     return 'var(--accent-error)';
   }
+  
+  function formatDay(date: Date): string {
+    return date.toLocaleDateString('en-US', { weekday: 'short' });
+  }
 </script>
 
 <aside class="sidebar" style="width: {width}px">
@@ -87,25 +91,49 @@
           <iconify-icon icon="mdi:cloud-off-outline" width="24"></iconify-icon>
        </div>
     {:else if $weatherStore.current}
-      <div class="weather-icon">
-         <iconify-icon icon={$weatherStore.current.icon} width="48"></iconify-icon>
-      </div>
-      <div class="weather-info">
-        <div class="temp">
-          {$weatherStore.current.temperature}°
+      <!-- Current Weather -->
+      <div class="current-weather">
+        <div class="weather-icon">
+           <iconify-icon icon={$weatherStore.current.icon} width="48"></iconify-icon>
         </div>
-        <div class="condition">
-           {$weatherStore.current.condition}
+        <div class="weather-info">
+          <div class="temp">
+            {$weatherStore.current.temperature}°
+          </div>
+          <div class="condition">
+             {$weatherStore.current.condition}
+          </div>
         </div>
       </div>
+      
+      <!-- Forecast -->
+      {#if $weatherSettings.showForecast && $weatherStore.current.forecast.length > 0}
+        <div class="forecast-list">
+           {#each $weatherStore.current.forecast as day}
+             <div class="forecast-row">
+               <div class="forecast-day">{formatDay(day.date)}</div>
+               <div class="forecast-icon">
+                 <iconify-icon icon={day.icon} width="20"></iconify-icon>
+               </div>
+               <div class="forecast-temp">
+                 <span class="max">{day.maxTemp}°</span>
+                 <span class="min">{day.minTemp}°</span>
+               </div>
+             </div>
+           {/each}
+        </div>
+      {/if}
+
     {:else}
        <!-- Fallback/Empty -->
-       <div class="weather-icon">
-         <iconify-icon icon="mdi:weather-partly-cloudy" width="48"></iconify-icon>
-       </div>
-       <div class="weather-info">
-         <div class="temp">--°</div>
-         <div class="condition">Offline</div>
+       <div class="current-weather">
+         <div class="weather-icon">
+           <iconify-icon icon="mdi:weather-partly-cloudy" width="48"></iconify-icon>
+         </div>
+         <div class="weather-info">
+           <div class="temp">--°</div>
+           <div class="condition">Offline</div>
+         </div>
        </div>
     {/if}
   </div>
@@ -207,16 +235,25 @@
   /* Weather */
   .weather-widget {
     display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: center;
+    flex-direction: column; /* Changed to column to stack forecast */
     gap: 1rem;
     background: var(--bg-card);
     padding: 1rem;
     border-radius: 16px;
     border: 1px solid var(--border-card);
     min-height: 80px;
+    width: 100%;
   }
+  
+  .current-weather {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    width: 100%;
+  }
+
   .weather-icon { color: var(--accent-info); }
   .weather-info { display: flex; flex-direction: column; }
   .temp {
@@ -236,6 +273,44 @@
     color: var(--accent-error);
     opacity: 0.7;
   }
+  
+  /* Forecast List */
+  .forecast-list {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    border-top: 1px solid var(--border-divider, rgba(128,128,128,0.1));
+    padding-top: 0.75rem;
+  }
+  
+  .forecast-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.85rem;
+  }
+  
+  .forecast-day {
+    color: var(--text-secondary);
+    width: 40px;
+  }
+  
+  .forecast-icon {
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .forecast-temp {
+    display: flex;
+    gap: 0.5rem;
+    font-variant-numeric: tabular-nums;
+  }
+  
+  .forecast-temp .max { font-weight: 600; color: var(--text-primary); }
+  .forecast-temp .min { color: var(--text-muted); }
 
   .spinner {
     width: 24px;

@@ -19,6 +19,11 @@
   let wLat = $state($weatherSettings.customLocation?.lat ?? 55.1644);
   let wLon = $state($weatherSettings.customLocation?.lon ?? 61.4368);
   
+  // New settings
+  let wShowForecast = $state($weatherSettings.showForecast);
+  let wForecastDays = $state($weatherSettings.forecastDays);
+  let wIconPack = $state($weatherSettings.iconPack);
+  
   // Reactive derived location status
   let locationInfo = $derived(resolveCoordinates($weatherSettings));
 
@@ -90,6 +95,9 @@
 	}
 
   function saveWeather() {
+     // Validate days
+     const days = Math.max(1, Math.min(wForecastDays, 7));
+     
      weatherSettings.update(s => ({
        ...s,
        provider: wProvider,
@@ -98,7 +106,10 @@
        customLocation: {
          lat: wLat,
          lon: wLon
-       }
+       },
+       showForecast: wShowForecast,
+       forecastDays: days,
+       iconPack: wIconPack
      }));
      refreshWeatherConfig();
   }
@@ -172,7 +183,32 @@
         <input id="w-key" type="password" bind:value={wApiKey} placeholder="Paste your API key here" />
       </div>
     {/if}
+    
+    <!-- Forecast Config -->
+    <div class="form-group checkbox-group">
+      <label>
+        <input type="checkbox" bind:checked={wShowForecast} />
+        Show Multi-day Forecast
+      </label>
+    </div>
+    
+    {#if wShowForecast}
+      <div class="form-group">
+        <label for="w-days">Forecast Days: {wForecastDays}</label>
+        <input id="w-days" type="range" min="1" max="7" step="1" bind:value={wForecastDays} />
+      </div>
+    {/if}
+    
+    <div class="form-group">
+      <label for="w-icon-pack">Icon Pack</label>
+      <select id="w-icon-pack" bind:value={wIconPack}>
+        <option value="default">Default</option>
+        <option value="outline">Outline</option>
+        <option value="filled">Filled</option>
+      </select>
+    </div>
 
+    <!-- Location -->
     <div class="form-group checkbox-group">
       <label>
         <input type="checkbox" bind:checked={wUseCustom} />
@@ -321,7 +357,11 @@
 		box-sizing: border-box;
     background: var(--bg-input, #fff);
     color: var(--text-primary);
-	}
+  }
+  
+  input[type="range"] {
+    padding: 0;
+  }
 
   .schedule-inputs {
     display: flex;

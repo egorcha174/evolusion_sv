@@ -54,5 +54,6 @@ export async function fetchWeather(settings: WeatherSettings): Promise<WeatherDa
   const provider = getProvider(settings.provider);
   const coords = resolveCoordinates(settings);
 
-  return provider.getWeather(coords, settings.apiKey);
+  // Pass full settings so providers can respect days, icon packs, etc.
+  return provider.getWeather(coords, settings);
 }

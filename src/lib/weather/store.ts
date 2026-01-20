@@ -9,7 +9,10 @@ const SETTINGS_KEY = 'evolusion_weather_settings';
 const defaultSettings: WeatherSettings = {
   provider: 'openmeteo',
   useCustomLocation: false,
-  refreshIntervalMinutes: 15
+  refreshIntervalMinutes: 15,
+  showForecast: true,
+  forecastDays: 3,
+  iconPack: 'default'
 };
 
 const initialState: WeatherState = {
@@ -32,7 +35,9 @@ export async function initWeather() {
   try {
     const stored = localStorage.getItem(SETTINGS_KEY);
     if (stored) {
-      weatherSettings.set({ ...defaultSettings, ...JSON.parse(stored) });
+      const parsed = JSON.parse(stored);
+      // Merge to ensure new keys exist if loading old settings
+      weatherSettings.set({ ...defaultSettings, ...parsed });
     }
   } catch (e) {
     console.error('Failed to load weather settings', e);

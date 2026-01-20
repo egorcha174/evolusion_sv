@@ -1,10 +1,19 @@
 
+export interface WeatherForecastDay {
+  date: Date;
+  minTemp: number;
+  maxTemp: number;
+  condition: string;
+  icon: string;
+}
+
 export interface WeatherData {
   temperature: number;
   condition: string;
   icon: string; // mdi icon name
   location: string;
   updatedAt: Date;
+  forecast: WeatherForecastDay[];
 }
 
 export interface WeatherState {
@@ -20,6 +29,7 @@ export interface Coordinates {
 }
 
 export type WeatherProviderType = 'openmeteo' | 'openweathermap' | 'weatherapi';
+export type WeatherIconPack = 'default' | 'outline' | 'filled';
 
 export interface WeatherSettings {
   provider: WeatherProviderType;
@@ -31,11 +41,15 @@ export interface WeatherSettings {
     name?: string;
   };
   refreshIntervalMinutes: number;
+  // Forecast settings
+  showForecast: boolean;
+  forecastDays: number; // 1-7
+  iconPack: WeatherIconPack;
 }
 
 export interface WeatherProvider {
   id: WeatherProviderType;
   name: string;
   requiresApiKey: boolean;
-  getWeather(coords: Coordinates, apiKey?: string): Promise<WeatherData>;
+  getWeather(coords: Coordinates, settings: WeatherSettings): Promise<WeatherData>;
 }

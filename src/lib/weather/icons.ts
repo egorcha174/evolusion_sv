@@ -1,39 +1,94 @@
 
-/**
- * Maps WMO Weather Codes (Open-Meteo) to MDI Icons
- */
-export function getWeatherIcon(code: number): string {
-  const map: Record<number, string> = {
-    0: 'mdi:weather-sunny',
-    1: 'mdi:weather-partly-cloudy',
-    2: 'mdi:weather-partly-cloudy',
-    3: 'mdi:weather-cloudy',
-    45: 'mdi:weather-fog',
-    48: 'mdi:weather-fog',
-    51: 'mdi:weather-pouring',
-    53: 'mdi:weather-pouring',
-    55: 'mdi:weather-pouring',
-    56: 'mdi:weather-snowy-rainy',
-    57: 'mdi:weather-snowy-rainy',
-    61: 'mdi:weather-rainy',
-    63: 'mdi:weather-rainy',
-    65: 'mdi:weather-pouring',
-    66: 'mdi:weather-snowy-rainy',
-    67: 'mdi:weather-snowy-rainy',
-    71: 'mdi:weather-snowy',
-    73: 'mdi:weather-snowy',
-    75: 'mdi:weather-snowy-heavy',
-    77: 'mdi:weather-snowy',
-    80: 'mdi:weather-rainy',
-    81: 'mdi:weather-pouring',
-    82: 'mdi:weather-pouring',
-    85: 'mdi:weather-snowy',
-    86: 'mdi:weather-snowy-heavy',
-    95: 'mdi:weather-lightning',
-    96: 'mdi:weather-lightning-rainy',
-    99: 'mdi:weather-lightning-rainy',
-  };
-  return map[code] || 'mdi:weather-cloudy';
+import type { WeatherIconPack } from './types';
+
+// Core mapping of codes to semantic keys
+// Using a semantic key allows us to map to different packs easily
+const CODE_TO_KEY: Record<number, string> = {
+  0: 'sunny',
+  1: 'partly-cloudy',
+  2: 'partly-cloudy',
+  3: 'cloudy',
+  45: 'fog',
+  48: 'fog',
+  51: 'rain-light',
+  53: 'rain',
+  55: 'rain-heavy',
+  56: 'rain-snow',
+  57: 'rain-snow',
+  61: 'rain-light',
+  63: 'rain',
+  65: 'rain-heavy',
+  66: 'rain-snow',
+  67: 'rain-snow',
+  71: 'snow-light',
+  73: 'snow',
+  75: 'snow-heavy',
+  77: 'snow',
+  80: 'rain',
+  81: 'rain-heavy',
+  82: 'rain-heavy',
+  85: 'snow',
+  86: 'snow-heavy',
+  95: 'lightning',
+  96: 'lightning-rainy',
+  99: 'lightning-rainy',
+};
+
+// Pack definitions
+const PACKS: Record<WeatherIconPack, Record<string, string>> = {
+  default: {
+    'sunny': 'mdi:weather-sunny',
+    'partly-cloudy': 'mdi:weather-partly-cloudy',
+    'cloudy': 'mdi:weather-cloudy',
+    'fog': 'mdi:weather-fog',
+    'rain-light': 'mdi:weather-rainy',
+    'rain': 'mdi:weather-pouring',
+    'rain-heavy': 'mdi:weather-pouring',
+    'rain-snow': 'mdi:weather-snowy-rainy',
+    'snow-light': 'mdi:weather-snowy',
+    'snow': 'mdi:weather-snowy',
+    'snow-heavy': 'mdi:weather-snowy-heavy',
+    'lightning': 'mdi:weather-lightning',
+    'lightning-rainy': 'mdi:weather-lightning-rainy',
+    'unknown': 'mdi:weather-cloudy'
+  },
+  outline: {
+    'sunny': 'mdi:white-balance-sunny', // Approximated as "thinner" or distinct
+    'partly-cloudy': 'mdi:weather-partly-cloudy', // MDI lacks full outline set, using closest
+    'cloudy': 'mdi:cloud-outline',
+    'fog': 'mdi:weather-fog',
+    'rain-light': 'mdi:weather-rainy',
+    'rain': 'mdi:weather-pouring',
+    'rain-heavy': 'mdi:weather-pouring',
+    'rain-snow': 'mdi:weather-snowy-rainy',
+    'snow-light': 'mdi:weather-snowy',
+    'snow': 'mdi:weather-snowy',
+    'snow-heavy': 'mdi:weather-snowy-heavy',
+    'lightning': 'mdi:weather-lightning',
+    'lightning-rainy': 'mdi:weather-lightning-rainy',
+    'unknown': 'mdi:cloud-outline'
+  },
+  filled: {
+    'sunny': 'mdi:weather-sunny',
+    'partly-cloudy': 'mdi:cloud', // Using pure cloud for filled contrast vs cloud-outline
+    'cloudy': 'mdi:cloud',
+    'fog': 'mdi:weather-fog',
+    'rain-light': 'mdi:weather-rainy',
+    'rain': 'mdi:weather-pouring',
+    'rain-heavy': 'mdi:weather-pouring',
+    'rain-snow': 'mdi:weather-snowy-rainy',
+    'snow-light': 'mdi:weather-snowy',
+    'snow': 'mdi:weather-snowy',
+    'snow-heavy': 'mdi:weather-snowy-heavy',
+    'lightning': 'mdi:weather-lightning',
+    'lightning-rainy': 'mdi:weather-lightning-rainy',
+    'unknown': 'mdi:cloud'
+  }
+};
+
+export function getWeatherIcon(code: number, pack: WeatherIconPack = 'default'): string {
+  const key = CODE_TO_KEY[code] || 'unknown';
+  return PACKS[pack][key] || PACKS['default'][key] || 'mdi:weather-cloudy';
 }
 
 export function getWeatherDescription(code: number): string {
@@ -54,97 +109,89 @@ export function getWeatherDescription(code: number): string {
     65: 'Heavy rain',
     66: 'Light freezing rain',
     67: 'Heavy freezing rain',
-    71: 'Slight snow fall',
-    73: 'Moderate snow fall',
-    75: 'Heavy snow fall',
+    71: 'Slight snow',
+    73: 'Moderate snow',
+    75: 'Heavy snow',
     77: 'Snow grains',
-    80: 'Slight rain showers',
-    81: 'Moderate rain showers',
-    82: 'Violent rain showers',
-    85: 'Slight snow showers',
+    80: 'Slight showers',
+    81: 'Moderate showers',
+    82: 'Violent showers',
+    85: 'Snow showers',
     86: 'Heavy snow showers',
     95: 'Thunderstorm',
-    96: 'Thunderstorm with slight hail',
-    99: 'Thunderstorm with heavy hail',
+    96: 'Thunderstorm w/ hail',
+    99: 'Thunderstorm w/ heavy hail',
   };
   return map[code] || 'Unknown';
 }
 
 /**
- * Maps OpenWeatherMap Icon Codes to MDI
- * https://openweathermap.org/weather-conditions
+ * Maps OpenWeatherMap Codes to WMO Code for unified handling
  */
-export function getOpenWeatherMapIcon(id: number): string {
-  // Group 2xx: Thunderstorm
-  if (id >= 200 && id < 300) return 'mdi:weather-lightning';
-  // Group 3xx: Drizzle
-  if (id >= 300 && id < 400) return 'mdi:weather-pouring';
-  // Group 5xx: Rain
-  if (id >= 500 && id < 600) return 'mdi:weather-rainy';
-  // Group 6xx: Snow
-  if (id >= 600 && id < 700) return 'mdi:weather-snowy';
-  // Group 7xx: Atmosphere (Fog, Mist, etc)
-  if (id >= 700 && id < 800) return 'mdi:weather-fog';
-  // Group 800: Clear
-  if (id === 800) return 'mdi:weather-sunny';
-  // Group 80x: Clouds
-  if (id > 800) return 'mdi:weather-cloudy';
-  
-  return 'mdi:weather-cloudy';
+export function mapOpenWeatherMapCode(id: number): number {
+  if (id >= 200 && id < 300) return 95; // Thunderstorm
+  if (id >= 300 && id < 400) return 51; // Drizzle
+  if (id >= 500 && id < 600) return 61; // Rain
+  if (id >= 600 && id < 700) return 71; // Snow
+  if (id >= 700 && id < 800) return 45; // Fog
+  if (id === 800) return 0; // Clear
+  if (id === 801) return 1; // Few clouds
+  if (id === 802) return 2; // Scattered clouds
+  if (id >= 803) return 3; // Broken/Overcast
+  return 3;
 }
 
 /**
- * Maps WeatherAPI Condition Codes to MDI
- * https://www.weatherapi.com/docs/weather_conditions.json
+ * Maps WeatherAPI Condition Codes to WMO Code
  */
-export function getWeatherApiIcon(code: number): string {
-  const map: Record<number, string> = {
-    1000: 'mdi:weather-sunny',
-    1003: 'mdi:weather-partly-cloudy',
-    1006: 'mdi:weather-cloudy',
-    1009: 'mdi:weather-cloudy',
-    1030: 'mdi:weather-fog',
-    1063: 'mdi:weather-rainy',
-    1066: 'mdi:weather-snowy',
-    1069: 'mdi:weather-snowy-rainy',
-    1072: 'mdi:weather-snowy-rainy',
-    1087: 'mdi:weather-lightning',
-    1114: 'mdi:weather-snowy',
-    1117: 'mdi:weather-snowy-heavy',
-    1135: 'mdi:weather-fog',
-    1147: 'mdi:weather-fog',
-    1150: 'mdi:weather-pouring',
-    1153: 'mdi:weather-pouring',
-    1180: 'mdi:weather-rainy',
-    1183: 'mdi:weather-rainy',
-    1186: 'mdi:weather-rainy',
-    1189: 'mdi:weather-rainy',
-    1192: 'mdi:weather-pouring',
-    1195: 'mdi:weather-pouring',
-    1198: 'mdi:weather-snowy-rainy',
-    1201: 'mdi:weather-snowy-rainy',
-    1204: 'mdi:weather-snowy-rainy',
-    1207: 'mdi:weather-snowy-rainy',
-    1210: 'mdi:weather-snowy',
-    1213: 'mdi:weather-snowy',
-    1216: 'mdi:weather-snowy',
-    1219: 'mdi:weather-snowy',
-    1222: 'mdi:weather-snowy-heavy',
-    1225: 'mdi:weather-snowy-heavy',
-    1237: 'mdi:weather-hail',
-    1240: 'mdi:weather-rainy',
-    1243: 'mdi:weather-pouring',
-    1246: 'mdi:weather-pouring',
-    1249: 'mdi:weather-snowy-rainy',
-    1252: 'mdi:weather-snowy-rainy',
-    1255: 'mdi:weather-snowy',
-    1258: 'mdi:weather-snowy-heavy',
-    1261: 'mdi:weather-hail',
-    1264: 'mdi:weather-hail',
-    1273: 'mdi:weather-lightning-rainy',
-    1276: 'mdi:weather-lightning-rainy',
-    1279: 'mdi:weather-lightning-rainy', // Snow lightning
-    1282: 'mdi:weather-lightning-rainy',
+export function mapWeatherApiCode(code: number): number {
+  const map: Record<number, number> = {
+    1000: 0, // Sunny
+    1003: 1, // Partly cloudy
+    1006: 3, // Cloudy
+    1009: 3, // Overcast
+    1030: 45, // Mist
+    1063: 51, // Patchy rain possible
+    1066: 71, // Patchy snow possible
+    1069: 56, // Patchy sleet possible
+    1072: 56, // Patchy freezing drizzle possible
+    1087: 95, // Thundery outbreaks possible
+    1114: 77, // Blowing snow
+    1117: 75, // Blizzard
+    1135: 45, // Fog
+    1147: 48, // Freezing fog
+    1150: 51, // Patchy light drizzle
+    1153: 51, // Light drizzle
+    1180: 61, // Patchy light rain
+    1183: 61, // Light rain
+    1186: 63, // Moderate rain at times
+    1189: 63, // Moderate rain
+    1192: 65, // Heavy rain at times
+    1195: 65, // Heavy rain
+    1198: 66, // Light freezing rain
+    1201: 67, // Moderate or heavy freezing rain
+    1204: 56, // Light sleet
+    1207: 56, // Moderate or heavy sleet
+    1210: 71, // Patchy light snow
+    1213: 71, // Light snow
+    1216: 73, // Patchy moderate snow
+    1219: 73, // Moderate snow
+    1222: 75, // Patchy heavy snow
+    1225: 75, // Heavy snow
+    1237: 77, // Ice pellets
+    1240: 80, // Light rain shower
+    1243: 81, // Moderate or heavy rain shower
+    1246: 82, // Torrential rain shower
+    1249: 66, // Light sleet showers
+    1252: 67, // Moderate or heavy sleet showers
+    1255: 85, // Light snow showers
+    1258: 86, // Moderate or heavy snow showers
+    1261: 96, // Light showers of ice pellets
+    1264: 99, // Moderate or heavy showers of ice pellets
+    1273: 95, // Patchy light rain with thunder
+    1276: 95, // Moderate or heavy rain with thunder
+    1279: 95, // Patchy light snow with thunder
+    1282: 95, // Moderate or heavy snow with thunder
   };
-  return map[code] || 'mdi:weather-cloudy';
+  return map[code] || 3;
 }
