@@ -48,7 +48,7 @@
     "weatherKey": "API Key",
     "weatherKeyPlaceholder": "Paste API key here",
     "weatherShowForecast": "Show Forecast",
-    "weatherDays": "Forecast Days: {count}",
+    "weatherDaysLabel": "Forecast days",
     "weatherLayout": "Forecast Layout",
     "layoutVertical": "Vertical",
     "layoutHorizontal": "Horizontal",
