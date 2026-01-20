@@ -108,16 +108,21 @@
       
       <!-- Forecast -->
       {#if $weatherSettings.showForecast && $weatherStore.current.forecast.length > 0}
-        <div class="forecast-list">
+        <div 
+          class="forecast-list" 
+          class:horizontal={$weatherSettings.forecastLayout === 'horizontal'}
+        >
            {#each $weatherStore.current.forecast as day}
-             <div class="forecast-row">
+             <div class="forecast-item">
                <div class="forecast-day">{formatDay(day.date)}</div>
                <div class="forecast-icon">
                  <iconify-icon icon={day.icon} width="20"></iconify-icon>
                </div>
                <div class="forecast-temp">
                  <span class="max">{day.maxTemp}°</span>
-                 <span class="min">{day.minTemp}°</span>
+                 {#if $weatherSettings.forecastLayout === 'vertical'}
+                   <span class="min">{day.minTemp}°</span>
+                 {/if}
                </div>
              </div>
            {/each}
@@ -274,7 +279,7 @@
     opacity: 0.7;
   }
   
-  /* Forecast List */
+  /* Forecast List - Default Vertical */
   .forecast-list {
     width: 100%;
     display: flex;
@@ -284,7 +289,7 @@
     padding-top: 0.75rem;
   }
   
-  .forecast-row {
+  .forecast-item {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -311,6 +316,45 @@
   
   .forecast-temp .max { font-weight: 600; color: var(--text-primary); }
   .forecast-temp .min { color: var(--text-muted); }
+
+  /* Forecast List - Horizontal Mode */
+  .forecast-list.horizontal {
+    flex-direction: row;
+    overflow-x: auto;
+    padding-bottom: 4px; /* Space for scrollbar */
+    gap: 8px;
+    /* Hide scrollbar for webkit but allow scrolling */
+    scrollbar-width: thin;
+  }
+  
+  .forecast-list.horizontal::-webkit-scrollbar {
+    height: 4px;
+  }
+  
+  .forecast-list.horizontal::-webkit-scrollbar-thumb {
+    background: var(--text-muted);
+    border-radius: 2px;
+  }
+
+  .forecast-list.horizontal .forecast-item {
+    flex-direction: column;
+    min-width: 48px;
+    justify-content: flex-start;
+    gap: 4px;
+    background: var(--bg-card-hover, rgba(0,0,0,0.03));
+    padding: 8px 4px;
+    border-radius: 8px;
+    text-align: center;
+  }
+  
+  .forecast-list.horizontal .forecast-day {
+    width: auto;
+    font-size: 0.75rem;
+  }
+
+  .forecast-list.horizontal .forecast-temp {
+    font-size: 0.8rem;
+  }
 
   .spinner {
     width: 24px;

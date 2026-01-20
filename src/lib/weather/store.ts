@@ -12,7 +12,8 @@ const defaultSettings: WeatherSettings = {
   refreshIntervalMinutes: 15,
   showForecast: true,
   forecastDays: 3,
-  iconPack: 'default'
+  iconPack: 'default',
+  forecastLayout: 'vertical'
 };
 
 const initialState: WeatherState = {

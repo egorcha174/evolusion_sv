@@ -23,6 +23,7 @@
   let wShowForecast = $state($weatherSettings.showForecast);
   let wForecastDays = $state($weatherSettings.forecastDays);
   let wIconPack = $state($weatherSettings.iconPack);
+  let wForecastLayout = $state($weatherSettings.forecastLayout);
   
   // Reactive derived location status
   let locationInfo = $derived(resolveCoordinates($weatherSettings));
@@ -109,7 +110,8 @@
        },
        showForecast: wShowForecast,
        forecastDays: days,
-       iconPack: wIconPack
+       iconPack: wIconPack,
+       forecastLayout: wForecastLayout
      }));
      refreshWeatherConfig();
   }
@@ -196,6 +198,20 @@
       <div class="form-group">
         <label for="w-days">Forecast Days: {wForecastDays}</label>
         <input id="w-days" type="range" min="1" max="7" step="1" bind:value={wForecastDays} />
+      </div>
+      
+      <div class="form-group">
+        <label>Forecast Layout</label>
+        <div class="radio-group">
+           <label>
+             <input type="radio" bind:group={wForecastLayout} value="vertical"> 
+             Vertical
+           </label>
+           <label>
+             <input type="radio" bind:group={wForecastLayout} value="horizontal"> 
+             Horizontal
+           </label>
+        </div>
       </div>
     {/if}
     
@@ -338,6 +354,23 @@
   }
   
   .checkbox-group input {
+    width: auto;
+  }
+  
+  .radio-group {
+    display: flex;
+    gap: 1.5rem;
+  }
+  
+  .radio-group label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: normal;
+    cursor: pointer;
+  }
+  
+  .radio-group input {
     width: auto;
   }
 
