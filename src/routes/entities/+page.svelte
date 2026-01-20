@@ -1,5 +1,5 @@
-
 <script lang="ts">
+  import { t } from 'svelte-i18n';
   import { haStore } from '../../domains/ha/store';
   import { uiDashboardState, selectFilteredEntities } from '../../domains/ui/store';
   import EntityList from '../../domains/ui/EntityList.svelte';
@@ -22,27 +22,27 @@
 
 <div class="page-entities">
   <div class="page-header">
-    <h1>All Entities</h1>
+    <h1>{$t('entities.title')}</h1>
   </div>
   
   {#if $haStore.isLoading}
-    <div class="loading">Loading entities...</div>
+    <div class="loading">{$t('entities.loading')}</div>
   {:else if $haStore.error}
     <p class="error">Error: {$haStore.error}</p>
   {:else if $selectFilteredEntities.length === 0 && !$uiDashboardState.filters.search && !$uiDashboardState.filters.domain}
-    <p>No entities connected. Check your Home Assistant settings.</p>
+    <p>{$t('entities.noEntities')}</p>
   {:else}
     <div class="controls">
       <div class="filters">
         <input 
           type="text" 
-          placeholder="Search entities..." 
+          placeholder={$t('entities.search')} 
           bind:value={searchQuery}
           oninput={updateFilters}
           class="search-input"
         />
         <select bind:value={selectedDomain} onchange={updateFilters} class="domain-select">
-          <option value="">All domains</option>
+          <option value="">{$t('entities.allDomains')}</option>
           <option value="light">Lights</option>
           <option value="switch">Switches</option>
           <option value="sensor">Sensors</option>
@@ -56,7 +56,7 @@
       </div>
       
       <div class="results-count">
-        Showing {$selectFilteredEntities.length} entities
+        {$t('entities.showing', { count: $selectFilteredEntities.length })}
       </div>
     </div>
 

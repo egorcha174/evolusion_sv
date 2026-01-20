@@ -1,5 +1,5 @@
-
 <script lang="ts">
+  import { t } from 'svelte-i18n';
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
   import { tabs, activeTabId, isEditMode, setActiveTab, toggleEditMode } from '../app/tabsStore';
@@ -82,10 +82,10 @@
       {#if isKebabMenuOpen}
         <div class="dropdown-menu" onclick={(e) => e.stopPropagation()}>
           <a href="/settings" class="menu-item" onclick={() => isKebabMenuOpen = false}>
-            <iconify-icon icon="mdi:cog-outline"></iconify-icon> Settings
+            <iconify-icon icon="mdi:cog-outline"></iconify-icon> {$t('settings.title')}
           </a>
           <a href="/entities" class="menu-item" onclick={() => isKebabMenuOpen = false}>
-            <iconify-icon icon="mdi:format-list-bulleted"></iconify-icon> All Entities
+            <iconify-icon icon="mdi:format-list-bulleted"></iconify-icon> {$t('entities.title')}
           </a>
           <div class="divider"></div>
           <button class="menu-item" onclick={handleRefresh}>
@@ -94,7 +94,7 @@
           <div class="divider"></div>
           <button class="menu-item highlight" onclick={() => { toggleEditMode(); isKebabMenuOpen = false; }}>
             <iconify-icon icon={$isEditMode ? 'mdi:check' : 'mdi:view-dashboard-edit-outline'}></iconify-icon> 
-            {$isEditMode ? 'Done' : 'Edit Dashboard'}
+            {$isEditMode ? $t('dashboard.done') : $t('dashboard.edit')}
           </button>
         </div>
       {/if}
@@ -134,6 +134,8 @@
     color: var(--text-primary);
     margin-right: 1.5rem;
   }
+  :global(body.rtl) .logo { margin-right: 0; margin-left: 1.5rem; }
+
   .logo-icon { color: var(--accent-primary); }
 
   .desktop-tabs {
@@ -209,6 +211,11 @@
     display: flex;
     flex-direction: column;
     animation: fadeIn 0.1s ease-out;
+  }
+  
+  :global(body.rtl) .dropdown-menu {
+    right: auto;
+    left: 0;
   }
 
   .menu-item {

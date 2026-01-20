@@ -1,6 +1,6 @@
-
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
+  import { t } from 'svelte-i18n';
   import { haStore } from '../ha/store';
   import { sidebarWidth, loadUIState, saveUIState } from './store';
   import { timeString } from '../app/time';
@@ -37,6 +37,11 @@
     if (!isResizing) return;
     
     let newWidth = e.clientX;
+    // Check RTL
+    if (document.dir === 'rtl') {
+       newWidth = window.innerWidth - e.clientX;
+    }
+
     // Constraints
     if (newWidth < 240) newWidth = 240;
     if (newWidth > 480) newWidth = 480;
@@ -63,7 +68,8 @@
   }
   
   function formatDay(date: Date): string {
-    return date.toLocaleDateString('en-US', { weekday: 'short' });
+    // Use current locale for date formatting
+    return date.toLocaleDateString($t('currentLang') || 'en', { weekday: 'short' });
   }
 </script>
 
@@ -79,7 +85,7 @@
   <!-- Widget: Clock -->
   <div class="widget clock-widget">
     <div class="time">{$timeString}</div>
-    <div class="date">{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' })}</div>
+    <div class="date">{new Date().toLocaleDateString($t('currentLang') || 'en', { weekday: 'long', month: 'short', day: 'numeric' })}</div>
   </div>
 
   <!-- Widget: Weather -->
@@ -137,7 +143,7 @@
          </div>
          <div class="weather-info">
            <div class="temp">--°</div>
-           <div class="condition">Offline</div>
+           <div class="condition">{$t('sidebar.offline')}</div>
          </div>
        </div>
     {/if}
@@ -147,7 +153,7 @@
   <div class="widget camera-widget">
     <div class="camera-placeholder">
       <iconify-icon icon="mdi:cctv" width="32"></iconify-icon>
-      <span>Front Door</span>
+      <span>{$t('sidebar.camera')}</span>
     </div>
   </div>
 
@@ -156,7 +162,7 @@
     <div class="status-row">
        {#if $haStore.isConnected}
           <div class="status-dot connected"></div>
-          <span class="status-text">Connected</span>
+          <span class="status-text">{$t('sidebar.connected')}</span>
           {#if $haStore.latency !== undefined}
             <span class="latency" style="color: {getLatencyColor($haStore.latency)}">
               ({$haStore.latency}ms)
@@ -164,10 +170,10 @@
           {/if}
        {:else if $haStore.isLoading}
           <div class="status-dot loading"></div>
-          <span class="status-text">Connecting...</span>
+          <span class="status-text">{$t('sidebar.connecting')}</span>
        {:else}
           <div class="status-dot disconnected"></div>
-          <span class="status-text">Offline</span>
+          <span class="status-text">{$t('sidebar.offline')}</span>
        {/if}
     </div>
   </div>
@@ -191,6 +197,11 @@
     transition: width 0.05s linear;
     overflow-x: hidden;
   }
+  
+  :global(body.rtl) .sidebar {
+    border-right: none;
+    border-left: 1px solid var(--border-primary);
+  }
 
   .resize-handle {
     position: absolute;
@@ -202,6 +213,11 @@
     z-index: 60;
     background: transparent;
     transition: background 0.2s;
+  }
+  
+  :global(body.rtl) .resize-handle {
+    right: auto;
+    left: -6px;
   }
   
   /* Show line on hover/active to guide user */
@@ -424,6 +440,11 @@
     font-size: 0.75rem;
     font-weight: 600;
     margin-left: 4px;
+  }
+  
+  :global(body.rtl) .latency {
+     margin-left: 0;
+     margin-right: 4px;
   }
 
   @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }

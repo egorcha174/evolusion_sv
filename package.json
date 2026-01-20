@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "svelte-dnd-action": "^0.9.54",
-    "iconify-icon": "^1.0.8"
+    "iconify-icon": "^1.0.8",
+    "svelte-i18n": "^4.0.0"
   }
 }

@@ -1,9 +1,10 @@
-
 <script lang="ts">
   import { onMount } from 'svelte';
   import { appState, loadLayout, loadServerConfig } from '../domains/app/store';
   import { initializeHAConnection, disconnectHA } from '../domains/ha/store';
   import { themeStore } from '../domains/theme/store';
+  import { setupI18n } from '../lib/i18n'; // Import i18n setup
+  import { isLoading } from 'svelte-i18n'; // Wait for translations
   import BackgroundRenderer from '../domains/theme/BackgroundRenderer.svelte';
   import Sidebar from '../domains/ui/Sidebar.svelte';
   import DashboardHeader from '../domains/ui/DashboardHeader.svelte';
@@ -13,6 +14,10 @@
   let { children } = $props();
 
   onMount(async () => {
+    // 1. Setup I18n First
+    await setupI18n();
+    
+    // 2. Load other configs
     await loadServerConfig();
     await loadLayout();
     await themeStore.init();
@@ -31,19 +36,24 @@
 
 <BackgroundRenderer />
 
-<div class="layout-container">
-  <!-- Left Nav & Info -->
-  <Sidebar />
-  
-  <!-- Right Side: Main Application Content -->
-  <div class="main-content">
-    <DashboardHeader />
+{#if $isLoading}
+  <!-- Simple splash screen while translations load -->
+  <div class="loading-screen"></div>
+{:else}
+  <div class="layout-container">
+    <!-- Left Nav & Info -->
+    <Sidebar />
     
-    <main>
-      {@render children()}
-    </main>
+    <!-- Right Side: Main Application Content -->
+    <div class="main-content">
+      <DashboardHeader />
+      
+      <main>
+        {@render children()}
+      </main>
+    </div>
   </div>
-</div>
+{/if}
 
 <style>
   :global(body) {
@@ -56,6 +66,11 @@
     height: 100vh;
     overflow: hidden;
     transition: color 0.2s ease;
+  }
+  
+  /* RTL Support Hook */
+  :global(body.rtl) {
+    direction: rtl;
   }
 
   .layout-container {
@@ -80,6 +95,12 @@
   main {
     flex: 1;
     padding: 2rem;
+  }
+  
+  .loading-screen {
+    width: 100vw;
+    height: 100vh;
+    background: var(--bg-page);
   }
 
   @media (max-width: 768px) {

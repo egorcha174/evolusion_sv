@@ -1,9 +1,10 @@
-
 <script lang="ts">
+	import { t } from 'svelte-i18n';
 	import { appState, saveServerConfig } from '../../domains/app/store';
 	import { themeStore } from '../../domains/theme/store';
   import { weatherSettings, refreshWeatherConfig, weatherStore } from '../../lib/weather/store';
   import { resolveCoordinates } from '../../lib/weather/service';
+  import { setLocale, availableLanguages, currentLang, importCustomLanguage } from '../../lib/i18n';
 	import type { ServerConfig } from '$lib/types';
   import type { ThemeMode } from '../../themes/types';
 
@@ -27,6 +28,9 @@
   
   // Reactive derived location status
   let locationInfo = $derived(resolveCoordinates($weatherSettings));
+  
+  // File input ref
+  let fileInput: HTMLInputElement;
 
 	$effect(() => {
 		if ($appState.activeServer && url === '' && token === '') {
@@ -59,10 +63,10 @@
 
 		try {
 			await saveServerConfig(config);
-			message = 'Configuration saved securely.';
+			message = $t('common.save');
 			messageType = 'success';
 		} catch (error) {
-			message = 'Failed to save configuration.';
+			message = $t('common.error');
 			messageType = 'error';
 		}
 	}
@@ -94,6 +98,34 @@
        // @ts-ignore
 	   themeStore.setSchedule(newSchedule);
 	}
+  
+  function handleLanguageChange(e: Event) {
+    const code = (e.target as HTMLSelectElement).value;
+    setLocale(code);
+  }
+  
+  async function handleLanguageImport(e: Event) {
+    const file = (e.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+    
+    try {
+      const text = await file.text();
+      const success = importCustomLanguage(text);
+      if (success) {
+        message = 'Language imported successfully';
+        messageType = 'success';
+        // Reset input
+        if (fileInput) fileInput.value = '';
+      } else {
+        message = 'Failed to import language: Invalid format';
+        messageType = 'error';
+      }
+    } catch (err) {
+      console.error(err);
+      message = 'Failed to read file';
+      messageType = 'error';
+    }
+  }
 
   function saveWeather() {
      // Validate days
@@ -118,23 +150,48 @@
 </script>
 
 <div class="settings-panel">
-	<h1>Settings</h1>
+	<h1>{$t('settings.title')}</h1>
 
-  <!-- Theme Section -->
+  <!-- Appearance Section -->
   <section class="settings-section">
-    <h2>Appearance</h2>
+    <h2>{$t('settings.appearance')}</h2>
+    
     <div class="form-group">
-      <label for="theme-mode">Mode</label>
+      <label for="lang-select">{$t('settings.languageSelect')}</label>
+      <select id="lang-select" value={$currentLang} onchange={handleLanguageChange}>
+         {#each $availableLanguages as lang}
+            <option value={lang.code}>{lang.name}</option>
+         {/each}
+      </select>
+    </div>
+    
+    <div class="form-group">
+      <label for="lang-import">{$t('settings.importLanguage')}</label>
+      <div class="file-upload">
+         <input 
+           type="file" 
+           id="lang-import" 
+           accept=".json" 
+           onchange={handleLanguageImport}
+           bind:this={fileInput}
+         />
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="form-group">
+      <label for="theme-mode">{$t('settings.themeMode')}</label>
       <select id="theme-mode" value={$themeStore.mode} onchange={handleThemeModeChange}>
-        <option value="auto">Auto (System)</option>
-        <option value="day">Day (Always Light)</option>
-        <option value="night">Night (Always Dark)</option>
-        <option value="schedule">Schedule</option>
+        <option value="auto">{$t('settings.themeModeAuto')}</option>
+        <option value="day">{$t('settings.themeModeDay')}</option>
+        <option value="night">{$t('settings.themeModeNight')}</option>
+        <option value="schedule">{$t('settings.themeModeSchedule')}</option>
       </select>
     </div>
 
     <div class="form-group">
-      <label for="theme-select">Theme</label>
+      <label for="theme-select">{$t('settings.theme')}</label>
       <select id="theme-select" value={$themeStore.currentThemeId} onchange={handleThemeChange}>
         {#each $themeStore.availableThemes as theme}
           <option value={theme.id}>{theme.name} {theme.isCustom ? '(Custom)' : ''}</option>
@@ -168,7 +225,7 @@
 
   <!-- Weather Section -->
   <section class="settings-section">
-    <h2>Weather Widget</h2>
+    <h2>{$t('settings.weather')}</h2>
     
     <div class="form-group">
        <label for="w-provider">Provider</label>
@@ -261,11 +318,11 @@
 
   <!-- Connection Section -->
   <section class="settings-section">
-    <h2>Connection</h2>
+    <h2>{$t('settings.connection')}</h2>
     <p class="description">Configure your Home Assistant connection details.</p>
 
     <div class="form-group">
-      <label for="url">Server URL</label>
+      <label for="url">{$t('settings.serverUrl')}</label>
       <input 
         id="url" 
         type="url" 
@@ -277,7 +334,7 @@
     </div>
 
     <div class="form-group">
-      <label for="token">Long-Lived Access Token</label>
+      <label for="token">{$t('settings.token')}</label>
       <input 
         id="token" 
         type="password" 
@@ -289,8 +346,8 @@
     </div>
 
     <div class="actions">
-      <button class="btn-secondary" onclick={handleTest}>Test Connection</button>
-      <button class="btn-primary" onclick={handleSave}>Save Configuration</button>
+      <button class="btn-secondary" onclick={handleTest}>{$t('settings.testConnection')}</button>
+      <button class="btn-primary" onclick={handleSave}>{$t('settings.saveConfig')}</button>
     </div>
 
     {#if message}
@@ -324,6 +381,12 @@
   
   .settings-section:last-child {
     border-bottom: none;
+  }
+  
+  .divider {
+     height: 1px;
+     background: rgba(128,128,128, 0.1);
+     margin: 1.5rem 0;
   }
 
 	h1 {
@@ -394,6 +457,13 @@
   
   input[type="range"] {
     padding: 0;
+  }
+  
+  /* File Upload Styling */
+  input[type="file"] {
+    padding: 0.5rem;
+    border: 1px dashed var(--border-primary, #ccc);
+    background: transparent;
   }
 
   .schedule-inputs {

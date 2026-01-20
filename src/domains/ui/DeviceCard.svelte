@@ -1,5 +1,5 @@
-
 <script lang="ts">
+  import { t } from 'svelte-i18n';
   import type { HAEntity } from '$lib/types';
   import { toggleEntity } from '../ha/store';
   import { extractDomain } from '$lib/utils';
@@ -34,6 +34,14 @@
   let isToggleable = $derived(['light', 'switch', 'cover', 'lock', 'input_boolean', 'script'].includes(domain));
   
   let icon = $derived(getIcon(domain));
+  
+  // Translation for states - simplistic approach
+  // In real app, we would map entity.state to specific translation keys
+  let translatedState = $derived(
+    entity.state === 'on' ? $t('common.on') : 
+    entity.state === 'off' ? $t('common.off') : 
+    entity.state
+  );
 </script>
 
 <div 
@@ -56,7 +64,7 @@
     
     <div class="card-body">
       <div class="state-container">
-        <span class="device-value">{entity.state}</span>
+        <span class="device-value">{translatedState}</span>
         {#if entity.attributes.unit_of_measurement}
           <span class="device-unit">{entity.attributes.unit_of_measurement}</span>
         {/if}
