@@ -30,6 +30,7 @@ export interface Coordinates {
 
 export type WeatherProviderType = 'openmeteo' | 'openweathermap' | 'weatherapi';
 export type WeatherIconPack = 'default' | 'outline' | 'filled';
+export type ForecastLayout = 'vertical' | 'horizontal';
 
 export interface WeatherSettings {
   provider: WeatherProviderType;
@@ -45,6 +46,7 @@ export interface WeatherSettings {
   showForecast: boolean;
   forecastDays: number; // 1-7
   iconPack: WeatherIconPack;
+  forecastLayout: ForecastLayout;
 }
 
 export interface WeatherProvider {
