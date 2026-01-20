@@ -45,6 +45,7 @@ export interface SchemeSettings {
   cardBackground: string;
   cardBackgroundOn: string;
   shadowCard: string;
+  shadowDropdown: string;
   
   // === PANELS (Sidebar, Settings, Modals) ===
   panelOpacity: number;

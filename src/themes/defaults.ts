@@ -21,6 +21,7 @@ export const defaultLightScheme: SchemeSettings = {
   cardBackground: 'rgba(255, 255, 255, 0.8)',
   cardBackgroundOn: 'rgba(255, 255, 255, 0.95)',
   shadowCard: '0 1px 2px rgba(0, 0, 0, 0.05)',
+  shadowDropdown: '0 4px 12px rgba(0, 0, 0, 0.15)',
   
   panelOpacity: 0.95,
   bgPanel: 'rgba(255, 255, 255, 0.95)',
@@ -65,6 +66,7 @@ export const defaultDarkScheme: SchemeSettings = {
   cardBackground: 'rgba(44, 44, 46, 0.8)',
   cardBackgroundOn: 'rgba(60, 60, 62, 0.85)',
   shadowCard: '0 2px 4px rgba(0, 0, 0, 0.2)',
+  shadowDropdown: '0 4px 12px rgba(0, 0, 0, 0.4)',
 
   panelOpacity: 0.95,
   bgPanel: 'rgba(28, 28, 30, 0.95)',
