@@ -1,9 +1,10 @@
 
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onMount, onDestroy } from 'svelte';
   import { haStore } from '../ha/store';
   import { sidebarWidth, loadUIState, saveUIState } from './store';
   import { timeString } from '../app/time';
+  import { weatherStore, initWeather, destroyWeather } from '../../lib/weather/store';
   
   // Resizing state
   let width = $state(280);
@@ -12,9 +13,15 @@
   onMount(() => {
     loadUIState();
     
+    // Initialize services
+    initWeather();
+    
     // Subscribe to store updates
     const unsub = sidebarWidth.subscribe(w => width = w);
-    return unsub;
+    return () => {
+      unsub();
+      destroyWeather();
+    };
   });
 
   function startResize(e: MouseEvent) {
@@ -73,25 +80,34 @@
 
   <!-- Widget: Weather -->
   <div class="widget weather-widget">
-    <div class="weather-icon">
-       <iconify-icon icon="mdi:weather-partly-cloudy" width="48"></iconify-icon>
-    </div>
-    <div class="weather-info">
-      <div class="temp">
-        {#if $haStore.entities.has('weather.home')}
-          {$haStore.entities.get('weather.home')?.attributes.temperature ?? '--'}°
-        {:else}
-          --°
-        {/if}
+    {#if $weatherStore.isLoading && !$weatherStore.current}
+       <div class="spinner"></div>
+    {:else if $weatherStore.error}
+       <div class="weather-error">
+          <iconify-icon icon="mdi:cloud-off-outline" width="24"></iconify-icon>
+       </div>
+    {:else if $weatherStore.current}
+      <div class="weather-icon">
+         <iconify-icon icon={$weatherStore.current.icon} width="48"></iconify-icon>
       </div>
-      <div class="condition">
-         {#if $haStore.entities.has('weather.home')}
-            {$haStore.entities.get('weather.home')?.state ?? 'Unknown'}
-         {:else}
-            Home
-         {/if}
+      <div class="weather-info">
+        <div class="temp">
+          {$weatherStore.current.temperature}°
+        </div>
+        <div class="condition">
+           {$weatherStore.current.condition}
+        </div>
       </div>
-    </div>
+    {:else}
+       <!-- Fallback/Empty -->
+       <div class="weather-icon">
+         <iconify-icon icon="mdi:weather-partly-cloudy" width="48"></iconify-icon>
+       </div>
+       <div class="weather-info">
+         <div class="temp">--°</div>
+         <div class="condition">Offline</div>
+       </div>
+    {/if}
   </div>
 
   <!-- Widget: Camera (Placeholder) -->
@@ -199,6 +215,7 @@
     padding: 1rem;
     border-radius: 16px;
     border: 1px solid var(--border-card);
+    min-height: 80px;
   }
   .weather-icon { color: var(--accent-info); }
   .weather-info { display: flex; flex-direction: column; }
@@ -213,6 +230,25 @@
     color: var(--text-muted);
     text-transform: capitalize;
     white-space: nowrap;
+  }
+
+  .weather-error {
+    color: var(--accent-error);
+    opacity: 0.7;
+  }
+
+  .spinner {
+    width: 24px;
+    height: 24px;
+    border: 3px solid var(--border-primary);
+    border-top: 3px solid var(--accent-primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
   }
 
   /* Camera */
