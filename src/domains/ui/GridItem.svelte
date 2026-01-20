@@ -33,6 +33,7 @@
     if (!element || !element.parentElement) return { w: 0, h: 0 };
     const gridRect = element.parentElement.getBoundingClientRect();
     // Total internal columns = gridCols * 2
+    // We assume the parent handles the layout such that getBoundingClientRect() reflects true grid dimensions
     const cellW = gridRect.width / (gridCols * 2);
     const cellH = gridRect.height / (gridRows * 2);
     return { w: cellW, h: cellH };
@@ -40,9 +41,8 @@
 
   function handleMouseDown(e: MouseEvent) {
     if (!$isEditMode) return;
-    // Only drag via handle if specifically provided, or body if not resizing
-    // Here we allow body drag
-    e.stopPropagation(); // Prevent card click
+    // Prevent drag if clicking a control inside the card, but for now we block pointer-events in edit mode anyway
+    e.stopPropagation();
     
     isDragging = true;
     startX = e.clientX;
@@ -105,9 +105,6 @@
 
   function handleResizeMove(e: MouseEvent) {
     if (!isResizing) return;
-    // Visual feedback for resize is harder without changing actual size, 
-    // for MVP we just use a ghost or simple cursor, 
-    // but here we just track delta to commit on end.
   }
 
   function handleResizeEnd(e: MouseEvent) {
@@ -216,8 +213,7 @@
     transform: scale(1.2);
   }
 
-  /* Mobile: Override Grid styles handled by parent media query usually, 
-     but we can force reset here just in case */
+  /* Mobile: Override Grid styles handled by parent media query */
   @media (max-width: 768px) {
     .grid-item {
       grid-column: auto !important;

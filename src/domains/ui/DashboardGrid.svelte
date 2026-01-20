@@ -20,23 +20,54 @@
   let columns = $derived(gridConfig?.gridColumns ?? 8);
   let rows = $derived(gridConfig?.gridRows ?? 6);
   let cards = $derived(gridConfig?.cards ?? []);
-  
-  // Auto-populate logic
-  $effect(() => {
-    // If we have visible entities but no config, or new entities appeared
-    // The store handles deduplication, so we can call this safely.
-    if ($haStore.isConnected && visibleEntities.length > 0) {
-       // Convert GridItems (from old store logic) back to raw HAEntity if needed, 
-       // but selectVisibleDashboardCards returns mixed types.
-       // We map them to ensure we pass HAEntity-like objects.
-       dashboardStore.syncEntitiesToGrid($activeTabId, visibleEntities);
-    }
-  });
 
-  // Init store on mount
+  // --- Square Grid Calculation ---
+  let container: HTMLDivElement;
+  let containerWidth = $state(0);
+  let containerHeight = $state(0);
+  
   onMount(() => {
      dashboardStore.init();
      dashboardStore.ensureTabConfig($activeTabId);
+     
+     // Setup ResizeObserver for square cell calculation
+     const observer = new ResizeObserver(entries => {
+       for(const entry of entries) {
+         containerWidth = entry.contentRect.width;
+         containerHeight = entry.contentRect.height;
+       }
+     });
+     
+     if (container) observer.observe(container);
+     return () => observer.disconnect();
+  });
+
+  // Calculate Cell Size (Internal Half-Unit size)
+  let halfUnitSize = $derived.by(() => {
+     if (!containerWidth || !containerHeight) return 0;
+     
+     const GAP = 8;
+     const internalCols = columns * 2;
+     const internalRows = rows * 2;
+     
+     // 1. Calculate size if limited by width
+     const wAvailable = containerWidth - (internalCols - 1) * GAP;
+     const sizeByWidth = wAvailable / internalCols;
+     
+     // 2. Calculate size if limited by height
+     const hAvailable = containerHeight - (internalRows - 1) * GAP;
+     const sizeByHeight = hAvailable / internalRows;
+     
+     // 3. Take the smaller one to ensure fit without overflow
+     // Math.max(1) to prevent zero or negative
+     return Math.max(1, Math.min(sizeByWidth, sizeByHeight));
+  });
+
+  // Auto-populate logic
+  $effect(() => {
+    if ($haStore.isConnected && visibleEntities.length > 0) {
+       dashboardStore.syncEntitiesToGrid($activeTabId, visibleEntities);
+    }
   });
   
   // Update handler
@@ -44,26 +75,26 @@
     dashboardStore.updateCardPosition($activeTabId, cardId, pos);
   }
   
-  // Helper to find entity data for a card config
   function getEntity(id: string): HAEntity | undefined {
     return $haStore.entities.get(id);
   }
   
   // CSS Vars for grid
-  // We use * 2 multiplier for 0.5 granularity
   let gridStyle = $derived(`
     --cols: ${columns * 2};
     --rows: ${rows * 2};
+    --half-unit: ${halfUnitSize}px;
+    --gap: 8px;
   `);
 </script>
 
-<div class="dashboard-container" style={gridStyle}>
+<div class="dashboard-container" bind:this={container}>
   {#if cards.length === 0}
     <div class="empty-state">
        No devices configured for this view.
     </div>
   {:else}
-    <div class="grid-layout" class:edit-mode={$isEditMode}>
+    <div class="grid-layout" class:edit-mode={$isEditMode} style={gridStyle}>
       {#each cards as card (card.id)}
          {@const entity = getEntity(card.entityId)}
          {#if entity}
@@ -97,21 +128,25 @@
 <style>
   .dashboard-container {
     width: 100%;
-    /* Calculate height: 100vh - header(64) - padding(approx 32) */
+    /* Fixed height minus header/padding to calculate aspect ratio properly */
     height: calc(100vh - 100px); 
     position: relative;
     padding-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden; 
   }
 
   .grid-layout {
     display: grid;
-    /* Multiply by 2 for fractional units */
-    grid-template-columns: repeat(var(--cols), 1fr);
-    grid-template-rows: repeat(var(--rows), 1fr);
-    gap: 8px; /* Visual gap */
-    width: 100%;
-    height: 100%;
+    /* Strict size definition for square cells */
+    grid-template-columns: repeat(var(--cols), var(--half-unit));
+    grid-template-rows: repeat(var(--rows), var(--half-unit));
+    gap: var(--gap);
+    
     position: relative;
+    transition: all 0.2s ease;
   }
   
   .empty-state {
@@ -141,12 +176,18 @@
   @media (max-width: 768px) {
     .dashboard-container {
       height: auto;
+      display: block;
+      overflow-y: auto;
     }
     
     .grid-layout {
       display: flex;
       flex-direction: column;
       gap: 12px;
+      /* Reset grid specific styles */
+      grid-template-columns: none;
+      grid-template-rows: none;
+      width: 100%;
     }
     
     .grid-overlay {

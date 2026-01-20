@@ -123,12 +123,10 @@ function createDashboardStore() {
         const cols = tab.gridColumns; // User units
         
         // 1. Keep existing cards (preserving their position)
-        // We'll calculate the next free slot based on occupied space in a real app, 
-        // but for MVP, we just re-flow new items after the max Y of existing items.
-        
         let maxY = 0;
         tab.cards.forEach(c => {
            newCards.push(c);
+           // Simple approximation of occupied height
            maxY = Math.max(maxY, c.position.y + c.position.h);
         });
 
