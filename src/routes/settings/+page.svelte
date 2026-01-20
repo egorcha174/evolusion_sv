@@ -2,13 +2,25 @@
 <script lang="ts">
 	import { appState, saveServerConfig } from '../../domains/app/store';
 	import { themeStore } from '../../domains/theme/store';
+  import { weatherSettings, refreshWeatherConfig, weatherStore } from '../../lib/weather/store';
+  import { resolveCoordinates } from '../../lib/weather/service';
 	import type { ServerConfig } from '$lib/types';
-    import type { ThemeMode } from '../../themes/types';
+  import type { ThemeMode } from '../../themes/types';
 
 	let url = $state('');
 	let token = $state('');
 	let message = $state('');
 	let messageType = $state<'info' | 'error' | 'success'>('info');
+
+  // Weather local state for form
+  let wProvider = $state($weatherSettings.provider);
+  let wApiKey = $state($weatherSettings.apiKey || '');
+  let wUseCustom = $state($weatherSettings.useCustomLocation);
+  let wLat = $state($weatherSettings.customLocation?.lat ?? 55.1644);
+  let wLon = $state($weatherSettings.customLocation?.lon ?? 61.4368);
+  
+  // Reactive derived location status
+  let locationInfo = $derived(resolveCoordinates($weatherSettings));
 
 	$effect(() => {
 		if ($appState.activeServer && url === '' && token === '') {
@@ -76,6 +88,20 @@
        // @ts-ignore
 	   themeStore.setSchedule(newSchedule);
 	}
+
+  function saveWeather() {
+     weatherSettings.update(s => ({
+       ...s,
+       provider: wProvider,
+       apiKey: wApiKey,
+       useCustomLocation: wUseCustom,
+       customLocation: {
+         lat: wLat,
+         lon: wLon
+       }
+     }));
+     refreshWeatherConfig();
+  }
 </script>
 
 <div class="settings-panel">
@@ -127,6 +153,60 @@
     {/if}
   </section>
 
+  <!-- Weather Section -->
+  <section class="settings-section">
+    <h2>Weather Widget</h2>
+    
+    <div class="form-group">
+       <label for="w-provider">Provider</label>
+       <select id="w-provider" bind:value={wProvider}>
+         <option value="openmeteo">Open-Meteo (Free, No Key)</option>
+         <option value="openweathermap">OpenWeatherMap (Key Required)</option>
+         <option value="weatherapi">WeatherAPI (Key Required)</option>
+       </select>
+    </div>
+
+    {#if wProvider !== 'openmeteo'}
+      <div class="form-group">
+        <label for="w-key">API Key</label>
+        <input id="w-key" type="password" bind:value={wApiKey} placeholder="Paste your API key here" />
+      </div>
+    {/if}
+
+    <div class="form-group checkbox-group">
+      <label>
+        <input type="checkbox" bind:checked={wUseCustom} />
+        Use Custom Coordinates
+      </label>
+    </div>
+
+    {#if wUseCustom}
+      <div class="schedule-inputs">
+        <div class="form-group">
+          <label for="w-lat">Latitude</label>
+          <input id="w-lat" type="number" step="0.0001" bind:value={wLat} />
+        </div>
+        <div class="form-group">
+           <label for="w-lon">Longitude</label>
+           <input id="w-lon" type="number" step="0.0001" bind:value={wLon} />
+        </div>
+      </div>
+    {:else}
+      <div class="info-box">
+        <p>Using location from Home Assistant (zone.home):</p>
+        <code>{locationInfo.name}: {locationInfo.lat}, {locationInfo.lon}</code>
+      </div>
+    {/if}
+
+    <div class="actions">
+      <button class="btn-primary" onclick={saveWeather}>Update Weather</button>
+    </div>
+
+    {#if $weatherStore.error}
+       <div class="message error">{$weatherStore.error}</div>
+    {/if}
+  </section>
+
   <!-- Connection Section -->
   <section class="settings-section">
     <h2>Connection</h2>
@@ -175,7 +255,6 @@
 		margin: 0 auto;
 		padding: 2rem;
     
-    /* Panel styling */
     background: var(--bg-panel, rgba(255, 255, 255, 0.95));
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
@@ -188,7 +267,6 @@
   .settings-section {
     margin-bottom: 3rem;
     padding-bottom: 2rem;
-    border-bottom: 1px solid var(--text-muted); /* Using muted text as border for now or default border */
     border-bottom: 1px solid rgba(128,128,128, 0.2);
   }
   
@@ -215,6 +293,17 @@
 	.form-group {
 		margin-bottom: 1.5rem;
 	}
+  
+  .checkbox-group label {
+     display: flex;
+     align-items: center;
+     gap: 0.5rem;
+     cursor: pointer;
+  }
+  
+  .checkbox-group input {
+    width: auto;
+  }
 
 	label {
 		display: block;
@@ -237,6 +326,20 @@
   .schedule-inputs {
     display: flex;
     gap: 1rem;
+  }
+
+  .info-box {
+    padding: 1rem;
+    background: rgba(128,128,128, 0.1);
+    border-radius: 8px;
+    font-size: 0.9rem;
+  }
+  
+  .info-box code {
+    display: block;
+    margin-top: 0.5rem;
+    font-family: monospace;
+    font-weight: bold;
   }
 
 	.hint {

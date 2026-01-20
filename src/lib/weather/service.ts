@@ -1,38 +1,58 @@
 
-import type { Coordinates, WeatherData } from './types';
-import { getWeatherIcon, getWeatherDescription } from './icons';
+import { get } from 'svelte/store';
+import { haStore } from '../../domains/ha/store';
+import type { Coordinates, WeatherData, WeatherProviderType, WeatherSettings } from './types';
+import { openMeteoProvider } from './providers/openmeteo';
+import { openWeatherMapProvider } from './providers/openweathermap';
+import { weatherApiProvider } from './providers/weatherapi';
 
-export const CHELYABINSK: Coordinates = {
+const CHELYABINSK: Coordinates = {
   lat: 55.1644,
   lon: 61.4368,
-  name: 'Chelyabinsk'
+  name: 'Chelyabinsk (Fallback)'
 };
 
-export async function fetchWeather(coords: Coordinates): Promise<WeatherData> {
-  const params = new URLSearchParams({
-    latitude: coords.lat.toString(),
-    longitude: coords.lon.toString(),
-    current_weather: 'true',
-    timezone: 'auto'
-  });
+// Factory
+function getProvider(type: WeatherProviderType) {
+  switch (type) {
+    case 'openweathermap': return openWeatherMapProvider;
+    case 'weatherapi': return weatherApiProvider;
+    case 'openmeteo':
+    default:
+      return openMeteoProvider;
+  }
+}
 
-  const res = await fetch(`https://api.open-meteo.com/v1/forecast?${params}`);
-  if (!res.ok) {
-    throw new Error(`Weather fetch failed: ${res.statusText}`);
+// Coordinate Resolution Logic
+export function resolveCoordinates(settings: WeatherSettings): Coordinates {
+  // 1. Custom Location
+  if (settings.useCustomLocation && settings.customLocation) {
+    return {
+      lat: settings.customLocation.lat,
+      lon: settings.customLocation.lon,
+      name: settings.customLocation.name || 'Custom Location'
+    };
   }
 
-  const data = await res.json();
-  const current = data.current_weather;
+  // 2. Home Assistant Zone
+  const state = get(haStore);
+  const homeZone = state.entities.get('zone.home');
 
-  if (!current) {
-    throw new Error('No weather data received');
+  if (homeZone && homeZone.attributes.latitude && homeZone.attributes.longitude) {
+    return {
+      lat: homeZone.attributes.latitude,
+      lon: homeZone.attributes.longitude,
+      name: homeZone.attributes.friendly_name || 'Home'
+    };
   }
 
-  return {
-    temperature: current.temperature,
-    condition: getWeatherDescription(current.weathercode),
-    icon: getWeatherIcon(current.weathercode),
-    location: coords.name,
-    updatedAt: new Date()
-  };
+  // 3. Fallback
+  return CHELYABINSK;
+}
+
+export async function fetchWeather(settings: WeatherSettings): Promise<WeatherData> {
+  const provider = getProvider(settings.provider);
+  const coords = resolveCoordinates(settings);
+
+  return provider.getWeather(coords, settings.apiKey);
 }
