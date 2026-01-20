@@ -1,10 +1,12 @@
+
 <script lang="ts">
   import { onMount } from 'svelte';
   import { appState, loadLayout, loadServerConfig } from '../domains/app/store';
   import { initializeHAConnection, disconnectHA } from '../domains/ha/store';
+  import { themeStore } from '../domains/theme/store';
+  import BackgroundRenderer from '../domains/theme/BackgroundRenderer.svelte';
   import Sidebar from '../domains/ui/Sidebar.svelte';
   import DashboardHeader from '../domains/ui/DashboardHeader.svelte';
-  import ThemeInjector from '../domains/ui/theme/ThemeInjector.svelte';
   import 'iconify-icon';
   import '../app.css';
   
@@ -13,6 +15,7 @@
   onMount(async () => {
     await loadServerConfig();
     await loadLayout();
+    await themeStore.init();
   });
 
   // Reactive connection management
@@ -26,7 +29,7 @@
   });
 </script>
 
-<ThemeInjector />
+<BackgroundRenderer />
 
 <div class="layout-container">
   <!-- Left Nav & Info -->
@@ -47,12 +50,12 @@
     margin: 0;
     padding: 0;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-    /* Use variables with fallback */
-    background: var(--bg-page, #f5f7fa);
+    /* Basic fallback, real colors set by themeStore via CSS vars */
+    background: transparent; 
     color: var(--text-primary, #333);
     height: 100vh;
     overflow: hidden;
-    transition: background-color 0.2s ease, color 0.2s ease;
+    transition: color 0.2s ease;
   }
 
   .layout-container {
@@ -60,6 +63,8 @@
     height: 100vh;
     width: 100vw;
     overflow: hidden;
+    position: relative;
+    z-index: 1;
   }
 
   .main-content {

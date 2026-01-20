@@ -1,0 +1,88 @@
+
+{
+  "schemaVersion": 1,
+  "manifest": {
+    "id": "sunset-warm",
+    "name": "Sunset Warm",
+    "version": "1.0.0",
+    "author": "Evolusion",
+    "description": "Warm orange and red gradients.",
+    "isCustom": false
+  },
+  "light": {
+    "dashboardBackgroundType": "gradient",
+    "dashboardGradient": {
+      "angle": 45,
+      "stops": [
+        { "color": "#FFF3E0", "position": 0 },
+        { "color": "#FFE0B2", "position": 100 }
+      ]
+    },
+    "cardOpacity": 0.9,
+    "cardBorderRadius": 20,
+    "cardBorderWidth": 0,
+    "cardBorderColor": "transparent",
+    "cardBorderColorOn": "#FF6D00",
+    "cardBackground": "#FFFFFF",
+    "cardBackgroundOn": "#FFF8E1",
+    "panelOpacity": 0.7,
+    "tabTextColor": "#8D6E63",
+    "activeTabTextColor": "#E65100",
+    "tabIndicatorColor": "#E65100",
+    "thermostatHandleColor": "#FF6D00",
+    "thermostatDialTextColor": "#3E2723",
+    "thermostatDialLabelColor": "#8D6E63",
+    "thermostatHeatingColor": "#D84315",
+    "thermostatCoolingColor": "#42A5F5",
+    "clockTextColor": "#BF360C",
+    "nameTextColor": "#3E2723",
+    "statusTextColor": "#8D6E63",
+    "valueTextColor": "#E65100",
+    "unitTextColor": "#8D6E63",
+    "nameTextColorOn": "#BF360C",
+    "statusTextColorOn": "#E65100",
+    "valueTextColorOn": "#BF360C",
+    "unitTextColorOn": "#E65100",
+    "accentPrimary": "#FF6D00",
+    "textPrimary": "#3E2723",
+    "bgInput": "#FFFFFF"
+  },
+  "dark": {
+    "dashboardBackgroundType": "gradient",
+    "dashboardGradient": {
+      "angle": 45,
+      "stops": [
+        { "color": "#212121", "position": 0 },
+        { "color": "#3E2723", "position": 100 }
+      ]
+    },
+    "cardOpacity": 0.85,
+    "cardBorderRadius": 20,
+    "cardBorderWidth": 0,
+    "cardBorderColor": "transparent",
+    "cardBorderColorOn": "#FFAB40",
+    "cardBackground": "#424242",
+    "cardBackgroundOn": "#4E342E",
+    "panelOpacity": 0.8,
+    "tabTextColor": "#BCAAA4",
+    "activeTabTextColor": "#FFCC80",
+    "tabIndicatorColor": "#FFCC80",
+    "thermostatHandleColor": "#FFAB40",
+    "thermostatDialTextColor": "#FFF3E0",
+    "thermostatDialLabelColor": "#BCAAA4",
+    "thermostatHeatingColor": "#FF7043",
+    "thermostatCoolingColor": "#4FC3F7",
+    "clockTextColor": "#FFCC80",
+    "nameTextColor": "#FFF3E0",
+    "statusTextColor": "#BCAAA4",
+    "valueTextColor": "#FFAB40",
+    "unitTextColor": "#BCAAA4",
+    "nameTextColorOn": "#FFE0B2",
+    "statusTextColorOn": "#FFCC80",
+    "valueTextColorOn": "#FFE0B2",
+    "unitTextColorOn": "#FFCC80",
+    "accentPrimary": "#FFAB40",
+    "textPrimary": "#FFF3E0",
+    "bgInput": "#212121"
+  }
+}
