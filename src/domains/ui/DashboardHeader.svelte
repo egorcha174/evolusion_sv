@@ -1,7 +1,9 @@
+
 <script lang="ts">
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
   import { tabs, activeTabId, isEditMode, setActiveTab, toggleEditMode } from '../app/tabsStore';
+  import { haStore } from '../ha/store';
   import 'iconify-icon';
 
   let isMobileMenuOpen = $state(false);
@@ -112,7 +114,7 @@
     padding: 0 1.5rem;
     
     background: var(--bg-header);
-    border-bottom: 1px solid var(--border-divider);
+    border-bottom: 1px solid var(--border-divider, rgba(0,0,0,0.1));
     color: var(--text-primary);
   }
 
@@ -152,7 +154,7 @@
     gap: 0.5rem;
     font-size: 0.95rem;
     font-weight: 500;
-    color: var(--tab-inactive);
+    color: var(--text-secondary);
     cursor: pointer;
     border-bottom: 3px solid transparent;
     transition: all 0.2s;
@@ -160,13 +162,13 @@
   }
 
   .tab-btn:hover {
-    color: var(--tab-hover);
-    background: var(--bg-chip);
+    color: var(--text-primary);
+    background: var(--bg-chip, rgba(0,0,0,0.05));
   }
 
   .tab-btn.active {
-    color: var(--tab-active);
-    border-bottom-color: var(--tab-border-active);
+    color: var(--accent-primary);
+    border-bottom-color: var(--accent-primary);
   }
 
   .icon-btn {
@@ -182,7 +184,7 @@
   }
 
   .icon-btn:hover {
-    background: var(--bg-chip);
+    background: var(--bg-chip, rgba(0,0,0,0.05));
   }
 
   .menu-container { position: relative; }
@@ -193,11 +195,17 @@
     right: 0;
     margin-top: 0.5rem;
     width: 220px;
-    background: var(--bg-card); /* or bg-dropdown if defined in palette, using bg-card for now */
+    
+    /* Use panel background which is usually more opaque/frosted */
+    background: var(--bg-panel, rgba(255, 255, 255, 0.95));
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    
     border-radius: 12px;
-    box-shadow: var(--shadow-dropdown);
+    box-shadow: var(--shadow-dropdown, 0 4px 12px rgba(0,0,0,0.15));
     padding: 0.5rem;
-    border: 1px solid var(--border-primary);
+    border: 1px solid var(--border-primary, rgba(0,0,0,0.05));
+    
     display: flex;
     flex-direction: column;
     animation: fadeIn 0.1s ease-out;
@@ -220,7 +228,7 @@
   }
 
   .menu-item:hover {
-    background: var(--bg-card-hover);
+    background: var(--bg-card-hover, rgba(0,0,0,0.05));
   }
 
   .menu-item.highlight {
@@ -230,7 +238,7 @@
 
   .divider {
     height: 1px;
-    background: var(--border-divider);
+    background: var(--border-divider, rgba(128,128,128,0.2));
     margin: 0.25rem 0;
   }
 

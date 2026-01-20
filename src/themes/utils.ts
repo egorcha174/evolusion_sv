@@ -22,6 +22,11 @@ export function generateCSSVariables(scheme: SchemeSettings): Record<string, str
     '--card-background': scheme.cardBackground,
     '--card-background-on': scheme.cardBackgroundOn,
     '--shadow-card': scheme.shadowCard,
+    '--shadow-dropdown': scheme.shadowDropdown,
+    
+    // Aliases for component backward compatibility
+    '--bg-card': scheme.cardBackground,
+    '--bg-card-hover': scheme.cardBackgroundOn,
     
     // === PANELS ===
     '--panel-opacity': String(scheme.panelOpacity),

@@ -29,6 +29,7 @@
     "cardBackground": "rgba(255, 255, 255, 0.7)",
     "cardBackgroundOn": "rgba(255, 255, 255, 0.9)",
     "shadowCard": "0 4px 12px rgba(0,0,0,0.06)",
+    "shadowDropdown": "0 8px 24px rgba(0, 0, 0, 0.15)",
 
     "panelOpacity": 0.9,
     "bgPanel": "rgba(255, 255, 255, 0.9)",
@@ -71,6 +72,7 @@
     "cardBackground": "rgba(28, 28, 30, 0.6)",
     "cardBackgroundOn": "rgba(44, 44, 46, 0.8)",
     "shadowCard": "0 2px 8px rgba(0, 0, 0, 0.2)",
+    "shadowDropdown": "0 8px 24px rgba(0, 0, 0, 0.5)",
     
     "panelOpacity": 0.9,
     "bgPanel": "rgba(28, 28, 30, 0.9)",
