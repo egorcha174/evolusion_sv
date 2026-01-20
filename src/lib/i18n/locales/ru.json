@@ -3,24 +3,30 @@
     "ok": "ОК",
     "cancel": "Отмена",
     "save": "Сохранить",
+    "delete": "Удалить",
     "loading": "Загрузка...",
     "error": "Ошибка",
     "off": "Выкл",
-    "on": "Вкл"
+    "on": "Вкл",
+    "close": "Закрыть",
+    "unknown": "Неизвестно"
   },
   "dashboard": {
     "title": "Дашборд",
     "edit": "Редактировать",
     "done": "Готово",
     "noDevices": "Устройства не найдены.",
-    "noDevicesTab": "Устройства для «{tab}» не найдены."
+    "noDevicesTab": "Устройства для «{tab}» не найдены.",
+    "addWidget": "Добавить виджет",
+    "layoutSaved": "Раскладка сохранена"
   },
   "sidebar": {
     "connected": "Подключено",
     "connecting": "Подключение...",
     "offline": "Оффлайн",
     "camera": "Камера",
-    "weather": "Погода"
+    "weather": "Погода",
+    "latency": "Задержка"
   },
   "settings": {
     "title": "Настройки",
@@ -28,26 +34,68 @@
     "language": "Язык",
     "languageSelect": "Выберите язык",
     "importLanguage": "Импорт языка (JSON)",
+    "exportLanguage": "Экспорт языка",
     "importBtn": "Импортировать",
+    "exportBtn": "Экспортировать текущий",
     "connection": "Подключение",
     "serverUrl": "URL сервера",
     "token": "Токен доступа",
-    "testConnection": "Проверить",
-    "saveConfig": "Сохранить настройки",
-    "weather": "Виджет погоды",
-    "theme": "Тема",
-    "themeMode": "Режим",
-    "themeModeAuto": "Авто (Системный)",
-    "themeModeDay": "День (Всегда светлая)",
-    "themeModeNight": "Ночь (Всегда темная)",
-    "themeModeSchedule": "По расписанию"
+    "tokenPlaceholder": "Вставьте долгосрочный токен",
+    "testConnection": "Проверить соединение",
+    "saveConfig": "Сохранить конфигурацию",
+    "weather": "Погода",
+    "weatherProvider": "Источник данных",
+    "weatherKey": "API Ключ",
+    "weatherKeyPlaceholder": "Вставьте API ключ",
+    "weatherShowForecast": "Показывать прогноз",
+    "weatherDays": "Дней прогноза: {count}",
+    "weatherLayout": "Ориентация прогноза",
+    "layoutVertical": "Вертикальная",
+    "layoutHorizontal": "Горизонтальная",
+    "weatherIconPack": "Набор иконок",
+    "useCustomLocation": "Использовать свои координаты",
+    "latitude": "Широта",
+    "longitude": "Долгота",
+    "locationFromHA": "Координаты из Home Assistant (zone.home):",
+    "updateWeather": "Обновить погоду",
+    "theme": "Тема оформления",
+    "themeMode": "Режим переключения",
+    "themeModeAuto": "Авто (как в системе)",
+    "themeModeDay": "Всегда светлая",
+    "themeModeNight": "Всегда тёмная",
+    "themeModeSchedule": "По расписанию",
+    "themeScheduleDay": "Начало дня",
+    "themeScheduleNight": "Начало ночи",
+    "themeSelect": "Выберите тему",
+    "themeCustom": "(Польз.)",
+    "messages": {
+      "saveSuccess": "Настройки успешно сохранены",
+      "saveError": "Ошибка при сохранении",
+      "importSuccess": "Языковой пакет успешно импортирован",
+      "importError": "Ошибка импорта: неверный формат файла",
+      "connectionReady": "Готов к подключению",
+      "fillRequired": "Пожалуйста, заполните URL и Токен"
+    }
   },
   "entities": {
     "title": "Все сущности",
     "search": "Поиск сущностей...",
+    "filterDomain": "Фильтр по домену",
     "allDomains": "Все домены",
-    "showing": "Показано {count} сущностей",
+    "showing": "{count, plural, one {Показана # сущность} few {Показано # сущности} many {Показано # сущностей} other {Показано # сущностей}}",
     "noEntities": "Сущности не найдены. Проверьте настройки подключения.",
-    "loading": "Загрузка сущностей..."
+    "loading": "Получение списка сущностей...",
+    "domains": {
+      "light": "Свет",
+      "switch": "Переключатели",
+      "sensor": "Сенсоры",
+      "binary_sensor": "Бинарные сенсоры",
+      "climate": "Климат",
+      "cover": "Шторы/Ворота",
+      "media_player": "Медиа",
+      "script": "Скрипты",
+      "automation": "Автоматизации",
+      "lock": "Замки"
+    }
   }
 }

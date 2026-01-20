@@ -1,5 +1,5 @@
 import { browser } from '$app/environment';
-import { register, init, getLocaleFromNavigator, locale, addMessages } from 'svelte-i18n';
+import { register, init, getLocaleFromNavigator, locale, addMessages, dictionary } from 'svelte-i18n';
 import { writable, get } from 'svelte/store';
 import ru from './locales/ru.json';
 
@@ -148,6 +148,23 @@ export function importCustomLanguage(jsonContent: string): boolean {
     console.error('Failed to import language', e);
     return false;
   }
+}
+
+export function getLanguageExportData(code: string): string | null {
+  const dict = get(dictionary);
+  const messages = dict[code];
+  if (!messages) return null;
+
+  const meta = get(availableLanguages).find(l => l.code === code);
+  
+  const exportData: CustomLanguage = {
+    locale: code,
+    name: meta?.name || code,
+    direction: meta?.dir || 'ltr',
+    translations: messages as Record<string, any>
+  };
+  
+  return JSON.stringify(exportData, null, 2);
 }
 
 function saveCustomLanguage(data: CustomLanguage) {
