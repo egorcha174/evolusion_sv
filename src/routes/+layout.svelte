@@ -3,7 +3,7 @@
   import { appState, loadLayout, loadServerConfig } from '../domains/app/store';
   import { initializeHAConnection, disconnectHA } from '../domains/ha/store';
   import { themeStore } from '../domains/theme/store';
-  import { setupI18n } from '../lib/i18n'; // Import i18n setup
+  import { initClientI18n } from '../lib/i18n'; // Updated import
   import { isLoading } from 'svelte-i18n'; // Wait for translations
   import BackgroundRenderer from '../domains/theme/BackgroundRenderer.svelte';
   import Sidebar from '../domains/ui/Sidebar.svelte';
@@ -14,8 +14,8 @@
   let { children } = $props();
 
   onMount(async () => {
-    // 1. Setup I18n First
-    await setupI18n();
+    // 1. Setup Client I18n (SSR init handled in module)
+    await initClientI18n();
     
     // 2. Load other configs
     await loadServerConfig();

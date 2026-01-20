@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
-  import { t } from 'svelte-i18n';
+  import { t, locale } from 'svelte-i18n';
   import { haStore } from '../ha/store';
   import { sidebarWidth, loadUIState, saveUIState } from './store';
   import { timeString } from '../app/time';
@@ -69,7 +69,7 @@
   
   function formatDay(date: Date): string {
     // Use current locale for date formatting
-    return date.toLocaleDateString($t('currentLang') || 'en', { weekday: 'short' });
+    return date.toLocaleDateString($locale || 'en', { weekday: 'short' });
   }
 </script>
 
@@ -85,7 +85,7 @@
   <!-- Widget: Clock -->
   <div class="widget clock-widget">
     <div class="time">{$timeString}</div>
-    <div class="date">{new Date().toLocaleDateString($t('currentLang') || 'en', { weekday: 'long', month: 'short', day: 'numeric' })}</div>
+    <div class="date">{new Date().toLocaleDateString($locale || 'en', { weekday: 'long', month: 'short', day: 'numeric' })}</div>
   </div>
 
   <!-- Widget: Weather -->

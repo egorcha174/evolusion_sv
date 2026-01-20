@@ -1,6 +1,7 @@
 import { browser } from '$app/environment';
-import { register, init, getLocaleFromNavigator, locale, dictionary, addMessages } from 'svelte-i18n';
+import { register, init, getLocaleFromNavigator, locale, addMessages } from 'svelte-i18n';
 import { writable, get } from 'svelte/store';
+import ru from './locales/ru.json';
 
 // --- Types ---
 export interface CustomLanguage {
@@ -40,40 +41,40 @@ const STORAGE_KEY_CUSTOM_LANGS = 'evolusion_custom_langs';
 
 // --- Registration ---
 
-// Helper to register built-ins. 
-// Note: In a real scenario, we would have files for all. 
-// Here we map them to 'en' or 'ru' if missing in filesystem during dev, 
-// but logically we register the path.
-register('ru', () => import('./locales/ru.json'));
+// 1. Synchronous registration for default locale (Critical for SSR)
+addMessages('ru', ru);
+
+// 2. Async registration for others
 register('en', () => import('./locales/en.json'));
 register('ar', () => import('./locales/ar.json'));
 
-// For other built-ins, we conceptually register them. 
-// Since we only created files for ru/en/ar in this specific update, 
-// strictly speaking, these imports would fail if the file doesn't exist.
-// To make the app robust for this specific "partial" state, we will map others to EN for now
-// if they are selected, OR we assume the user will add them.
-// For the sake of the demo, we will map them to EN to prevent runtime errors if selected.
+// Fallbacks for others
 ['zh', 'es', 'de', 'fr', 'pt', 'ja', 'ko'].forEach(code => {
     register(code, () => import('./locales/en.json')); 
 });
 
+// 3. Initialize immediately with default locale
+// This ensures $t() works during Server-Side Rendering without crashing
+init({
+  fallbackLocale: 'ru',
+  initialLocale: 'ru',
+});
 
-// --- Initialization ---
+// --- Client Initialization ---
 
-export async function setupI18n() {
+export async function initClientI18n() {
   if (!browser) return;
 
   // 1. Load Custom Languages from Storage
   loadCustomLanguages();
 
-  // 2. Determine initial locale
-  let initialLocale = 'ru';
+  // 2. Determine preferred locale
+  let preferredLocale = 'ru';
   
   // Try storage
   const stored = localStorage.getItem(STORAGE_KEY_LOCALE);
   if (stored) {
-    initialLocale = stored;
+    preferredLocale = stored;
   } else {
     // Try browser navigator
     const navLocale = getLocaleFromNavigator(); // e.g., "en-US"
@@ -82,40 +83,35 @@ export async function setupI18n() {
       const found = get(availableLanguages).find(l => 
         l.code === navLocale || l.code === navLocale.split('-')[0]
       );
-      if (found) initialLocale = found.code;
+      if (found) preferredLocale = found.code;
     }
   }
 
-  // 3. Init svelte-i18n
-  init({
-    fallbackLocale: 'ru',
-    initialLocale: initialLocale,
-  });
-
-  // 4. Sync our stores
-  setLocale(initialLocale);
+  // 3. Apply Locale
+  await setLocale(preferredLocale);
 }
 
 export async function setLocale(code: string) {
-  if (!browser) return;
-  
   // Set internal svelte-i18n store
   locale.set(code);
   currentLang.set(code);
-  localStorage.setItem(STORAGE_KEY_LOCALE, code);
-
-  // Handle Direction
-  const meta = get(availableLanguages).find(l => l.code === code);
-  const dir = meta?.dir || 'ltr';
-  currentDir.set(dir);
   
-  // Apply to document
-  document.documentElement.dir = dir;
-  document.documentElement.lang = code;
-  if (dir === 'rtl') {
-    document.body.classList.add('rtl');
-  } else {
-    document.body.classList.remove('rtl');
+  if (browser) {
+    localStorage.setItem(STORAGE_KEY_LOCALE, code);
+
+    // Handle Direction
+    const meta = get(availableLanguages).find(l => l.code === code);
+    const dir = meta?.dir || 'ltr';
+    currentDir.set(dir);
+    
+    // Apply to document
+    document.documentElement.dir = dir;
+    document.documentElement.lang = code;
+    if (dir === 'rtl') {
+      document.body.classList.add('rtl');
+    } else {
+      document.body.classList.remove('rtl');
+    }
   }
 }
 
