@@ -1,6 +1,8 @@
+
 <script lang="ts">
   import { onMount } from 'svelte';
   import { appState, loadLayout, loadServerConfig } from '../domains/app/store';
+  import { dashboardStore } from '../domains/app/dashboardStore';
   import { initializeHAConnection, disconnectHA } from '../domains/ha/store';
   import { themeStore } from '../domains/theme/store';
   import { initClientI18n } from '../lib/i18n'; // Updated import
@@ -21,6 +23,7 @@
     await loadServerConfig();
     await loadLayout();
     await themeStore.init();
+    await dashboardStore.init(); // Initialize 2D grid store
   });
 
   // Reactive connection management

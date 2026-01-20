@@ -38,3 +38,30 @@ export interface HAStoreState {
 	problemEntities: Set<string>; // Optimized index for unavailable/unknown
 	latency?: number; // Connection latency in ms
 }
+
+// --- 2D Grid Types ---
+
+export interface CardPosition {
+  x: number;      // user units (0-based)
+  y: number;      // user units (0-based)
+  w: number;      // width in user units (e.g. 1, 0.5, 2)
+  h: number;      // height in user units
+}
+
+export interface DashboardCardConfig {
+  id: string;
+  entityId: string;
+  position: CardPosition;
+}
+
+export interface TabGridConfig {
+  id: string;
+  gridColumns: number;
+  gridRows: number;
+  cards: DashboardCardConfig[];
+}
+
+export interface DashboardConfig {
+  version: number;
+  tabs: Record<string, TabGridConfig>;
+}
