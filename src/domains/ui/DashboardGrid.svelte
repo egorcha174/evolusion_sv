@@ -190,12 +190,36 @@
     width: 100%;
     height: 100%;
     pointer-events: none;
-    background-image: 
-      linear-gradient(to right, rgba(128,128,128,0.1) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(128,128,128,0.1) 1px, transparent 1px);
-    background-size: calc(100% / var(--cols)) calc(100% / var(--rows));
     z-index: 0;
-    border: 1px dashed rgba(128,128,128,0.2);
+    
+    /* Subtle Border around the whole grid area */
+    outline: 1px dashed var(--border-primary);
+
+    /* 
+      Grid Pattern Construction:
+      1. Major Lines (Integers): Darker/Thicker. Repeat every 2 units.
+      2. Minor Lines (0.5 Units): Lighter/Thinner. Repeat every 1 unit.
+    */
+    background-image: 
+      /* Vertical Major */
+      linear-gradient(to right, var(--text-secondary) 1px, transparent 1px),
+      /* Horizontal Major */
+      linear-gradient(to bottom, var(--text-secondary) 1px, transparent 1px),
+      /* Vertical Minor */
+      linear-gradient(to right, var(--border-primary) 1px, transparent 1px),
+      /* Horizontal Minor */
+      linear-gradient(to bottom, var(--border-primary) 1px, transparent 1px);
+      
+    background-size: 
+      /* Major Size (Every 2 units = integer steps) */
+      calc(200% / var(--cols)) 100%, 
+      100% calc(200% / var(--rows)),
+      /* Minor Size (Every 1 unit = half steps) */
+      calc(100% / var(--cols)) 100%, 
+      100% calc(100% / var(--rows));
+      
+    /* Blend the lines gently */
+    opacity: 0.25;
   }
 
   /* Mobile Layout: Stack (only when not editing) */
