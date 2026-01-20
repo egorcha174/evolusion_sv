@@ -7,8 +7,12 @@
   import { haStore } from '../ha/store';
   import DeviceCard from './DeviceCard.svelte';
   import GridItem from './GridItem.svelte';
-  import GridSettings from './GridSettings.svelte';
-  import type { TabGridConfig, HAEntity } from '$lib/types';
+  import type { HAEntity } from '$lib/types';
+  
+  // Editor imports
+  import { editorStore } from './editor/store';
+  import { onPointerMove, onPointerUp, onPointerCancel } from './editor/pointer';
+  import EditToolbar from './editor/components/EditToolbar.svelte';
   
   // Get raw entities filtered by tab logic (for auto-population)
   let visibleEntities = $derived($selectVisibleDashboardCards);
@@ -59,21 +63,35 @@
      const sizeByHeight = hAvailable / internalRows;
      
      // 3. Take the smaller one to ensure fit without overflow
-     // Math.max(1) to prevent zero or negative
      return Math.max(1, Math.min(sizeByWidth, sizeByHeight));
   });
 
-  // Auto-populate logic
+  // Editor Session Management
   $effect(() => {
-    if ($haStore.isConnected && visibleEntities.length > 0) {
+    if ($isEditMode) {
+      if (!$editorStore.enabled) {
+        editorStore.initSession($activeTabId);
+      }
+    } else {
+      if ($editorStore.enabled) {
+        editorStore.reset();
+      }
+    }
+  });
+
+  // Keep metrics updated
+  $effect(() => {
+     if ($editorStore.enabled && halfUnitSize > 0) {
+        editorStore.setGridMetrics(halfUnitSize, columns, rows);
+     }
+  });
+
+  // Auto-populate logic (Only when not editing)
+  $effect(() => {
+    if (!$isEditMode && $haStore.isConnected && visibleEntities.length > 0) {
        dashboardStore.syncEntitiesToGrid($activeTabId, visibleEntities);
     }
   });
-  
-  // Update handler
-  function handleCardUpdate(cardId: string, pos: any) {
-    dashboardStore.updateCardPosition($activeTabId, cardId, pos);
-  }
   
   function getEntity(id: string): HAEntity | undefined {
     return $haStore.entities.get(id);
@@ -94,16 +112,21 @@
        No devices configured for this view.
     </div>
   {:else}
-    <div class="grid-layout" class:edit-mode={$isEditMode} style={gridStyle}>
+    <!-- Interaction Layer for Global Pointer Events in Edit Mode -->
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
+    <div 
+      class="grid-layout" 
+      class:edit-mode={$isEditMode} 
+      style={gridStyle}
+      onpointermove={onPointerMove}
+      onpointerup={onPointerUp}
+      onpointercancel={onPointerCancel}
+      style:touch-action={$isEditMode ? 'none' : 'auto'}
+    >
       {#each cards as card (card.id)}
          {@const entity = getEntity(card.entityId)}
          {#if entity}
-           <GridItem 
-             {card} 
-             gridCols={columns} 
-             gridRows={rows}
-             onUpdate={handleCardUpdate}
-           >
+           <GridItem {card}>
              <DeviceCard {entity} />
            </GridItem>
          {/if}
@@ -117,11 +140,7 @@
   {/if}
 
   {#if $isEditMode}
-    <GridSettings 
-       tabId={$activeTabId} 
-       cols={columns} 
-       rows={rows} 
-    />
+    <EditToolbar />
   {/if}
 </div>
 
@@ -172,7 +191,7 @@
     border: 1px dashed rgba(128,128,128,0.2);
   }
 
-  /* Mobile Layout: Stack */
+  /* Mobile Layout: Stack (only when not editing) */
   @media (max-width: 768px) {
     .dashboard-container {
       height: auto;
@@ -180,14 +199,21 @@
       overflow-y: auto;
     }
     
-    .grid-layout {
+    /* When NOT in edit mode, stack them */
+    .grid-layout:not(.edit-mode) {
       display: flex;
       flex-direction: column;
       gap: 12px;
-      /* Reset grid specific styles */
       grid-template-columns: none;
       grid-template-rows: none;
       width: 100%;
+    }
+    
+    /* When in edit mode on mobile, keep grid but allow scroll if needed */
+    .grid-layout.edit-mode {
+       /* Ensure container allows scrolling the grid canvas if it overflows */
+       min-width: 100%;
+       min-height: 50vh; 
     }
     
     .grid-overlay {
