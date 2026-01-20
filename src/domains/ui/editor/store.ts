@@ -89,7 +89,17 @@ function createEditorStore() {
     },
 
     setGridMetrics(halfUnitPx: number, cols: number, rows: number) {
-      update(s => ({ ...s, gridMetrics: { halfUnitSizePx: halfUnitPx, cols, rows } }));
+      update(s => {
+        // Prevent infinite loop if values haven't changed
+        if (
+          s.gridMetrics.halfUnitSizePx === halfUnitPx &&
+          s.gridMetrics.cols === cols &&
+          s.gridMetrics.rows === rows
+        ) {
+          return s;
+        }
+        return { ...s, gridMetrics: { halfUnitSizePx: halfUnitPx, cols, rows } };
+      });
     },
 
     updateDraft(cardId: CardId, rect: GridRect) {

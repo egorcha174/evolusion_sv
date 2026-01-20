@@ -67,13 +67,16 @@
   });
 
   // Editor Session Management
+  // Optimize dependency tracking: isolate enabled state
+  let isEditorEnabled = $derived($editorStore.enabled);
+
   $effect(() => {
     if ($isEditMode) {
-      if (!$editorStore.enabled) {
+      if (!isEditorEnabled) {
         editorStore.initSession($activeTabId);
       }
     } else {
-      if ($editorStore.enabled) {
+      if (isEditorEnabled) {
         editorStore.reset();
       }
     }
@@ -81,7 +84,7 @@
 
   // Keep metrics updated
   $effect(() => {
-     if ($editorStore.enabled && halfUnitSize > 0) {
+     if (isEditorEnabled && halfUnitSize > 0) {
         editorStore.setGridMetrics(halfUnitSize, columns, rows);
      }
   });
