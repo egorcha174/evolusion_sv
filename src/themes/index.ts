@@ -1,10 +1,13 @@
-/// <reference types="vite/client" />
-
 import type { Theme, ThemeManifest } from './types';
 
-// Use Vite's glob import
-const presetThemes = import.meta.glob<{ default: Theme }>('./presets/*.json', { eager: true });
-const customThemes = import.meta.glob<{ default: Theme }>('./custom/*.json', { eager: true });
+// Define necessary types for Vite's import.meta.glob to avoid dependency on vite/client types
+interface ViteImportMeta {
+  glob<T>(pattern: string, options?: { eager: boolean }): Record<string, T>;
+}
+
+// Use Vite's glob import with type casting
+const presetThemes = (import.meta as unknown as ViteImportMeta).glob<{ default: Theme }>('./presets/*.json', { eager: true });
+const customThemes = (import.meta as unknown as ViteImportMeta).glob<{ default: Theme }>('./custom/*.json', { eager: true });
 
 export function getAvailableThemes(): ThemeManifest[] {
   const themes: ThemeManifest[] = [];

@@ -26,58 +26,54 @@ export interface AnimationConfig {
 }
 
 export interface SchemeSettings {
-  // === BACKGROUND ===
+  // === BACKGROUND (Renderer) ===
   dashboardBackgroundType: BackgroundType;
   dashboardBackgroundColor?: string;
   dashboardGradient?: GradientConfig;
   dashboardBackgroundImage?: ImageConfig;
   dashboardBackgroundAnimation?: AnimationConfig;
   
-  // === CARDS ===
-  cardOpacity: number;
-  cardBorderRadius: number;
-  cardBorderWidth: number;
-  cardBorderColor: string;
-  cardBorderColorOn: string;
-  cardBackground: string;
-  cardBackgroundOn: string;
+  // === CSS VARS (Component Mappings) ===
+  // These keys map to --kebab-case CSS vars (e.g. bgCard -> --bg-card)
   
-  // === PANELS ===
-  panelOpacity: number;
-  
-  // === TABS ===
-  tabTextColor: string;
-  activeTabTextColor: string;
-  tabIndicatorColor: string;
-  
-  // === THERMOSTAT ===
-  thermostatHandleColor: string;
-  thermostatDialTextColor: string;
-  thermostatDialLabelColor: string;
-  thermostatHeatingColor: string;
-  thermostatCoolingColor: string;
-  
-  // === CLOCK ===
-  clockTextColor: string;
-  
-  // === TEXT ===
-  nameTextColor: string;
-  statusTextColor: string;
-  valueTextColor: string;
-  unitTextColor: string;
-  
-  // === TEXT ACTIVE ===
-  nameTextColorOn: string;
-  statusTextColorOn: string;
-  valueTextColorOn: string;
-  unitTextColorOn: string;
+  // Backgrounds
+  bgPage: string;       // Fallback background
+  bgCard: string;       // Card background
+  bgCardHover: string;
+  bgSidebar: string;
+  bgHeader: string;
+  bgInput: string;
+  bgChip: string;
+  bgChipActive: string;
 
-  // === UI ACCENTS (Additional standard vars) ===
-  accentPrimary?: string;
-  accentError?: string;
-  accentSuccess?: string;
-  bgInput?: string;
-  textPrimary?: string;
+  // Text
+  textPrimary: string;
+  textSecondary: string;
+  textMuted: string;
+  textName: string;
+  textStatus: string;
+  textOnAccent: string;
+
+  // Borders
+  borderCard: string;
+  borderPrimary: string;
+  borderInput: string;
+  borderFocus: string;
+  borderDivider: string;
+  
+  // States & Accents
+  stateOn: string;
+  accentPrimary: string;
+  accentError: string;
+  accentSuccess: string;
+  accentWarning: string;
+  accentInfo: string;
+
+  // Shadows
+  shadowCard: string;
+
+  // === WIDGET SPECIFIC ===
+  widgetSwitchOn: string;
 }
 
 export interface ThemeManifest {

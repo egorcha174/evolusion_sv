@@ -1,6 +1,6 @@
 
 <script lang="ts" generics="T">
-  import { onMount } from 'svelte';
+  import { onMount, type Snippet } from 'svelte';
 
   // Generic props
   interface Props {
@@ -8,9 +8,10 @@
     itemHeight: number;
     height?: string;
     keyField?: keyof T;
+    children: Snippet<[{ item: T, index: number }]>;
   }
   
-  let { items, itemHeight, height = '100%', keyField } = $props<Props>();
+  let { items, itemHeight, height = '100%', keyField, children }: Props = $props();
 
   let container: HTMLDivElement;
   let scrollTop = $state(0);
@@ -59,12 +60,12 @@
   bind:this={container}
 >
   <div class="virtual-spacer" style="height: {totalHeight}px">
-    {#each visibleItems as { item, index, offset } (keyField ? item[keyField] : index)}
+    {#each visibleItems as { item, index, offset } (keyField ? (item as any)[keyField] : index)}
       <div 
         class="virtual-item"
         style="transform: translateY({offset}px); height: {itemHeight}px"
       >
-        <slot {item} {index} />
+        {@render children({ item, index })}
       </div>
     {/each}
   </div>
