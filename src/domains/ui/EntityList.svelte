@@ -17,7 +17,7 @@
     height="calc(100vh - 200px)"
     keyField="entity_id"
   >
-    {#snippet default({ item })}
+    {#snippet children({ item })}
       <div class="row-wrapper">
         <EntityRow entity={item} />
       </div>
