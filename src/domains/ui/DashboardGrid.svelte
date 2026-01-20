@@ -195,31 +195,38 @@
     /* Subtle Border around the whole grid area */
     outline: 1px dashed var(--border-primary);
 
+    /* Dim the background slightly to make lines pop on any wallpaper */
+    background-color: var(--bg-page-dimmed, rgba(0, 0, 0, 0.05));
+
     /* 
       Grid Pattern Construction:
-      1. Major Lines (Integers): Darker/Thicker. Repeat every 2 units.
-      2. Minor Lines (0.5 Units): Lighter/Thinner. Repeat every 1 unit.
+      Using Accent Primary for Major lines (2 units)
+      Using Text Secondary for Minor lines (1 unit)
     */
     background-image: 
-      /* Vertical Major */
+      /* Major Vertical (2px wide) */
+      linear-gradient(to right, var(--accent-primary) 2px, transparent 2px),
+      /* Major Horizontal (2px wide) */
+      linear-gradient(to bottom, var(--accent-primary) 2px, transparent 2px),
+      /* Minor Vertical (1px wide) */
       linear-gradient(to right, var(--text-secondary) 1px, transparent 1px),
-      /* Horizontal Major */
-      linear-gradient(to bottom, var(--text-secondary) 1px, transparent 1px),
-      /* Vertical Minor */
-      linear-gradient(to right, var(--border-primary) 1px, transparent 1px),
-      /* Horizontal Minor */
-      linear-gradient(to bottom, var(--border-primary) 1px, transparent 1px);
+      /* Minor Horizontal (1px wide) */
+      linear-gradient(to bottom, var(--text-secondary) 1px, transparent 1px);
       
+    /* 
+       Exact calculation to match grid-template + gap.
+       Major = 2 cells + 2 gaps
+       Minor = 1 cell + 1 gap
+    */
     background-size: 
-      /* Major Size (Every 2 units = integer steps) */
-      calc(200% / var(--cols)) 100%, 
-      100% calc(200% / var(--rows)),
-      /* Minor Size (Every 1 unit = half steps) */
-      calc(100% / var(--cols)) 100%, 
-      100% calc(100% / var(--rows));
+      /* Major */
+      calc(2 * var(--half-unit) + 2 * var(--gap)) calc(2 * var(--half-unit) + 2 * var(--gap)),
+      calc(2 * var(--half-unit) + 2 * var(--gap)) calc(2 * var(--half-unit) + 2 * var(--gap)),
+      /* Minor */
+      calc(var(--half-unit) + var(--gap)) calc(var(--half-unit) + var(--gap)),
+      calc(var(--half-unit) + var(--gap)) calc(var(--half-unit) + var(--gap));
       
-    /* Blend the lines gently */
-    opacity: 0.25;
+    opacity: 0.5;
   }
 
   /* Mobile Layout: Stack (only when not editing) */
