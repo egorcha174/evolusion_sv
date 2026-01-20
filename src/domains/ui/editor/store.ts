@@ -9,6 +9,7 @@ const initialState: EditorState = {
   enabled: false,
   tabId: null,
   selectedCardId: null,
+  showGridSettings: false,
   pointerOp: { kind: 'idle' },
   gridMetrics: { halfUnitSizePx: 0, cols: 8, rows: 6 },
   drafts: new Map(),
@@ -41,6 +42,7 @@ function createEditorStore() {
           tabId,
           drafts,
           selectedCardId: null,
+          showGridSettings: false,
           collision: false,
           gridMetrics: {
             ...s.gridMetrics,
@@ -83,6 +85,10 @@ function createEditorStore() {
     },
 
     // --- Interaction ---
+    
+    toggleGridSettings() {
+      update(s => ({ ...s, showGridSettings: !s.showGridSettings }));
+    },
 
     selectCard(cardId: CardId | null) {
       update(s => ({ ...s, selectedCardId: cardId }));

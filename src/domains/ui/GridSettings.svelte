@@ -40,7 +40,7 @@
 <style>
   .grid-settings {
     position: absolute;
-    bottom: 2rem;
+    bottom: 90px;
     left: 50%;
     transform: translateX(-50%);
     background: var(--bg-panel);
@@ -57,6 +57,7 @@
     margin: 0 0 1rem 0;
     font-size: 1rem;
     text-align: center;
+    color: var(--text-primary);
   }
   
   .control {
@@ -67,6 +68,7 @@
     display: block;
     margin-bottom: 0.5rem;
     font-size: 0.9rem;
+    color: var(--text-primary);
   }
   
   input {

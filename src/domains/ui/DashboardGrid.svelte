@@ -7,6 +7,7 @@
   import { haStore } from '../ha/store';
   import DeviceCard from './DeviceCard.svelte';
   import GridItem from './GridItem.svelte';
+  import GridSettings from './GridSettings.svelte';
   import type { HAEntity } from '$lib/types';
   
   // Editor imports
@@ -144,6 +145,9 @@
 
   {#if $isEditMode}
     <EditToolbar />
+    {#if $editorStore.showGridSettings}
+      <GridSettings tabId={$activeTabId} cols={columns} rows={rows} />
+    {/if}
   {/if}
 </div>
 

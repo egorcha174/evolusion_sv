@@ -29,6 +29,7 @@ export type EditorState = {
   enabled: boolean;
   tabId: TabId | null;
   selectedCardId: CardId | null;
+  showGridSettings: boolean;
   
   // Interaction state
   pointerOp: PointerOp;

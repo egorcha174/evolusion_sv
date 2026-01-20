@@ -3,7 +3,7 @@
   import { t } from 'svelte-i18n';
   import { editorStore } from '../store';
   import { editorHistory } from '../history';
-  import { isEditMode, toggleEditMode } from '../../../app/tabsStore'; // Corrected path
+  import { isEditMode } from '../../../app/tabsStore';
   import 'iconify-icon';
 
   function save() {
@@ -23,12 +23,25 @@
   function redo() {
     editorStore.redo();
   }
+
+  function toggleGrid() {
+    editorStore.toggleGridSettings();
+  }
   
   let canUndo = $derived(editorHistory.canUndo());
   let canRedo = $derived(editorHistory.canRedo());
+  let showGridSettings = $derived($editorStore.showGridSettings);
 </script>
 
 <div class="edit-toolbar">
+  <div class="group">
+    <button class="tool-btn" class:active={showGridSettings} onclick={toggleGrid} title="Grid Settings">
+       <iconify-icon icon="mdi:grid"></iconify-icon>
+    </button>
+  </div>
+
+  <div class="divider"></div>
+
   <div class="group">
     <button class="tool-btn" disabled={!canUndo} onclick={undo} title="Undo">
       <iconify-icon icon="mdi:undo"></iconify-icon>
@@ -37,6 +50,8 @@
       <iconify-icon icon="mdi:redo"></iconify-icon>
     </button>
   </div>
+  
+  <div class="divider"></div>
   
   <div class="group">
     <button class="tool-btn cancel" onclick={cancel}>
@@ -62,7 +77,8 @@
     border-radius: 32px;
     padding: 8px 16px;
     display: flex;
-    gap: 24px;
+    gap: 16px;
+    align-items: center;
     box-shadow: 0 4px 24px rgba(0,0,0,0.2);
     z-index: 1000;
   }
@@ -71,6 +87,13 @@
     display: flex;
     gap: 8px;
     align-items: center;
+  }
+
+  .divider {
+    width: 1px;
+    height: 24px;
+    background: var(--border-primary);
+    opacity: 0.5;
   }
   
   .tool-btn {
@@ -89,6 +112,11 @@
   
   .tool-btn:hover:not(:disabled) {
     background: rgba(0,0,0,0.05);
+  }
+
+  .tool-btn.active {
+    background: var(--accent-primary);
+    color: #fff;
   }
   
   .tool-btn:disabled {
