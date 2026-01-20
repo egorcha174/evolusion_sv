@@ -108,7 +108,10 @@
     flex-direction: column;
     gap: 12px;
     height: 100%;
-    min-height: 120px;
+    /* Ensure it fills parent GridItem */
+    width: 100%;
+    
+    min-height: 80px; /* Reduced min height for fractional rows */
     position: relative;
     overflow: hidden;
   }
@@ -167,6 +170,7 @@
     align-items: center;
     justify-content: space-between;
     flex: 1;
+    min-height: 0; /* Allow shrinking */
   }
   
   .device-value {
