@@ -1,8 +1,9 @@
+
 <script lang="ts">
 	import { appState, saveServerConfig } from '../../domains/app/store';
-	import { themeSettings } from '../../domains/ui/theme/store';
-  import { BUILTIN_THEMES } from '../../domains/ui/theme/defaults';
+	import { themeStore } from '../../domains/theme/store';
 	import type { ServerConfig } from '$lib/types';
+    import type { ThemeMode } from '../../themes/types';
 
 	let url = $state('');
 	let token = $state('');
@@ -60,29 +61,20 @@
 	}
 	
 	function handleThemeModeChange(e: Event) {
-	  const mode = (e.target as HTMLSelectElement).value as any;
-	  themeSettings.update(s => {
-	    const next = { ...s, mode };
-	    themeSettings.save(next);
-	    return next;
-	  });
+	  const mode = (e.target as HTMLSelectElement).value as ThemeMode;
+	  themeStore.setMode(mode);
 	}
 
   function handleThemeChange(e: Event) {
     const activeThemeId = (e.target as HTMLSelectElement).value;
-    themeSettings.update(s => {
-      const next = { ...s, activeThemeId };
-      themeSettings.save(next);
-      return next;
-    });
+    themeStore.setTheme(activeThemeId);
   }
 
-	function handleScheduleChange(field: 'darkStart' | 'darkEnd', value: string) {
-	   themeSettings.update(s => {
-	    const next = { ...s, schedule: { ...s.schedule, [field]: value } };
-	    themeSettings.save(next);
-	    return next;
-	  });
+	function handleScheduleChange(field: 'dayStart' | 'nightStart', value: string) {
+       const currentSchedule = $themeStore.schedule || { mode: 'time', dayStart: '07:00', nightStart: '22:00' };
+       const newSchedule = { ...currentSchedule, [field]: value };
+       // @ts-ignore
+	   themeStore.setSchedule(newSchedule);
 	}
 </script>
 
@@ -94,7 +86,7 @@
     <h2>Appearance</h2>
     <div class="form-group">
       <label for="theme-mode">Mode</label>
-      <select id="theme-mode" value={$themeSettings.mode} onchange={handleThemeModeChange}>
+      <select id="theme-mode" value={$themeStore.mode} onchange={handleThemeModeChange}>
         <option value="auto">Auto (System)</option>
         <option value="day">Day (Always Light)</option>
         <option value="night">Night (Always Dark)</option>
@@ -104,31 +96,31 @@
 
     <div class="form-group">
       <label for="theme-select">Theme</label>
-      <select id="theme-select" value={$themeSettings.activeThemeId} onchange={handleThemeChange}>
-        {#each BUILTIN_THEMES as theme}
-          <option value={theme.id}>{theme.name}</option>
+      <select id="theme-select" value={$themeStore.currentThemeId} onchange={handleThemeChange}>
+        {#each $themeStore.availableThemes as theme}
+          <option value={theme.id}>{theme.name} {theme.isCustom ? '(Custom)' : ''}</option>
         {/each}
       </select>
     </div>
 
-    {#if $themeSettings.mode === 'schedule'}
+    {#if $themeStore.mode === 'schedule'}
       <div class="schedule-inputs">
         <div class="form-group">
-          <label for="dark-start">Dark Mode Start</label>
+          <label for="day-start">Day Start</label>
           <input 
             type="time" 
-            id="dark-start" 
-            value={$themeSettings.schedule.darkStart} 
-            onchange={(e) => handleScheduleChange('darkStart', e.currentTarget.value)}
+            id="day-start" 
+            value={$themeStore.schedule?.dayStart || '07:00'} 
+            onchange={(e) => handleScheduleChange('dayStart', e.currentTarget.value)}
           />
         </div>
         <div class="form-group">
-          <label for="dark-end">Dark Mode End</label>
+          <label for="night-start">Night Start</label>
           <input 
             type="time" 
-            id="dark-end" 
-            value={$themeSettings.schedule.darkEnd} 
-            onchange={(e) => handleScheduleChange('darkEnd', e.currentTarget.value)}
+            id="night-start" 
+            value={$themeStore.schedule?.nightStart || '22:00'} 
+            onchange={(e) => handleScheduleChange('nightStart', e.currentTarget.value)}
           />
         </div>
       </div>
@@ -187,7 +179,7 @@
   .settings-section {
     margin-bottom: 3rem;
     padding-bottom: 2rem;
-    border-bottom: 1px solid var(--border-divider);
+    border-bottom: 1px solid var(--border-divider, #ddd);
   }
   
   .settings-section:last-child {
@@ -207,7 +199,7 @@
 
 	.description {
 		margin-bottom: 2rem;
-		color: var(--text-secondary);
+		color: var(--text-secondary, #666);
 	}
 
 	.form-group {
@@ -224,11 +216,11 @@
 	input, select {
 		width: 100%;
 		padding: 0.75rem;
-		border: 1px solid var(--border-input);
+		border: 1px solid var(--border-input, #ccc);
 		border-radius: 4px;
 		font-size: 1rem;
 		box-sizing: border-box;
-    background: var(--bg-input);
+    background: var(--bg-input, #fff);
     color: var(--text-primary);
 	}
 
@@ -241,7 +233,7 @@
 		display: block;
 		margin-top: 0.25rem;
 		font-size: 0.85rem;
-		color: var(--text-muted);
+		color: var(--text-status, #888);
 	}
 
 	.actions {
@@ -259,14 +251,14 @@
 	}
 
 	.btn-primary {
-		background-color: var(--accent-primary);
-		color: var(--text-on-accent);
+		background-color: var(--accent-primary, #007bff);
+		color: #fff;
 	}
 
 	.btn-secondary {
-		background-color: var(--bg-chip);
+		background-color: transparent;
 		color: var(--text-primary);
-    border: 1px solid var(--border-input);
+    border: 1px solid var(--border-input, #ccc);
 	}
 
 	.message {
@@ -275,7 +267,7 @@
 		border-radius: 4px;
 	}
 
-	.message.info { background-color: var(--bg-chip); color: var(--accent-info); }
-	.message.success { background-color: var(--bg-chip-active); color: var(--accent-success); }
-	.message.error { background-color: var(--bg-chip); color: var(--accent-error); }
+	.message.info { background-color: #e3f2fd; color: #0d47a1; }
+	.message.success { background-color: #e8f5e9; color: #1b5e20; }
+	.message.error { background-color: #ffebee; color: #b71c1c; }
 </style>

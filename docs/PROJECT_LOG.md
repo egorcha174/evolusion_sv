@@ -30,3 +30,4 @@
 | 2024-05-22 | T-UI-03 | e-ui-info-sidebar | Info Sidebar | Convert Sidebar to info-only (Clock, Weather, Camera), remove nav | src/domains/ui/Sidebar.svelte | Visual Check | **Completed** | Next | ... |
 | 2024-05-22 | T-UI-04 | e-ui-resizable-sidebar | Resizable Sidebar | Add drag handle and persistence for sidebar width | src/domains/ui/store.ts, src/domains/ui/Sidebar.svelte | Manual Verify | **Completed** | Next | ... |
 | 2024-05-22 | T-REF-01 | e-refactor-perf | Performance Audit | Batching updates, centralized time, latency check | src/domains/ha/store.ts, src/domains/ha/api.ts, src/domains/app/time.ts, src/domains/ui/Sidebar.svelte | Manual Verify | **Completed** | Next | ... |
+| 2024-05-22 | E5-01 | e5-01-theme-system | Theme System | Full theme architecture with presets and background renderer | src/themes/*, src/domains/theme/*, src/routes/+layout.svelte | Build Pass | **Completed** | Next | ... |

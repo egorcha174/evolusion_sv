@@ -151,7 +151,7 @@ export type DashboardGridItem = HAEntity & { id: string };
 export const selectVisibleDashboardCards = derived(
   [haStore, uiDashboardState, activeTabId, layoutConfig],
   ([$haStore, $uiState, $activeTab, $layout]: [HAStoreState, UIDashboardState, string, LayoutConfig]) => {
-    const allEntities = Array.from($haStore.entities.values());
+    const allEntities: HAEntity[] = Array.from($haStore.entities.values());
     
     // 1. Initial Domain Filter for Dashboard (Allowlist)
     const RELEVANT_DOMAINS = new Set([
@@ -159,7 +159,7 @@ export const selectVisibleDashboardCards = derived(
       'cover', 'lock', 'script', 'input_boolean'
     ]);
 
-    let relevant = allEntities.filter(entity => {
+    let relevant: HAEntity[] = allEntities.filter(entity => {
       const domain = extractDomain(entity.entity_id);
       return RELEVANT_DOMAINS.has(domain);
     });
@@ -188,11 +188,14 @@ export const selectVisibleDashboardCards = derived(
     const isDefaultView = $activeTab === 'home' && !$uiState.filters.search && !$uiState.filters.domain;
 
     if (isDefaultView && $layout.cardOrder.length > 0) {
-      const entityMap = new Map(relevant.map(e => [e.entity_id, e]));
+      // Cast array to specific tuple type to help Map constructor inference
+      const entries = relevant.map(e => [e.entity_id, e] as const);
+      const entityMap = new Map<string, HAEntity>(entries);
       
       for (const id of $layout.cardOrder) {
         if (entityMap.has(id)) {
-          sorted.push({ ...entityMap.get(id)!, id });
+          const entity = entityMap.get(id)!;
+          sorted.push({ ...entity, id });
           entityMap.delete(id);
         }
       }
