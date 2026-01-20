@@ -1,3 +1,4 @@
+
 <script lang="ts">
   import { t } from 'svelte-i18n';
   import type { HAEntity } from '$lib/types';
@@ -35,13 +36,13 @@
   
   let icon = $derived(getIcon(domain));
   
-  // Translation for states - simplistic approach
-  // In real app, we would map entity.state to specific translation keys
-  let translatedState = $derived(
-    entity.state === 'on' ? $t('common.on') : 
-    entity.state === 'off' ? $t('common.off') : 
-    entity.state
-  );
+  let translatedState = $derived.by(() => {
+     if (entity.state === 'on') return $t('common.on');
+     if (entity.state === 'off') return $t('common.off');
+     if (entity.state === 'unavailable') return $t('entities.status.unavailable');
+     if (entity.state === 'unknown') return $t('entities.status.unknown');
+     return entity.state;
+  });
 </script>
 
 <div 

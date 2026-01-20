@@ -31,7 +31,7 @@ export const openWeatherMapProvider: WeatherProvider = {
 
     return {
       temperature: Math.round(currentData.main.temp * 10) / 10,
-      condition: currentData.weather[0]?.main || 'Unknown',
+      condition: getWeatherDescription(currentCode),
       icon: getWeatherIcon(currentCode, settings.iconPack),
       location: currentData.name || coords.name,
       updatedAt: new Date(),

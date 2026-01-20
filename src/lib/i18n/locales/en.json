@@ -48,7 +48,9 @@
     "weatherKey": "API Key",
     "weatherKeyPlaceholder": "Paste API key here",
     "weatherShowForecast": "Show Forecast",
-    "weatherDaysLabel": "Forecast days",
+    "forecast": {
+       "daysLabel": "Forecast days"
+    },
     "weatherLayout": "Forecast Layout",
     "layoutVertical": "Vertical",
     "layoutHorizontal": "Horizontal",
@@ -85,6 +87,11 @@
     "showing": "{count, plural, one {Showing # entity} other {Showing # entities}}",
     "noEntities": "No entities found. Check connection settings.",
     "loading": "Loading entities...",
+    "status": {
+      "unavailable": "Unavailable",
+      "unknown": "Unknown",
+      "offline": "Offline"
+    },
     "domains": {
       "light": "Lights",
       "switch": "Switches",
@@ -96,6 +103,27 @@
       "script": "Scripts",
       "automation": "Automations",
       "lock": "Locks"
+    }
+  },
+  "weather": {
+    "status": {
+       "clear": "Clear",
+       "fewClouds": "Few clouds",
+       "partlyCloudy": "Partly cloudy",
+       "overcast": "Overcast",
+       "fog": "Fog",
+       "drizzle": "Drizzle",
+       "freezingDrizzle": "Freezing Drizzle",
+       "rain": "Rain",
+       "heavyRain": "Heavy Rain",
+       "freezingRain": "Freezing Rain",
+       "snow": "Snow",
+       "heavySnow": "Heavy Snow",
+       "showers": "Showers",
+       "snowShowers": "Snow Showers",
+       "thunderstorm": "Thunderstorm",
+       "thunderstormHail": "Thunderstorm w/ Hail",
+       "unknown": "Unknown"
     }
   }
 }

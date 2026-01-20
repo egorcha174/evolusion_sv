@@ -2,7 +2,6 @@
 import type { WeatherIconPack } from './types';
 
 // Core mapping of codes to semantic keys
-// Using a semantic key allows us to map to different packs easily
 const CODE_TO_KEY: Record<number, string> = {
   0: 'sunny',
   1: 'partly-cloudy',
@@ -53,8 +52,8 @@ const PACKS: Record<WeatherIconPack, Record<string, string>> = {
     'unknown': 'mdi:weather-cloudy'
   },
   outline: {
-    'sunny': 'mdi:white-balance-sunny', // Approximated as "thinner" or distinct
-    'partly-cloudy': 'mdi:weather-partly-cloudy', // MDI lacks full outline set, using closest
+    'sunny': 'mdi:white-balance-sunny',
+    'partly-cloudy': 'mdi:weather-partly-cloudy',
     'cloudy': 'mdi:cloud-outline',
     'fog': 'mdi:weather-fog',
     'rain-light': 'mdi:weather-rainy',
@@ -70,7 +69,7 @@ const PACKS: Record<WeatherIconPack, Record<string, string>> = {
   },
   filled: {
     'sunny': 'mdi:weather-sunny',
-    'partly-cloudy': 'mdi:cloud', // Using pure cloud for filled contrast vs cloud-outline
+    'partly-cloudy': 'mdi:cloud',
     'cloudy': 'mdi:cloud',
     'fog': 'mdi:weather-fog',
     'rain-light': 'mdi:weather-rainy',
@@ -92,37 +91,38 @@ export function getWeatherIcon(code: number, pack: WeatherIconPack = 'default'):
 }
 
 export function getWeatherDescription(code: number): string {
+  // Returns translation key
   const map: Record<number, string> = {
-    0: 'Clear sky',
-    1: 'Mainly clear',
-    2: 'Partly cloudy',
-    3: 'Overcast',
-    45: 'Fog',
-    48: 'Depositing rime fog',
-    51: 'Light drizzle',
-    53: 'Moderate drizzle',
-    55: 'Dense drizzle',
-    56: 'Light freezing drizzle',
-    57: 'Dense freezing drizzle',
-    61: 'Slight rain',
-    63: 'Moderate rain',
-    65: 'Heavy rain',
-    66: 'Light freezing rain',
-    67: 'Heavy freezing rain',
-    71: 'Slight snow',
-    73: 'Moderate snow',
-    75: 'Heavy snow',
-    77: 'Snow grains',
-    80: 'Slight showers',
-    81: 'Moderate showers',
-    82: 'Violent showers',
-    85: 'Snow showers',
-    86: 'Heavy snow showers',
-    95: 'Thunderstorm',
-    96: 'Thunderstorm w/ hail',
-    99: 'Thunderstorm w/ heavy hail',
+    0: 'weather.status.clear',
+    1: 'weather.status.fewClouds',
+    2: 'weather.status.partlyCloudy',
+    3: 'weather.status.overcast',
+    45: 'weather.status.fog',
+    48: 'weather.status.fog',
+    51: 'weather.status.drizzle',
+    53: 'weather.status.drizzle',
+    55: 'weather.status.drizzle',
+    56: 'weather.status.freezingDrizzle',
+    57: 'weather.status.freezingDrizzle',
+    61: 'weather.status.rain',
+    63: 'weather.status.rain',
+    65: 'weather.status.heavyRain',
+    66: 'weather.status.freezingRain',
+    67: 'weather.status.freezingRain',
+    71: 'weather.status.snow',
+    73: 'weather.status.snow',
+    75: 'weather.status.heavySnow',
+    77: 'weather.status.snow',
+    80: 'weather.status.showers',
+    81: 'weather.status.showers',
+    82: 'weather.status.showers',
+    85: 'weather.status.snowShowers',
+    86: 'weather.status.snowShowers',
+    95: 'weather.status.thunderstorm',
+    96: 'weather.status.thunderstormHail',
+    99: 'weather.status.thunderstormHail',
   };
-  return map[code] || 'Unknown';
+  return map[code] || 'weather.status.unknown';
 }
 
 /**

@@ -48,7 +48,9 @@
     "weatherKey": "API Ключ",
     "weatherKeyPlaceholder": "Вставьте API ключ",
     "weatherShowForecast": "Показывать прогноз",
-    "weatherDaysLabel": "Количество дней прогноза",
+    "forecast": {
+       "daysLabel": "Количество дней прогноза"
+    },
     "weatherLayout": "Ориентация прогноза",
     "layoutVertical": "Вертикальная",
     "layoutHorizontal": "Горизонтальная",
@@ -85,6 +87,11 @@
     "showing": "{count, plural, one {Показана # сущность} few {Показано # сущности} many {Показано # сущностей} other {Показано # сущностей}}",
     "noEntities": "Сущности не найдены. Проверьте настройки подключения.",
     "loading": "Получение списка сущностей...",
+    "status": {
+      "unavailable": "Недоступно",
+      "unknown": "Неизвестно",
+      "offline": "Оффлайн"
+    },
     "domains": {
       "light": "Свет",
       "switch": "Переключатели",
@@ -96,6 +103,27 @@
       "script": "Скрипты",
       "automation": "Автоматизации",
       "lock": "Замки"
+    }
+  },
+  "weather": {
+    "status": {
+       "clear": "Ясно",
+       "fewClouds": "Малооблачно",
+       "partlyCloudy": "Переменная облачность",
+       "overcast": "Пасмурно",
+       "fog": "Туман",
+       "drizzle": "Морось",
+       "freezingDrizzle": "Ледяная морось",
+       "rain": "Дождь",
+       "heavyRain": "Сильный дождь",
+       "freezingRain": "Ледяной дождь",
+       "snow": "Снег",
+       "heavySnow": "Сильный снег",
+       "showers": "Ливень",
+       "snowShowers": "Снегопад",
+       "thunderstorm": "Гроза",
+       "thunderstormHail": "Гроза с градом",
+       "unknown": "Неизвестно"
     }
   }
 }

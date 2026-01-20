@@ -1,4 +1,6 @@
+
 <script lang="ts">
+  import { t } from 'svelte-i18n';
   import type { HAEntity } from '$lib/types';
   import { extractDomain, isToggleable as checkToggleable } from '$lib/utils';
   import { toggleEntity } from '../ha/store';
@@ -13,7 +15,6 @@
       isToggling = true;
       error = null;
       await toggleEntity(entity.entity_id);
-      // Success! Entity updates via WebSocket subscription automatically
     } catch (err: any) {
       console.error('Toggle error:', err);
       error = err.message || 'Toggle failed';
@@ -25,6 +26,14 @@
   let domain = $derived(extractDomain(entity.entity_id));
   let displayName = $derived(entity.attributes.friendly_name || entity.entity_id);
   let isToggleable = $derived(checkToggleable(domain));
+  
+  let translatedState = $derived.by(() => {
+     if (entity.state === 'on') return $t('common.on');
+     if (entity.state === 'off') return $t('common.off');
+     if (entity.state === 'unavailable') return $t('entities.status.unavailable');
+     if (entity.state === 'unknown') return $t('entities.status.unknown');
+     return entity.state;
+  });
 </script>
 
 <div class="entity-row" data-domain={domain}>
@@ -37,7 +46,7 @@
   </div>
   
   <div class="entity-state">
-    <div class="state-badge">{entity.state}</div>
+    <div class="state-badge">{translatedState}</div>
   </div>
   
   {#if isToggleable}
@@ -46,7 +55,7 @@
       disabled={isToggling}
       class="action-button"
     >
-      {isToggling ? '...' : entity.state === 'on' ? 'Off' : 'On'}
+      {isToggling ? '...' : entity.state === 'on' ? $t('common.off') : $t('common.on')}
     </button>
   {/if}
 </div>

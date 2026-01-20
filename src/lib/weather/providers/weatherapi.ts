@@ -1,6 +1,6 @@
 
 import type { WeatherProvider, Coordinates, WeatherData, WeatherSettings, WeatherForecastDay } from '../types';
-import { getWeatherIcon, mapWeatherApiCode } from '../icons';
+import { getWeatherIcon, getWeatherDescription, mapWeatherApiCode } from '../icons';
 
 export const weatherApiProvider: WeatherProvider = {
   id: 'weatherapi',
@@ -37,7 +37,7 @@ export const weatherApiProvider: WeatherProvider = {
           date: new Date(day.date),
           minTemp: Math.round(day.day.mintemp_c),
           maxTemp: Math.round(day.day.maxtemp_c),
-          condition: day.day.condition.text,
+          condition: getWeatherDescription(dayCode),
           icon: getWeatherIcon(dayCode, settings.iconPack)
         });
       }
@@ -45,7 +45,7 @@ export const weatherApiProvider: WeatherProvider = {
 
     return {
       temperature: current.temp_c,
-      condition: current.condition.text,
+      condition: getWeatherDescription(currentCode),
       icon: getWeatherIcon(currentCode, settings.iconPack),
       location: data.location.name || coords.name,
       updatedAt: new Date(),

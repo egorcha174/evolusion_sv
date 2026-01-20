@@ -1,3 +1,4 @@
+
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
   import { t, locale } from 'svelte-i18n';
@@ -107,7 +108,7 @@
             {$weatherStore.current.temperature}°
           </div>
           <div class="condition">
-             {$weatherStore.current.condition}
+             {$t($weatherStore.current.condition)}
           </div>
         </div>
       </div>
