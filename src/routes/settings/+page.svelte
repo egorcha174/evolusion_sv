@@ -281,7 +281,7 @@
     
     {#if wShowForecast}
       <div class="form-group">
-        <label for="w-days">{$t('settings.weatherDays', { count: wForecastDays })}</label>
+        <label for="w-days">{$t('settings.weatherDaysLabel')}: {wForecastDays}</label>
         <input id="w-days" type="range" min="1" max="7" step="1" bind:value={wForecastDays} />
       </div>
       

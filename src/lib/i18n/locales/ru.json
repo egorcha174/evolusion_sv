@@ -48,7 +48,7 @@
     "weatherKey": "API Ключ",
     "weatherKeyPlaceholder": "Вставьте API ключ",
     "weatherShowForecast": "Показывать прогноз",
-    "weatherDays": "Дней прогноза: {count}",
+    "weatherDaysLabel": "Количество дней прогноза",
     "weatherLayout": "Ориентация прогноза",
     "layoutVertical": "Вертикальная",
     "layoutHorizontal": "Горизонтальная",
