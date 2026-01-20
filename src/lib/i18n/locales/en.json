@@ -3,24 +3,30 @@
     "ok": "OK",
     "cancel": "Cancel",
     "save": "Save",
+    "delete": "Delete",
     "loading": "Loading...",
     "error": "Error",
     "off": "Off",
-    "on": "On"
+    "on": "On",
+    "close": "Close",
+    "unknown": "Unknown"
   },
   "dashboard": {
     "title": "Dashboard",
     "edit": "Edit Dashboard",
     "done": "Done",
     "noDevices": "No dashboard devices found.",
-    "noDevicesTab": "No devices found for \"{tab}\"."
+    "noDevicesTab": "No devices found for \"{tab}\".",
+    "addWidget": "Add Widget",
+    "layoutSaved": "Layout saved"
   },
   "sidebar": {
     "connected": "Connected",
     "connecting": "Connecting...",
     "offline": "Offline",
     "camera": "Camera",
-    "weather": "Weather"
+    "weather": "Weather",
+    "latency": "Latency"
   },
   "settings": {
     "title": "Settings",
@@ -28,26 +34,68 @@
     "language": "Language",
     "languageSelect": "Select Language",
     "importLanguage": "Import Language (JSON)",
+    "exportLanguage": "Export Language",
     "importBtn": "Import",
+    "exportBtn": "Export Current",
     "connection": "Connection",
     "serverUrl": "Server URL",
     "token": "Access Token",
+    "tokenPlaceholder": "Paste your long-lived access token",
     "testConnection": "Test Connection",
     "saveConfig": "Save Configuration",
     "weather": "Weather Widget",
+    "weatherProvider": "Data Provider",
+    "weatherKey": "API Key",
+    "weatherKeyPlaceholder": "Paste API key here",
+    "weatherShowForecast": "Show Forecast",
+    "weatherDays": "Forecast Days: {count}",
+    "weatherLayout": "Forecast Layout",
+    "layoutVertical": "Vertical",
+    "layoutHorizontal": "Horizontal",
+    "weatherIconPack": "Icon Pack",
+    "useCustomLocation": "Use Custom Coordinates",
+    "latitude": "Latitude",
+    "longitude": "Longitude",
+    "locationFromHA": "Location from Home Assistant (zone.home):",
+    "updateWeather": "Update Weather",
     "theme": "Theme",
     "themeMode": "Mode",
     "themeModeAuto": "Auto (System)",
     "themeModeDay": "Day (Always Light)",
     "themeModeNight": "Night (Always Dark)",
-    "themeModeSchedule": "Schedule"
+    "themeModeSchedule": "Schedule",
+    "themeScheduleDay": "Day Start",
+    "themeScheduleNight": "Night Start",
+    "themeSelect": "Select Theme",
+    "themeCustom": "(Custom)",
+    "messages": {
+      "saveSuccess": "Settings saved successfully",
+      "saveError": "Error saving settings",
+      "importSuccess": "Language pack imported successfully",
+      "importError": "Import failed: Invalid file format",
+      "connectionReady": "Ready to connect",
+      "fillRequired": "Please fill in URL and Token"
+    }
   },
   "entities": {
     "title": "All Entities",
     "search": "Search entities...",
-    "allDomains": "All domains",
-    "showing": "Showing {count} entities",
-    "noEntities": "No entities connected. Check your Home Assistant settings.",
-    "loading": "Loading entities..."
+    "filterDomain": "Filter by Domain",
+    "allDomains": "All Domains",
+    "showing": "{count, plural, one {Showing # entity} other {Showing # entities}}",
+    "noEntities": "No entities found. Check connection settings.",
+    "loading": "Loading entities...",
+    "domains": {
+      "light": "Lights",
+      "switch": "Switches",
+      "sensor": "Sensors",
+      "binary_sensor": "Binary Sensors",
+      "climate": "Climate",
+      "cover": "Covers",
+      "media_player": "Media",
+      "script": "Scripts",
+      "automation": "Automations",
+      "lock": "Locks"
+    }
   }
 }

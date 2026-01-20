@@ -4,7 +4,7 @@
 	import { themeStore } from '../../domains/theme/store';
   import { weatherSettings, refreshWeatherConfig, weatherStore } from '../../lib/weather/store';
   import { resolveCoordinates } from '../../lib/weather/service';
-  import { setLocale, availableLanguages, currentLang, importCustomLanguage } from '../../lib/i18n';
+  import { setLocale, availableLanguages, currentLang, importCustomLanguage, getLanguageExportData } from '../../lib/i18n';
 	import type { ServerConfig } from '$lib/types';
   import type { ThemeMode } from '../../themes/types';
 
@@ -112,12 +112,12 @@
       const text = await file.text();
       const success = importCustomLanguage(text);
       if (success) {
-        message = 'Language imported successfully';
+        message = $t('settings.messages.importSuccess');
         messageType = 'success';
         // Reset input
         if (fileInput) fileInput.value = '';
       } else {
-        message = 'Failed to import language: Invalid format';
+        message = $t('settings.messages.importError');
         messageType = 'error';
       }
     } catch (err) {
@@ -125,6 +125,27 @@
       message = 'Failed to read file';
       messageType = 'error';
     }
+  }
+
+  function handleLanguageExport() {
+    const code = $currentLang;
+    const json = getLanguageExportData(code);
+    if (!json) {
+       message = 'Failed to export language';
+       messageType = 'error';
+       return;
+    }
+    
+    // Trigger download
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `evolusion-lang-${code}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   }
 
   function saveWeather() {
@@ -177,6 +198,13 @@
          />
       </div>
     </div>
+    
+    <div class="form-group">
+        <label>{$t('settings.exportLanguage')}</label>
+        <button class="btn-secondary full-width" onclick={handleLanguageExport}>
+            {$t('settings.exportBtn')}
+        </button>
+    </div>
 
     <div class="divider"></div>
 
@@ -194,7 +222,7 @@
       <label for="theme-select">{$t('settings.theme')}</label>
       <select id="theme-select" value={$themeStore.currentThemeId} onchange={handleThemeChange}>
         {#each $themeStore.availableThemes as theme}
-          <option value={theme.id}>{theme.name} {theme.isCustom ? '(Custom)' : ''}</option>
+          <option value={theme.id}>{theme.name} {theme.isCustom ? $t('settings.themeCustom') : ''}</option>
         {/each}
       </select>
     </div>
@@ -202,7 +230,7 @@
     {#if $themeStore.mode === 'schedule'}
       <div class="schedule-inputs">
         <div class="form-group">
-          <label for="day-start">Day Start</label>
+          <label for="day-start">{$t('settings.themeScheduleDay')}</label>
           <input 
             type="time" 
             id="day-start" 
@@ -211,7 +239,7 @@
           />
         </div>
         <div class="form-group">
-          <label for="night-start">Night Start</label>
+          <label for="night-start">{$t('settings.themeScheduleNight')}</label>
           <input 
             type="time" 
             id="night-start" 
@@ -228,7 +256,7 @@
     <h2>{$t('settings.weather')}</h2>
     
     <div class="form-group">
-       <label for="w-provider">Provider</label>
+       <label for="w-provider">{$t('settings.weatherProvider')}</label>
        <select id="w-provider" bind:value={wProvider}>
          <option value="openmeteo">Open-Meteo (Free, No Key)</option>
          <option value="openweathermap">OpenWeatherMap (Key Required)</option>
@@ -238,8 +266,8 @@
 
     {#if wProvider !== 'openmeteo'}
       <div class="form-group">
-        <label for="w-key">API Key</label>
-        <input id="w-key" type="password" bind:value={wApiKey} placeholder="Paste your API key here" />
+        <label for="w-key">{$t('settings.weatherKey')}</label>
+        <input id="w-key" type="password" bind:value={wApiKey} placeholder={$t('settings.weatherKeyPlaceholder')} />
       </div>
     {/if}
     
@@ -247,33 +275,33 @@
     <div class="form-group checkbox-group">
       <label>
         <input type="checkbox" bind:checked={wShowForecast} />
-        Show Multi-day Forecast
+        {$t('settings.weatherShowForecast')}
       </label>
     </div>
     
     {#if wShowForecast}
       <div class="form-group">
-        <label for="w-days">Forecast Days: {wForecastDays}</label>
+        <label for="w-days">{$t('settings.weatherDays', { count: wForecastDays })}</label>
         <input id="w-days" type="range" min="1" max="7" step="1" bind:value={wForecastDays} />
       </div>
       
       <div class="form-group">
-        <label>Forecast Layout</label>
+        <label>{$t('settings.weatherLayout')}</label>
         <div class="radio-group">
            <label>
              <input type="radio" bind:group={wForecastLayout} value="vertical"> 
-             Vertical
+             {$t('settings.layoutVertical')}
            </label>
            <label>
              <input type="radio" bind:group={wForecastLayout} value="horizontal"> 
-             Horizontal
+             {$t('settings.layoutHorizontal')}
            </label>
         </div>
       </div>
     {/if}
     
     <div class="form-group">
-      <label for="w-icon-pack">Icon Pack</label>
+      <label for="w-icon-pack">{$t('settings.weatherIconPack')}</label>
       <select id="w-icon-pack" bind:value={wIconPack}>
         <option value="default">Default</option>
         <option value="outline">Outline</option>
@@ -285,30 +313,30 @@
     <div class="form-group checkbox-group">
       <label>
         <input type="checkbox" bind:checked={wUseCustom} />
-        Use Custom Coordinates
+        {$t('settings.useCustomLocation')}
       </label>
     </div>
 
     {#if wUseCustom}
       <div class="schedule-inputs">
         <div class="form-group">
-          <label for="w-lat">Latitude</label>
+          <label for="w-lat">{$t('settings.latitude')}</label>
           <input id="w-lat" type="number" step="0.0001" bind:value={wLat} />
         </div>
         <div class="form-group">
-           <label for="w-lon">Longitude</label>
+           <label for="w-lon">{$t('settings.longitude')}</label>
            <input id="w-lon" type="number" step="0.0001" bind:value={wLon} />
         </div>
       </div>
     {:else}
       <div class="info-box">
-        <p>Using location from Home Assistant (zone.home):</p>
+        <p>{$t('settings.locationFromHA')}</p>
         <code>{locationInfo.name}: {locationInfo.lat}, {locationInfo.lon}</code>
       </div>
     {/if}
 
     <div class="actions">
-      <button class="btn-primary" onclick={saveWeather}>Update Weather</button>
+      <button class="btn-primary" onclick={saveWeather}>{$t('settings.updateWeather')}</button>
     </div>
 
     {#if $weatherStore.error}
@@ -339,7 +367,7 @@
         id="token" 
         type="password" 
         bind:value={token} 
-        placeholder="eyJhbGciOi..." 
+        placeholder={$t('settings.tokenPlaceholder')} 
         autocomplete="current-password"
       />
       <span class="hint">Create this in your HA profile settings.</span>
@@ -497,6 +525,10 @@
 		gap: 1rem;
 		margin-top: 2rem;
 	}
+    
+  .full-width {
+      width: 100%;
+  }
 
 	button {
 		padding: 0.75rem 1.5rem;
