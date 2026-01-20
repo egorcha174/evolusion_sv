@@ -12,35 +12,42 @@ export const defaultLightScheme: SchemeSettings = {
   },
   
   bgPage: '#f0f2f5',
-  bgCard: 'rgba(255, 255, 255, 0.8)',
-  bgCardHover: 'rgba(255, 255, 255, 0.95)',
-  bgSidebar: '#ffffff',
-  bgHeader: 'rgba(255, 255, 255, 0.8)',
+  
+  cardOpacity: 0.85,
+  cardBorderRadius: 16,
+  cardBorderWidth: 0,
+  cardBorderColor: 'transparent',
+  cardBorderColorOn: '#2196f3',
+  cardBackground: 'rgba(255, 255, 255, 0.8)',
+  cardBackgroundOn: 'rgba(255, 255, 255, 0.95)',
+  shadowCard: '0 1px 2px rgba(0, 0, 0, 0.05)',
+  
+  panelOpacity: 0.95,
+  bgPanel: 'rgba(255, 255, 255, 0.95)',
+  
   bgInput: '#ffffff',
-  bgChip: '#e4e6eb',
-  bgChipActive: '#e7f3ff',
+  bgHeader: 'rgba(255, 255, 255, 0.8)',
 
   textPrimary: '#1a1d21',
   textSecondary: '#65676b',
   textMuted: '#b0b3b8',
-  textName: '#1a1d21',
-  textStatus: '#65676b',
-  textOnAccent: '#ffffff',
 
-  borderCard: '#ebeef2',
-  borderPrimary: '#dce0e6',
-  borderInput: '#ced0d4',
-  borderFocus: '#2196f3',
-  borderDivider: '#eff1f4',
+  nameTextColor: '#1a1d21',
+  statusTextColor: '#65676b',
+  valueTextColor: '#1a1d21',
+  unitTextColor: '#65676b',
+  
+  nameTextColorOn: '#1a1d21',
+  statusTextColorOn: '#2196f3',
+  valueTextColorOn: '#1a1d21',
+  unitTextColorOn: '#2196f3',
 
-  stateOn: '#2196f3',
   accentPrimary: '#2196f3',
   accentError: '#f44336',
   accentSuccess: '#4caf50',
   accentWarning: '#ff9800',
   accentInfo: '#03a9f4',
-
-  shadowCard: '0 1px 2px rgba(0, 0, 0, 0.05)',
+  
   widgetSwitchOn: '#4caf50'
 };
 
@@ -49,34 +56,41 @@ export const defaultDarkScheme: SchemeSettings = {
   dashboardBackgroundColor: '#1C1C1E',
 
   bgPage: '#111315',
-  bgCard: 'rgba(44, 44, 46, 0.8)',
-  bgCardHover: 'rgba(60, 60, 62, 0.85)',
-  bgSidebar: '#0d0f11',
-  bgHeader: 'rgba(28, 28, 30, 0.8)',
+
+  cardOpacity: 0.8,
+  cardBorderRadius: 16,
+  cardBorderWidth: 0,
+  cardBorderColor: 'transparent',
+  cardBorderColorOn: '#64b5f6',
+  cardBackground: 'rgba(44, 44, 46, 0.8)',
+  cardBackgroundOn: 'rgba(60, 60, 62, 0.85)',
+  shadowCard: '0 2px 4px rgba(0, 0, 0, 0.2)',
+
+  panelOpacity: 0.95,
+  bgPanel: 'rgba(28, 28, 30, 0.95)',
+
   bgInput: '#2d3035',
-  bgChip: '#2d3035',
-  bgChipActive: '#1c2f45',
+  bgHeader: 'rgba(28, 28, 30, 0.8)',
 
   textPrimary: '#e4e6eb',
   textSecondary: '#b0b3b8',
   textMuted: '#6d7177',
-  textName: '#e4e6eb',
-  textStatus: '#b0b3b8',
-  textOnAccent: '#000000',
 
-  borderCard: '#2d3035',
-  borderPrimary: '#2d3035',
-  borderInput: '#3e4147',
-  borderFocus: '#64b5f6',
-  borderDivider: '#2d3035',
+  nameTextColor: '#e4e6eb',
+  statusTextColor: '#b0b3b8',
+  valueTextColor: '#e4e6eb',
+  unitTextColor: '#b0b3b8',
 
-  stateOn: '#64b5f6',
+  nameTextColorOn: '#e4e6eb',
+  statusTextColorOn: '#64b5f6',
+  valueTextColorOn: '#e4e6eb',
+  unitTextColorOn: '#64b5f6',
+
   accentPrimary: '#64b5f6',
   accentError: '#e57373',
   accentSuccess: '#81c784',
   accentWarning: '#ffb74d',
   accentInfo: '#4fc3f7',
-
-  shadowCard: '0 2px 4px rgba(0, 0, 0, 0.2)',
+  
   widgetSwitchOn: '#81c784'
 };

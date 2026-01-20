@@ -26,53 +26,57 @@ export interface AnimationConfig {
 }
 
 export interface SchemeSettings {
-  // === BACKGROUND (Renderer) ===
+  // === BACKGROUND ===
   dashboardBackgroundType: BackgroundType;
   dashboardBackgroundColor?: string;
   dashboardGradient?: GradientConfig;
   dashboardBackgroundImage?: ImageConfig;
   dashboardBackgroundAnimation?: AnimationConfig;
   
-  // === CSS VARS (Component Mappings) ===
-  // These keys map to --kebab-case CSS vars (e.g. bgCard -> --bg-card)
-  
-  // Backgrounds
-  bgPage: string;       // Fallback background
-  bgCard: string;       // Card background
-  bgCardHover: string;
-  bgSidebar: string;
-  bgHeader: string;
-  bgInput: string;
-  bgChip: string;
-  bgChipActive: string;
+  // === PAGE ===
+  bgPage: string;
 
-  // Text
+  // === CARDS ===
+  cardOpacity: number;
+  cardBorderRadius: number;
+  cardBorderWidth: number;
+  cardBorderColor: string;
+  cardBorderColorOn: string;
+  cardBackground: string;
+  cardBackgroundOn: string;
+  shadowCard: string;
+  
+  // === PANELS (Sidebar, Settings, Modals) ===
+  panelOpacity: number;
+  bgPanel: string;
+  
+  // === UI ELEMENTS ===
+  bgInput: string;
+  bgHeader: string;
+  
+  // === TEXT ===
   textPrimary: string;
   textSecondary: string;
   textMuted: string;
-  textName: string;
-  textStatus: string;
-  textOnAccent: string;
-
-  // Borders
-  borderCard: string;
-  borderPrimary: string;
-  borderInput: string;
-  borderFocus: string;
-  borderDivider: string;
   
-  // States & Accents
-  stateOn: string;
+  // === WIDGET TEXT ===
+  nameTextColor: string;
+  statusTextColor: string;
+  valueTextColor: string;
+  unitTextColor: string;
+  
+  nameTextColorOn: string;
+  statusTextColorOn: string;
+  valueTextColorOn: string;
+  unitTextColorOn: string;
+
+  // === ACCENTS ===
   accentPrimary: string;
   accentError: string;
   accentSuccess: string;
   accentWarning: string;
   accentInfo: string;
-
-  // Shadows
-  shadowCard: string;
-
-  // === WIDGET SPECIFIC ===
+  
   widgetSwitchOn: string;
 }
 

@@ -12,6 +12,8 @@
   "light": {
     "dashboardBackgroundType": "color",
     "dashboardBackgroundColor": "#F0F2F5",
+    "bgPage": "#F0F2F5",
+    
     "cardOpacity": 1,
     "cardBorderRadius": 12,
     "cardBorderWidth": 0,
@@ -19,31 +21,40 @@
     "cardBorderColorOn": "transparent",
     "cardBackground": "#FFFFFF",
     "cardBackgroundOn": "#FFFFFF",
+    "shadowCard": "0 1px 2px rgba(0, 0, 0, 0.1)",
+    
     "panelOpacity": 1,
-    "tabTextColor": "#65676B",
-    "activeTabTextColor": "#1877F2",
-    "tabIndicatorColor": "#1877F2",
-    "thermostatHandleColor": "#1877F2",
-    "thermostatDialTextColor": "#050505",
-    "thermostatDialLabelColor": "#65676B",
-    "thermostatHeatingColor": "#FA383E",
-    "thermostatCoolingColor": "#1877F2",
-    "clockTextColor": "#050505",
+    "bgPanel": "#FFFFFF",
+    
+    "bgInput": "#F0F2F5",
+    "bgHeader": "#FFFFFF",
+
+    "textPrimary": "#050505",
+    "textSecondary": "#65676B",
+    "textMuted": "#B0B3B8",
+    
     "nameTextColor": "#050505",
     "statusTextColor": "#65676B",
     "valueTextColor": "#050505",
     "unitTextColor": "#65676B",
+    
     "nameTextColorOn": "#1877F2",
     "statusTextColorOn": "#1877F2",
     "valueTextColorOn": "#1877F2",
     "unitTextColorOn": "#1877F2",
+    
     "accentPrimary": "#1877F2",
-    "textPrimary": "#050505",
-    "bgInput": "#F0F2F5"
+    "accentError": "#FA383E",
+    "accentSuccess": "#42B72A",
+    "accentWarning": "#F7B928",
+    "accentInfo": "#1877F2",
+    "widgetSwitchOn": "#1877F2"
   },
   "dark": {
     "dashboardBackgroundType": "color",
     "dashboardBackgroundColor": "#18191A",
+    "bgPage": "#18191A",
+    
     "cardOpacity": 1,
     "cardBorderRadius": 12,
     "cardBorderWidth": 0,
@@ -51,26 +62,33 @@
     "cardBorderColorOn": "transparent",
     "cardBackground": "#242526",
     "cardBackgroundOn": "#3A3B3C",
+    "shadowCard": "0 1px 2px rgba(0, 0, 0, 0.2)",
+    
     "panelOpacity": 1,
-    "tabTextColor": "#B0B3B8",
-    "activeTabTextColor": "#2D88FF",
-    "tabIndicatorColor": "#2D88FF",
-    "thermostatHandleColor": "#E4E6EB",
-    "thermostatDialTextColor": "#E4E6EB",
-    "thermostatDialLabelColor": "#B0B3B8",
-    "thermostatHeatingColor": "#F02849",
-    "thermostatCoolingColor": "#2D88FF",
-    "clockTextColor": "#E4E6EB",
+    "bgPanel": "#242526",
+    
+    "bgInput": "#3A3B3C",
+    "bgHeader": "#242526",
+
+    "textPrimary": "#E4E6EB",
+    "textSecondary": "#B0B3B8",
+    "textMuted": "#606770",
+    
     "nameTextColor": "#E4E6EB",
     "statusTextColor": "#B0B3B8",
     "valueTextColor": "#E4E6EB",
     "unitTextColor": "#B0B3B8",
+    
     "nameTextColorOn": "#2D88FF",
     "statusTextColorOn": "#2D88FF",
     "valueTextColorOn": "#2D88FF",
     "unitTextColorOn": "#2D88FF",
+    
     "accentPrimary": "#2D88FF",
-    "textPrimary": "#E4E6EB",
-    "bgInput": "#3A3B3C"
+    "accentError": "#F02849",
+    "accentSuccess": "#42B72A",
+    "accentWarning": "#F7B928",
+    "accentInfo": "#2D88FF",
+    "widgetSwitchOn": "#2D88FF"
   }
 }

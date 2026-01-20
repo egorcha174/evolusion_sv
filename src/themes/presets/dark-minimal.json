@@ -12,6 +12,8 @@
   "light": {
     "dashboardBackgroundType": "color",
     "dashboardBackgroundColor": "#FFFFFF",
+    "bgPage": "#FFFFFF",
+    
     "cardOpacity": 1,
     "cardBorderRadius": 4,
     "cardBorderWidth": 1,
@@ -19,31 +21,40 @@
     "cardBorderColorOn": "#000000",
     "cardBackground": "#FFFFFF",
     "cardBackgroundOn": "#000000",
+    "shadowCard": "none",
+    
     "panelOpacity": 1,
-    "tabTextColor": "#999999",
-    "activeTabTextColor": "#000000",
-    "tabIndicatorColor": "#000000",
-    "thermostatHandleColor": "#000000",
-    "thermostatDialTextColor": "#000000",
-    "thermostatDialLabelColor": "#666666",
-    "thermostatHeatingColor": "#000000",
-    "thermostatCoolingColor": "#000000",
-    "clockTextColor": "#000000",
+    "bgPanel": "#FFFFFF",
+    
+    "bgInput": "#FFFFFF",
+    "bgHeader": "#FFFFFF",
+
+    "textPrimary": "#000000",
+    "textSecondary": "#333333",
+    "textMuted": "#666666",
+    
     "nameTextColor": "#000000",
     "statusTextColor": "#666666",
     "valueTextColor": "#000000",
     "unitTextColor": "#000000",
+    
     "nameTextColorOn": "#FFFFFF",
     "statusTextColorOn": "#CCCCCC",
     "valueTextColorOn": "#FFFFFF",
     "unitTextColorOn": "#FFFFFF",
+    
     "accentPrimary": "#000000",
-    "textPrimary": "#000000",
-    "bgInput": "#FFFFFF"
+    "accentError": "#000000",
+    "accentSuccess": "#000000",
+    "accentWarning": "#000000",
+    "accentInfo": "#000000",
+    "widgetSwitchOn": "#000000"
   },
   "dark": {
     "dashboardBackgroundType": "color",
     "dashboardBackgroundColor": "#000000",
+    "bgPage": "#000000",
+    
     "cardOpacity": 1,
     "cardBorderRadius": 4,
     "cardBorderWidth": 1,
@@ -51,26 +62,33 @@
     "cardBorderColorOn": "#FFFFFF",
     "cardBackground": "#000000",
     "cardBackgroundOn": "#FFFFFF",
+    "shadowCard": "none",
+    
     "panelOpacity": 1,
-    "tabTextColor": "#666666",
-    "activeTabTextColor": "#FFFFFF",
-    "tabIndicatorColor": "#FFFFFF",
-    "thermostatHandleColor": "#FFFFFF",
-    "thermostatDialTextColor": "#FFFFFF",
-    "thermostatDialLabelColor": "#999999",
-    "thermostatHeatingColor": "#FFFFFF",
-    "thermostatCoolingColor": "#FFFFFF",
-    "clockTextColor": "#FFFFFF",
+    "bgPanel": "#000000",
+    
+    "bgInput": "#111111",
+    "bgHeader": "#000000",
+
+    "textPrimary": "#FFFFFF",
+    "textSecondary": "#CCCCCC",
+    "textMuted": "#999999",
+    
     "nameTextColor": "#FFFFFF",
     "statusTextColor": "#999999",
     "valueTextColor": "#FFFFFF",
     "unitTextColor": "#FFFFFF",
+    
     "nameTextColorOn": "#000000",
     "statusTextColorOn": "#333333",
     "valueTextColorOn": "#000000",
     "unitTextColorOn": "#000000",
+    
     "accentPrimary": "#FFFFFF",
-    "textPrimary": "#FFFFFF",
-    "bgInput": "#111111"
+    "accentError": "#FFFFFF",
+    "accentSuccess": "#FFFFFF",
+    "accentWarning": "#FFFFFF",
+    "accentInfo": "#FFFFFF",
+    "widgetSwitchOn": "#FFFFFF"
   }
 }

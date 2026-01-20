@@ -18,36 +18,43 @@
         { "color": "#E5E5EA", "position": 100 }
       ]
     },
+    
     "bgPage": "#f5f5f7",
-    "bgCard": "rgba(255, 255, 255, 0.7)",
-    "bgCardHover": "rgba(255, 255, 255, 0.9)",
-    "bgSidebar": "#fbfbfd",
-    "bgHeader": "rgba(255, 255, 255, 0.8)",
-    "bgInput": "rgba(255,255,255,0.8)",
-    "bgChip": "#e4e6eb",
-    "bgChipActive": "#e7f3ff",
+    
+    "cardOpacity": 0.8,
+    "cardBorderRadius": 18,
+    "cardBorderWidth": 0,
+    "cardBorderColor": "transparent",
+    "cardBorderColorOn": "#0071E3",
+    "cardBackground": "rgba(255, 255, 255, 0.7)",
+    "cardBackgroundOn": "rgba(255, 255, 255, 0.9)",
+    "shadowCard": "0 4px 12px rgba(0,0,0,0.06)",
 
+    "panelOpacity": 0.9,
+    "bgPanel": "rgba(255, 255, 255, 0.9)",
+    
+    "bgInput": "rgba(255,255,255,0.8)",
+    "bgHeader": "rgba(255, 255, 255, 0.8)",
+    
     "textPrimary": "#1d1d1f",
     "textSecondary": "#86868b",
     "textMuted": "#aeaeb2",
-    "textName": "#1d1d1f",
-    "textStatus": "#86868b",
-    "textOnAccent": "#ffffff",
 
-    "borderCard": "transparent",
-    "borderPrimary": "#d1d1d6",
-    "borderInput": "#d1d1d6",
-    "borderFocus": "#0071e3",
-    "borderDivider": "#d1d1d6",
-
-    "stateOn": "#0071e3",
+    "nameTextColor": "#1d1d1f",
+    "statusTextColor": "#86868b",
+    "valueTextColor": "#1d1d1f",
+    "unitTextColor": "#86868b",
+    
+    "nameTextColorOn": "#1d1d1f",
+    "statusTextColorOn": "#0071e3",
+    "valueTextColorOn": "#1d1d1f",
+    "unitTextColorOn": "#0071e3",
+    
     "accentPrimary": "#0071e3",
     "accentError": "#ff3b30",
     "accentSuccess": "#34c759",
     "accentWarning": "#ff9500",
     "accentInfo": "#5ac8fa",
-
-    "shadowCard": "0 4px 12px rgba(0,0,0,0.06)",
     "widgetSwitchOn": "#34c759"
   },
   "dark": {
@@ -55,35 +62,41 @@
     "dashboardBackgroundColor": "#000000",
     
     "bgPage": "#000000",
-    "bgCard": "rgba(28, 28, 30, 0.6)",
-    "bgCardHover": "rgba(44, 44, 46, 0.8)",
-    "bgSidebar": "#121212",
-    "bgHeader": "rgba(28, 28, 30, 0.8)",
+    
+    "cardOpacity": 0.75,
+    "cardBorderRadius": 18,
+    "cardBorderWidth": 1,
+    "cardBorderColor": "rgba(255, 255, 255, 0.1)",
+    "cardBorderColorOn": "#0A84FF",
+    "cardBackground": "rgba(28, 28, 30, 0.6)",
+    "cardBackgroundOn": "rgba(44, 44, 46, 0.8)",
+    "shadowCard": "0 2px 8px rgba(0, 0, 0, 0.2)",
+    
+    "panelOpacity": 0.9,
+    "bgPanel": "rgba(28, 28, 30, 0.9)",
+
     "bgInput": "rgba(28,28,30,0.8)",
-    "bgChip": "#2c2c2e",
-    "bgChipActive": "#3a3a3c",
+    "bgHeader": "rgba(28, 28, 30, 0.8)",
 
     "textPrimary": "#f5f5f7",
     "textSecondary": "#86868b",
     "textMuted": "#636366",
-    "textName": "#f5f5f7",
-    "textStatus": "#86868b",
-    "textOnAccent": "#ffffff",
 
-    "borderCard": "rgba(255, 255, 255, 0.1)",
-    "borderPrimary": "#38383a",
-    "borderInput": "#38383a",
-    "borderFocus": "#0a84ff",
-    "borderDivider": "#38383a",
-
-    "stateOn": "#0a84ff",
+    "nameTextColor": "#f5f5f7",
+    "statusTextColor": "#86868b",
+    "valueTextColor": "#f5f5f7",
+    "unitTextColor": "#86868b",
+    
+    "nameTextColorOn": "#f5f5f7",
+    "statusTextColorOn": "#0a84ff",
+    "valueTextColorOn": "#f5f5f7",
+    "unitTextColorOn": "#0a84ff",
+    
     "accentPrimary": "#0a84ff",
     "accentError": "#ff453a",
     "accentSuccess": "#30d158",
     "accentWarning": "#ff9f0a",
     "accentInfo": "#64d2ff",
-
-    "shadowCard": "0 2px 8px rgba(0, 0, 0, 0.2)",
     "widgetSwitchOn": "#30d158"
   }
 }

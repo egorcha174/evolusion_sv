@@ -78,7 +78,7 @@
 	}
 </script>
 
-<div class="settings-container">
+<div class="settings-panel">
 	<h1>Settings</h1>
 
   <!-- Theme Section -->
@@ -170,16 +170,26 @@
 </div>
 
 <style>
-	.settings-container {
+	.settings-panel {
 		max-width: 600px;
 		margin: 0 auto;
-		padding: 2rem 0;
+		padding: 2rem;
+    
+    /* Panel styling */
+    background: var(--bg-panel, rgba(255, 255, 255, 0.95));
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    
+    color: var(--text-primary);
 	}
 
   .settings-section {
     margin-bottom: 3rem;
     padding-bottom: 2rem;
-    border-bottom: 1px solid var(--border-divider, #ddd);
+    border-bottom: 1px solid var(--text-muted); /* Using muted text as border for now or default border */
+    border-bottom: 1px solid rgba(128,128,128, 0.2);
   }
   
   .settings-section:last-child {
@@ -216,8 +226,8 @@
 	input, select {
 		width: 100%;
 		padding: 0.75rem;
-		border: 1px solid var(--border-input, #ccc);
-		border-radius: 4px;
+		border: 1px solid rgba(128,128,128, 0.3);
+		border-radius: 8px;
 		font-size: 1rem;
 		box-sizing: border-box;
     background: var(--bg-input, #fff);
@@ -233,7 +243,7 @@
 		display: block;
 		margin-top: 0.25rem;
 		font-size: 0.85rem;
-		color: var(--text-status, #888);
+		color: var(--text-muted, #888);
 	}
 
 	.actions {
@@ -245,9 +255,10 @@
 	button {
 		padding: 0.75rem 1.5rem;
 		border: none;
-		border-radius: 4px;
+		border-radius: 8px;
 		font-size: 1rem;
 		cursor: pointer;
+    font-weight: 500;
 	}
 
 	.btn-primary {
@@ -258,16 +269,16 @@
 	.btn-secondary {
 		background-color: transparent;
 		color: var(--text-primary);
-    border: 1px solid var(--border-input, #ccc);
+    border: 1px solid rgba(128,128,128, 0.3);
 	}
 
 	.message {
 		margin-top: 1.5rem;
 		padding: 1rem;
-		border-radius: 4px;
+		border-radius: 8px;
 	}
 
-	.message.info { background-color: #e3f2fd; color: #0d47a1; }
-	.message.success { background-color: #e8f5e9; color: #1b5e20; }
-	.message.error { background-color: #ffebee; color: #b71c1c; }
+	.message.info { background-color: rgba(3, 169, 244, 0.1); color: var(--accent-info); }
+	.message.success { background-color: rgba(76, 175, 80, 0.1); color: var(--accent-success); }
+	.message.error { background-color: rgba(244, 67, 54, 0.1); color: var(--accent-error); }
 </style>

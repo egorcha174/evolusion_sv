@@ -54,11 +54,9 @@ function createThemeStore() {
       const availableThemes = getAvailableThemes();
       const state = get({ subscribe });
       
-      // Load current theme or fallback
       let themeId = state.currentThemeId;
       let loadedTheme = await loadTheme(themeId);
       
-      // Fallback if theme not found
       if (!loadedTheme && availableThemes.length > 0) {
         themeId = availableThemes[0].id;
         loadedTheme = await loadTheme(themeId);
@@ -75,8 +73,6 @@ function createThemeStore() {
       }));
       
       this.applyCSSVariables();
-      
-      // Setup scheduler check
       this.startScheduler();
     },
     
@@ -111,7 +107,6 @@ function createThemeStore() {
         return newState;
       });
       
-      // Re-evaluate scheme immediately
       const state = get({ subscribe });
       this.setMode(state.mode); 
     },
@@ -119,9 +114,7 @@ function createThemeStore() {
     toggleScheme() {
       update(s => {
         const currentScheme: ColorScheme = s.currentScheme === 'light' ? 'dark' : 'light';
-        // When toggling manually, we force day/night mode to persist the choice
         const mode: ThemeMode = currentScheme === 'light' ? 'day' : 'night';
-        
         const newState = { ...s, currentScheme, mode };
         saveStateToStorage(newState);
         return newState;
@@ -135,28 +128,32 @@ function createThemeStore() {
       const state = get({ subscribe });
       const { loadedTheme, currentScheme } = state;
       
+      // Fallback to default scheme if theme not loaded
       const scheme = loadedTheme ? loadedTheme[currentScheme] : (currentScheme === 'light' ? defaultLightScheme : defaultDarkScheme);
       
       const cssVars = generateCSSVariables(scheme);
-      const backgroundCSS = generateBackgroundCSS(scheme);
-      
       const root = document.documentElement;
       
-      // Apply Vars
-      // We parse the string manually or just inject a style tag. 
-      // Injecting a style tag is cleaner for Svelte usage.
-      let styleTag = document.getElementById('theme-vars');
+      // Apply variables directly to :root
+      Object.entries(cssVars).forEach(([key, value]) => {
+        root.style.setProperty(key, value);
+      });
+      
+      // Handle background style separately
+      const backgroundCSS = generateBackgroundCSS(scheme);
+      let styleTag = document.getElementById('theme-background-styles');
       if (!styleTag) {
         styleTag = document.createElement('style');
-        styleTag.id = 'theme-vars';
+        styleTag.id = 'theme-background-styles';
         document.head.appendChild(styleTag);
       }
-      styleTag.textContent = cssVars + '\n' + backgroundCSS;
+      styleTag.textContent = backgroundCSS;
+      
+      // console.log(`Applied ${Object.keys(cssVars).length} CSS variables for scheme "${currentScheme}"`);
     },
 
     startScheduler() {
       if (!browser) return;
-      // Check every minute if scheme needs update based on schedule
       setInterval(() => {
         const state = get({ subscribe });
         if (state.mode === 'schedule' || state.mode === 'auto') {

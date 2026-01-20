@@ -11,35 +11,55 @@ export function validateTheme(data: any): data is Theme {
   );
 }
 
-function camelToKebab(str: string): string {
-  return str.replace(/[A-Z]/g, letter => `-${letter.toLowerCase()}`);
-}
-
-export function generateCSSVariables(scheme: SchemeSettings): string {
-  const lines: string[] = [];
-  
-  for (const [key, value] of Object.entries(scheme)) {
-    // Skip complex objects, we handle them via specific components
-    if (typeof value === 'object') continue;
+export function generateCSSVariables(scheme: SchemeSettings): Record<string, string> {
+  return {
+    // === CARDS ===
+    '--card-opacity': String(scheme.cardOpacity),
+    '--card-border-radius': `${scheme.cardBorderRadius}px`,
+    '--card-border-width': `${scheme.cardBorderWidth}px`,
+    '--card-border-color': scheme.cardBorderColor,
+    '--card-border-color-on': scheme.cardBorderColorOn,
+    '--card-background': scheme.cardBackground,
+    '--card-background-on': scheme.cardBackgroundOn,
+    '--shadow-card': scheme.shadowCard,
     
-    // Convert generic props to CSS vars
-    const cssVar = `--${camelToKebab(key)}`;
+    // === PANELS ===
+    '--panel-opacity': String(scheme.panelOpacity),
+    '--bg-panel': scheme.bgPanel,
     
-    // Handle numeric values that imply pixels
-    let cssValue = String(value);
-    if (typeof value === 'number' && (key.includes('Width') || key.includes('Radius') || key.includes('Size'))) {
-       cssValue = `${value}px`;
-    }
+    // === PAGE & UI ===
+    '--bg-page': scheme.bgPage,
+    '--bg-input': scheme.bgInput,
+    '--bg-header': scheme.bgHeader,
     
-    lines.push(`  ${cssVar}: ${cssValue};`);
-  }
-
-  return `:root {\n${lines.join('\n')}\n}`;
+    // === TEXT ===
+    '--text-primary': scheme.textPrimary,
+    '--text-secondary': scheme.textSecondary,
+    '--text-muted': scheme.textMuted,
+    
+    // === WIDGET TEXT (Normal) ===
+    '--name-text-color': scheme.nameTextColor,
+    '--status-text-color': scheme.statusTextColor,
+    '--value-text-color': scheme.valueTextColor,
+    '--unit-text-color': scheme.unitTextColor,
+    
+    // === WIDGET TEXT (Active) ===
+    '--name-text-color-on': scheme.nameTextColorOn,
+    '--status-text-color-on': scheme.statusTextColorOn,
+    '--value-text-color-on': scheme.valueTextColorOn,
+    '--unit-text-color-on': scheme.unitTextColorOn,
+    
+    // === ACCENTS ===
+    '--accent-primary': scheme.accentPrimary,
+    '--accent-error': scheme.accentError,
+    '--accent-success': scheme.accentSuccess,
+    '--accent-warning': scheme.accentWarning,
+    '--accent-info': scheme.accentInfo,
+    '--widget-switch-on': scheme.widgetSwitchOn
+  };
 }
 
 export function generateBackgroundCSS(scheme: SchemeSettings): string {
-  // We handle background rendering via BackgroundRenderer.svelte, 
-  // but we can set a fallback background color for the body
   if (scheme.dashboardBackgroundType === 'color' && scheme.dashboardBackgroundColor) {
     return `body { background-color: ${scheme.dashboardBackgroundColor}; }`;
   }
@@ -49,7 +69,7 @@ export function generateBackgroundCSS(scheme: SchemeSettings): string {
 export function determineScheme(
   mode: ThemeMode,
   schedule?: ThemeSchedule,
-  _currentTime?: Date // kept for interface signature, derived usually handles time
+  _currentTime?: Date
 ): ColorScheme {
   if (mode === 'day') return 'light';
   if (mode === 'night') return 'dark';
@@ -67,12 +87,10 @@ export function determineScheme(
     if (dayMinutes < nightMinutes) {
       return (currentMinutes >= dayMinutes && currentMinutes < nightMinutes) ? 'light' : 'dark';
     } else {
-      // Night schedule spans midnight
       return (currentMinutes >= dayMinutes || currentMinutes < nightMinutes) ? 'light' : 'dark';
     }
   }
 
-  // mode === 'auto' or fallback
   if (typeof window !== 'undefined' && window.matchMedia) {
     return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
   }
