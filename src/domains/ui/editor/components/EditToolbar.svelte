@@ -3,7 +3,7 @@
   import { t } from 'svelte-i18n';
   import { editorStore } from '../store';
   import { editorHistory } from '../history';
-  import { isEditMode, toggleEditMode } from '../../app/tabsStore'; // Sync with global toggle
+  import { isEditMode, toggleEditMode } from '../../../app/tabsStore'; // Corrected path
   import 'iconify-icon';
 
   function save() {
