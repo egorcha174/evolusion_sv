@@ -111,7 +111,8 @@
     /* Ensure it fills parent GridItem */
     width: 100%;
     
-    min-height: 80px; /* Reduced min height for fractional rows */
+    /* Allow small height for compact rows */
+    min-height: 0; 
     position: relative;
     overflow: hidden;
   }
@@ -132,6 +133,7 @@
     display: flex;
     gap: 12px;
     align-items: center;
+    min-width: 0; /* Enable flex item shrinking */
   }
   
   .icon {
@@ -144,6 +146,7 @@
     background: rgba(0,0,0,0.05);
     border-radius: 50%;
     transition: all 0.3s;
+    flex-shrink: 0;
   }
 
   .device-card.active .icon {
@@ -173,6 +176,12 @@
     min-height: 0; /* Allow shrinking */
   }
   
+  .state-container {
+     display: flex;
+     align-items: baseline;
+     gap: 2px;
+  }
+  
   .device-value {
     color: var(--value-text-color, #1D1D1F);
     font-size: 1.1rem;
@@ -187,7 +196,6 @@
   .device-unit {
     color: var(--unit-text-color, #1D1D1F);
     font-size: 0.85rem;
-    margin-left: 2px;
   }
   
   .device-card.active .device-unit {
@@ -220,5 +228,56 @@
   @keyframes shimmer {
     0% { background-position: 200% 0; }
     100% { background-position: -200% 0; }
+  }
+
+  /* --- Compact Mode via Container Queries --- */
+  
+  /* Trigger layout shift when height is constrained (e.g., 0.5 unit rows) */
+  @container (height < 90px) {
+    .device-card {
+      flex-direction: row; /* Horizontal layout */
+      align-items: center;
+      padding: 0 16px;
+      gap: 12px;
+    }
+    
+    .card-header {
+      flex: 1; /* Name takes left side */
+      margin-bottom: 0;
+    }
+    
+    .card-body {
+      flex: 0 0 auto; /* State takes right side */
+      justify-content: flex-end;
+    }
+    
+    .icon {
+      width: 32px;
+      height: 32px;
+    }
+    
+    .device-value {
+      font-size: 1rem;
+    }
+    
+    /* Hide non-essential elements in compact mode */
+    .attribute {
+      display: none;
+    }
+  }
+  
+  /* Even more compact for very small cards */
+  @container (height < 50px) {
+     .device-card {
+        padding: 0 8px;
+        gap: 8px;
+     }
+     .icon {
+        width: 24px;
+        height: 24px;
+     }
+     .device-name {
+        font-size: 0.85rem;
+     }
   }
 </style>

@@ -62,6 +62,8 @@
     width: 100%;
     height: 100%;
     overflow: hidden;
+    /* Enable container queries for responsive children (cards) */
+    container-type: size;
   }
   
   /* Disable interaction with inner card in edit mode */
