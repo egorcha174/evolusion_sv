@@ -1,3 +1,4 @@
 
 | 2024-06-19 | T-UI-GRID-02 | e-ui-grid-overlay-1x1 | Grid Overlay 1x1 | Extract GridOverlay and force 1x1 cell visualization | src/themes/*, src/domains/ui/editor/components/GridOverlay.svelte, src/domains/ui/DashboardGrid.svelte | Visual Check | **Completed** | Next | ... | Extracted GridOverlay, implemented strict 1x1 base cell visualization. |
 | 2024-06-19 | T-UI-CARD-01 | e-ui-card-compact | Compact Card Layout | Implement responsive layout for half-height cards using container queries | src/domains/ui/GridItem.svelte, src/domains/ui/DeviceCard.svelte | Visual Check | **Completed** | Next | ... | Fixed clipping on 0.5 height cards. |
+| 2024-06-20 | T-UI-FIX-01 | e-ui-fix-hover-clip | Fix Hover Clip | Remove overflow hidden from GridItem wrapper to allow card hover transform | src/domains/ui/GridItem.svelte | Visual Check | **Completed** | Next | ... | Fixed top edge clipping on card hover. |

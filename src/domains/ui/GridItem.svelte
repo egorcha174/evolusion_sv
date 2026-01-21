@@ -61,7 +61,7 @@
   .content-wrapper {
     width: 100%;
     height: 100%;
-    overflow: hidden;
+    /* overflow: hidden; Removed to allow hover transforms (translateY) and shadows to spill out */
     /* Enable container queries for responsive children (cards) */
     container-type: size;
   }
