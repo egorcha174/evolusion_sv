@@ -14,6 +14,7 @@
   import { editorStore } from './editor/store';
   import { onPointerMove, onPointerUp, onPointerCancel } from './editor/pointer';
   import EditToolbar from './editor/components/EditToolbar.svelte';
+  import GridOverlay from './editor/components/GridOverlay.svelte';
   
   // Get raw entities filtered by tab logic (for auto-population)
   let visibleEntities = $derived($selectVisibleDashboardCards);
@@ -137,8 +138,9 @@
     --grid-gap: ${GAP_PX}px;
   `);
   
-  // Number of visual cells for the editor background
-  let totalCells = $derived((columns * 2) * (rows * 2));
+  // Calculate Base Cell Size (1x1 unit) for visualization overlay
+  // A 1x1 unit visually covers 2 half-units plus the gap between them.
+  let cell1x1Size = $derived(halfUnitSize * 2 + GAP_PX);
 </script>
 
 <div class="dashboard-container" bind:this={container}>
@@ -160,11 +162,12 @@
     >
       <!-- Grid Visual Overlay (Cells) - Behind Items -->
       {#if $isEditMode}
-         <div class="grid-background-layer">
-            {#each {length: totalCells} as _}
-               <div class="grid-cell"></div>
-            {/each}
-         </div>
+         <GridOverlay 
+            cols={columns} 
+            rows={rows} 
+            cellPx={cell1x1Size} 
+            gapPx={GAP_PX} 
+         />
       {/if}
       
       <!-- Items -->
@@ -226,36 +229,6 @@
     color: var(--text-muted);
   }
   
-  /* 
-     The Background Layer duplicates the grid logic of the layout 
-     but lives absolutely behind it to draw empty cells.
-  */
-  .grid-background-layer {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    
-    display: grid;
-    grid-template-columns: repeat(var(--cols), var(--half-unit));
-    grid-template-rows: repeat(var(--rows), var(--half-unit));
-    gap: var(--grid-gap);
-    
-    justify-content: center;
-    align-content: center;
-    
-    pointer-events: none;
-    z-index: 0; /* Behind items */
-  }
-  
-  .grid-cell {
-    width: 100%;
-    height: 100%;
-    background-color: var(--grid-cell-bg);
-    border-radius: 4px;
-    transition: background-color 0.2s;
-  }
 
   /* Mobile Layout: Stack (only when not editing) */
   @media (max-width: 768px) {
@@ -284,11 +257,6 @@
        min-height: 50vh; 
        justify-content: flex-start; /* Left align on mobile edit to avoid off-screen overflow issues */
        align-content: flex-start;
-    }
-    
-    .grid-background-layer {
-      justify-content: flex-start;
-      align-content: flex-start;
     }
   }
 </style>

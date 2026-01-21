@@ -51,7 +51,8 @@ export const defaultLightScheme: SchemeSettings = {
   
   widgetSwitchOn: '#4caf50',
   
-  gridCellBg: 'rgba(0, 0, 0, 0.05)'
+  gridCellBg: 'rgba(0, 0, 0, 0.06)',
+  gridCellBorder: 'rgba(0, 0, 0, 0.15)'
 };
 
 export const defaultDarkScheme: SchemeSettings = {
@@ -98,5 +99,6 @@ export const defaultDarkScheme: SchemeSettings = {
   
   widgetSwitchOn: '#81c784',
   
-  gridCellBg: 'rgba(255, 255, 255, 0.08)'
+  gridCellBg: 'rgba(255, 255, 255, 0.08)',
+  gridCellBorder: 'rgba(255, 255, 255, 0.15)'
 };

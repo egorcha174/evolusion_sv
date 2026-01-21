@@ -82,6 +82,7 @@ export interface SchemeSettings {
 
   // === EDITOR ===
   gridCellBg?: string;
+  gridCellBorder?: string;
 }
 
 export interface ThemeManifest {

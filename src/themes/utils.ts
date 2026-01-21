@@ -63,7 +63,8 @@ export function generateCSSVariables(scheme: SchemeSettings): Record<string, str
     '--widget-switch-on': scheme.widgetSwitchOn,
     
     // === EDITOR ===
-    '--grid-cell-bg': scheme.gridCellBg || 'rgba(128,128,128, 0.05)'
+    '--grid-cell-bg': scheme.gridCellBg || 'rgba(128,128,128, 0.06)',
+    '--grid-cell-border': scheme.gridCellBorder || 'rgba(128,128,128, 0.15)'
   };
 }
 
