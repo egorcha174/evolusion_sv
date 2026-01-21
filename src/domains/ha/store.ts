@@ -192,6 +192,20 @@ export async function callService(
   await client.callService(domain, service, serviceData);
 }
 
+// Strategy map for toggling entities
+const toggleStrategies: Record<string, (client: HAClient, entity: HAEntity) => Promise<void>> = {
+  light: (c, e) => c.callService('light', 'toggle', { entity_id: e.entity_id }),
+  switch: (c, e) => c.callService('switch', 'toggle', { entity_id: e.entity_id }),
+  cover: (c, e) => c.callService('cover', 'toggle', { entity_id: e.entity_id }),
+  input_boolean: (c, e) => c.callService('input_boolean', 'toggle', { entity_id: e.entity_id }),
+  lock: (c, e) => {
+    const service = e.state === 'locked' ? 'unlock' : 'lock';
+    return c.callService('lock', service, { entity_id: e.entity_id });
+  },
+  script: (c, e) => c.callService('script', 'turn_on', { entity_id: e.entity_id }),
+  automation: (c, e) => c.callService('automation', 'trigger', { entity_id: e.entity_id }),
+};
+
 export async function toggleEntity(entityId: string): Promise<void> {
 	if (!client || !client.isConnected()) {
 		throw new Error('Not connected to Home Assistant');
@@ -205,18 +219,10 @@ export async function toggleEntity(entityId: string): Promise<void> {
 	}
 
 	const domain = entityId.split('.')[0];
+  const handler = toggleStrategies[domain];
 
-	if (domain === 'light' || domain === 'switch') {
-		await client.callService(domain, 'toggle', { entity_id: entityId });
-	} else if (domain === 'cover') {
-		await client.callService(domain, 'toggle', { entity_id: entityId });
-	} else if (domain === 'input_boolean') {
-		await client.callService('input_boolean', 'toggle', { entity_id: entityId });
-	} else if (domain === 'lock') {
-		const service = entity.state === 'locked' ? 'unlock' : 'lock';
-		await client.callService('lock', service, { entity_id: entityId });
-	} else if (domain === 'script') {
-		await client.callService('script', 'turn_on', { entity_id: entityId });
+	if (handler) {
+		await handler(client, entity);
 	} else {
 		throw new Error(`Cannot toggle entity with domain: ${domain}`);
 	}
