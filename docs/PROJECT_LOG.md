@@ -1,6 +1,4 @@
 
-# Project Log
-
 | Date (UTC) | Task ID | Step ID | Title | Goal | Files Changed | Verification | Status | Next Step | Notes |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
 | 2023-10-27 | T-INIT-01 | E0-01 | Init Docs | Establish project rules and specs | docs/TECH_SPEC.md, docs/PROJECT_LOG.md | Visual check | **Completed** | E0-03 (Scripts) | Foundation set. No code yet. |
@@ -44,3 +42,4 @@
 | 2024-05-23 | T-REF-02 | e-ref-toggle | Refactor Toggle | Use Strategy pattern for toggleEntity | src/domains/ha/store.ts | Manual Verify | **Completed** | Next | ... | Removed large if-else block. |
 | 2024-05-23 | T-UI-07 | e-ui-weather-widget | Extract Weather | Extract WeatherWidget for reuse | src/domains/ui/widgets/WeatherWidget.svelte, src/domains/ui/Sidebar.svelte, src/domains/ui/InfoPanel.svelte | Visual Check | **Completed** | Next | Camera Widget | Extracted from Sidebar to standalone component. |
 | 2024-06-18 | T-ARCH-01 | arch-freeze | Architecture Freeze | Formalize domain structure as core contract | docs/TECH_SPEC.md, docs/PROJECT_LOG.md | Review | **Completed** | Next Steps | Validated architecture pattern. |
+| 2024-06-19 | T-UI-GRID-01 | e-ui-grid-squares | Grid Squares Vis | Visualize edit grid as separated squares instead of lines | src/themes/*, src/domains/ui/DashboardGrid.svelte | Visual Check | **Completed** | Next | ... | Replaced gradients with divs. |

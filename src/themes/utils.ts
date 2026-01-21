@@ -60,7 +60,10 @@ export function generateCSSVariables(scheme: SchemeSettings): Record<string, str
     '--accent-success': scheme.accentSuccess,
     '--accent-warning': scheme.accentWarning,
     '--accent-info': scheme.accentInfo,
-    '--widget-switch-on': scheme.widgetSwitchOn
+    '--widget-switch-on': scheme.widgetSwitchOn,
+    
+    // === EDITOR ===
+    '--grid-cell-bg': scheme.gridCellBg || 'rgba(128,128,128, 0.05)'
   };
 }
 

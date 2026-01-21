@@ -79,6 +79,9 @@ export interface SchemeSettings {
   accentInfo: string;
   
   widgetSwitchOn: string;
+
+  // === EDITOR ===
+  gridCellBg?: string;
 }
 
 export interface ThemeManifest {

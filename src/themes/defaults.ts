@@ -49,7 +49,9 @@ export const defaultLightScheme: SchemeSettings = {
   accentWarning: '#ff9800',
   accentInfo: '#03a9f4',
   
-  widgetSwitchOn: '#4caf50'
+  widgetSwitchOn: '#4caf50',
+  
+  gridCellBg: 'rgba(0, 0, 0, 0.05)'
 };
 
 export const defaultDarkScheme: SchemeSettings = {
@@ -94,5 +96,7 @@ export const defaultDarkScheme: SchemeSettings = {
   accentWarning: '#ffb74d',
   accentInfo: '#4fc3f7',
   
-  widgetSwitchOn: '#81c784'
+  widgetSwitchOn: '#81c784',
+  
+  gridCellBg: 'rgba(255, 255, 255, 0.08)'
 };
