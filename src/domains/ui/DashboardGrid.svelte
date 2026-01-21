@@ -136,6 +136,9 @@
     --half-unit: ${halfUnitSize}px;
     --grid-gap: ${GAP_PX}px;
   `);
+  
+  // Number of visual cells for the editor background
+  let totalCells = $derived((columns * 2) * (rows * 2));
 </script>
 
 <div class="dashboard-container" bind:this={container}>
@@ -155,6 +158,16 @@
       onpointercancel={onPointerCancel}
       style:touch-action={$isEditMode ? 'none' : 'auto'}
     >
+      <!-- Grid Visual Overlay (Cells) - Behind Items -->
+      {#if $isEditMode}
+         <div class="grid-background-layer">
+            {#each {length: totalCells} as _}
+               <div class="grid-cell"></div>
+            {/each}
+         </div>
+      {/if}
+      
+      <!-- Items -->
       {#each cards as card (card.id)}
          {@const entity = getEntity(card.entityId)}
          {#if entity}
@@ -163,11 +176,6 @@
            </GridItem>
          {/if}
       {/each}
-      
-      <!-- Visual Grid Lines (only in edit mode) -->
-      {#if $isEditMode}
-         <div class="grid-overlay"></div>
-      {/if}
     </div>
   {/if}
 
@@ -218,61 +226,35 @@
     color: var(--text-muted);
   }
   
-  .grid-overlay {
+  /* 
+     The Background Layer duplicates the grid logic of the layout 
+     but lives absolutely behind it to draw empty cells.
+  */
+  .grid-background-layer {
     position: absolute;
-    /* 
-      The overlay must match the grid area exactly.
-      Since grid is centered, we can't just say top:0 left:0 width:100% 
-      because that covers the padding/margins too.
-      
-      However, since we are using CSS Grid with justify/align center,
-      the grid tracks themselves are centered.
-      We need the background to render relative to the grid tracks.
-      
-      Solution: Render the overlay as a full-size absolute div, 
-      but use background-position center to align it with the grid.
-    */
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
+    
+    display: grid;
+    grid-template-columns: repeat(var(--cols), var(--half-unit));
+    grid-template-rows: repeat(var(--rows), var(--half-unit));
+    gap: var(--grid-gap);
+    
+    justify-content: center;
+    align-content: center;
+    
     pointer-events: none;
-    z-index: 0;
-    
-    background-color: var(--bg-page-dimmed, rgba(0, 0, 0, 0.05));
-    
-    /* Center the pattern so it aligns with justify-content: center */
-    background-position: center center;
-
-    /* 
-      Grid Pattern Construction:
-      Using Accent Primary for Major lines (2 units)
-      Using Text Secondary for Minor lines (1 unit)
-    */
-    background-image: 
-      /* Major Vertical (2px wide) */
-      linear-gradient(to right, var(--accent-primary) 2px, transparent 2px),
-      /* Major Horizontal (2px wide) */
-      linear-gradient(to bottom, var(--accent-primary) 2px, transparent 2px),
-      /* Minor Vertical (1px wide) */
-      linear-gradient(to right, var(--text-secondary) 1px, transparent 1px),
-      /* Minor Horizontal (1px wide) */
-      linear-gradient(to bottom, var(--text-secondary) 1px, transparent 1px);
-      
-    /* 
-       Pattern Size:
-       Major = 2 cells + 2 gaps
-       Minor = 1 cell + 1 gap
-    */
-    background-size: 
-      /* Major */
-      calc(2 * var(--half-unit) + 2 * var(--grid-gap)) calc(2 * var(--half-unit) + 2 * var(--grid-gap)),
-      calc(2 * var(--half-unit) + 2 * var(--grid-gap)) calc(2 * var(--half-unit) + 2 * var(--grid-gap)),
-      /* Minor */
-      calc(var(--half-unit) + var(--grid-gap)) calc(var(--half-unit) + var(--grid-gap)),
-      calc(var(--half-unit) + var(--grid-gap)) calc(var(--half-unit) + var(--grid-gap));
-      
-    opacity: 0.5;
+    z-index: 0; /* Behind items */
+  }
+  
+  .grid-cell {
+    width: 100%;
+    height: 100%;
+    background-color: var(--grid-cell-bg);
+    border-radius: 4px;
+    transition: background-color 0.2s;
   }
 
   /* Mobile Layout: Stack (only when not editing) */
@@ -304,8 +286,9 @@
        align-content: flex-start;
     }
     
-    .grid-overlay {
-      display: none;
+    .grid-background-layer {
+      justify-content: flex-start;
+      align-content: flex-start;
     }
   }
 </style>
