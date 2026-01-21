@@ -33,10 +33,11 @@
   
   // Calculated metrics
   let halfUnitSize = $state(0);
-  let gapX = $state(0);
-  let gapY = $state(0);
-
-  const MIN_GAP = 4; // Absolute minimum gap in pixels
+  
+  // FIXED GAP CONFIGURATION
+  // A consistent gap ensures the grid looks uniform regardless of screen size.
+  // The 'leftover' space will be distributed as margins around the grid (centering).
+  const GAP_PX = 16; 
 
   function calculateGeometry() {
      if (!containerWidth || !containerHeight) return;
@@ -45,37 +46,26 @@
      const internalCols = columns * 2;
      const internalRows = rows * 2;
      
+     // Calculate total space taken by gaps
+     const totalGapWidth = Math.max(0, internalCols - 1) * GAP_PX;
+     const totalGapHeight = Math.max(0, internalRows - 1) * GAP_PX;
+
      // 1. Calculate Max Possible Cell Size based on Width
-     // Width = (Cols * Size) + ((Cols - 1) * MinGap)
-     // Size = (Width - (Cols - 1) * MinGap) / Cols
-     const wAvailable = containerWidth - ((internalCols - 1) * MIN_GAP);
+     const wAvailable = containerWidth - totalGapWidth;
      const maxCellW = Math.floor(wAvailable / internalCols);
 
      // 2. Calculate Max Possible Cell Size based on Height
-     const hAvailable = containerHeight - ((internalRows - 1) * MIN_GAP);
+     const hAvailable = containerHeight - totalGapHeight;
      const maxCellH = Math.floor(hAvailable / internalRows);
 
      // 3. Strict Square Constraint: Take the smaller dimension
-     // This ensures we never overflow either dimension
      let size = Math.min(maxCellW, maxCellH);
-     if (size < 1) size = 1;
-
-     // 4. Calculate actual gaps to fill the remaining space
-     // RemainingSpace = ContainerSize - (Cols * FinalCellSize)
-     // Gap = RemainingSpace / (Cols - 1)
      
-     const usedWidth = size * internalCols;
-     const remainingWidth = containerWidth - usedWidth;
-     const newGapX = internalCols > 1 ? remainingWidth / (internalCols - 1) : 0;
-
-     const usedHeight = size * internalRows;
-     const remainingHeight = containerHeight - usedHeight;
-     const newGapY = internalRows > 1 ? remainingHeight / (internalRows - 1) : 0;
+     // Safety clamp
+     if (size < 10) size = 10;
 
      // Update State
      halfUnitSize = size;
-     gapX = newGapX;
-     gapY = newGapY;
   }
 
   // Recalculate whenever inputs change
@@ -144,8 +134,7 @@
     --cols: ${columns * 2};
     --rows: ${rows * 2};
     --half-unit: ${halfUnitSize}px;
-    --gap-x: ${gapX}px;
-    --gap-y: ${gapY}px;
+    --grid-gap: ${GAP_PX}px;
   `);
 </script>
 
@@ -207,11 +196,10 @@
     grid-template-columns: repeat(var(--cols), var(--half-unit));
     grid-template-rows: repeat(var(--rows), var(--half-unit));
     
-    /* Dynamic gaps calculated in JS */
-    column-gap: var(--gap-x);
-    row-gap: var(--gap-y);
+    /* Fixed gap */
+    gap: var(--grid-gap);
     
-    /* Center the grid within the container to handle any sub-pixel rendering diffs */
+    /* Center the grid within the container */
     justify-content: center;
     align-content: center;
     
@@ -232,6 +220,18 @@
   
   .grid-overlay {
     position: absolute;
+    /* 
+      The overlay must match the grid area exactly.
+      Since grid is centered, we can't just say top:0 left:0 width:100% 
+      because that covers the padding/margins too.
+      
+      However, since we are using CSS Grid with justify/align center,
+      the grid tracks themselves are centered.
+      We need the background to render relative to the grid tracks.
+      
+      Solution: Render the overlay as a full-size absolute div, 
+      but use background-position center to align it with the grid.
+    */
     top: 0;
     left: 0;
     width: 100%;
@@ -239,8 +239,10 @@
     pointer-events: none;
     z-index: 0;
     
-    /* Dim the background slightly to make lines pop on any wallpaper */
     background-color: var(--bg-page-dimmed, rgba(0, 0, 0, 0.05));
+    
+    /* Center the pattern so it aligns with justify-content: center */
+    background-position: center center;
 
     /* 
       Grid Pattern Construction:
@@ -258,19 +260,17 @@
       linear-gradient(to bottom, var(--text-secondary) 1px, transparent 1px);
       
     /* 
-       Exact calculation to match grid-template + gap.
+       Pattern Size:
        Major = 2 cells + 2 gaps
        Minor = 1 cell + 1 gap
-       
-       Using var(--gap-x) and var(--gap-y) specifically
     */
     background-size: 
       /* Major */
-      calc(2 * var(--half-unit) + 2 * var(--gap-x)) calc(2 * var(--half-unit) + 2 * var(--gap-y)),
-      calc(2 * var(--half-unit) + 2 * var(--gap-x)) calc(2 * var(--half-unit) + 2 * var(--gap-y)),
+      calc(2 * var(--half-unit) + 2 * var(--grid-gap)) calc(2 * var(--half-unit) + 2 * var(--grid-gap)),
+      calc(2 * var(--half-unit) + 2 * var(--grid-gap)) calc(2 * var(--half-unit) + 2 * var(--grid-gap)),
       /* Minor */
-      calc(var(--half-unit) + var(--gap-x)) calc(var(--half-unit) + var(--gap-y)),
-      calc(var(--half-unit) + var(--gap-x)) calc(var(--half-unit) + var(--gap-y));
+      calc(var(--half-unit) + var(--grid-gap)) calc(var(--half-unit) + var(--grid-gap)),
+      calc(var(--half-unit) + var(--grid-gap)) calc(var(--half-unit) + var(--grid-gap));
       
     opacity: 0.5;
   }
@@ -300,6 +300,8 @@
        /* Ensure container allows scrolling the grid canvas if it overflows on tiny screens */
        min-width: 100%;
        min-height: 50vh; 
+       justify-content: flex-start; /* Left align on mobile edit to avoid off-screen overflow issues */
+       align-content: flex-start;
     }
     
     .grid-overlay {
