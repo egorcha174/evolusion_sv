@@ -90,7 +90,7 @@ function createEditorStore() {
 
     updateDraft(cardId: CardId, rect: GridRect) {
       update(s => {
-        const newDrafts = new Map(s.drafts);
+        const newDrafts = new Map<CardId, GridRect>(s.drafts);
         newDrafts.set(cardId, rect);
 
         // Check bounds
@@ -131,7 +131,7 @@ function createEditorStore() {
       if (cmd) {
         // Apply 'from' state
         update(s => {
-          const newDrafts = new Map(s.drafts);
+          const newDrafts = new Map<CardId, GridRect>(s.drafts);
           newDrafts.set(cmd.cardId, cmd.from);
           return { ...s, drafts: newDrafts, selectedCardId: cmd.cardId, collision: false };
         });
@@ -143,7 +143,7 @@ function createEditorStore() {
       if (cmd) {
         // Apply 'to' state
         update(s => {
-           const newDrafts = new Map(s.drafts);
+           const newDrafts = new Map<CardId, GridRect>(s.drafts);
            newDrafts.set(cmd.cardId, cmd.to);
            return { ...s, drafts: newDrafts, selectedCardId: cmd.cardId, collision: false };
         });
