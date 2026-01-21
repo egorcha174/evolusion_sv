@@ -1,7 +1,6 @@
-
 import { writable, get } from 'svelte/store';
-import type { EditorState, GridRect, CardId, TabId } from './types';
-import { dashboardStore } from '../../app/dashboardStore';
+import type { EditorState, GridRect, CardId } from './types';
+import { layoutAdapter } from './layoutAdapter';
 import { editorHistory } from './history';
 import { rectWithinBounds, rectCollides } from './geometry';
 
@@ -26,31 +25,23 @@ function createEditorStore() {
     // --- Lifecycle ---
 
     initSession(tabId: string) {
-      // Load current layout from DashboardStore into drafts
-      const dashState = get(dashboardStore);
-      const tabConfig = dashState.tabs[tabId];
+      // Load current layout via Adapter
+      const { cards, cols, rows } = layoutAdapter.loadLayout(tabId);
       
-      const drafts = new Map<CardId, GridRect>();
-      if (tabConfig) {
-        tabConfig.cards.forEach(c => {
-          drafts.set(c.id, { col: c.position.x, row: c.position.y, w: c.position.w, h: c.position.h });
-        });
-        
-        update(s => ({
-          ...s,
-          enabled: true,
-          tabId,
-          drafts,
-          selectedCardId: null,
-          showGridSettings: false,
-          collision: false,
-          gridMetrics: {
-            ...s.gridMetrics,
-            cols: tabConfig.gridColumns,
-            rows: tabConfig.gridRows
-          }
-        }));
-      }
+      update(s => ({
+        ...s,
+        enabled: true,
+        tabId,
+        drafts: cards,
+        selectedCardId: null,
+        showGridSettings: false,
+        collision: false,
+        gridMetrics: {
+          ...s.gridMetrics,
+          cols,
+          rows
+        }
+      }));
       editorHistory.clear();
     },
 
@@ -58,19 +49,8 @@ function createEditorStore() {
       const s = get({ subscribe });
       if (!s.tabId) return;
 
-      // Write drafts back to DashboardStore
-      const updates: Array<{ id: string, pos: any }> = [];
-      s.drafts.forEach((rect, id) => {
-        updates.push({ 
-          id, 
-          pos: { x: rect.col, y: rect.row, w: rect.w, h: rect.h } 
-        });
-      });
-
-      // We need to batch update dashboard store (adapter logic)
-      updates.forEach(u => {
-        dashboardStore.updateCardPosition(s.tabId!, u.id, u.pos);
-      });
+      // Save drafts via Adapter
+      layoutAdapter.saveLayout(s.tabId, s.drafts);
 
       this.reset();
     },

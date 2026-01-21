@@ -6,6 +6,7 @@
   import { initializeHAConnection, disconnectHA } from '../domains/ha/store';
   import { themeStore } from '../domains/theme/store';
   import { initClientI18n } from '../lib/i18n'; // Updated import
+  import { initWeather, destroyWeather } from '../lib/weather/store';
   import { isLoading } from 'svelte-i18n'; // Wait for translations
   import BackgroundRenderer from '../domains/theme/BackgroundRenderer.svelte';
   import Sidebar from '../domains/ui/Sidebar.svelte';
@@ -24,6 +25,13 @@
     await loadLayout();
     await themeStore.init();
     await dashboardStore.init(); // Initialize 2D grid store
+    
+    // 3. Init services
+    await initWeather();
+    
+    return () => {
+      destroyWeather();
+    };
   });
 
   // Reactive connection management

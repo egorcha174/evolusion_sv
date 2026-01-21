@@ -1,6 +1,8 @@
+
 <script lang="ts">
   import { onMount } from 'svelte';
   import { infoPanelWidth, saveUIState, loadUIState } from './store';
+  import WeatherWidget from './widgets/WeatherWidget.svelte';
 
   let width = $state(320);
   let isResizing = $state(false);
@@ -79,9 +81,7 @@
 
     <!-- Weather Zone -->
     <div class="section weather-section">
-      <div class="card weather-card">
-        <span class="placeholder-text">Weather Widget (TODO)</span>
-      </div>
+      <WeatherWidget />
     </div>
 
     <!-- Camera Zone -->
