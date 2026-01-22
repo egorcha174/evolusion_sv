@@ -30,16 +30,14 @@ export type EditorState = {
   tabId: TabId | null;
   selectedCardId: CardId | null;
   showGridSettings: boolean;
+  isDragging: boolean;
   
   // Interaction state
   pointerOp: PointerOp;
   
-  // Configuration derived from UI
-  gridMetrics: {
-    halfUnitSizePx: number;
-    cols: number;
-    rows: number;
-  };
+  // Logical grid dimensions for the current tab
+  columns: number;
+  rows: number;
 
   // Draft state (the "dirty" layer)
   drafts: Map<CardId, GridRect>;

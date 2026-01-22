@@ -11,8 +11,10 @@ const initialState: EditorState = {
   tabId: null,
   selectedCardId: null,
   showGridSettings: false,
+  isDragging: false,
   pointerOp: { kind: 'idle' },
-  gridMetrics: { halfUnitSizePx: 0, cols: 8, rows: 6 },
+  columns: 8,
+  rows: 6,
   drafts: new Map(),
   cardEntities: new Map(),
   collision: false
@@ -37,14 +39,11 @@ function createEditorStore() {
         tabId,
         drafts: cards,
         cardEntities: entities,
+        columns: cols,
+        rows: rows,
         selectedCardId: null,
         showGridSettings: false,
         collision: false,
-        gridMetrics: {
-          ...s.gridMetrics,
-          cols,
-          rows
-        }
       }));
       editorHistory.clear();
     },
@@ -78,27 +77,13 @@ function createEditorStore() {
       update(s => ({ ...s, selectedCardId: cardId }));
     },
 
-    setGridMetrics(halfUnitPx: number, cols: number, rows: number) {
-      update(s => {
-        // Prevent infinite loop if values haven't changed
-        if (
-          s.gridMetrics.halfUnitSizePx === halfUnitPx &&
-          s.gridMetrics.cols === cols &&
-          s.gridMetrics.rows === rows
-        ) {
-          return s;
-        }
-        return { ...s, gridMetrics: { halfUnitSizePx: halfUnitPx, cols, rows } };
-      });
-    },
-
     updateDraft(cardId: CardId, rect: GridRect) {
       update(s => {
         const newDrafts = new Map<CardId, GridRect>(s.drafts);
         newDrafts.set(cardId, rect);
 
         // Check bounds
-        const withinBounds = rectWithinBounds(rect, s.gridMetrics.cols, s.gridMetrics.rows);
+        const withinBounds = rectWithinBounds(rect, s.columns, s.rows);
         
         // Check collisions (exclude self)
         const others: GridRect[] = [];
@@ -160,17 +145,11 @@ function createEditorStore() {
            row: sourceRect.row + sourceRect.h 
         };
         
-        // Check bounds? For now just place it, collision detection will highlight if needed
-        
         const newDrafts = new Map(s.drafts);
         const newEntities = new Map(s.cardEntities);
         
         newDrafts.set(newId, newRect);
         newEntities.set(newId, sourceEntity);
-
-        // We also need to update collision state immediately
-        // reuse logic from updateDraft? Or just rely on user moving it.
-        // Let's rely on user moving it for now or collision logic in UI
 
         return { 
            ...s, 

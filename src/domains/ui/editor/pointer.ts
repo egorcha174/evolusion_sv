@@ -1,7 +1,7 @@
 
 import { get } from 'svelte/store';
 import { editorStore } from './store';
-import { applyMove, applyResize } from './geometry';
+import { applyMove, applyResize, type GridGeometry } from './geometry';
 import type { ResizeHandle } from './types';
 
 const DRAG_THRESHOLD = 5; // px
@@ -57,45 +57,40 @@ export function onHandlePointerDown(e: PointerEvent, cardId: string, handle: Res
   }
 }
 
-export function onPointerMove(e: PointerEvent) {
+export function onPointerMove(e: PointerEvent, geometry: GridGeometry) {
   const state = get(editorStore);
-  if (!state.enabled || state.pointerOp.kind === 'idle') return;
+  if (!state.enabled || state.pointerOp.kind === 'idle' || geometry.cellSize < 1) return;
 
-  const { pointerOp, gridMetrics } = state;
-  const unitPx = gridMetrics.halfUnitSizePx; // Size of 0.5 unit in pixels (from CSS)
+  const { pointerOp } = state;
   
-  // Calculate raw delta in units
+  // Calculate delta in pixels
   const dxPx = e.clientX - pointerOp.startX;
   const dyPx = e.clientY - pointerOp.startY;
 
   // Apply Drag Threshold logic only for drag op
   if (pointerOp.kind === 'drag') {
      const dist = Math.sqrt(dxPx*dxPx + dyPx*dyPx);
+     if (dist < DRAG_THRESHOLD && !state.isDragging) {
+        editorStore.update(s => ({...s, isDragging: true}));
+     }
      if (dist < DRAG_THRESHOLD) return;
   }
   
-  const dCol = dxPx / unitPx / 2; // divide by 2 because halfUnitSizePx is size of grid cell (0.5 unit) -> wait.
-  // Correction: CSS Grid definition:
-  // --cols = N * 2;
-  // --half-unit = calculated width of one column.
-  // One column in CSS grid represents 0.5 logical units.
-  // So if halfUnitSizePx is 50px, moving 50px means moving 1 CSS column, which is 0.5 logical unit.
-  // dCol (logical) = dxPx / halfUnitSizePx * 0.5.
-  
-  const dColLogical = (dxPx / unitPx) * 0.5;
-  const dRowLogical = (dyPx / unitPx) * 0.5;
+  // Convert pixel delta to logical grid units (where 1 unit = 1 cellSize)
+  const dCol = dxPx / geometry.cellSize;
+  const dRow = dyPx / geometry.cellSize;
 
   let newRect;
 
   if (pointerOp.kind === 'drag') {
-    newRect = applyMove(pointerOp.startRect, dColLogical, dRowLogical);
+    newRect = applyMove(pointerOp.startRect, dCol, dRow);
   } else if (pointerOp.kind === 'resize') {
     newRect = applyResize(
         pointerOp.startRect, 
         pointerOp.handle, 
-        dColLogical, 
-        dRowLogical, 
-        { maxCols: gridMetrics.cols, maxRows: gridMetrics.rows }
+        dCol, 
+        dRow,
+        { maxCols: geometry.columns, maxRows: geometry.rows }
     );
   }
 
@@ -135,7 +130,7 @@ export function onPointerUp(e: PointerEvent) {
   }
 
   // Reset Op
-  editorStore.update(s => ({ ...s, pointerOp: { kind: 'idle' }, collision: false }));
+  editorStore.update(s => ({ ...s, isDragging: false, pointerOp: { kind: 'idle' }, collision: false }));
 }
 
 export function onPointerCancel(e: PointerEvent) {
@@ -143,6 +138,6 @@ export function onPointerCancel(e: PointerEvent) {
   if (state.pointerOp.kind !== 'idle') {
     // Revert
     editorStore.updateDraft(state.pointerOp.cardId, state.pointerOp.startRect);
-    editorStore.update(s => ({ ...s, pointerOp: { kind: 'idle' }, collision: false }));
+    editorStore.update(s => ({ ...s, isDragging: false, pointerOp: { kind: 'idle' }, collision: false }));
   }
 }

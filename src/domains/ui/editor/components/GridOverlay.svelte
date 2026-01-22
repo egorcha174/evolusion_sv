@@ -1,58 +1,39 @@
-
-<script lang="ts">
-  let { cols, rows, cellW, cellH, gapX, gapY } = $props<{ 
-    cols: number, 
-    rows: number, 
-    cellW: number, 
-    cellH: number, 
-    gapX: number, 
-    gapY: number 
-  }>();
-  
-  let total = $derived(cols * rows);
-  let style = $derived(`
-    --cols: ${cols};
-    --rows: ${rows};
-    --cell-w: ${cellW}px;
-    --cell-h: ${cellH}px;
-    --gap-x: ${gapX}px;
-    --gap-y: ${gapY}px;
-  `);
-</script>
-
-<div class="grid-overlay" style={style}>
-  {#each {length: total} as _}
-    <div class="cell"></div>
-  {/each}
-</div>
+<!--
+  This component renders the visual background grid for the dashboard editor.
+  It uses CSS gradients for performance and inherits its geometry from CSS variables.
+-->
+<div class="grid-overlay-visual"></div>
 
 <style>
-  .grid-overlay {
+  .grid-overlay-visual {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
     
-    display: grid;
-    grid-template-columns: repeat(var(--cols), var(--cell-w));
-    grid-template-rows: repeat(var(--rows), var(--cell-h));
-    column-gap: var(--gap-x);
-    row-gap: var(--gap-y);
+    background-size: 
+      calc(var(--cell-size) + var(--gap-x)) 
+      calc(var(--cell-size) + var(--gap-y));
     
-    justify-content: center;
-    align-content: center;
-    
+    background-image: 
+      repeating-linear-gradient(
+        to right,
+        var(--grid-cell-bg, rgba(128, 128, 128, 0.05)),
+        var(--grid-cell-bg, rgba(128, 128, 128, 0.05)) var(--cell-size),
+        transparent var(--cell-size),
+        transparent calc(var(--cell-size) + var(--gap-x))
+      ),
+      repeating-linear-gradient(
+        to bottom,
+        var(--grid-cell-bg, rgba(128, 128, 128, 0.05)),
+        var(--grid-cell-bg, rgba(128, 128, 128, 0.05)) var(--cell-size),
+        transparent var(--cell-size),
+        transparent calc(var(--cell-size) + var(--gap-y))
+      );
+
+    border-radius: 6px;
     pointer-events: none;
     z-index: 0;
-  }
-  
-  .cell {
-    width: 100%;
-    height: 100%;
-    background-color: var(--grid-cell-bg);
-    border: 1px solid var(--grid-cell-border);
-    border-radius: 6px;
-    box-sizing: border-box;
   }
 </style>
