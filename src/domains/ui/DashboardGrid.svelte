@@ -77,8 +77,8 @@
 
      // 1. Calculate max permissible area
      const maxMargin = 16;
-     const gridMaxWidth = Math.max(0, contentWidth - 2 * maxMargin);
-     const gridMaxHeight = Math.max(0, contentHeight - 2 * maxMargin);
+     const gridMaxWidth = contentWidth - 2 * maxMargin;
+     const gridMaxHeight = contentHeight - 2 * maxMargin;
 
      if (gridMaxWidth <= 0 || gridMaxHeight <= 0) return;
 
@@ -121,10 +121,8 @@
        gY = 0;
      }
      
-     // Guarantee gaps >= minGap (when applicable)
-     if (cols > 1 && gX < minGapX) gX = minGapX;
-     if (rows > 1 && gY < minGapY) gY = minGapY;
-     
+     // Ensure gaps >= minGap is preserved by the formula (minGap + positive extra)
+     // but explicitly assigning to state
      gapX = gX;
      gapY = gY;
 
@@ -402,9 +400,6 @@
     .grid-layout.edit-mode {
        min-width: 100%;
        min-height: 50vh; 
-       /* Mobile edit mode also needs resetting or specific handling, 
-          but usually edit mode on mobile is desktop-like or restricted. 
-          For now, we let strict calculation apply or fallback to scroll if needed. */
     }
   }
 
