@@ -1,3 +1,4 @@
+
 <script lang="ts">
   import { haStore } from '../domains/ha/store';
   import DashboardGrid from '../domains/ui/DashboardGrid.svelte';
@@ -31,8 +32,7 @@
 <style>
   .dashboard-page {
     width: 100%;
-    max-width: 1400px;
-    margin: 0 auto;
+    /* Removed max-width to allow full-screen usage */
     height: 100%;
     display: flex;
     flex-direction: column;
@@ -52,6 +52,9 @@
     min-height: 300px;
     color: #666;
     flex: 1;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
   }
 
   .status-message.error {

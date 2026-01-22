@@ -58,59 +58,33 @@
   let gapX = $state(16);
   let gapY = $state(16);
   
-  const MIN_GAP = 8;
+  // Fixed Constants for Square Layout
+  const FIXED_GAP = 16;
   const MARGIN_TARGET = 16; 
 
   function calculateGeometry() {
-     if (!containerWidth || !containerHeight) return;
+     if (!containerWidth) return;
 
      const internalCols = columns * 2;
-     const internalRows = rows * 2;
      
-     // Target Frame: exactly 16px margins on all sides
+     // 1. Calculate strictly based on width to fill the screen
      const targetW = Math.max(0, containerWidth - (MARGIN_TARGET * 2));
-     const targetH = Math.max(0, containerHeight - (MARGIN_TARGET * 2));
-
-     if (targetW <= 0 || targetH <= 0) return;
-
-     // 1. Calculate max possible cell size for each dimension assuming minimal gaps
-     const maxCellW = (targetW - (internalCols - 1) * MIN_GAP) / internalCols;
-     const maxCellH = (targetH - (internalRows - 1) * MIN_GAP) / internalRows;
-
-     // 2. Strict Square Constraint: Use the smaller of the two to fit both dimensions
-     let size = Math.floor(Math.min(maxCellW, maxCellH));
+     
+     // internalCols * size + (internalCols - 1) * FIXED_GAP <= targetW
+     const rawSize = (targetW - (internalCols - 1) * FIXED_GAP) / internalCols;
+     
+     let size = Math.floor(rawSize);
      if (size < 10) size = 10; // Safety floor
 
      halfUnitSize = size;
-     
-     // 3. Recalculate Gaps to fill the Target Frame strictly
-     // This ensures the grid outer edges touch the 16px margin boundaries
-     
-     // Width
-     const totalCellW = internalCols * size;
-     const remainingW = Math.max(0, targetW - totalCellW);
-     if (internalCols > 1) {
-        gapX = remainingW / (internalCols - 1);
-     } else {
-        gapX = 0;
-     }
-
-     // Height
-     const totalCellH = internalRows * size;
-     const remainingH = Math.max(0, targetH - totalCellH);
-     if (internalRows > 1) {
-        gapY = remainingH / (internalRows - 1);
-     } else {
-        gapY = 0;
-     }
+     gapX = FIXED_GAP;
+     gapY = FIXED_GAP; // Keep gaps equal for square cells
   }
 
   $effect(() => {
     // Dependencies to trigger recalc
     const _c = columns; 
-    const _r = rows;
     const _w = containerWidth;
-    const _h = containerHeight;
     calculateGeometry();
   });
   
@@ -300,7 +274,8 @@
     width: 100%;
     height: 100%; 
     position: relative;
-    overflow: hidden; 
+    overflow-y: auto; 
+    overflow-x: hidden;
     padding: 0;
   }
 
@@ -311,11 +286,15 @@
     column-gap: var(--gap-x);
     row-gap: var(--gap-y);
     justify-content: center;
-    align-content: center;
+    /* Top align to avoid large top margins when content is short */
+    align-content: start; 
+    padding: 16px;
     width: 100%;
-    height: 100%;
+    /* Allow height to grow */
+    min-height: 100%;
     position: relative;
     transition: opacity 0.2s ease;
+    box-sizing: border-box;
   }
   
   .empty-state {
@@ -329,9 +308,6 @@
   /* Mobile Layout */
   @media (max-width: 768px) {
     .dashboard-container {
-      height: auto;
-      display: block;
-      overflow-y: auto; 
       padding-bottom: 2rem;
     }
     
@@ -343,6 +319,7 @@
       grid-template-rows: none;
       width: 100%;
       height: auto;
+      padding: 12px;
     }
     
     .grid-layout.edit-mode {
