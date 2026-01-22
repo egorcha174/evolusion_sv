@@ -10,13 +10,12 @@
   import GridSettings from './GridSettings.svelte';
   import type { HAEntity, DashboardCardConfig } from '$lib/types';
 
-  // Editor imports
   import { editorStore } from './editor/store';
   import { onPointerMove, onPointerUp, onPointerCancel } from './editor/pointer';
   import EditToolbar from './editor/components/EditToolbar.svelte';
   import GridOverlay from './editor/components/GridOverlay.svelte';
 
-  // ---------- Состояние вкладки ----------
+  // ----- данные вкладки -----
 
   let visibleEntities = $derived($selectVisibleDashboardCards);
   let gridConfig = $derived($dashboardStore.tabs[$activeTabId]);
@@ -43,23 +42,18 @@
     }
   });
 
-  // ---------- Геометрия сетки ----------
+  // ----- геометрия сетки в целых ячейках -----
 
   let container: HTMLDivElement;
   let containerWidth = $state(0);
   let containerHeight = $state(0);
 
-  // размер целой клетки
-  let cellSize = $state(0);
-
-  // промежутки
+  let cellSize = $state(0);   // размер 1×1 клетки
   let gapX = $state(10);
   let gapY = $state(10);
 
-  // полушаг для редактора
-  let halfStep = $state(0);
+  let halfStep = $state(0);  // полушаг для карточек/редактора
 
-  // итоговые размеры и отступы
   let gridWidth = $state(0);
   let gridHeight = $state(0);
   let marginLeft = $state(0);
@@ -147,7 +141,7 @@
     return () => observer.disconnect();
   });
 
-  // ---------- Editor session ----------
+  // ----- editor session -----
 
   let isEditorEnabled = $derived($editorStore.enabled);
 
@@ -175,11 +169,12 @@
     return $haStore.entities.get(id);
   }
 
-  // CSS‑переменные для сетки
+  // CSS‑переменные: логическая сетка (cols/rows, cellSize) и тех‑сетка (halfStep)
   let gridStyle = $derived(`
     --cols: ${columns};
     --rows: ${rows};
     --cell-size: ${cellSize}px;
+    --half-step: ${halfStep}px;
     --gap-x: ${gapX}px;
     --gap-y: ${gapY}px;
     --grid-width: ${gridWidth}px;
@@ -190,7 +185,7 @@
     --margin-bottom: ${marginBottom}px;
   `);
 
-  // ---------- Context menu ----------
+  // ----- context menu -----
 
   let cmOpen = $state(false);
   let cmX = $state(0);
@@ -203,11 +198,7 @@
     e.stopPropagation();
 
     const menuWidth = 200;
-    if (e.clientX + menuWidth > window.innerWidth) {
-      cmX = e.clientX - menuWidth;
-    } else {
-      cmX = e.clientX;
-    }
+    cmX = e.clientX + menuWidth > window.innerWidth ? e.clientX - menuWidth : e.clientX;
     cmY = e.clientY;
 
     cmCardId = cardId;
@@ -253,6 +244,7 @@
       style:touch-action={$isEditMode ? 'none' : 'auto'}
     >
       {#if $isEditMode}
+        <!-- ВИЗУАЛЬНАЯ сетка 1×1 -->
         <GridOverlay
           cols={columns}
           rows={rows}
@@ -324,8 +316,11 @@
 
   .grid-layout {
     display: grid;
-    grid-template-columns: repeat(var(--cols), var(--cell-size));
-    grid-template-rows: repeat(var(--rows), var(--cell-size));
+
+    /* ТЕХНИЧЕСКАЯ сетка в полушагах для GridItem */
+    grid-template-columns: repeat(calc(var(--cols) * 2), var(--half-step));
+    grid-template-rows: repeat(calc(var(--rows) * 2), var(--half-step));
+
     column-gap: var(--gap-x);
     row-gap: var(--gap-y);
 
@@ -446,5 +441,6 @@
     }
   }
 </style>
+
 
 
