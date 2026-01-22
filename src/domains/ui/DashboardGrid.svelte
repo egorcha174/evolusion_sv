@@ -16,7 +16,7 @@
   import EditToolbar from './editor/components/EditToolbar.svelte';
   import GridOverlay from './editor/components/GridOverlay.svelte';
 
-  // --------- Данные вкладки ---------
+  // ---------- Состояние вкладки ----------
 
   let visibleEntities = $derived($selectVisibleDashboardCards);
   let gridConfig = $derived($dashboardStore.tabs[$activeTabId]);
@@ -24,7 +24,6 @@
   let columns = $derived(gridConfig?.gridColumns ?? 8);
   let rows = $derived(gridConfig?.gridRows ?? 6);
 
-  // Карточки для рендера
   let cards = $derived.by(() => {
     if ($isEditMode && $editorStore.enabled) {
       const list: DashboardCardConfig[] = [];
@@ -44,23 +43,23 @@
     }
   });
 
-  // --------- Геометрия сетки ---------
+  // ---------- Геометрия сетки ----------
 
   let container: HTMLDivElement;
   let containerWidth = $state(0);
   let containerHeight = $state(0);
 
-  // размеры целой клетки
+  // размер целой клетки
   let cellSize = $state(0);
 
   // промежутки
   let gapX = $state(10);
   let gapY = $state(10);
 
-  // полушаги только для редактора / GridOverlay
+  // полушаг для редактора
   let halfStep = $state(0);
 
-  // итоговые размеры сетки и отступы
+  // итоговые размеры и отступы
   let gridWidth = $state(0);
   let gridHeight = $state(0);
   let marginLeft = $state(0);
@@ -73,7 +72,6 @@
 
     const contentWidth = containerWidth;
     const contentHeight = containerHeight;
-
     const cols = columns;
     const rws = rows;
 
@@ -85,7 +83,6 @@
     const minGapX = 10;
     const minGapY = 10;
 
-    // максимальный размер квадратной клетки
     const cellSizeX = (gridMaxWidth - (cols - 1) * minGapX) / cols;
     const cellSizeY = (gridMaxHeight - (rws - 1) * minGapY) / rws;
 
@@ -95,7 +92,6 @@
     cellSize = size;
     halfStep = size / 2;
 
-    // базовый размер сетки при минимальных промежутках
     const baseGridWidth = cols * size + (cols - 1) * minGapX;
     const baseGridHeight = rws * size + (rws - 1) * minGapY;
 
@@ -117,7 +113,6 @@
     gridWidth = w;
     gridHeight = h;
 
-    // центрируем и режем отступы по 16 px
     let mL = Math.max((contentWidth - w) / 2, 0);
     let mT = Math.max((contentHeight - h) / 2, 0);
     let mR = Math.max(contentWidth - w - mL, 0);
@@ -152,7 +147,7 @@
     return () => observer.disconnect();
   });
 
-  // --------- Editor session ---------
+  // ---------- Editor session ----------
 
   let isEditorEnabled = $derived($editorStore.enabled);
 
@@ -164,7 +159,6 @@
     }
   });
 
-  // передаём полушаг и целые cols/rows
   $effect(() => {
     if (isEditorEnabled && halfStep > 0) {
       editorStore.setGridMetrics(halfStep, columns, rows);
@@ -181,12 +175,11 @@
     return $haStore.entities.get(id);
   }
 
-  // CSS-переменные: сетка в ЦЕЛЫХ ячейках, полушаги только для overlay/grid‑item
+  // CSS‑переменные для сетки
   let gridStyle = $derived(`
     --cols: ${columns};
     --rows: ${rows};
     --cell-size: ${cellSize}px;
-    --half-step: ${halfStep}px;
     --gap-x: ${gapX}px;
     --gap-y: ${gapY}px;
     --grid-width: ${gridWidth}px;
@@ -197,7 +190,7 @@
     --margin-bottom: ${marginBottom}px;
   `);
 
-  // --------- Context menu ---------
+  // ---------- Context menu ----------
 
   let cmOpen = $state(false);
   let cmX = $state(0);
@@ -236,7 +229,7 @@
   }
 
   function cmMoveTo(targetTabId: string) {
-    if (cmCardId) editorStore.moveCardToTab(cmCardId, targetTabId);
+    if (cmCardId) editorStore.moveCardToTab(cmCardId);
     cmOpen = false;
   }
 </script>
@@ -261,10 +254,10 @@
     >
       {#if $isEditMode}
         <GridOverlay
-          cols={columns * 2}
-          rows={rows * 2}
-          cellW={halfStep}
-          cellH={halfStep}
+          cols={columns}
+          rows={rows}
+          cellW={cellSize}
+          cellH={cellSize}
           gapX={gapX}
           gapY={gapY}
         />
