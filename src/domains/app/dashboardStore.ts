@@ -10,9 +10,11 @@ const DEFAULT_COLS = 8;
 const DEFAULT_ROWS = 6;
 
 // Helper to create a default tab config
-function createDefaultTabConfig(id: string): TabGridConfig {
+function createDefaultTabConfig(id: string, title: string): TabGridConfig {
   return {
     id,
+    title,
+    icon: 'mdi:view-dashboard',
     gridColumns: DEFAULT_COLS,
     gridRows: DEFAULT_ROWS,
     cards: []
@@ -20,8 +22,11 @@ function createDefaultTabConfig(id: string): TabGridConfig {
 }
 
 const initialState: DashboardConfig = {
-  version: 2,
-  tabs: {}
+  version: 3,
+  tabOrder: ['home'],
+  tabs: {
+    'home': createDefaultTabConfig('home', 'Home')
+  }
 };
 
 function createDashboardStore() {
@@ -40,8 +45,19 @@ function createDashboardStore() {
           const key = await getOrCreateEncryptionKey();
           const json = await decrypt(encrypted, key);
           const data = JSON.parse(json);
-          // Migration/Safety check could go here
-          set(data);
+          
+          // Migration: Ensure tabOrder exists if coming from older version
+          if (!data.tabOrder && data.tabs) {
+            data.tabOrder = Object.keys(data.tabs);
+          }
+          // Migration: Ensure titles exist
+          if (data.tabs) {
+            Object.values(data.tabs).forEach((tab: any) => {
+              if (!tab.title) tab.title = tab.id;
+            });
+          }
+
+          set({ ...initialState, ...data });
         }
       } catch (e) {
         console.error('Failed to load dashboard config', e);
@@ -62,15 +78,18 @@ function createDashboardStore() {
       }
     },
 
-    // Get config for a specific tab, initializing if missing
+    // --- Tab Management ---
+
     ensureTabConfig(tabId: string) {
       update(state => {
         if (!state.tabs[tabId]) {
+          const newTab = createDefaultTabConfig(tabId, 'New Tab');
           return {
             ...state,
+            tabOrder: [...state.tabOrder, tabId],
             tabs: {
               ...state.tabs,
-              [tabId]: createDefaultTabConfig(tabId)
+              [tabId]: newTab
             }
           };
         }
@@ -78,9 +97,68 @@ function createDashboardStore() {
       });
     },
 
+    addTab(title: string) {
+      const id = `tab_${Date.now()}`;
+      update(state => ({
+        ...state,
+        tabOrder: [...state.tabOrder, id],
+        tabs: {
+          ...state.tabs,
+          [id]: createDefaultTabConfig(id, title)
+        }
+      }));
+      this.save();
+      return id;
+    },
+
+    deleteTab(id: string) {
+      update(state => {
+        // Don't delete the last tab
+        if (state.tabOrder.length <= 1) return state;
+
+        const newTabs = { ...state.tabs };
+        delete newTabs[id];
+        
+        return {
+          ...state,
+          tabOrder: state.tabOrder.filter(t => t !== id),
+          tabs: newTabs
+        };
+      });
+      this.save();
+    },
+
+    renameTab(id: string, title: string) {
+      update(state => {
+        if (!state.tabs[id]) return state;
+        return {
+          ...state,
+          tabs: {
+            ...state.tabs,
+            [id]: { ...state.tabs[id], title }
+          }
+        };
+      });
+      this.save();
+    },
+
+    clearTab(id: string) {
+      update(state => {
+        if (!state.tabs[id]) return state;
+        return {
+          ...state,
+          tabs: {
+            ...state.tabs,
+            [id]: { ...state.tabs[id], cards: [] }
+          }
+        };
+      });
+      this.save();
+    },
+
     updateTabSettings(tabId: string, cols: number, rows: number) {
       update(state => {
-         const tab = state.tabs[tabId] || createDefaultTabConfig(tabId);
+         const tab = state.tabs[tabId] || createDefaultTabConfig(tabId, tabId);
          const newTabs = {
            ...state.tabs,
            [tabId]: { ...tab, gridColumns: cols, gridRows: rows }
@@ -89,6 +167,8 @@ function createDashboardStore() {
       });
       this.save();
     },
+
+    // --- Card Management ---
 
     updateCardPosition(tabId: string, cardId: string, pos: { x: number, y: number, w: number, h: number }) {
       update(state => {
@@ -107,11 +187,83 @@ function createDashboardStore() {
       });
       this.save();
     },
+
+    addCard(tabId: string, entityId: string) {
+       update(state => {
+          const tab = state.tabs[tabId];
+          if (!tab) return state;
+
+          // Find simple first empty spot (naive)
+          let x = 0, y = 0;
+          let found = false;
+          const occupied = new Set<string>();
+          
+          tab.cards.forEach(c => {
+             // Mark grid cells
+             for(let dx=0; dx<c.position.w; dx++) {
+               for(let dy=0; dy<c.position.h; dy++) {
+                  occupied.add(`${c.position.x + dx},${c.position.y + dy}`);
+               }
+             }
+          });
+
+          // Look for 1x1 spot
+          const cols = tab.gridColumns;
+          const rows = tab.gridRows;
+          
+          for(let r=0; r<rows; r++) {
+             for(let c=0; c<cols; c++) {
+                if (!occupied.has(`${c},${r}`)) {
+                   x = c; y = r;
+                   found = true;
+                   break;
+                }
+             }
+             if (found) break;
+          }
+          
+          if (!found) {
+             // Append to bottom if full
+             x = 0;
+             y = rows; // Allow overflow logic elsewhere or just expand
+          }
+
+          const newCard: DashboardCardConfig = {
+             id: `card_${Date.now()}`,
+             entityId,
+             position: { x, y, w: 1, h: 1 }
+          };
+
+          return {
+             ...state,
+             tabs: {
+                ...state.tabs,
+                [tabId]: { ...tab, cards: [...tab.cards, newCard] }
+             }
+          };
+       });
+       this.save();
+    },
+
+    deleteCard(tabId: string, cardId: string) {
+      update(state => {
+        const tab = state.tabs[tabId];
+        if (!tab) return state;
+        return {
+          ...state,
+          tabs: {
+            ...state.tabs,
+            [tabId]: { ...tab, cards: tab.cards.filter(c => c.id !== cardId) }
+          }
+        };
+      });
+      this.save();
+    },
     
     // Auto-layout helper: Takes a list of entities and arranges them in the grid if not already present
     syncEntitiesToGrid(tabId: string, entities: HAEntity[]) {
       update(state => {
-        const tab = state.tabs[tabId] || createDefaultTabConfig(tabId);
+        const tab = state.tabs[tabId] || createDefaultTabConfig(tabId, tabId);
         
         // Map existing cards for quick lookup
         const existingMap = new Map(tab.cards.map(c => [c.entityId, c]));

@@ -56,6 +56,8 @@ export interface DashboardCardConfig {
 
 export interface TabGridConfig {
   id: string;
+  title: string;
+  icon?: string;
   gridColumns: number;
   gridRows: number;
   cards: DashboardCardConfig[];
@@ -63,5 +65,6 @@ export interface TabGridConfig {
 
 export interface DashboardConfig {
   version: number;
+  tabOrder: string[];
   tabs: Record<string, TabGridConfig>;
 }

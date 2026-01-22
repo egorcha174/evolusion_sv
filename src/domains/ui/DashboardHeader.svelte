@@ -1,16 +1,25 @@
+
 <script lang="ts">
   import { t } from 'svelte-i18n';
   import { goto } from '$app/navigation';
   import { page } from '$app/stores';
   import { tabs, activeTabId, isEditMode, setActiveTab, toggleEditMode } from '../app/tabsStore';
+  import { dashboardStore } from '../app/dashboardStore';
   import { haStore } from '../ha/store';
   import 'iconify-icon';
 
   let isMobileMenuOpen = $state(false);
   let isKebabMenuOpen = $state(false);
 
+  // Tab Context Menu State
+  let contextMenuOpen = $state(false);
+  let contextMenuX = $state(0);
+  let contextMenuY = $state(0);
+  let contextTargetTabId = $state<string | null>(null);
+
   function handleContentClick() {
     isKebabMenuOpen = false;
+    contextMenuOpen = false;
   }
 
   function handleTabClick(id: string) {
@@ -37,6 +46,57 @@
     isKebabMenuOpen = !isKebabMenuOpen;
     isMobileMenuOpen = false;
   }
+
+  // --- Tab Management ---
+
+  function handleAddTab() {
+    const title = window.prompt("Enter tab name:", "New Tab");
+    if (title) {
+      const id = dashboardStore.addTab(title);
+      setActiveTab(id);
+    }
+  }
+
+  function handleTabContext(e: MouseEvent, id: string) {
+    if (!$isEditMode) return;
+    e.preventDefault();
+    e.stopPropagation();
+    
+    contextTargetTabId = id;
+    contextMenuX = e.clientX;
+    contextMenuY = e.clientY;
+    contextMenuOpen = true;
+  }
+
+  function renameTab() {
+    if (!contextTargetTabId) return;
+    const tab = $tabs.find(t => t.id === contextTargetTabId);
+    const newTitle = window.prompt("Rename Tab", tab?.title || "");
+    if (newTitle) {
+      dashboardStore.renameTab(contextTargetTabId, newTitle);
+    }
+    contextMenuOpen = false;
+  }
+
+  function clearTab() {
+    if (!contextTargetTabId) return;
+    if (window.confirm("Are you sure you want to clear all cards from this tab?")) {
+      dashboardStore.clearTab(contextTargetTabId);
+    }
+    contextMenuOpen = false;
+  }
+
+  function deleteTab() {
+    if (!contextTargetTabId) return;
+    if ($tabs.length <= 1) {
+      alert("Cannot delete the last tab.");
+      return;
+    }
+    if (window.confirm("Delete this tab? This action cannot be undone.")) {
+      dashboardStore.deleteTab(contextTargetTabId);
+    }
+    contextMenuOpen = false;
+  }
 </script>
 
 <svelte:window onclick={handleContentClick} />
@@ -57,6 +117,7 @@
           class="tab-btn" 
           class:active={$activeTabId === tab.id}
           onclick={() => handleTabClick(tab.id)}
+          oncontextmenu={(e) => handleTabContext(e, tab.id)}
         >
           {tab.title}
           {#if $isEditMode}
@@ -66,7 +127,7 @@
       {/each}
       
       {#if $isEditMode}
-        <button class="tab-btn add-btn" onclick={() => tabs.addTab()}>
+        <button class="tab-btn add-btn" onclick={handleAddTab} title="Add Tab">
           <iconify-icon icon="mdi:plus" width="20"></iconify-icon>
         </button>
       {/if}
@@ -101,6 +162,26 @@
     </div>
   </div>
 </header>
+
+<!-- Tab Context Menu -->
+{#if contextMenuOpen}
+  <div 
+    class="context-menu" 
+    style="top: {contextMenuY}px; left: {contextMenuX}px"
+    onclick={(e) => e.stopPropagation()}
+  >
+    <button class="menu-item" onclick={renameTab}>
+      <iconify-icon icon="mdi:rename-box"></iconify-icon> Rename
+    </button>
+    <button class="menu-item" onclick={clearTab}>
+      <iconify-icon icon="mdi:eraser"></iconify-icon> Clear Cards
+    </button>
+    <div class="divider"></div>
+    <button class="menu-item danger" onclick={deleteTab}>
+      <iconify-icon icon="mdi:delete"></iconify-icon> Delete Tab
+    </button>
+  </div>
+{/if}
 
 <style>
   .dashboard-header {
@@ -191,28 +272,34 @@
 
   .menu-container { position: relative; }
 
-  .dropdown-menu {
+  /* Context Menu & Dropdown Styles */
+  .dropdown-menu, .context-menu {
     position: absolute;
-    top: 100%;
-    right: 0;
-    margin-top: 0.5rem;
-    width: 220px;
-    
-    /* Use panel background which is usually more opaque/frosted */
     background: var(--bg-panel, rgba(255, 255, 255, 0.95));
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    
     border-radius: 12px;
     box-shadow: var(--shadow-dropdown, 0 4px 12px rgba(0,0,0,0.15));
     padding: 0.5rem;
     border: 1px solid var(--border-primary, rgba(0,0,0,0.05));
-    
     display: flex;
     flex-direction: column;
+    z-index: 1000;
+    min-width: 180px;
+  }
+  
+  .dropdown-menu {
+    top: 100%;
+    right: 0;
+    margin-top: 0.5rem;
+    width: 220px;
     animation: fadeIn 0.1s ease-out;
   }
   
+  .context-menu {
+    position: fixed; /* Fixed relative to viewport for context menu */
+  }
+
   :global(body.rtl) .dropdown-menu {
     right: auto;
     left: 0;
@@ -241,6 +328,14 @@
   .menu-item.highlight {
     color: var(--accent-primary);
     font-weight: 500;
+  }
+  
+  .menu-item.danger {
+    color: var(--accent-error);
+  }
+  
+  .menu-item.danger:hover {
+    background: rgba(244, 67, 54, 0.1);
   }
 
   .divider {
