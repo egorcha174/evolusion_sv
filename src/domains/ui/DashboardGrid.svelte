@@ -1,4 +1,3 @@
-
 <script lang="ts">
   import { onMount } from 'svelte';
   import { selectVisibleDashboardCards } from './store';
@@ -193,8 +192,8 @@
 <style>
   .dashboard-container {
     width: 100%;
-    /* Fixed height minus header/padding to calculate aspect ratio properly */
-    height: calc(100vh - 100px); 
+    /* Fill parent container exactly */
+    height: 100%; 
     position: relative;
     /* Strict overflow hidden to enforce no scrollbars */
     overflow: hidden; 

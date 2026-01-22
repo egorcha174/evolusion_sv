@@ -33,6 +33,9 @@
     width: 100%;
     max-width: 1400px;
     margin: 0 auto;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
   }
 
   .status-message {
@@ -48,6 +51,7 @@
     margin-top: 2rem;
     min-height: 300px;
     color: #666;
+    flex: 1;
   }
 
   .status-message.error {
