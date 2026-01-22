@@ -54,9 +54,12 @@
   let containerHeight = $state(0);
   
   // Calculated metrics
-  let halfUnitSize = $state(0);
   let gapX = $state(10);
   let gapY = $state(10);
+  
+  // Internal metrics for CSS Grid (Half-steps)
+  let halfUnitW = $state(0);
+  let halfUnitH = $state(0);
   
   // Calculated Layout
   let calculatedMarginLeft = $state(0);
@@ -69,40 +72,38 @@
   function calculateGeometry() {
      if (!containerWidth || !containerHeight) return;
 
-     // Algorithm Inputs
+     // 1. Inputs
      const contentWidth = containerWidth;
      const contentHeight = containerHeight;
-     const cols = columns * 2; // Internal columns (0.5 units)
-     const rows = rows * 2;    // Internal rows (0.5 units)
+     const cols = columns; // Integer columns
+     const rws = rows;     // Integer rows
 
-     // 1. Calculate max permissible area
+     // 2. Calculate Max Permissible Area
      const maxMargin = 16;
-     const gridMaxWidth = contentWidth - 2 * maxMargin;
-     const gridMaxHeight = contentHeight - 2 * maxMargin;
+     const gridMaxWidth = Math.max(0, contentWidth - 2 * maxMargin);
+     const gridMaxHeight = Math.max(0, contentHeight - 2 * maxMargin);
 
      if (gridMaxWidth <= 0 || gridMaxHeight <= 0) return;
 
      const minGapX = 10;
      const minGapY = 10;
 
-     // 2. Calculate Max Cell Size
-     // Width constraint: width = cols * S + (cols - 1) * minGapX
+     // 3. Calculate Max Cell Size (Whole 1x1 Cell)
+     // Width constraint: W = cols * S + (cols - 1) * minGapX
      const cellSizeX = (gridMaxWidth - (cols - 1) * minGapX) / cols;
      
-     // Height constraint: height = rows * S + (rows - 1) * minGapY
-     const cellSizeY = (gridMaxHeight - (rows - 1) * minGapY) / rows;
+     // Height constraint: H = rws * S + (rws - 1) * minGapY
+     const cellSizeY = (gridMaxHeight - (rws - 1) * minGapY) / rws;
 
-     // Strict Square: width = height = floor(min(X, Y))
+     // Strict Square: S = floor(min(X, Y))
      let size = Math.floor(Math.min(cellSizeX, cellSizeY));
-     if (size < 1) size = 1; // Sanity check
+     if (size < 1) size = 1;
 
-     halfUnitSize = size;
-     
-     // 3. Base Grid Size (at min gaps)
+     // 4. Base Grid Size (at min gaps)
      const baseGridWidth = cols * size + (cols - 1) * minGapX;
-     const baseGridHeight = rows * size + (rows - 1) * minGapY;
+     const baseGridHeight = rws * size + (rws - 1) * minGapY;
 
-     // 4. Distribute Extra Space to Gaps
+     // 5. Distribute Extra Space to Gaps
      const extraWidth = Math.max(gridMaxWidth - baseGridWidth, 0);
      const extraHeight = Math.max(gridMaxHeight - baseGridHeight, 0);
      
@@ -112,28 +113,46 @@
      if (cols > 1) {
        gX = minGapX + extraWidth / (cols - 1);
      } else {
-       gX = 0;
+       gX = 0; // Single column has no internal gaps
      }
      
-     if (rows > 1) {
-       gY = minGapY + extraHeight / (rows - 1);
+     if (rws > 1) {
+       gY = minGapY + extraHeight / (rws - 1);
      } else {
        gY = 0;
      }
      
-     // Ensure gaps >= minGap is preserved by the formula (minGap + positive extra)
-     // but explicitly assigning to state
+     // Ensure gaps >= minGap
+     if (cols > 1 && gX < minGapX) gX = minGapX;
+     if (rws > 1 && gY < minGapY) gY = minGapY;
+     
      gapX = gX;
      gapY = gY;
 
-     // 5. Calculate Actual Grid Dimensions
+     // 6. Translate to "Half-Step" system for CSS Grid compatibility
+     // The GridItem and Editor use a coordinate system with 0.5 granularity.
+     // To support this, the underlying CSS Grid must have (cols * 2) tracks.
+     // Relationship: 2 * halfTrack + gap = WholeCellSize
+     // Therefore: halfTrack = (WholeCellSize - gap) / 2
+     
+     let hw = (size - gapX) / 2;
+     let hh = (size - gapY) / 2;
+     
+     // Clamp to 0 to prevent CSS errors in extreme aspect ratios
+     if (hw < 0) hw = 0;
+     if (hh < 0) hh = 0;
+     
+     halfUnitW = hw;
+     halfUnitH = hh;
+
+     // 7. Calculate Actual Grid Dimensions (Visual)
      const gridWidth = cols * size + (cols - 1) * gapX;
-     const gridHeight = rows * size + (rows - 1) * gapY;
+     const gridHeight = rws * size + (rws - 1) * gapY;
      
      calculatedGridWidth = gridWidth;
      calculatedGridHeight = gridHeight;
 
-     // 6. Calculate Margins and Clamp to 16px
+     // 8. Calculate Margins and Clamp to 16px
      let mL = Math.max((contentWidth - gridWidth) / 2, 0);
      let mR = Math.max(contentWidth - gridWidth - mL, 0);
      let mT = Math.max((contentHeight - gridHeight) / 2, 0);
@@ -184,9 +203,11 @@
     }
   });
 
+  // Sync metrics to editor. Note: Editor expects a single unit size.
+  // We pass halfUnitW as the primary driver for X-axis drag calculations.
   $effect(() => {
-     if (isEditorEnabled && halfUnitSize > 0) {
-        editorStore.setGridMetrics(halfUnitSize, columns, rows);
+     if (isEditorEnabled && halfUnitW > 0) {
+        editorStore.setGridMetrics(halfUnitW, columns, rows);
      }
   });
 
@@ -200,10 +221,12 @@
     return $haStore.entities.get(id);
   }
   
+  // Use 2x cols/rows for CSS tracks to support 0.5 placement
   let gridStyle = $derived(`
     --cols: ${columns * 2};
     --rows: ${rows * 2};
-    --half-unit: ${halfUnitSize}px;
+    --half-unit-w: ${halfUnitW}px;
+    --half-unit-h: ${halfUnitH}px;
     --gap-x: ${gapX}px;
     --gap-y: ${gapY}px;
     --grid-width: ${calculatedGridWidth}px;
@@ -280,8 +303,8 @@
          <GridOverlay 
             cols={columns * 2} 
             rows={rows * 2} 
-            cellW={halfUnitSize}
-            cellH={halfUnitSize} 
+            cellW={halfUnitW}
+            cellH={halfUnitH} 
             gapX={gapX}
             gapY={gapY}
          />
@@ -347,8 +370,9 @@
 
   .grid-layout {
     display: grid;
-    grid-template-columns: repeat(var(--cols), var(--half-unit));
-    grid-template-rows: repeat(var(--rows), var(--half-unit));
+    /* Use calculated half-unit tracks to support 0.5 placement */
+    grid-template-columns: repeat(var(--cols), var(--half-unit-w));
+    grid-template-rows: repeat(var(--rows), var(--half-unit-h));
     column-gap: var(--gap-x);
     row-gap: var(--gap-y);
     
