@@ -58,12 +58,20 @@
   }
 
   function handleTabContext(e: MouseEvent, id: string) {
-    if (!$isEditMode) return;
+    // Context menu allowed in all modes
     e.preventDefault();
     e.stopPropagation();
     
     contextTargetTabId = id;
-    contextMenuX = e.clientX;
+    
+    // Simple bounds check for X axis
+    const menuWidth = 200;
+    if (e.clientX + menuWidth > window.innerWidth) {
+       contextMenuX = e.clientX - menuWidth;
+    } else {
+       contextMenuX = e.clientX;
+    }
+    
     contextMenuY = e.clientY;
     contextMenuOpen = true;
   }
@@ -173,10 +181,22 @@
     <button class="menu-item" onclick={renameTab}>
       <iconify-icon icon="mdi:rename-box"></iconify-icon> Rename
     </button>
+    <button class="menu-item" onclick={() => { handleAddTab(); contextMenuOpen = false; }}>
+      <iconify-icon icon="mdi:plus"></iconify-icon> Add New Tab
+    </button>
+    
+    <div class="divider"></div>
+    
+    <button class="menu-item" onclick={() => { toggleEditMode(); contextMenuOpen = false; }}>
+      <iconify-icon icon={$isEditMode ? 'mdi:check' : 'mdi:view-dashboard-edit-outline'}></iconify-icon> 
+      {$isEditMode ? $t('dashboard.done') : $t('dashboard.edit')}
+    </button>
+    
+    <div class="divider"></div>
+    
     <button class="menu-item" onclick={clearTab}>
       <iconify-icon icon="mdi:eraser"></iconify-icon> Clear Cards
     </button>
-    <div class="divider"></div>
     <button class="menu-item danger" onclick={deleteTab}>
       <iconify-icon icon="mdi:delete"></iconify-icon> Delete Tab
     </button>
@@ -353,3 +373,4 @@
 
   @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
 </style>
+    
