@@ -58,50 +58,93 @@
   let gapX = $state(10);
   let gapY = $state(10);
   
-  // Geometry Constants
-  const MAX_MARGIN = 16; 
-  const MIN_GAP = 10;
-
+  // Calculated Layout
+  let calculatedMarginLeft = $state(0);
+  let calculatedMarginRight = $state(0);
+  let calculatedMarginTop = $state(0);
+  let calculatedMarginBottom = $state(0);
+  let calculatedGridWidth = $state(0);
+  let calculatedGridHeight = $state(0);
+  
   function calculateGeometry() {
      if (!containerWidth || !containerHeight) return;
 
-     const internalCols = columns * 2;
-     const internalRows = rows * 2;
-     
-     // 1. Available space for the grid body (Container - 2 * Margin)
-     // We treat the 16px margin as a boundary we must fit inside.
-     const gridMaxWidth = Math.max(0, containerWidth - (MAX_MARGIN * 2));
-     const gridMaxHeight = Math.max(0, containerHeight - (MAX_MARGIN * 2));
+     // Algorithm Inputs
+     const contentWidth = containerWidth;
+     const contentHeight = containerHeight;
+     const cols = columns * 2; // Internal columns (0.5 units)
+     const rows = rows * 2;    // Internal rows (0.5 units)
+
+     // 1. Calculate max permissible area
+     const maxMargin = 16;
+     const gridMaxWidth = Math.max(0, contentWidth - 2 * maxMargin);
+     const gridMaxHeight = Math.max(0, contentHeight - 2 * maxMargin);
 
      if (gridMaxWidth <= 0 || gridMaxHeight <= 0) return;
 
-     // 2. Calculate Max Cell Size that fits Width constraint
-     // Formula: Width = cols * S + (cols - 1) * MIN_GAP
-     // S <= (Width - (cols - 1) * MIN_GAP) / cols
-     const maxS_W = (gridMaxWidth - (internalCols - 1) * MIN_GAP) / internalCols;
+     const minGapX = 10;
+     const minGapY = 10;
 
-     // 3. Calculate Max Cell Size that fits Height constraint
-     const maxS_H = (gridMaxHeight - (internalRows - 1) * MIN_GAP) / internalRows;
+     // 2. Calculate Max Cell Size
+     // Width constraint: width = cols * S + (cols - 1) * minGapX
+     const cellSizeX = (gridMaxWidth - (cols - 1) * minGapX) / cols;
+     
+     // Height constraint: height = rows * S + (rows - 1) * minGapY
+     const cellSizeY = (gridMaxHeight - (rows - 1) * minGapY) / rows;
 
-     // 4. Strict Square Constraint: Cell must fit in BOTH dimensions
-     // We take the minimum of the two max sizes to ensure no overflow (no scrollbars)
-     let size = Math.floor(Math.min(maxS_W, maxS_H));
+     // Strict Square: width = height = floor(min(X, Y))
+     let size = Math.floor(Math.min(cellSizeX, cellSizeY));
      if (size < 1) size = 1; // Sanity check
 
      halfUnitSize = size;
      
-     // 5. Recalculate Gaps to fill the remaining space exactly
-     // This pushes the grid to the edges of the 16px margin boundary
-     
-     // Width Gaps
-     const occupiedW = internalCols * size;
-     const remainingW = Math.max(0, gridMaxWidth - occupiedW);
-     gapX = internalCols > 1 ? Math.max(MIN_GAP, remainingW / (internalCols - 1)) : MIN_GAP;
+     // 3. Base Grid Size (at min gaps)
+     const baseGridWidth = cols * size + (cols - 1) * minGapX;
+     const baseGridHeight = rows * size + (rows - 1) * minGapY;
 
-     // Height Gaps
-     const occupiedH = internalRows * size;
-     const remainingH = Math.max(0, gridMaxHeight - occupiedH);
-     gapY = internalRows > 1 ? Math.max(MIN_GAP, remainingH / (internalRows - 1)) : MIN_GAP;
+     // 4. Distribute Extra Space to Gaps
+     const extraWidth = Math.max(gridMaxWidth - baseGridWidth, 0);
+     const extraHeight = Math.max(gridMaxHeight - baseGridHeight, 0);
+     
+     let gX = 0;
+     let gY = 0;
+
+     if (cols > 1) {
+       gX = minGapX + extraWidth / (cols - 1);
+     } else {
+       gX = 0;
+     }
+     
+     if (rows > 1) {
+       gY = minGapY + extraHeight / (rows - 1);
+     } else {
+       gY = 0;
+     }
+     
+     // Guarantee gaps >= minGap (when applicable)
+     if (cols > 1 && gX < minGapX) gX = minGapX;
+     if (rows > 1 && gY < minGapY) gY = minGapY;
+     
+     gapX = gX;
+     gapY = gY;
+
+     // 5. Calculate Actual Grid Dimensions
+     const gridWidth = cols * size + (cols - 1) * gapX;
+     const gridHeight = rows * size + (rows - 1) * gapY;
+     
+     calculatedGridWidth = gridWidth;
+     calculatedGridHeight = gridHeight;
+
+     // 6. Calculate Margins and Clamp to 16px
+     let mL = Math.max((contentWidth - gridWidth) / 2, 0);
+     let mR = Math.max(contentWidth - gridWidth - mL, 0);
+     let mT = Math.max((contentHeight - gridHeight) / 2, 0);
+     let mB = Math.max(contentHeight - gridHeight - mT, 0);
+     
+     calculatedMarginLeft = Math.min(mL, 16);
+     calculatedMarginRight = Math.min(mR, 16);
+     calculatedMarginTop = Math.min(mT, 16);
+     calculatedMarginBottom = Math.min(mB, 16);
   }
 
   $effect(() => {
@@ -165,6 +208,12 @@
     --half-unit: ${halfUnitSize}px;
     --gap-x: ${gapX}px;
     --gap-y: ${gapY}px;
+    --grid-width: ${calculatedGridWidth}px;
+    --grid-height: ${calculatedGridHeight}px;
+    --margin-left: ${calculatedMarginLeft}px;
+    --margin-right: ${calculatedMarginRight}px;
+    --margin-top: ${calculatedMarginTop}px;
+    --margin-bottom: ${calculatedMarginBottom}px;
   `);
   
   // Context Menu Logic
@@ -305,12 +354,14 @@
     column-gap: var(--gap-x);
     row-gap: var(--gap-y);
     
-    /* Center the grid within the calculated margins */
-    justify-content: center;
-    align-content: center;
+    /* Strict sizing and margins determined by calculation */
+    width: var(--grid-width);
+    height: var(--grid-height);
+    margin-left: var(--margin-left);
+    margin-right: var(--margin-right);
+    margin-top: var(--margin-top);
+    margin-bottom: var(--margin-bottom);
     
-    width: 100%;
-    height: 100%;
     position: relative;
     transition: opacity 0.2s ease;
     box-sizing: border-box;
@@ -339,19 +390,21 @@
       gap: 12px;
       grid-template-columns: none;
       grid-template-rows: none;
-      width: 100%;
-      height: auto;
+      
+      /* Reset strict sizing for mobile flow */
+      width: 100% !important;
+      height: auto !important;
+      margin: 0 !important;
+      
       padding: 12px;
-      /* Reset alignments for flex mode */
-      justify-content: flex-start;
-      align-content: flex-start;
     }
     
     .grid-layout.edit-mode {
        min-width: 100%;
        min-height: 50vh; 
-       justify-content: flex-start;
-       align-content: flex-start;
+       /* Mobile edit mode also needs resetting or specific handling, 
+          but usually edit mode on mobile is desktop-like or restricted. 
+          For now, we let strict calculation apply or fallback to scroll if needed. */
     }
   }
 
