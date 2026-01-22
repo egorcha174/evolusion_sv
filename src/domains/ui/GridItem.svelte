@@ -21,40 +21,50 @@
   
   // Logic for internal gaps inside integer grid cells
   let style = $derived.by(() => {
-    const gapSize = 6; // px - Internal gap between fractional items
+    // Defines the gap between two 0.5 items sharing a cell
+    const innerGap = 8; // px
     
     // 1. Grid Placement (Integer Tracks)
-    // We map logical coordinates (e.g. 0, 0.5, 1.5) to integer grid lines.
-    // A card at 0.5 with width 0.5 sits in column 1 (1-based CSS grid).
+    // Map logical coordinates to CSS Grid lines (1-based)
     const gridColStart = Math.floor(rect.col) + 1;
     const gridRowStart = Math.floor(rect.row) + 1;
     
-    // Span covers the full integer range the card touches
+    // Span covers the full integer range
     const gridColSpan = Math.ceil(rect.col + rect.w) - Math.floor(rect.col);
     const gridRowSpan = Math.ceil(rect.row + rect.h) - Math.floor(rect.row);
     
     let s = `grid-column: ${gridColStart} / span ${gridColSpan}; grid-row: ${gridRowStart} / span ${gridRowSpan};`;
 
-    // 2. Internal Positioning (Margins & Size)
-    // Handle Width for 0.5 unit items
+    // 2. Internal Positioning (Size & Alignment)
+    // We use justify-self / align-self to position fractional items within the cell.
+
+    // --- WIDTH ---
     if (rect.w === 0.5) {
-      s += `width: calc(50% - ${gapSize / 2}px);`;
-      if (rect.col % 1 !== 0) {
-        s += `margin-left: auto;`; // Right side
+      // Subtract half the gap from each side
+      s += `width: calc(50% - ${innerGap / 2}px);`;
+      
+      // Determine alignment based on fractional part
+      // x.0 -> Left (start), x.5 -> Right (end)
+      // Using 0.1 epsilon for float safety
+      if ((rect.col % 1) > 0.1) {
+        s += `justify-self: end;`;
       } else {
-        s += `margin-right: auto;`; // Left side
+        s += `justify-self: start;`;
       }
     } else {
       s += `width: 100%;`;
     }
 
-    // Handle Height for 0.5 unit items
+    // --- HEIGHT ---
     if (rect.h === 0.5) {
-      s += `height: calc(50% - ${gapSize / 2}px);`;
-      if (rect.row % 1 !== 0) {
-        s += `margin-top: auto;`; // Bottom side
+      s += `height: calc(50% - ${innerGap / 2}px);`;
+      
+      // Determine alignment
+      // y.0 -> Top (start), y.5 -> Bottom (end)
+      if ((rect.row % 1) > 0.1) {
+        s += `align-self: end;`;
       } else {
-        s += `margin-bottom: auto;`; // Top side
+        s += `align-self: start;`;
       }
     } else {
       s += `height: 100%;`;
@@ -97,9 +107,11 @@
     position: relative;
     /* Transition for layout changes, but not during drag */
     transition: transform 0.1s;
-    /* Default flex alignment to support margin: auto tricks */
+    
+    /* Ensure content fills the calculated size */
     display: flex;
     flex-direction: column; 
+    box-sizing: border-box;
   }
   
   /* Disable transition during active drag to feel responsive */
@@ -136,8 +148,8 @@
       grid-row: auto !important;
       height: auto !important;
       width: 100% !important;
-      margin-left: 0 !important;
-      margin-right: 0 !important;
+      justify-self: stretch !important;
+      align-self: stretch !important;
       min-height: 120px;
       margin-bottom: 1rem;
     }
