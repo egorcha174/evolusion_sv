@@ -58,8 +58,8 @@
   let gapX = $state(16);
   let gapY = $state(16);
   
-  const MIN_GAP = 12;
-  const MARGIN_TARGET = 16; // We aim to leave about 16px around the grid
+  const MIN_GAP = 8;
+  const MARGIN_TARGET = 16; 
 
   function calculateGeometry() {
      if (!containerWidth || !containerHeight) return;
@@ -67,36 +67,42 @@
      const internalCols = columns * 2;
      const internalRows = rows * 2;
      
-     // Available space for the grid content (subtracting target margins)
-     const availW = Math.max(0, containerWidth - (MARGIN_TARGET * 2));
-     const availH = Math.max(0, containerHeight - (MARGIN_TARGET * 2));
+     // Target Frame: exactly 16px margins on all sides
+     const targetW = Math.max(0, containerWidth - (MARGIN_TARGET * 2));
+     const targetH = Math.max(0, containerHeight - (MARGIN_TARGET * 2));
 
-     // 1. Calculate the maximum possible square cell size that satisfies MIN_GAP
-     // Width constraint: internalCols * size + (internalCols - 1) * MIN_GAP <= availW
-     const maxCellW = (availW - (internalCols - 1) * MIN_GAP) / internalCols;
+     if (targetW <= 0 || targetH <= 0) return;
 
-     // Height constraint: internalRows * size + (internalRows - 1) * MIN_GAP <= availH
-     const maxCellH = (availH - (internalRows - 1) * MIN_GAP) / internalRows;
+     // 1. Calculate max possible cell size for each dimension assuming minimal gaps
+     const maxCellW = (targetW - (internalCols - 1) * MIN_GAP) / internalCols;
+     const maxCellH = (targetH - (internalRows - 1) * MIN_GAP) / internalRows;
 
-     // The cell must be square, so take the smaller of the two max sizes
+     // 2. Strict Square Constraint: Use the smaller of the two to fit both dimensions
      let size = Math.floor(Math.min(maxCellW, maxCellH));
      if (size < 10) size = 10; // Safety floor
 
      halfUnitSize = size;
      
-     // 2. Recalculate gaps to fill the available space with the chosen cell size
-     // We allow gaps to grow larger than MIN_GAP to consume extra space
+     // 3. Recalculate Gaps to fill the Target Frame strictly
+     // This ensures the grid outer edges touch the 16px margin boundaries
      
+     // Width
      const totalCellW = internalCols * size;
-     const remainingW = Math.max(0, availW - totalCellW);
-     // Distribute remaining width among gaps
-     const calculatedGapX = remainingW / Math.max(1, internalCols - 1);
-     gapX = Math.max(MIN_GAP, calculatedGapX);
+     const remainingW = Math.max(0, targetW - totalCellW);
+     if (internalCols > 1) {
+        gapX = remainingW / (internalCols - 1);
+     } else {
+        gapX = 0;
+     }
 
+     // Height
      const totalCellH = internalRows * size;
-     const remainingH = Math.max(0, availH - totalCellH);
-     const calculatedGapY = remainingH / Math.max(1, internalRows - 1);
-     gapY = Math.max(MIN_GAP, calculatedGapY);
+     const remainingH = Math.max(0, targetH - totalCellH);
+     if (internalRows > 1) {
+        gapY = remainingH / (internalRows - 1);
+     } else {
+        gapY = 0;
+     }
   }
 
   $effect(() => {
