@@ -61,6 +61,7 @@ export interface TabGridConfig {
   gridColumns: number;
   gridRows: number;
   cards: DashboardCardConfig[];
+  provisioned?: boolean; // If true, auto-layout will skip this tab
 }
 
 export interface DashboardConfig {

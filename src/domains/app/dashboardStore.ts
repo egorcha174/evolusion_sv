@@ -17,7 +17,8 @@ function createDefaultTabConfig(id: string, title: string): TabGridConfig {
     icon: 'mdi:view-dashboard',
     gridColumns: DEFAULT_COLS,
     gridRows: DEFAULT_ROWS,
-    cards: []
+    cards: [],
+    provisioned: false
   };
 }
 
@@ -149,7 +150,8 @@ function createDashboardStore() {
           ...state,
           tabs: {
             ...state.tabs,
-            [id]: { ...state.tabs[id], cards: [] }
+            // Mark as provisioned so auto-sync doesn't refill it immediately
+            [id]: { ...state.tabs[id], cards: [], provisioned: true }
           }
         };
       });
@@ -178,7 +180,8 @@ function createDashboardStore() {
           ...state,
           tabs: {
             ...state.tabs,
-            [tabId]: { ...tab, cards }
+            // Explicit user action implies this tab is now manually managed (provisioned)
+            [tabId]: { ...tab, cards, provisioned: true }
           }
         };
       });
@@ -196,7 +199,7 @@ function createDashboardStore() {
           ...state,
           tabs: {
             ...state.tabs,
-            [tabId]: { ...tab, cards }
+            [tabId]: { ...tab, cards, provisioned: true }
           }
         };
       });
@@ -253,7 +256,7 @@ function createDashboardStore() {
              ...state,
              tabs: {
                 ...state.tabs,
-                [tabId]: { ...tab, cards: [...tab.cards, newCard] }
+                [tabId]: { ...tab, cards: [...tab.cards, newCard], provisioned: true }
              }
           };
        });
@@ -268,7 +271,7 @@ function createDashboardStore() {
           ...state,
           tabs: {
             ...state.tabs,
-            [tabId]: { ...tab, cards: tab.cards.filter(c => c.id !== cardId) }
+            [tabId]: { ...tab, cards: tab.cards.filter(c => c.id !== cardId), provisioned: true }
           }
         };
       });
@@ -280,6 +283,9 @@ function createDashboardStore() {
       update(state => {
         const tab = state.tabs[tabId] || createDefaultTabConfig(tabId, tabId);
         
+        // STOP if tab is already provisioned (manually managed or previously synced)
+        if (tab.provisioned) return state;
+
         // Map existing cards for quick lookup
         const existingMap = new Map(tab.cards.map(c => [c.entityId, c]));
         const newCards: DashboardCardConfig[] = [];
@@ -303,6 +309,7 @@ function createDashboardStore() {
         }
 
         // 2. Add new entities
+        let addedCount = 0;
         entities.forEach(entity => {
           if (!existingMap.has(entity.entity_id)) {
              // Default size 1x1
@@ -323,16 +330,17 @@ function createDashboardStore() {
              
              // Advance cursor
              x += w;
+             addedCount++;
            }
         });
         
-        // Only update if count changed to avoid constant saves
-        if (newCards.length !== tab.cards.length) {
+        // Update if we added things OR mark as provisioned to prevent future retries
+        if (addedCount > 0 || !tab.provisioned) {
            return {
              ...state,
              tabs: {
                ...state.tabs,
-               [tabId]: { ...tab, cards: newCards }
+               [tabId]: { ...tab, cards: newCards, provisioned: true }
              }
            };
         }
