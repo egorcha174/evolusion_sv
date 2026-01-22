@@ -43,6 +43,8 @@ export type EditorState = {
 
   // Draft state (the "dirty" layer)
   drafts: Map<CardId, GridRect>;
+  // Store Entity ID mapping to support duplication/creation
+  cardEntities: Map<CardId, string>;
   
   // Validation state
   collision: boolean;

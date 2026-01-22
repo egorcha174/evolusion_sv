@@ -6,6 +6,7 @@
   import { tabs, activeTabId, isEditMode, setActiveTab, toggleEditMode } from '../app/tabsStore';
   import { dashboardStore } from '../app/dashboardStore';
   import { haStore } from '../ha/store';
+  import { editorStore } from './editor/store';
   import 'iconify-icon';
 
   let isMobileMenuOpen = $state(false);
@@ -58,7 +59,9 @@
   }
 
   function handleTabContext(e: MouseEvent, id: string) {
-    // Context menu allowed in all modes
+    // RESTRICTION: Context menu only in Edit Mode
+    if (!$isEditMode) return;
+
     e.preventDefault();
     e.stopPropagation();
     
@@ -89,7 +92,12 @@
   function clearTab() {
     if (!contextTargetTabId) return;
     if (window.confirm("Are you sure you want to clear all cards from this tab?")) {
-      dashboardStore.clearTab(contextTargetTabId);
+      // If we are editing THIS tab, use editor store to clear drafts
+      if (contextTargetTabId === $activeTabId) {
+        editorStore.clearAllCards();
+      } else {
+        dashboardStore.clearTab(contextTargetTabId);
+      }
     }
     contextMenuOpen = false;
   }
@@ -135,7 +143,7 @@
       {/each}
       
       {#if $isEditMode}
-        <button class="tab-btn add-btn" onclick={handleAddTab} title="Add Tab">
+        <button class="tab-btn add-btn" onclick={handleAddTab} title={$t('dashboard.menu.addTab')}>
           <iconify-icon icon="mdi:plus" width="20"></iconify-icon>
         </button>
       {/if}
@@ -179,26 +187,19 @@
     onclick={(e) => e.stopPropagation()}
   >
     <button class="menu-item" onclick={renameTab}>
-      <iconify-icon icon="mdi:rename-box"></iconify-icon> Rename
+      <iconify-icon icon="mdi:rename-box"></iconify-icon> {$t('dashboard.menu.renameTab')}
     </button>
     <button class="menu-item" onclick={() => { handleAddTab(); contextMenuOpen = false; }}>
-      <iconify-icon icon="mdi:plus"></iconify-icon> Add New Tab
-    </button>
-    
-    <div class="divider"></div>
-    
-    <button class="menu-item" onclick={() => { toggleEditMode(); contextMenuOpen = false; }}>
-      <iconify-icon icon={$isEditMode ? 'mdi:check' : 'mdi:view-dashboard-edit-outline'}></iconify-icon> 
-      {$isEditMode ? $t('dashboard.done') : $t('dashboard.edit')}
+      <iconify-icon icon="mdi:plus"></iconify-icon> {$t('dashboard.menu.addTab')}
     </button>
     
     <div class="divider"></div>
     
     <button class="menu-item" onclick={clearTab}>
-      <iconify-icon icon="mdi:eraser"></iconify-icon> Clear Cards
+      <iconify-icon icon="mdi:eraser"></iconify-icon> {$t('dashboard.menu.clearTab')}
     </button>
     <button class="menu-item danger" onclick={deleteTab}>
-      <iconify-icon icon="mdi:delete"></iconify-icon> Delete Tab
+      <iconify-icon icon="mdi:delete"></iconify-icon> {$t('dashboard.menu.deleteTab')}
     </button>
   </div>
 {/if}
@@ -373,4 +374,3 @@
 
   @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
 </style>
-    

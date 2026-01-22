@@ -170,6 +170,21 @@ function createDashboardStore() {
 
     // --- Card Management ---
 
+    replaceTabCards(tabId: string, cards: DashboardCardConfig[]) {
+      update(state => {
+        const tab = state.tabs[tabId];
+        if (!tab) return state;
+        return {
+          ...state,
+          tabs: {
+            ...state.tabs,
+            [tabId]: { ...tab, cards }
+          }
+        };
+      });
+      this.save();
+    },
+
     updateCardPosition(tabId: string, cardId: string, pos: { x: number, y: number, w: number, h: number }) {
       update(state => {
         const tab = state.tabs[tabId];

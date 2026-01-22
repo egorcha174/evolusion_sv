@@ -1,3 +1,4 @@
+
 {
   "common": {
     "ok": "OK",
@@ -18,7 +19,16 @@
     "noDevices": "No dashboard devices found.",
     "noDevicesTab": "No devices found for \"{tab}\".",
     "addWidget": "Add Widget",
-    "layoutSaved": "Layout saved"
+    "layoutSaved": "Layout saved",
+    "menu": {
+      "renameTab": "Rename Tab",
+      "addTab": "Add New Tab",
+      "clearTab": "Clear Tab",
+      "deleteTab": "Delete Tab",
+      "deleteCard": "Delete Card",
+      "duplicateCard": "Duplicate",
+      "moveCard": "Move to..."
+    }
   },
   "sidebar": {
     "connected": "Connected",

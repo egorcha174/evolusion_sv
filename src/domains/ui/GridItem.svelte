@@ -5,7 +5,13 @@
   import CardEditOverlay from './editor/components/CardEditOverlay.svelte';
   import type { DashboardCardConfig } from '$lib/types';
   
-  let { card } = $props<{ card: DashboardCardConfig }>();
+  let { card, oncontextmenu } = $props<{ 
+    card: DashboardCardConfig,
+    oncontextmenu?: (e: MouseEvent, cardId: string) => void
+  }>();
+
+  // If editor is enabled, check if card exists in drafts. If not, it's deleted.
+  let isDeleted = $derived($editorStore.enabled && !$editorStore.drafts.has(card.id));
 
   // Determine effective position (Draft if editing, or Source)
   let rect = $derived($editorStore.enabled && $editorStore.drafts.has(card.id)
@@ -13,11 +19,6 @@
     : { col: card.position.x, row: card.position.y, w: card.position.w, h: card.position.h }
   );
   
-  // We use a 2x multiplier internally to handle 0.5 units
-  // If user says x=1, w=0.5 -> css x=3, span=1
-  // Formula: CSS Start = (UserVal * 2) + 1
-  // Formula: CSS Span  = (UserSize * 2)
-
   let style = $derived(`
     grid-column: ${Math.round(rect.col * 2) + 1} / span ${Math.round(rect.w * 2)};
     grid-row: ${Math.round(rect.row * 2) + 1} / span ${Math.round(rect.h * 2)};
@@ -25,23 +26,32 @@
 
   let isSelected = $derived($editorStore.selectedCardId === card.id);
   let isDragging = $derived(isSelected && $editorStore.pointerOp.kind === 'drag');
+  
+  function handleContextMenu(e: MouseEvent) {
+    if (oncontextmenu) {
+      oncontextmenu(e, card.id);
+    }
+  }
 </script>
 
-<!-- svelte-ignore a11y_no_static_element_interactions -->
-<div 
-  class="grid-item"
-  class:edit-mode={$editorStore.enabled}
-  class:dragging={isDragging}
-  style={style}
-  data-card-id={card.id}
-  onpointerdown={(e) => onCardPointerDown(e, card.id)}
->
-  <div class="content-wrapper">
-    <slot />
-  </div>
+{#if !isDeleted}
+  <!-- svelte-ignore a11y_no_static_element_interactions -->
+  <div 
+    class="grid-item"
+    class:edit-mode={$editorStore.enabled}
+    class:dragging={isDragging}
+    style={style}
+    data-card-id={card.id}
+    onpointerdown={(e) => onCardPointerDown(e, card.id)}
+    oncontextmenu={handleContextMenu}
+  >
+    <div class="content-wrapper">
+      <slot />
+    </div>
 
-  <CardEditOverlay cardId={card.id} />
-</div>
+    <CardEditOverlay cardId={card.id} />
+  </div>
+{/if}
 
 <style>
   .grid-item {
@@ -61,7 +71,6 @@
   .content-wrapper {
     width: 100%;
     height: 100%;
-    /* overflow: hidden; Removed to allow hover transforms (translateY) and shadows to spill out */
     /* Enable container queries for responsive children (cards) */
     container-type: size;
   }

@@ -1,13 +1,15 @@
+
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { t } from 'svelte-i18n';
   import { selectVisibleDashboardCards } from './store';
   import { dashboardStore } from '../app/dashboardStore';
-  import { activeTabId, isEditMode } from '../app/tabsStore';
+  import { activeTabId, isEditMode, tabs } from '../app/tabsStore';
   import { haStore } from '../ha/store';
   import DeviceCard from './DeviceCard.svelte';
   import GridItem from './GridItem.svelte';
   import GridSettings from './GridSettings.svelte';
-  import type { HAEntity } from '$lib/types';
+  import type { HAEntity, DashboardCardConfig } from '$lib/types';
   
   // Editor imports
   import { editorStore } from './editor/store';
@@ -24,7 +26,31 @@
   // Derived state for the specific tab
   let columns = $derived(gridConfig?.gridColumns ?? 8);
   let rows = $derived(gridConfig?.gridRows ?? 6);
-  let cards = $derived(gridConfig?.cards ?? []);
+  
+  // --- CARD RENDER LOGIC ---
+  // If editing, we mix persistent cards with drafts to show newly duplicated cards.
+  // Actually, EditorStore now manages the full set of cards in 'drafts' and 'cardEntities'.
+  // We need to construct a list of "Virtual Cards" for the view loop.
+  
+  let cards = $derived.by(() => {
+     if ($isEditMode && $editorStore.enabled) {
+        // Construct cards from editor drafts
+        const list: DashboardCardConfig[] = [];
+        $editorStore.drafts.forEach((rect, id) => {
+           const entityId = $editorStore.cardEntities.get(id);
+           if (entityId) {
+             list.push({
+                id,
+                entityId,
+                position: { x: rect.col, y: rect.row, w: rect.w, h: rect.h }
+             });
+           }
+        });
+        return list;
+     } else {
+        return gridConfig?.cards ?? [];
+     }
+  });
 
   // --- Strict Geometry Calculation ---
   let container: HTMLDivElement;
@@ -34,49 +60,34 @@
   // Calculated metrics
   let halfUnitSize = $state(0);
   
-  // FIXED GAP CONFIGURATION
-  // A consistent gap ensures the grid looks uniform regardless of screen size.
-  // The 'leftover' space will be distributed as margins around the grid (centering).
   const GAP_PX = 16; 
 
   function calculateGeometry() {
      if (!containerWidth || !containerHeight) return;
 
-     // Internal grid resolution is double the user columns (for 0.5 unit support)
      const internalCols = columns * 2;
      const internalRows = rows * 2;
      
-     // Calculate total space taken by gaps
      const totalGapWidth = Math.max(0, internalCols - 1) * GAP_PX;
      const totalGapHeight = Math.max(0, internalRows - 1) * GAP_PX;
 
-     // 1. Calculate Max Possible Cell Size based on Width
      const wAvailable = containerWidth - totalGapWidth;
      const maxCellW = Math.floor(wAvailable / internalCols);
 
-     // 2. Calculate Max Possible Cell Size based on Height
      const hAvailable = containerHeight - totalGapHeight;
      const maxCellH = Math.floor(hAvailable / internalRows);
 
-     // 3. Strict Square Constraint: Take the smaller dimension
      let size = Math.min(maxCellW, maxCellH);
-     
-     // Safety clamp
      if (size < 10) size = 10;
 
-     // Update State
      halfUnitSize = size;
   }
 
-  // Recalculate whenever inputs change
   $effect(() => {
-    // Dependency tracking
     const _c = columns; 
     const _r = rows;
     const _w = containerWidth;
     const _h = containerHeight;
-    
-    // Defer to next tick/frame to ensure robust values
     calculateGeometry();
   });
   
@@ -86,7 +97,6 @@
      
      const observer = new ResizeObserver(entries => {
        for(const entry of entries) {
-         // Use contentRect for precise inner dimensions
          containerWidth = entry.contentRect.width;
          containerHeight = entry.contentRect.height;
        }
@@ -111,14 +121,12 @@
     }
   });
 
-  // Keep metrics updated in editor store
   $effect(() => {
      if (isEditorEnabled && halfUnitSize > 0) {
         editorStore.setGridMetrics(halfUnitSize, columns, rows);
      }
   });
 
-  // Auto-populate logic (Only when not editing)
   $effect(() => {
     if (!$isEditMode && $haStore.isConnected && visibleEntities.length > 0) {
        dashboardStore.syncEntitiesToGrid($activeTabId, visibleEntities);
@@ -129,7 +137,6 @@
     return $haStore.entities.get(id);
   }
   
-  // CSS Vars for grid
   let gridStyle = $derived(`
     --cols: ${columns * 2};
     --rows: ${rows * 2};
@@ -137,18 +144,60 @@
     --grid-gap: ${GAP_PX}px;
   `);
   
-  // Calculate Base Cell Size (1x1 unit) for visualization overlay
-  // A 1x1 unit visually covers 2 half-units plus the gap between them.
   let cell1x1Size = $derived(halfUnitSize * 2 + GAP_PX);
+
+  // --- Context Menu Logic ---
+  let cmOpen = $state(false);
+  let cmX = $state(0);
+  let cmY = $state(0);
+  let cmCardId = $state<string | null>(null);
+
+  function handleCardContext(e: MouseEvent, cardId: string) {
+    if (!$isEditMode) return;
+    e.preventDefault();
+    e.stopPropagation();
+    
+    // Position menu
+    const menuWidth = 200;
+    if (e.clientX + menuWidth > window.innerWidth) {
+       cmX = e.clientX - menuWidth;
+    } else {
+       cmX = e.clientX;
+    }
+    cmY = e.clientY;
+    
+    cmCardId = cardId;
+    cmOpen = true;
+  }
+
+  function handleGlobalClick() {
+    cmOpen = false;
+  }
+  
+  function cmDelete() {
+    if (cmCardId) editorStore.deleteCard(cmCardId);
+    cmOpen = false;
+  }
+
+  function cmDuplicate() {
+    if (cmCardId) editorStore.duplicateCard(cmCardId);
+    cmOpen = false;
+  }
+
+  function cmMoveTo(targetTabId: string) {
+    if (cmCardId) editorStore.moveCardToTab(cmCardId, targetTabId);
+    cmOpen = false;
+  }
 </script>
+
+<svelte:window onclick={handleGlobalClick} />
 
 <div class="dashboard-container" bind:this={container}>
   {#if cards.length === 0}
     <div class="empty-state">
-       No devices configured for this view.
+       {$t('dashboard.noDevices')}
     </div>
   {:else}
-    <!-- Interaction Layer for Global Pointer Events in Edit Mode -->
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div 
       class="grid-layout" 
@@ -159,7 +208,6 @@
       onpointercancel={onPointerCancel}
       style:touch-action={$isEditMode ? 'none' : 'auto'}
     >
-      <!-- Grid Visual Overlay (Cells) - Behind Items -->
       {#if $isEditMode}
          <GridOverlay 
             cols={columns} 
@@ -169,11 +217,10 @@
          />
       {/if}
       
-      <!-- Items -->
       {#each cards as card (card.id)}
          {@const entity = getEntity(card.entityId)}
          {#if entity}
-           <GridItem {card}>
+           <GridItem {card} oncontextmenu={handleCardContext}>
              <DeviceCard {entity} />
            </GridItem>
          {/if}
@@ -189,33 +236,54 @@
   {/if}
 </div>
 
+<!-- Card Context Menu -->
+{#if cmOpen}
+  <div 
+    class="context-menu" 
+    style="top: {cmY}px; left: {cmX}px"
+    onclick={(e) => e.stopPropagation()}
+  >
+    <button class="menu-item" onclick={cmDuplicate}>
+      <iconify-icon icon="mdi:content-copy"></iconify-icon> {$t('dashboard.menu.duplicateCard')}
+    </button>
+
+    <div class="divider"></div>
+    
+    <div class="submenu-label">{$t('dashboard.menu.moveCard')}</div>
+    {#each $tabs as tab}
+       {#if tab.id !== $activeTabId}
+          <button class="menu-item" onclick={() => cmMoveTo(tab.id)}>
+             <iconify-icon icon="mdi:arrow-right"></iconify-icon> {tab.title}
+          </button>
+       {/if}
+    {/each}
+
+    <div class="divider"></div>
+
+    <button class="menu-item danger" onclick={cmDelete}>
+      <iconify-icon icon="mdi:delete"></iconify-icon> {$t('dashboard.menu.deleteCard')}
+    </button>
+  </div>
+{/if}
+
 <style>
   .dashboard-container {
     width: 100%;
-    /* Fill parent container exactly */
     height: 100%; 
     position: relative;
-    /* Strict overflow hidden to enforce no scrollbars */
     overflow: hidden; 
     padding: 0;
   }
 
   .grid-layout {
     display: grid;
-    /* Strict size definition for square cells */
     grid-template-columns: repeat(var(--cols), var(--half-unit));
     grid-template-rows: repeat(var(--rows), var(--half-unit));
-    
-    /* Fixed gap */
     gap: var(--grid-gap);
-    
-    /* Center the grid within the container */
     justify-content: center;
     align-content: center;
-    
     width: 100%;
     height: 100%;
-    
     position: relative;
     transition: opacity 0.2s ease;
   }
@@ -228,17 +296,15 @@
     color: var(--text-muted);
   }
   
-
-  /* Mobile Layout: Stack (only when not editing) */
+  /* Mobile Layout */
   @media (max-width: 768px) {
     .dashboard-container {
       height: auto;
       display: block;
-      overflow-y: auto; /* Allow scroll on mobile stack */
+      overflow-y: auto; 
       padding-bottom: 2rem;
     }
     
-    /* When NOT in edit mode, stack them */
     .grid-layout:not(.edit-mode) {
       display: flex;
       flex-direction: column;
@@ -249,13 +315,67 @@
       height: auto;
     }
     
-    /* When in edit mode on mobile, keep grid but allow scroll if needed */
     .grid-layout.edit-mode {
-       /* Ensure container allows scrolling the grid canvas if it overflows on tiny screens */
        min-width: 100%;
        min-height: 50vh; 
-       justify-content: flex-start; /* Left align on mobile edit to avoid off-screen overflow issues */
+       justify-content: flex-start;
        align-content: flex-start;
     }
   }
+
+  /* Context Menu Styles */
+  .context-menu {
+    position: fixed;
+    background: var(--bg-panel, rgba(255, 255, 255, 0.95));
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-radius: 12px;
+    box-shadow: var(--shadow-dropdown, 0 4px 12px rgba(0,0,0,0.15));
+    padding: 0.5rem;
+    border: 1px solid var(--border-primary, rgba(0,0,0,0.05));
+    display: flex;
+    flex-direction: column;
+    z-index: 2000;
+    min-width: 180px;
+    animation: fadeIn 0.1s ease-out;
+  }
+  
+  .menu-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    border: none;
+    background: transparent;
+    width: 100%;
+    text-align: left;
+    font-size: 0.95rem;
+    color: var(--text-primary);
+    cursor: pointer;
+    border-radius: 8px;
+    text-decoration: none;
+  }
+  
+  .menu-item:hover {
+    background: var(--bg-card-hover, rgba(0,0,0,0.05));
+  }
+  
+  .menu-item.danger { color: var(--accent-error); }
+  .menu-item.danger:hover { background: rgba(244, 67, 54, 0.1); }
+  
+  .divider {
+    height: 1px;
+    background: var(--border-divider, rgba(128,128,128,0.2));
+    margin: 0.25rem 0;
+  }
+
+  .submenu-label {
+    padding: 0.5rem 1rem 0.25rem 1rem;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+  
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
 </style>

@@ -1,8 +1,10 @@
+
 import { writable, get } from 'svelte/store';
-import type { EditorState, GridRect, CardId } from './types';
+import type { EditorState, GridRect, CardId, TabId } from './types';
 import { layoutAdapter } from './layoutAdapter';
 import { editorHistory } from './history';
 import { rectWithinBounds, rectCollides } from './geometry';
+import { dashboardStore } from '../../app/dashboardStore';
 
 const initialState: EditorState = {
   enabled: false,
@@ -12,6 +14,7 @@ const initialState: EditorState = {
   pointerOp: { kind: 'idle' },
   gridMetrics: { halfUnitSizePx: 0, cols: 8, rows: 6 },
   drafts: new Map(),
+  cardEntities: new Map(),
   collision: false
 };
 
@@ -26,13 +29,14 @@ function createEditorStore() {
 
     initSession(tabId: string) {
       // Load current layout via Adapter
-      const { cards, cols, rows } = layoutAdapter.loadLayout(tabId);
+      const { cards, entities, cols, rows } = layoutAdapter.loadLayout(tabId);
       
       update(s => ({
         ...s,
         enabled: true,
         tabId,
         drafts: cards,
+        cardEntities: entities,
         selectedCardId: null,
         showGridSettings: false,
         collision: false,
@@ -49,8 +53,8 @@ function createEditorStore() {
       const s = get({ subscribe });
       if (!s.tabId) return;
 
-      // Save drafts via Adapter
-      layoutAdapter.saveLayout(s.tabId, s.drafts);
+      // Save complete state (drafts + deletions + additions) via Adapter
+      layoutAdapter.saveLayout(s.tabId, s.drafts, s.cardEntities);
 
       this.reset();
     },
@@ -109,6 +113,86 @@ function createEditorStore() {
           collision: !withinBounds || collides
         };
       });
+    },
+
+    // --- Card Actions (Edit Mode) ---
+
+    deleteCard(cardId: CardId) {
+      update(s => {
+        const newDrafts = new Map(s.drafts);
+        const newEntities = new Map(s.cardEntities);
+        
+        newDrafts.delete(cardId);
+        newEntities.delete(cardId);
+        
+        return { 
+          ...s, 
+          drafts: newDrafts, 
+          cardEntities: newEntities,
+          selectedCardId: null 
+        };
+      });
+    },
+
+    clearAllCards() {
+      update(s => ({ 
+        ...s, 
+        drafts: new Map(), 
+        cardEntities: new Map(),
+        selectedCardId: null 
+      }));
+    },
+
+    duplicateCard(cardId: CardId) {
+      update(s => {
+        const sourceRect = s.drafts.get(cardId);
+        const sourceEntity = s.cardEntities.get(cardId);
+        
+        if (!sourceRect || !sourceEntity) return s;
+        
+        // Create new ID
+        const newId = `card_${Date.now()}`;
+        
+        // Offset slightly
+        const newRect = { 
+           ...sourceRect, 
+           col: sourceRect.col, 
+           row: sourceRect.row + sourceRect.h 
+        };
+        
+        // Check bounds? For now just place it, collision detection will highlight if needed
+        
+        const newDrafts = new Map(s.drafts);
+        const newEntities = new Map(s.cardEntities);
+        
+        newDrafts.set(newId, newRect);
+        newEntities.set(newId, sourceEntity);
+
+        // We also need to update collision state immediately
+        // reuse logic from updateDraft? Or just rely on user moving it.
+        // Let's rely on user moving it for now or collision logic in UI
+
+        return { 
+           ...s, 
+           drafts: newDrafts, 
+           cardEntities: newEntities,
+           selectedCardId: newId 
+        };
+      });
+    },
+
+    moveCardToTab(cardId: CardId, targetTabId: TabId) {
+       const s = get({ subscribe });
+       if (!s.tabId || !s.drafts.has(cardId)) return;
+
+       const entityId = s.cardEntities.get(cardId);
+       if (!entityId) return;
+
+       // 1. Add to target tab (Persistent immediately - safe cross-tab action)
+       dashboardStore.addCard(targetTabId, entityId);
+       
+       // 2. Remove from current session (Draft - will be persisted on Commit)
+       this.deleteCard(cardId);
     },
 
     // --- History ---

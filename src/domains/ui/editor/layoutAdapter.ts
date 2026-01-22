@@ -1,6 +1,8 @@
+
 import { get } from 'svelte/store';
 import { dashboardStore } from '../../app/dashboardStore';
 import type { TabId, CardId, GridRect } from './types';
+import type { DashboardCardConfig } from '$lib/types';
 
 /**
  * Adapter to bridge the Editor Domain (GridRects, drafts) 
@@ -12,6 +14,8 @@ export const layoutAdapter = {
     const tab = state.tabs[tabId];
     
     const cards = new Map<CardId, GridRect>();
+    const entities = new Map<CardId, string>();
+    
     // Default grid size if not configured
     const cols = tab?.gridColumns ?? 8;
     const rows = tab?.gridRows ?? 6;
@@ -24,22 +28,33 @@ export const layoutAdapter = {
           w: c.position.w,
           h: c.position.h
         });
+        entities.set(c.id, c.entityId);
       });
     }
 
-    return { cards, cols, rows };
+    return { cards, entities, cols, rows };
   },
 
-  saveLayout(tabId: TabId, drafts: Map<CardId, GridRect>) {
-    // Commit drafts to store
-    // We update each card's position in the persistent store
+  saveLayout(tabId: TabId, drafts: Map<CardId, GridRect>, cardEntities: Map<CardId, string>) {
+    const newCards: DashboardCardConfig[] = [];
+    
     drafts.forEach((rect, id) => {
-      dashboardStore.updateCardPosition(tabId, id, {
-        x: rect.col,
-        y: rect.row,
-        w: rect.w,
-        h: rect.h
-      });
+      const entityId = cardEntities.get(id);
+      if (entityId) {
+        newCards.push({
+          id: id,
+          entityId: entityId,
+          position: {
+             x: rect.col,
+             y: rect.row,
+             w: rect.w,
+             h: rect.h
+          }
+        });
+      }
     });
+
+    // Atomic replacement handles moves, adds, and deletes
+    dashboardStore.replaceTabCards(tabId, newCards);
   }
 };
