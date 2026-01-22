@@ -19,10 +19,49 @@
     : { col: card.position.x, row: card.position.y, w: card.position.w, h: card.position.h }
   );
   
-  let style = $derived(`
-    grid-column: ${Math.round(rect.col * 2) + 1} / span ${Math.round(rect.w * 2)};
-    grid-row: ${Math.round(rect.row * 2) + 1} / span ${Math.round(rect.h * 2)};
-  `);
+  // Logic for internal gaps inside integer grid cells
+  let style = $derived.by(() => {
+    const gapSize = 6; // px - Internal gap between fractional items
+    
+    // 1. Grid Placement (Integer Tracks)
+    // We map logical coordinates (e.g. 0, 0.5, 1.5) to integer grid lines.
+    // A card at 0.5 with width 0.5 sits in column 1 (1-based CSS grid).
+    const gridColStart = Math.floor(rect.col) + 1;
+    const gridRowStart = Math.floor(rect.row) + 1;
+    
+    // Span covers the full integer range the card touches
+    const gridColSpan = Math.ceil(rect.col + rect.w) - Math.floor(rect.col);
+    const gridRowSpan = Math.ceil(rect.row + rect.h) - Math.floor(rect.row);
+    
+    let s = `grid-column: ${gridColStart} / span ${gridColSpan}; grid-row: ${gridRowStart} / span ${gridRowSpan};`;
+
+    // 2. Internal Positioning (Margins & Size)
+    // Handle Width for 0.5 unit items
+    if (rect.w === 0.5) {
+      s += `width: calc(50% - ${gapSize / 2}px);`;
+      if (rect.col % 1 !== 0) {
+        s += `margin-left: auto;`; // Right side
+      } else {
+        s += `margin-right: auto;`; // Left side
+      }
+    } else {
+      s += `width: 100%;`;
+    }
+
+    // Handle Height for 0.5 unit items
+    if (rect.h === 0.5) {
+      s += `height: calc(50% - ${gapSize / 2}px);`;
+      if (rect.row % 1 !== 0) {
+        s += `margin-top: auto;`; // Bottom side
+      } else {
+        s += `margin-bottom: auto;`; // Top side
+      }
+    } else {
+      s += `height: 100%;`;
+    }
+
+    return s;
+  });
 
   let isSelected = $derived($editorStore.selectedCardId === card.id);
   let isDragging = $derived(isSelected && $editorStore.pointerOp.kind === 'drag');
@@ -56,10 +95,11 @@
 <style>
   .grid-item {
     position: relative;
-    width: 100%;
-    height: 100%;
     /* Transition for layout changes, but not during drag */
     transition: transform 0.1s;
+    /* Default flex alignment to support margin: auto tricks */
+    display: flex;
+    flex-direction: column; 
   }
   
   /* Disable transition during active drag to feel responsive */
@@ -95,6 +135,9 @@
       grid-column: auto !important;
       grid-row: auto !important;
       height: auto !important;
+      width: 100% !important;
+      margin-left: 0 !important;
+      margin-right: 0 !important;
       min-height: 120px;
       margin-bottom: 1rem;
     }
