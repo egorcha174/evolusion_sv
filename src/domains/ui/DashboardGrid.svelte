@@ -58,33 +58,59 @@
   let gapX = $state(16);
   let gapY = $state(16);
   
-  // Fixed Constants for Square Layout
-  const FIXED_GAP = 16;
+  // Margins we want to preserve around the grid
   const MARGIN_TARGET = 16; 
+  const MIN_GAP = 4; // Minimum gap between cells
 
   function calculateGeometry() {
-     if (!containerWidth) return;
+     if (!containerWidth || !containerHeight) return;
 
      const internalCols = columns * 2;
+     const internalRows = rows * 2;
      
-     // 1. Calculate strictly based on width to fill the screen
-     const targetW = Math.max(0, containerWidth - (MARGIN_TARGET * 2));
-     
-     // internalCols * size + (internalCols - 1) * FIXED_GAP <= targetW
-     const rawSize = (targetW - (internalCols - 1) * FIXED_GAP) / internalCols;
-     
-     let size = Math.floor(rawSize);
-     if (size < 10) size = 10; // Safety floor
+     // 1. Available space for the grid body (Container - 2 * Margin)
+     // We subtract 32px (16px left + 16px right)
+     const availW = Math.max(0, containerWidth - (MARGIN_TARGET * 2));
+     const availH = Math.max(0, containerHeight - (MARGIN_TARGET * 2));
+
+     if (availW <= 0 || availH <= 0) return;
+
+     // 2. Calculate Max Cell Size that fits Width constraint
+     // Width = cols * S + (cols - 1) * MIN_GAP
+     // S <= (Width - (cols - 1) * MIN_GAP) / cols
+     const maxS_W = (availW - (internalCols - 1) * MIN_GAP) / internalCols;
+
+     // 3. Calculate Max Cell Size that fits Height constraint
+     const maxS_H = (availH - (internalRows - 1) * MIN_GAP) / internalRows;
+
+     // 4. Strict Square Constraint: Cell must fit in BOTH dimensions
+     // We take the minimum of the two max sizes to ensure no overflow (no scrollbars)
+     let size = Math.floor(Math.min(maxS_W, maxS_H));
+     if (size < 1) size = 1; // Sanity check
 
      halfUnitSize = size;
-     gapX = FIXED_GAP;
-     gapY = FIXED_GAP; // Keep gaps equal for square cells
+     
+     // 5. Recalculate Gaps to fill the remaining space exactly
+     // This allows X and Y gaps to differ, ensuring full width/height usage
+     
+     // Width Gaps
+     const occupiedW = internalCols * size;
+     const remainingW = Math.max(0, availW - occupiedW);
+     // Distribute remaining width among gaps
+     gapX = internalCols > 1 ? remainingW / (internalCols - 1) : 0;
+
+     // Height Gaps
+     const occupiedH = internalRows * size;
+     const remainingH = Math.max(0, availH - occupiedH);
+     gapY = internalRows > 1 ? remainingH / (internalRows - 1) : 0;
   }
 
   $effect(() => {
     // Dependencies to trigger recalc
     const _c = columns; 
+    const _r = rows; 
     const _w = containerWidth;
+    const _h = containerHeight;
     calculateGeometry();
   });
   
@@ -274,8 +300,7 @@
     width: 100%;
     height: 100%; 
     position: relative;
-    overflow-y: auto; 
-    overflow-x: hidden;
+    overflow: hidden; 
     padding: 0;
   }
 
@@ -285,13 +310,13 @@
     grid-template-rows: repeat(var(--rows), var(--half-unit));
     column-gap: var(--gap-x);
     row-gap: var(--gap-y);
+    
+    /* Center the grid within the calculated margins */
     justify-content: center;
-    /* Top align to avoid large top margins when content is short */
-    align-content: start; 
-    padding: 16px;
+    align-content: center;
+    
     width: 100%;
-    /* Allow height to grow */
-    min-height: 100%;
+    height: 100%;
     position: relative;
     transition: opacity 0.2s ease;
     box-sizing: border-box;
@@ -308,6 +333,9 @@
   /* Mobile Layout */
   @media (max-width: 768px) {
     .dashboard-container {
+      height: auto;
+      display: block;
+      overflow-y: auto; 
       padding-bottom: 2rem;
     }
     
@@ -320,6 +348,9 @@
       width: 100%;
       height: auto;
       padding: 12px;
+      /* Reset alignments for flex mode */
+      justify-content: flex-start;
+      align-content: flex-start;
     }
     
     .grid-layout.edit-mode {
