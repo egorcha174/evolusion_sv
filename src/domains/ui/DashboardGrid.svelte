@@ -28,10 +28,6 @@
   let rows = $derived(gridConfig?.gridRows ?? 6);
   
   // --- CARD RENDER LOGIC ---
-  // If editing, we mix persistent cards with drafts to show newly duplicated cards.
-  // Actually, EditorStore now manages the full set of cards in 'drafts' and 'cardEntities'.
-  // We need to construct a list of "Virtual Cards" for the view loop.
-  
   let cards = $derived.by(() => {
      if ($isEditMode && $editorStore.enabled) {
         // Construct cards from editor drafts
@@ -59,8 +55,11 @@
   
   // Calculated metrics
   let halfUnitSize = $state(0);
+  let gapX = $state(16);
+  let gapY = $state(16);
   
-  const GAP_PX = 16; 
+  const MIN_GAP = 12;
+  const MARGIN_TARGET = 16; // We aim to leave about 16px around the grid
 
   function calculateGeometry() {
      if (!containerWidth || !containerHeight) return;
@@ -68,22 +67,40 @@
      const internalCols = columns * 2;
      const internalRows = rows * 2;
      
-     const totalGapWidth = Math.max(0, internalCols - 1) * GAP_PX;
-     const totalGapHeight = Math.max(0, internalRows - 1) * GAP_PX;
+     // Available space for the grid content (subtracting target margins)
+     const availW = Math.max(0, containerWidth - (MARGIN_TARGET * 2));
+     const availH = Math.max(0, containerHeight - (MARGIN_TARGET * 2));
 
-     const wAvailable = containerWidth - totalGapWidth;
-     const maxCellW = Math.floor(wAvailable / internalCols);
+     // 1. Calculate the maximum possible square cell size that satisfies MIN_GAP
+     // Width constraint: internalCols * size + (internalCols - 1) * MIN_GAP <= availW
+     const maxCellW = (availW - (internalCols - 1) * MIN_GAP) / internalCols;
 
-     const hAvailable = containerHeight - totalGapHeight;
-     const maxCellH = Math.floor(hAvailable / internalRows);
+     // Height constraint: internalRows * size + (internalRows - 1) * MIN_GAP <= availH
+     const maxCellH = (availH - (internalRows - 1) * MIN_GAP) / internalRows;
 
-     let size = Math.min(maxCellW, maxCellH);
-     if (size < 10) size = 10;
+     // The cell must be square, so take the smaller of the two max sizes
+     let size = Math.floor(Math.min(maxCellW, maxCellH));
+     if (size < 10) size = 10; // Safety floor
 
      halfUnitSize = size;
+     
+     // 2. Recalculate gaps to fill the available space with the chosen cell size
+     // We allow gaps to grow larger than MIN_GAP to consume extra space
+     
+     const totalCellW = internalCols * size;
+     const remainingW = Math.max(0, availW - totalCellW);
+     // Distribute remaining width among gaps
+     const calculatedGapX = remainingW / Math.max(1, internalCols - 1);
+     gapX = Math.max(MIN_GAP, calculatedGapX);
+
+     const totalCellH = internalRows * size;
+     const remainingH = Math.max(0, availH - totalCellH);
+     const calculatedGapY = remainingH / Math.max(1, internalRows - 1);
+     gapY = Math.max(MIN_GAP, calculatedGapY);
   }
 
   $effect(() => {
+    // Dependencies to trigger recalc
     const _c = columns; 
     const _r = rows;
     const _w = containerWidth;
@@ -141,10 +158,14 @@
     --cols: ${columns * 2};
     --rows: ${rows * 2};
     --half-unit: ${halfUnitSize}px;
-    --grid-gap: ${GAP_PX}px;
+    --gap-x: ${gapX}px;
+    --gap-y: ${gapY}px;
   `);
   
-  let cell1x1Size = $derived(halfUnitSize * 2 + GAP_PX);
+  // Dimensions for 1x1 visual overlay (User Units)
+  // A 1x1 user card spans 2 half-units + 1 internal gap
+  let cell1x1W = $derived(halfUnitSize * 2 + gapX);
+  let cell1x1H = $derived(halfUnitSize * 2 + gapY);
 
   // --- Context Menu Logic ---
   let cmOpen = $state(false);
@@ -212,8 +233,10 @@
          <GridOverlay 
             cols={columns} 
             rows={rows} 
-            cellPx={cell1x1Size} 
-            gapPx={GAP_PX} 
+            cellW={cell1x1W}
+            cellH={cell1x1H} 
+            gapX={gapX}
+            gapY={gapY}
          />
       {/if}
       
@@ -279,7 +302,8 @@
     display: grid;
     grid-template-columns: repeat(var(--cols), var(--half-unit));
     grid-template-rows: repeat(var(--rows), var(--half-unit));
-    gap: var(--grid-gap);
+    column-gap: var(--gap-x);
+    row-gap: var(--gap-y);
     justify-content: center;
     align-content: center;
     width: 100%;

@@ -1,13 +1,22 @@
 
 <script lang="ts">
-  let { cols, rows, cellPx, gapPx } = $props<{ cols: number, rows: number, cellPx: number, gapPx: number }>();
+  let { cols, rows, cellW, cellH, gapX, gapY } = $props<{ 
+    cols: number, 
+    rows: number, 
+    cellW: number, 
+    cellH: number, 
+    gapX: number, 
+    gapY: number 
+  }>();
   
   let total = $derived(cols * rows);
   let style = $derived(`
     --cols: ${cols};
     --rows: ${rows};
-    --cell-size: ${cellPx}px;
-    --gap-size: ${gapPx}px;
+    --cell-w: ${cellW}px;
+    --cell-h: ${cellH}px;
+    --gap-x: ${gapX}px;
+    --gap-y: ${gapY}px;
   `);
 </script>
 
@@ -26,9 +35,10 @@
     height: 100%;
     
     display: grid;
-    grid-template-columns: repeat(var(--cols), var(--cell-size));
-    grid-template-rows: repeat(var(--rows), var(--cell-size));
-    gap: var(--gap-size);
+    grid-template-columns: repeat(var(--cols), var(--cell-w));
+    grid-template-rows: repeat(var(--rows), var(--cell-h));
+    column-gap: var(--gap-x);
+    row-gap: var(--gap-y);
     
     justify-content: center;
     align-content: center;
