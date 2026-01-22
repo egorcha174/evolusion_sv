@@ -55,12 +55,12 @@
   
   // Calculated metrics
   let halfUnitSize = $state(0);
-  let gapX = $state(16);
-  let gapY = $state(16);
+  let gapX = $state(10);
+  let gapY = $state(10);
   
-  // Margins we want to preserve around the grid
-  const MARGIN_TARGET = 16; 
-  const MIN_GAP = 4; // Minimum gap between cells
+  // Geometry Constants
+  const MAX_MARGIN = 16; 
+  const MIN_GAP = 10;
 
   function calculateGeometry() {
      if (!containerWidth || !containerHeight) return;
@@ -69,19 +69,19 @@
      const internalRows = rows * 2;
      
      // 1. Available space for the grid body (Container - 2 * Margin)
-     // We subtract 32px (16px left + 16px right)
-     const availW = Math.max(0, containerWidth - (MARGIN_TARGET * 2));
-     const availH = Math.max(0, containerHeight - (MARGIN_TARGET * 2));
+     // We treat the 16px margin as a boundary we must fit inside.
+     const gridMaxWidth = Math.max(0, containerWidth - (MAX_MARGIN * 2));
+     const gridMaxHeight = Math.max(0, containerHeight - (MAX_MARGIN * 2));
 
-     if (availW <= 0 || availH <= 0) return;
+     if (gridMaxWidth <= 0 || gridMaxHeight <= 0) return;
 
      // 2. Calculate Max Cell Size that fits Width constraint
-     // Width = cols * S + (cols - 1) * MIN_GAP
+     // Formula: Width = cols * S + (cols - 1) * MIN_GAP
      // S <= (Width - (cols - 1) * MIN_GAP) / cols
-     const maxS_W = (availW - (internalCols - 1) * MIN_GAP) / internalCols;
+     const maxS_W = (gridMaxWidth - (internalCols - 1) * MIN_GAP) / internalCols;
 
      // 3. Calculate Max Cell Size that fits Height constraint
-     const maxS_H = (availH - (internalRows - 1) * MIN_GAP) / internalRows;
+     const maxS_H = (gridMaxHeight - (internalRows - 1) * MIN_GAP) / internalRows;
 
      // 4. Strict Square Constraint: Cell must fit in BOTH dimensions
      // We take the minimum of the two max sizes to ensure no overflow (no scrollbars)
@@ -91,18 +91,17 @@
      halfUnitSize = size;
      
      // 5. Recalculate Gaps to fill the remaining space exactly
-     // This allows X and Y gaps to differ, ensuring full width/height usage
+     // This pushes the grid to the edges of the 16px margin boundary
      
      // Width Gaps
      const occupiedW = internalCols * size;
-     const remainingW = Math.max(0, availW - occupiedW);
-     // Distribute remaining width among gaps
-     gapX = internalCols > 1 ? remainingW / (internalCols - 1) : 0;
+     const remainingW = Math.max(0, gridMaxWidth - occupiedW);
+     gapX = internalCols > 1 ? Math.max(MIN_GAP, remainingW / (internalCols - 1)) : MIN_GAP;
 
      // Height Gaps
      const occupiedH = internalRows * size;
-     const remainingH = Math.max(0, availH - occupiedH);
-     gapY = internalRows > 1 ? remainingH / (internalRows - 1) : 0;
+     const remainingH = Math.max(0, gridMaxHeight - occupiedH);
+     gapY = internalRows > 1 ? Math.max(MIN_GAP, remainingH / (internalRows - 1)) : MIN_GAP;
   }
 
   $effect(() => {
@@ -168,12 +167,7 @@
     --gap-y: ${gapY}px;
   `);
   
-  // Dimensions for 1x1 visual overlay (User Units)
-  // A 1x1 user card spans 2 half-units + 1 internal gap
-  let cell1x1W = $derived(halfUnitSize * 2 + gapX);
-  let cell1x1H = $derived(halfUnitSize * 2 + gapY);
-
-  // --- Context Menu Logic ---
+  // Context Menu Logic
   let cmOpen = $state(false);
   let cmX = $state(0);
   let cmY = $state(0);
@@ -237,10 +231,10 @@
     >
       {#if $isEditMode}
          <GridOverlay 
-            cols={columns} 
-            rows={rows} 
-            cellW={cell1x1W}
-            cellH={cell1x1H} 
+            cols={columns * 2} 
+            rows={rows * 2} 
+            cellW={halfUnitSize}
+            cellH={halfUnitSize} 
             gapX={gapX}
             gapY={gapY}
          />
