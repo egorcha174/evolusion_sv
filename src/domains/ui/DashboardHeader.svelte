@@ -7,10 +7,12 @@
   import { dashboardStore } from '../app/dashboardStore';
   import { haStore } from '../ha/store';
   import { editorStore } from './editor/store';
+  import TemplateManager from './editor/templates/TemplateManager.svelte';
   import 'iconify-icon';
 
   let isMobileMenuOpen = $state(false);
   let isKebabMenuOpen = $state(false);
+  let isTemplateManagerOpen = $state(false);
 
   // Tab Context Menu State
   let contextMenuOpen = $state(false);
@@ -164,6 +166,13 @@
           <a href="/entities" class="menu-item" onclick={() => isKebabMenuOpen = false}>
             <iconify-icon icon="mdi:format-list-bulleted"></iconify-icon> {$t('entities.title')}
           </a>
+          
+          {#if $isEditMode}
+            <button class="menu-item" onclick={() => { isTemplateManagerOpen = true; isKebabMenuOpen = false; }}>
+              <iconify-icon icon="mdi:palette-swatch-outline"></iconify-icon> Templates
+            </button>
+          {/if}
+
           <div class="divider"></div>
           <button class="menu-item" onclick={handleRefresh}>
             <iconify-icon icon="mdi:refresh"></iconify-icon> Refresh Page
@@ -202,6 +211,11 @@
       <iconify-icon icon="mdi:delete"></iconify-icon> {$t('dashboard.menu.deleteTab')}
     </button>
   </div>
+{/if}
+
+<!-- Template Manager Modal -->
+{#if isTemplateManagerOpen}
+  <TemplateManager onClose={() => isTemplateManagerOpen = false} />
 {/if}
 
 <style>

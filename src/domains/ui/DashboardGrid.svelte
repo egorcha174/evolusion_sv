@@ -10,7 +10,6 @@
   import GridItem from './GridItem.svelte';
   import GridSettings from './GridSettings.svelte';
   import CardSettingsDialog from './CardSettingsDialog.svelte';
-  import CardTemplateEditor from './editor/templates/CardTemplateEditor.svelte';
   import type { HAEntity, DashboardCardConfig, CardTemplate } from '$lib/types';
 
   // Editor imports
@@ -18,7 +17,6 @@
   import { onPointerMove, onPointerUp, onPointerCancel } from './editor/pointer';
   import EditToolbar from './editor/components/EditToolbar.svelte';
   import GridOverlay from './editor/components/GridOverlay.svelte';
-  import { createDefaultCardTemplate } from '$lib/types';
 
   // ---------- Состояние вкладки ----------
 
@@ -221,11 +219,6 @@
   let showCardSettings = $state(false);
   let activeSettingsCard = $state<DashboardCardConfig | null>(null);
 
-  // Template Editor State
-  let showTemplateEditor = $state(false);
-  let templateEditorMode = $state<'create'|'edit'>('create');
-  let templateInitial = $state<CardTemplate | undefined>(undefined);
-
   function handleCardContext(e: MouseEvent, cardId: string) {
     if (!$isEditMode) return;
     e.preventDefault();
@@ -271,36 +264,6 @@
       }
     }
     cmOpen = false;
-  }
-
-  // --- Template Editor Handlers ---
-
-  function openNewTemplate() {
-    showCardSettings = false;
-    templateEditorMode = 'create';
-    templateInitial = createDefaultCardTemplate();
-    showTemplateEditor = true;
-  }
-
-  function openEditTemplate(tpl: CardTemplate) {
-    showCardSettings = false;
-    templateEditorMode = 'edit';
-    templateInitial = tpl;
-    showTemplateEditor = true;
-  }
-
-  function handleTemplateSave(tpl: CardTemplate) {
-    // Save template definition to store (templates are global)
-    dashboardStore.saveTemplate(tpl);
-    
-    // Assign to current card using editorStore (so it works for drafts and supports cancel)
-    if (templateEditorMode === 'create' && activeSettingsCard) {
-      editorStore.setCardTemplate(activeSettingsCard.id, tpl.id);
-    }
-    
-    showTemplateEditor = false;
-    templateInitial = undefined;
-    activeSettingsCard = null;
   }
 
 </script>
@@ -398,18 +361,7 @@
   <CardSettingsDialog
     tabId={$activeTabId}
     card={activeSettingsCard}
-    onNewTemplate={openNewTemplate}
-    onEditTemplate={openEditTemplate}
     onClose={() => { showCardSettings = false; activeSettingsCard = null; }}
-  />
-{/if}
-
-{#if showTemplateEditor}
-  <CardTemplateEditor
-    mode={templateEditorMode}
-    initialTemplate={templateInitial}
-    onSave={handleTemplateSave}
-    onCancel={() => { showTemplateEditor = false; templateInitial = undefined; }}
   />
 {/if}
 

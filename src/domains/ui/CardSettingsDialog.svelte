@@ -2,31 +2,35 @@
 <script lang="ts">
   import { dashboardStore } from '../app/dashboardStore';
   import { editorStore } from './editor/store';
-  import type { DashboardCardConfig, CardTemplate } from '$lib/types';
+  import type { DashboardCardConfig } from '$lib/types';
   
-  let { tabId, card, onEditTemplate, onNewTemplate, onClose } = $props<{
-    tabId: string,
+  let { card, onClose } = $props<{
+    tabId: string, // Unused but kept for interface compat if needed later
     card: DashboardCardConfig,
-    onEditTemplate: (t: CardTemplate) => void,
-    onNewTemplate: () => void,
+    // Removed unused callbacks
+    onEditTemplate?: any,
+    onNewTemplate?: any,
     onClose: () => void
   }>();
   
   // Get available templates from store
   let templates = $derived(Object.values($dashboardStore.templates || {}));
   
-  function handleTemplateChange(e: Event) {
-    const val = (e.target as HTMLSelectElement).value;
-    // Use editorStore to handle the change as part of the edit session
-    // This allows for "Cancel" to revert the change and works for draft cards
-    editorStore.setCardTemplate(card.id, val === '' ? undefined : val);
-  }
-  
-  function editSelected() {
-    if (card.templateId) {
-       const tpl = $dashboardStore.templates[card.templateId];
-       if (tpl) onEditTemplate(tpl);
+  // Local state for the selection (don't commit to store yet)
+  let selectedTemplateId = $state<string | undefined>(card.templateId);
+
+  // Initialize selectedId from editor override if present
+  $effect(() => {
+    const override = $editorStore.templateOverrides.get(card.id);
+    if (override !== undefined) {
+      selectedTemplateId = override;
     }
+  });
+  
+  function handleSave() {
+    // Commit to editor store (which is still a draft until main Save/Done)
+    editorStore.setCardTemplate(card.id, selectedTemplateId);
+    onClose();
   }
 </script>
 
@@ -36,27 +40,18 @@
     
     <div class="field">
        <label for="tpl-select">Template</label>
-       <select id="tpl-select" value={card.templateId || ''} onchange={handleTemplateChange}>
-         <option value="">(No Template)</option>
+       <select id="tpl-select" bind:value={selectedTemplateId}>
+         <option value={undefined}>(No Template)</option>
          {#each templates as t}
            <option value={t.id}>{t.name}</option>
          {/each}
        </select>
-    </div>
-    
-    <div class="actions">
-       <button class="btn secondary" onclick={onNewTemplate}>New Template</button>
-       <button 
-         class="btn primary" 
-         disabled={!card.templateId} 
-         onclick={editSelected}
-       >
-         Edit Template
-       </button>
+       <p class="hint">Use the main menu to create or edit templates.</p>
     </div>
     
     <div class="footer">
-       <button class="btn text" onclick={onClose}>Close</button>
+       <button class="btn text" onclick={onClose}>Cancel</button>
+       <button class="btn primary" onclick={handleSave}>Save</button>
     </div>
   </div>
 </div>
@@ -86,13 +81,13 @@
   }
   
   h3 {
-    margin: 0 0 1rem 0;
+    margin: 0 0 1.5rem 0;
     font-size: 1.1rem;
     color: var(--text-primary);
   }
   
   .field {
-    margin-bottom: 1.5rem;
+    margin-bottom: 2rem;
   }
   
   label {
@@ -104,53 +99,46 @@
   
   select {
     width: 100%;
-    padding: 0.5rem;
-    border-radius: 6px;
+    padding: 0.75rem;
+    border-radius: 8px;
     border: 1px solid var(--border-input);
     background: var(--bg-input);
     color: var(--text-primary);
+    font-size: 1rem;
   }
   
-  .actions {
+  .hint {
+    margin-top: 0.5rem;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+  
+  .footer {
     display: flex;
+    justify-content: flex-end;
     gap: 0.5rem;
-    margin-bottom: 1rem;
   }
   
   .btn {
-    flex: 1;
-    padding: 0.6rem;
-    border-radius: 6px;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
     border: none;
     font-weight: 500;
     cursor: pointer;
-    font-size: 0.9rem;
+    font-size: 0.95rem;
   }
   
   .btn.primary {
     background: var(--accent-primary);
     color: white;
   }
-  .btn.primary:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-  
-  .btn.secondary {
-    background: transparent;
-    border: 1px solid var(--border-primary);
-    color: var(--text-primary);
-  }
-  .btn.secondary:hover {
-    background: var(--bg-card-hover);
-  }
   
   .btn.text {
     background: transparent;
     color: var(--text-secondary);
-    width: 100%;
   }
   .btn.text:hover {
     color: var(--text-primary);
+    background: var(--bg-chip);
   }
 </style>
