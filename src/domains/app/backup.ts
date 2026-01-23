@@ -1,6 +1,4 @@
 
-import JSZip from 'jszip';
-import { saveAs } from 'file-saver';
 import { get } from 'svelte/store';
 import { themeSettings } from '../ui/theme/store';
 import { dashboardStore } from './dashboardStore';
@@ -16,6 +14,11 @@ const KEYS = {
 };
 
 export async function exportAllSettings() {
+  // Dynamic imports to fix resolution issues and lazy load heavy libs
+  const zipModule = await import('jszip');
+  const JSZip = (zipModule.default || zipModule) as any;
+  const { saveAs } = await import('file-saver');
+
   const zip = new JSZip();
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
   
@@ -44,6 +47,9 @@ export async function exportAllSettings() {
 
 export async function importAllSettings(file: File): Promise<boolean> {
   try {
+    const zipModule = await import('jszip');
+    const JSZip = (zipModule.default || zipModule) as any;
+
     const zip = await JSZip.loadAsync(file);
     const configFile = zip.file('evolusion-settings.json');
     
