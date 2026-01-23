@@ -76,13 +76,14 @@
     const cols = columns;
     const rws = rows;
 
-    const maxMargin = 4;
+    // Strict zero margin for maximum space
+    const maxMargin = 0;
     const gridMaxWidth = Math.max(0, contentWidth - 2 * maxMargin);
     const gridMaxHeight = Math.max(0, contentHeight - 2 * maxMargin);
     if (gridMaxWidth <= 0 || gridMaxHeight <= 0) return;
 
-    const minGapX = 10;
-    const minGapY = 10;
+    const minGapX = 8;
+    const minGapY = 8;
 
     const cellSizeX = (gridMaxWidth - (cols - 1) * minGapX) / cols;
     const cellSizeY = (gridMaxHeight - (rws - 1) * minGapY) / rws;
@@ -355,7 +356,8 @@
       height: auto;
       display: block;
       overflow-y: auto;
-      padding-bottom: 2rem;
+      /* Reduced padding from 2rem to 0.5rem for more space */
+      padding-bottom: 0.5rem;
     }
 
     .grid-layout:not(.edit-mode) {
@@ -369,7 +371,8 @@
       height: auto !important;
       margin: 0 !important;
 
-      padding: 12px;
+      /* Reduced padding from 12px to 8px */
+      padding: 8px;
     }
 
     .grid-layout.edit-mode {

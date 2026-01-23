@@ -213,7 +213,8 @@
     align-items: center;
     justify-content: space-between;
     height: 64px;
-    padding: 0 1.5rem;
+    /* Reduced horizontal padding from 1.5rem to 0.5rem (8px) */
+    padding: 0 0.5rem;
     
     background: var(--bg-header);
     border-bottom: 1px solid var(--border-divider, rgba(0,0,0,0.1));
