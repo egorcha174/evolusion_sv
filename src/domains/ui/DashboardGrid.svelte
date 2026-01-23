@@ -1,3 +1,4 @@
+
 <script lang="ts">
   import { onMount } from 'svelte';
   import { t } from 'svelte-i18n';
@@ -75,7 +76,7 @@
     const cols = columns;
     const rws = rows;
 
-    const maxMargin = 16;
+    const maxMargin = 4;
     const gridMaxWidth = Math.max(0, contentWidth - 2 * maxMargin);
     const gridMaxHeight = Math.max(0, contentHeight - 2 * maxMargin);
     if (gridMaxWidth <= 0 || gridMaxHeight <= 0) return;
@@ -118,10 +119,10 @@
     let mR = Math.max(contentWidth - w - mL, 0);
     let mB = Math.max(contentHeight - h - mT, 0);
 
-    marginLeft = Math.min(mL, 16);
-    marginRight = Math.min(mR, 16);
-    marginTop = Math.min(mT, 16);
-    marginBottom = Math.min(mB, 16);
+    marginLeft = Math.min(mL, maxMargin);
+    marginRight = Math.min(mR, maxMargin);
+    marginTop = Math.min(mT, maxMargin);
+    marginBottom = Math.min(mB, maxMargin);
   }
 
   $effect(() => {
@@ -446,4 +447,3 @@
     }
   }
 </style>
-

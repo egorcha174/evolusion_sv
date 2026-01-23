@@ -106,7 +106,7 @@
 
   main {
     flex: 1;
-    padding: 2rem;
+    padding: 0;
     /* STRICT: Ensure main is a flex container that clips content */
     display: flex;
     flex-direction: column;
@@ -122,7 +122,7 @@
 
   @media (max-width: 768px) {
     main {
-      padding: 1rem;
+      padding: 0;
     }
   }
 </style>
