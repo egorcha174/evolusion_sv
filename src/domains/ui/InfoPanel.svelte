@@ -1,6 +1,7 @@
 
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { t } from 'svelte-i18n';
   import { infoPanelWidth, saveUIState, loadUIState } from './store';
   import WeatherWidget from './widgets/WeatherWidget.svelte';
 
@@ -87,7 +88,7 @@
     <!-- Camera Zone -->
     <div class="section camera-section">
       <div class="card camera-card">
-        <span class="placeholder-text">Camera Feed (TODO)</span>
+        <span class="placeholder-text">{$t('sidebar.cameraPlaceholder')}</span>
       </div>
     </div>
   </div>

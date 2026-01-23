@@ -1,5 +1,6 @@
 
 <script lang="ts">
+  import { t } from 'svelte-i18n';
   import type { CardTemplateStyle } from '$lib/types';
 
   let { value, onChange } = $props<{ 
@@ -19,22 +20,22 @@
 <div class="style-panel">
   <!-- Background -->
   <div class="section">
-    <h3>Background</h3>
+    <h3>{$t('templates.style.background')}</h3>
     
     <div class="control-row">
-      <label>Type</label>
+      <label>{$t('templates.style.type')}</label>
       <select 
         value={value.backgroundType} 
         onchange={(e) => update('backgroundType', e.currentTarget.value)}
       >
-        <option value="color">Solid Color</option>
-        <option value="transparent">Transparent</option>
+        <option value="color">{$t('templates.style.solid')}</option>
+        <option value="transparent">{$t('templates.style.transparent')}</option>
       </select>
     </div>
 
     {#if value.backgroundType === 'color'}
       <div class="control-row">
-        <label>Color</label>
+        <label>{$t('templates.style.color')}</label>
         <div class="color-input-wrapper">
           <input 
             type="color" 
@@ -47,7 +48,7 @@
     {/if}
 
     <div class="control-row">
-      <label>Opacity ({value.opacity})</label>
+      <label>{$t('templates.style.opacity')} ({value.opacity})</label>
       <input 
         type="range" 
         min="0" max="1" step="0.05" 
@@ -61,23 +62,23 @@
 
   <!-- Spacing & Effects -->
   <div class="section">
-    <h3>Effects & Spacing</h3>
+    <h3>{$t('templates.style.effects')}</h3>
     
     <div class="control-row">
-      <label>Shadow</label>
+      <label>{$t('templates.style.shadow')}</label>
       <select 
         value={value.shadow} 
         onchange={(e) => update('shadow', e.currentTarget.value)}
       >
-        <option value="none">None</option>
-        <option value="sm">Small</option>
-        <option value="md">Medium</option>
-        <option value="lg">Large</option>
+        <option value="none">{$t('templates.style.shadowNone')}</option>
+        <option value="sm">{$t('templates.style.shadowSm')}</option>
+        <option value="md">{$t('templates.style.shadowMd')}</option>
+        <option value="lg">{$t('templates.style.shadowLg')}</option>
       </select>
     </div>
 
     <div class="control-row">
-      <label>Padding ({value.padding}px)</label>
+      <label>{$t('templates.style.padding')} ({value.padding}px)</label>
       <input 
         type="range" 
         min="0" max="40" step="4" 
@@ -89,7 +90,7 @@
   
   <div class="info-note">
     <iconify-icon icon="mdi:information-outline"></iconify-icon>
-    <p>Borders and active states are managed by the global theme.</p>
+    <p>{$t('templates.style.themeNote')}</p>
   </div>
 </div>
 

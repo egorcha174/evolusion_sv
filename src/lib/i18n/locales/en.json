@@ -27,7 +27,13 @@
       "deleteTab": "Delete Tab",
       "deleteCard": "Delete Card",
       "duplicateCard": "Duplicate",
-      "moveCard": "Move to..."
+      "moveCard": "Move to...",
+      "appearance": "Appearance"
+    },
+    "grid": {
+      "columns": "Columns",
+      "rows": "Rows",
+      "hint": "Drag to move. Drag corner to resize."
     }
   },
   "sidebar": {
@@ -35,8 +41,51 @@
     "connecting": "Connecting...",
     "offline": "Offline",
     "camera": "Camera",
+    "cameraPlaceholder": "Camera Feed (TODO)",
     "weather": "Weather",
     "latency": "Latency"
+  },
+  "cardSettings": {
+    "title": "Card Settings",
+    "template": "Template",
+    "noTemplate": "(No Template)",
+    "manageHint": "Use the main menu to create or edit templates."
+  },
+  "templates": {
+    "manager": {
+      "title": "Template Manager",
+      "empty": "No templates created yet.",
+      "create": "Create New Template",
+      "confirmDelete": "Are you sure you want to delete this template?"
+    },
+    "editor": {
+      "new": "New Template",
+      "edit": "Edit Template",
+      "namePlaceholder": "Template Name",
+      "tabStyle": "Style",
+      "tabContent": "Content",
+      "contentPlaceholder": "Content editor coming soon...",
+      "importJson": "Import JSON",
+      "exportJson": "Export JSON",
+      "alertName": "Please enter a template name",
+      "alertImport": "Import failed: "
+    },
+    "style": {
+      "background": "Background",
+      "type": "Type",
+      "color": "Color",
+      "solid": "Solid Color",
+      "transparent": "Transparent",
+      "opacity": "Opacity",
+      "effects": "Effects & Spacing",
+      "shadow": "Shadow",
+      "padding": "Padding",
+      "shadowNone": "None",
+      "shadowSm": "Small",
+      "shadowMd": "Medium",
+      "shadowLg": "Large",
+      "themeNote": "Borders and active states are managed by the global theme."
+    }
   },
   "settings": {
     "title": "Settings",

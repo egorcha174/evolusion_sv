@@ -1,5 +1,6 @@
 
 <script lang="ts">
+  import { t } from 'svelte-i18n';
   import { createDefaultCardTemplate, type CardTemplate, type CardTemplateStyle } from '$lib/types';
   import { exportTemplate, importTemplate } from './io';
   import CardPreview from './components/CardPreview.svelte';
@@ -40,7 +41,7 @@
 
   function handleSave() {
     if (!template.name.trim()) {
-      alert("Please enter a template name");
+      alert($t('templates.editor.alertName'));
       return;
     }
     // Return a plain object clone to strip any proxies before saving to store
@@ -67,7 +68,7 @@
       }
       template = imported;
     } catch (err: any) {
-      alert("Import failed: " + err.message);
+      alert($t('templates.editor.alertImport') + err.message);
     } finally {
       // Reset input
       if (fileInput) fileInput.value = '';
@@ -81,28 +82,28 @@
     <header class="editor-header">
       <div class="header-left">
         <div class="title-group">
-          <h2>{mode === 'create' ? 'New Template' : 'Edit Template'}</h2>
+          <h2>{mode === 'create' ? $t('templates.editor.new') : $t('templates.editor.edit')}</h2>
           <input 
             type="text" 
             class="name-input" 
-            placeholder="Template Name"
+            placeholder={$t('templates.editor.namePlaceholder')}
             bind:value={template.name}
           />
         </div>
       </div>
 
       <div class="header-right">
-        <button class="btn secondary" onclick={triggerImport} title="Import JSON">
+        <button class="btn secondary" onclick={triggerImport} title={$t('templates.editor.importJson')}>
           <iconify-icon icon="mdi:upload"></iconify-icon>
         </button>
-        <button class="btn secondary" onclick={handleExport} title="Export JSON">
+        <button class="btn secondary" onclick={handleExport} title={$t('templates.editor.exportJson')}>
           <iconify-icon icon="mdi:download"></iconify-icon>
         </button>
         <div class="divider-v"></div>
-        <button class="btn text" onclick={onCancel}>Cancel</button>
+        <button class="btn text" onclick={onCancel}>{$t('common.cancel')}</button>
         <button class="btn primary" onclick={handleSave}>
           <iconify-icon icon="mdi:check"></iconify-icon>
-          Save
+          {$t('common.save')}
         </button>
       </div>
     </header>
@@ -122,14 +123,14 @@
             class:active={activeTab === 'style'} 
             onclick={() => activeTab = 'style'}
           >
-            Style
+            {$t('templates.editor.tabStyle')}
           </button>
           <button 
             class="tab" 
             class:active={activeTab === 'content'} 
             onclick={() => activeTab = 'content'}
           >
-            Content
+            {$t('templates.editor.tabContent')}
           </button>
         </div>
 
@@ -142,7 +143,7 @@
           {:else}
             <div class="placeholder-msg">
               <iconify-icon icon="mdi:cone" width="32"></iconify-icon>
-              <p>Content editor coming soon...</p>
+              <p>{$t('templates.editor.contentPlaceholder')}</p>
             </div>
           {/if}
         </div>

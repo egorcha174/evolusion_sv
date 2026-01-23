@@ -87,7 +87,7 @@
   <div class="widget camera-widget">
     <div class="camera-placeholder">
       <iconify-icon icon="mdi:cctv" width="32"></iconify-icon>
-      <span>{$t('sidebar.camera')}</span>
+      <span>{$t('sidebar.cameraPlaceholder')}</span>
     </div>
   </div>
 

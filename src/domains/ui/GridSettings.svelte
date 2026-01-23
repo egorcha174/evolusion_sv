@@ -23,17 +23,17 @@
    <h3>{$t('dashboard.edit')}</h3>
    
    <div class="control">
-     <label for="cols">Columns: {localCols}</label>
+     <label for="cols">{$t('dashboard.grid.columns')}: {localCols}</label>
      <input id="cols" type="range" min="4" max="16" step="1" bind:value={localCols} onchange={apply} />
    </div>
 
    <div class="control">
-     <label for="rows">Rows: {localRows}</label>
+     <label for="rows">{$t('dashboard.grid.rows')}: {localRows}</label>
      <input id="rows" type="range" min="3" max="12" step="1" bind:value={localRows} onchange={apply} />
    </div>
    
    <div class="hint">
-      Drag to move. Drag corner to resize.
+      {$t('dashboard.grid.hint')}
    </div>
 </div>
 

@@ -1,5 +1,6 @@
 
 <script lang="ts">
+  import { t } from 'svelte-i18n';
   import { dashboardStore } from '../app/dashboardStore';
   import { editorStore } from './editor/store';
   import type { DashboardCardConfig } from '$lib/types';
@@ -36,22 +37,22 @@
 
 <div class="card-settings-overlay" onclick={onClose}>
   <div class="card-settings-modal" onclick={(e) => e.stopPropagation()}>
-    <h3>Card Settings</h3>
+    <h3>{$t('cardSettings.title')}</h3>
     
     <div class="field">
-       <label for="tpl-select">Template</label>
+       <label for="tpl-select">{$t('cardSettings.template')}</label>
        <select id="tpl-select" bind:value={selectedTemplateId}>
-         <option value={undefined}>(No Template)</option>
+         <option value={undefined}>{$t('cardSettings.noTemplate')}</option>
          {#each templates as t}
            <option value={t.id}>{t.name}</option>
          {/each}
        </select>
-       <p class="hint">Use the main menu to create or edit templates.</p>
+       <p class="hint">{$t('cardSettings.manageHint')}</p>
     </div>
     
     <div class="footer">
-       <button class="btn text" onclick={onClose}>Cancel</button>
-       <button class="btn primary" onclick={handleSave}>Save</button>
+       <button class="btn text" onclick={onClose}>{$t('common.cancel')}</button>
+       <button class="btn primary" onclick={handleSave}>{$t('common.save')}</button>
     </div>
   </div>
 </div>

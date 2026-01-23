@@ -328,7 +328,7 @@
   >
     <button class="menu-item" onclick={cmOpenSettings}>
       <iconify-icon icon="mdi:palette-swatch-outline"></iconify-icon>
-      Appearance
+      {$t('dashboard.menu.appearance')}
     </button>
   
     <div class="divider"></div>

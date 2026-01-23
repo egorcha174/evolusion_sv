@@ -28,7 +28,9 @@
   }
 
   function handleDelete(id: string) {
-    if (confirm('Are you sure you want to delete this template?')) {
+    // $t returns a string, so this is safe for confirm
+    // Note: get(t) could be used if not reactive, but inside event handler $t works if component is mounted
+    if (confirm($t('templates.manager.confirmDelete'))) {
       dashboardStore.deleteTemplate(id);
     }
   }
@@ -53,7 +55,7 @@
 <div class="manager-overlay" onclick={onClose}>
   <div class="manager-modal" onclick={(e) => e.stopPropagation()}>
     <header>
-      <h3>Template Manager</h3>
+      <h3>{$t('templates.manager.title')}</h3>
       <button class="close-btn" onclick={onClose}>
         <iconify-icon icon="mdi:close"></iconify-icon>
       </button>
@@ -61,7 +63,7 @@
 
     <div class="content">
       {#if templates.length === 0}
-        <div class="empty">No templates created yet.</div>
+        <div class="empty">{$t('templates.manager.empty')}</div>
       {:else}
         <div class="list">
           {#each templates as tpl (tpl.id)}
@@ -71,10 +73,10 @@
                 <span class="id">{tpl.id.slice(0, 8)}...</span>
               </div>
               <div class="actions">
-                <button class="icon-btn" onclick={() => handleEdit(tpl)} title="Edit">
+                <button class="icon-btn" onclick={() => handleEdit(tpl)} title={$t('templates.editor.edit')}>
                   <iconify-icon icon="mdi:pencil"></iconify-icon>
                 </button>
-                <button class="icon-btn danger" onclick={() => handleDelete(tpl.id)} title="Delete">
+                <button class="icon-btn danger" onclick={() => handleDelete(tpl.id)} title={$t('common.delete')}>
                   <iconify-icon icon="mdi:delete"></iconify-icon>
                 </button>
               </div>
@@ -87,7 +89,7 @@
     <footer>
       <button class="btn primary full" onclick={handleCreate}>
         <iconify-icon icon="mdi:plus"></iconify-icon>
-        Create New Template
+        {$t('templates.manager.create')}
       </button>
     </footer>
   </div>
