@@ -5,6 +5,7 @@
   import { exportTemplate, importTemplate } from './io';
   import { templateEditorState } from './store';
   import CardStylePanel from './components/CardStylePanel.svelte';
+  import { portal } from '$lib/portal';
   import 'iconify-icon';
   import { onMount } from 'svelte';
 
@@ -71,7 +72,7 @@
 
   function handleSave() {
     if (!template.name.trim()) {
-      alert('Enter template name');
+      alert($t('templates.editor.alertName'));
       return;
     }
     onSave(safeClone(template));
@@ -142,7 +143,7 @@
         const imported = await importTemplate(file);
         if (mode === 'edit') imported.id = template.id;
         template = imported;
-      } catch (err) { alert('Import failed'); }
+      } catch (err) { alert($t('templates.editor.alertImport') + err); }
     }
   }
   function handleExport() { exportTemplate(template); }
@@ -165,17 +166,17 @@
   }
 </script>
 
-<div class="template-editor-overlay">
+<div class="template-editor-overlay" use:portal>
   <div class="editor-window">
     <!-- Header -->
     <header class="editor-header">
       <div class="header-left">
-        <h2>{mode === 'create' ? 'Visual Designer' : 'Edit Template'}</h2>
-        <input type="text" class="name-input" bind:value={template.name} placeholder="Template Name" />
+        <h2>{mode === 'create' ? $t('templates.editor.new') : $t('templates.editor.edit')}</h2>
+        <input type="text" class="name-input" bind:value={template.name} placeholder={$t('templates.editor.namePlaceholder')} />
       </div>
       <div class="header-right">
-        <button class="btn secondary" onclick={triggerImport}><iconify-icon icon="mdi:upload"></iconify-icon></button>
-        <button class="btn secondary" onclick={handleExport}><iconify-icon icon="mdi:download"></iconify-icon></button>
+        <button class="btn secondary" onclick={triggerImport}><iconify-icon icon="mdi:upload"></iconify-icon> {$t('templates.editor.importJson')}</button>
+        <button class="btn secondary" onclick={handleExport}><iconify-icon icon="mdi:download"></iconify-icon> {$t('templates.editor.exportJson')}</button>
         <button class="btn primary" onclick={handleSave}>{$t('common.save')}</button>
         <button class="btn text" onclick={onCancel}>{$t('common.close')}</button>
       </div>
@@ -246,7 +247,7 @@
         <div class="tabs">
           <button class="tab" class:active={activeTab === 'elements'} onclick={() => activeTab = 'elements'}>Layers</button>
           <button class="tab" class:active={activeTab === 'properties'} onclick={() => activeTab = 'properties'}>Props</button>
-          <button class="tab" class:active={activeTab === 'style'} onclick={() => activeTab = 'style'}>Card</button>
+          <button class="tab" class:active={activeTab === 'style'} onclick={() => activeTab = 'style'}>{$t('templates.editor.tabStyle')}</button>
         </div>
 
         <div class="props-content">

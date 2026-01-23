@@ -3,6 +3,7 @@
   import { t } from 'svelte-i18n';
   import { dashboardStore } from '../app/dashboardStore';
   import { editorStore } from './editor/store';
+  import { portal } from '$lib/portal';
   import type { DashboardCardConfig } from '$lib/types';
   
   let { card, onClose } = $props<{
@@ -35,7 +36,7 @@
   }
 </script>
 
-<div class="card-settings-overlay" onclick={onClose}>
+<div class="card-settings-overlay" onclick={onClose} use:portal>
   <div class="card-settings-modal" onclick={(e) => e.stopPropagation()}>
     <h3>{$t('cardSettings.title')}</h3>
     

@@ -4,6 +4,7 @@
   import { dashboardStore } from '../../../app/dashboardStore';
   import { createDefaultCardTemplate, type CardTemplate } from '$lib/types';
   import CardTemplateEditor from './CardTemplateEditor.svelte';
+  import { portal } from '$lib/portal';
   import 'iconify-icon';
 
   let { onClose } = $props<{ onClose: () => void }>();
@@ -22,14 +23,13 @@
   }
 
   function handleEdit(tpl: CardTemplate) {
-    selectedTemplate = tpl;
+    // Clone to detach from store proxy immediately
+    selectedTemplate = JSON.parse(JSON.stringify(tpl));
     editMode = 'edit';
     showEditor = true;
   }
 
   function handleDelete(id: string) {
-    // $t returns a string, so this is safe for confirm
-    // Note: get(t) could be used if not reactive, but inside event handler $t works if component is mounted
     if (confirm($t('templates.manager.confirmDelete'))) {
       dashboardStore.deleteTemplate(id);
     }
@@ -52,7 +52,7 @@
   />
 {/if}
 
-<div class="manager-overlay" onclick={onClose}>
+<div class="manager-overlay" onclick={onClose} use:portal>
   <div class="manager-modal" onclick={(e) => e.stopPropagation()}>
     <header>
       <h3>{$t('templates.manager.title')}</h3>
