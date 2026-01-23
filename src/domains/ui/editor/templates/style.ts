@@ -1,6 +1,7 @@
 
 import type { CardTemplateStyle } from '$lib/types';
 
+// For Preview Component (Inline Styles)
 export function buildCardStyle(style: CardTemplateStyle): string {
   const parts: string[] = [];
 
@@ -11,9 +12,9 @@ export function buildCardStyle(style: CardTemplateStyle): string {
     parts.push(`background-color: ${style.backgroundColor}`);
   }
 
-  // Border
-  parts.push(`border: ${style.borderWidth}px solid ${style.borderColor}`);
-  parts.push(`border-radius: ${style.borderRadius}px`);
+  // Border Settings Removed from Template
+  // We rely on the context (CSS classes) to provide border styles 
+  // or the Preview component to mock them using var().
 
   // Opacity
   parts.push(`opacity: ${style.opacity}`);
@@ -45,9 +46,10 @@ export function buildCardStyle(style: CardTemplateStyle): string {
 export function getTemplateCssVariables(style: CardTemplateStyle): string {
   const parts: string[] = [];
 
-  // Map Template properties to DeviceCard CSS variables
-  // We apply the same values to both default and 'on' (active) states 
-  // to ensure the template's look persists regardless of device state.
+  // Map Template properties to DeviceCard CSS variables.
+  // We apply the same background to both default and 'on' states 
+  // to ensure the template's look persists.
+  
   if (style.backgroundType === 'transparent') {
     parts.push('--card-background: transparent');
     parts.push('--card-background-on: transparent');
@@ -56,11 +58,10 @@ export function getTemplateCssVariables(style: CardTemplateStyle): string {
     parts.push(`--card-background-on: ${style.backgroundColor}`);
   }
 
-  parts.push(`--card-border-width: ${style.borderWidth}px`);
-  parts.push(`--card-border-color: ${style.borderColor}`);
-  parts.push(`--card-border-color-on: ${style.borderColor}`);
-  
-  parts.push(`--card-border-radius: ${style.borderRadius}px`);
+  // REMOVED: Border overrides. 
+  // Now DeviceCard will use the Global Theme's --card-border-* variables.
+  // This ensures that when a device is Active, the theme's active border color applies.
+
   parts.push(`--card-opacity: ${style.opacity}`);
   parts.push(`--card-padding: ${style.padding}px`);
 

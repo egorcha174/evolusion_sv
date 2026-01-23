@@ -59,45 +59,6 @@
 
   <div class="divider"></div>
 
-  <!-- Border -->
-  <div class="section">
-    <h3>Border</h3>
-    
-    <div class="control-row">
-      <label>Radius ({value.borderRadius}px)</label>
-      <input 
-        type="range" 
-        min="0" max="32" step="1" 
-        value={value.borderRadius}
-        oninput={(e) => update('borderRadius', parseInt(e.currentTarget.value))}
-      />
-    </div>
-
-    <div class="control-row">
-      <label>Width ({value.borderWidth}px)</label>
-      <input 
-        type="range" 
-        min="0" max="10" step="1" 
-        value={value.borderWidth}
-        oninput={(e) => update('borderWidth', parseInt(e.currentTarget.value))}
-      />
-    </div>
-
-    <div class="control-row">
-      <label>Color</label>
-      <div class="color-input-wrapper">
-        <input 
-          type="color" 
-          value={value.borderColor} 
-          oninput={(e) => update('borderColor', e.currentTarget.value)}
-        />
-        <span class="color-value">{value.borderColor}</span>
-      </div>
-    </div>
-  </div>
-
-  <div class="divider"></div>
-
   <!-- Spacing & Effects -->
   <div class="section">
     <h3>Effects & Spacing</h3>
@@ -124,6 +85,11 @@
         oninput={(e) => update('padding', parseInt(e.currentTarget.value))}
       />
     </div>
+  </div>
+  
+  <div class="info-note">
+    <iconify-icon icon="mdi:information-outline"></iconify-icon>
+    <p>Borders and active states are managed by the global theme.</p>
   </div>
 </div>
 
@@ -194,5 +160,20 @@
     height: 1px;
     background: var(--border-divider);
     width: 100%;
+  }
+  
+  .info-note {
+    display: flex;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    background: var(--bg-chip);
+    border-radius: 8px;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    align-items: flex-start;
+  }
+  
+  .info-note p {
+    margin: 0;
   }
 </style>

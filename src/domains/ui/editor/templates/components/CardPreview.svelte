@@ -45,6 +45,12 @@
     flex-direction: column;
     justify-content: space-between;
     transition: all 0.2s ease;
+    
+    /* Inherit border styles from global theme vars to simulate real look */
+    border-width: var(--card-border-width, 0px);
+    border-style: solid;
+    border-color: var(--card-border-color, transparent);
+    border-radius: var(--card-border-radius, 16px);
   }
 
   /* Dummy content styles for structure visualization */

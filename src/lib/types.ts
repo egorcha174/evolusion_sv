@@ -72,10 +72,8 @@ export interface CardTemplateStyle {
   backgroundType: 'color' | 'transparent';
   backgroundColor: string;
   
-  // Border
-  borderWidth: number;
-  borderColor: string;
-  borderRadius: number;
+  // Borders are now controlled by Global Theme
+  // Removed: borderWidth, borderColor, borderRadius
   
   // Effects
   shadow: 'none' | 'sm' | 'md' | 'lg';
@@ -122,9 +120,6 @@ export function createDefaultCardTemplate(): CardTemplate {
     style: {
       backgroundType: 'color',
       backgroundColor: '#ffffff',
-      borderWidth: 1,
-      borderColor: '#e0e0e0',
-      borderRadius: 12,
       shadow: 'sm',
       opacity: 1,
       padding: 16
