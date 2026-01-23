@@ -1,7 +1,7 @@
 
 <script lang="ts">
   import { t } from 'svelte-i18n';
-  import type { HAEntity, CardTemplate } from '$lib/types';
+  import type { HAEntity, CardTemplate, CardElement } from '$lib/types';
   import { toggleEntity } from '../ha/store';
   import { extractDomain } from '$lib/utils';
   import { getIcon } from '$lib/icons';
@@ -47,11 +47,37 @@
 
   // Calculate overridden styles if template exists
   let customStyle = $derived(template ? getTemplateCssVariables(template.style) : '');
+
+  // Detect mode: Visual (Elements) or Legacy (Flex)
+  let isVisualMode = $derived(template && template.elements && template.elements.length > 0);
+  
+  // Helper for elements style
+  function getElementStyle(el: CardElement): string {
+    const s = el.style;
+    const parts = [
+      `left: ${el.x}%`,
+      `top: ${el.y}%`,
+      `color: ${s.color || 'inherit'}`,
+      `font-size: ${s.fontSize ? s.fontSize + 'px' : 'inherit'}`,
+      `font-weight: ${s.fontWeight || 'inherit'}`,
+      `text-align: ${s.textAlign || 'left'}`,
+      `opacity: ${s.opacity ?? 1}`,
+      `z-index: ${s.zIndex ?? 1}`
+    ];
+    
+    if (el.w) parts.push(`width: ${el.w}%`);
+    if (el.h) parts.push(`height: ${el.h}%`);
+    if (s.backgroundColor) parts.push(`background-color: ${s.backgroundColor}`);
+    if (s.borderRadius) parts.push(`border-radius: ${s.borderRadius}px`);
+    
+    return parts.join(';');
+  }
 </script>
 
 <div 
   class="device-card" 
   class:active={isOn}
+  class:visual-mode={isVisualMode}
   data-domain={domain}
   use:lazyLoad
   onenter={handleEnter}
@@ -61,27 +87,47 @@
   {#if !isLoaded}
     <div class="skeleton"></div>
   {:else}
-    <div class="card-header">
-      <div class="icon">
-        <iconify-icon icon={icon} width="24" height="24"></iconify-icon>
-      </div>
-      <div class="device-name" title={displayName}>{displayName}</div>
-    </div>
-    
-    <div class="card-body">
-      <div class="state-container">
-        <span class="device-value">{translatedState}</span>
-        {#if entity.attributes.unit_of_measurement}
-          <span class="device-unit">{entity.attributes.unit_of_measurement}</span>
-        {/if}
+    {#if isVisualMode && template}
+       <!-- Visual Mode: Render Elements -->
+       {#each template.elements as el (el.id)}
+         <div class="card-element type-{el.type}" style={getElementStyle(el)}>
+            {#if el.type === 'icon'}
+               <iconify-icon icon={icon} width="100%" height="100%"></iconify-icon>
+            {:else if el.type === 'name'}
+               {displayName}
+            {:else if el.type === 'state'}
+               {translatedState}
+            {:else if el.type === 'label'}
+               {el.label || 'Text'}
+            {:else if el.type === 'shape'}
+               <!-- Shape is just a div with background, handled by style -->
+            {/if}
+         </div>
+       {/each}
+    {:else}
+       <!-- Legacy Mode: Fixed Flex Layout -->
+       <div class="card-header">
+        <div class="icon">
+          <iconify-icon icon={icon} width="24" height="24"></iconify-icon>
+        </div>
+        <div class="device-name" title={displayName}>{displayName}</div>
       </div>
       
-      {#if entity.attributes.brightness !== undefined}
-        <div class="attribute">
-          {Math.round((entity.attributes.brightness / 255) * 100)}%
+      <div class="card-body">
+        <div class="state-container">
+          <span class="device-value">{translatedState}</span>
+          {#if entity.attributes.unit_of_measurement}
+            <span class="device-unit">{entity.attributes.unit_of_measurement}</span>
+          {/if}
         </div>
-      {/if}
-    </div>
+        
+        {#if entity.attributes.brightness !== undefined}
+          <div class="attribute">
+            {Math.round((entity.attributes.brightness / 255) * 100)}%
+          </div>
+        {/if}
+      </div>
+    {/if}
 
     {#if error}
       <div class="error">{error}</div>
@@ -115,10 +161,8 @@
     flex-direction: column;
     gap: 12px;
     height: 100%;
-    /* Ensure it fills parent GridItem */
     width: 100%;
     
-    /* Allow small height for compact rows */
     min-height: 0; 
     position: relative;
     overflow: hidden;
@@ -135,6 +179,43 @@
     border-color: var(--card-border-color-on, #0A84FF);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   }
+
+  /* --- Visual Mode Styles --- */
+  .device-card.visual-mode {
+    display: block; /* Remove flex context */
+    padding: 0; /* Padding is handled by element positioning or safe area */
+  }
+
+  .card-element {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    /* Default justification usually left, but can be overridden by style */
+    white-space: nowrap;
+    overflow: hidden;
+    pointer-events: none; /* Let clicks pass through to card */
+  }
+
+  .card-element.type-icon {
+     /* Icons usually center */
+     justify-content: center;
+     color: var(--status-text-color);
+  }
+  
+  .device-card.active .card-element.type-icon {
+     color: var(--accent-primary);
+  }
+
+  .card-element.type-name {
+     font-weight: 600;
+     color: var(--name-text-color);
+  }
+  
+  .card-element.type-state {
+     color: var(--value-text-color);
+  }
+
+  /* --- Legacy Mode Styles --- */
   
   .card-header {
     display: flex;
@@ -237,55 +318,38 @@
     100% { background-position: -200% 0; }
   }
 
-  /* --- Compact Mode via Container Queries --- */
+  /* --- Compact Mode via Container Queries (Legacy Only) --- */
   
-  /* Trigger layout shift when height is constrained (e.g., 0.5 unit rows) */
   @container (height < 90px) {
-    .device-card {
-      flex-direction: row; /* Horizontal layout */
+    .device-card:not(.visual-mode) {
+      flex-direction: row; 
       align-items: center;
       padding-left: 16px; 
       padding-right: 16px;
-      /* If template sets custom padding, it might override this via var, handled by var(--card-padding) */
       gap: 12px;
     }
     
-    .card-header {
-      flex: 1; /* Name takes left side */
+    .device-card:not(.visual-mode) .card-header {
+      flex: 1; 
       margin-bottom: 0;
     }
     
-    .card-body {
-      flex: 0 0 auto; /* State takes right side */
+    .device-card:not(.visual-mode) .card-body {
+      flex: 0 0 auto; 
       justify-content: flex-end;
     }
     
-    .icon {
+    .device-card:not(.visual-mode) .icon {
       width: 32px;
       height: 32px;
     }
     
-    .device-value {
+    .device-card:not(.visual-mode) .device-value {
       font-size: 1rem;
     }
     
-    /* Hide non-essential elements in compact mode */
-    .attribute {
+    .device-card:not(.visual-mode) .attribute {
       display: none;
     }
-  }
-  
-  /* Even more compact for very small cards */
-  @container (height < 50px) {
-     .device-card {
-        gap: 8px;
-     }
-     .icon {
-        width: 24px;
-        height: 24px;
-     }
-     .device-name {
-        font-size: 0.85rem;
-     }
   }
 </style>

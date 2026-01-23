@@ -65,7 +65,40 @@ export interface TabGridConfig {
   provisioned?: boolean; // If true, auto-layout will skip this tab
 }
 
-// --- Card Templates ---
+// --- Card Templates (Visual Editor) ---
+
+export type CardElementType = 'icon' | 'name' | 'state' | 'label' | 'shape';
+
+export interface CardElementStyle {
+  color?: string;
+  fontSize?: number;
+  fontWeight?: 'normal' | 'bold' | '500';
+  textAlign?: 'left' | 'center' | 'right';
+  backgroundColor?: string;
+  borderRadius?: number;
+  borderWidth?: number;
+  borderColor?: string;
+  opacity?: number;
+  zIndex?: number;
+}
+
+export interface CardElement {
+  id: string;
+  type: CardElementType;
+  
+  // Position in Percent (0-100) relative to card
+  x: number;
+  y: number;
+  
+  // Dimensions (optional, some elements auto-size)
+  w?: number; // Percent or null for auto
+  h?: number; // Percent or null for auto
+  
+  // Content specific
+  label?: string; // Fixed text for 'label' type
+  
+  style: CardElementStyle;
+}
 
 export interface CardTemplateStyle {
   // Background
@@ -79,7 +112,8 @@ export interface CardTemplateStyle {
   shadow: 'none' | 'sm' | 'md' | 'lg';
   opacity: number;
   
-  // Padding (internal spacing)
+  // Padding (internal spacing) - Mostly for legacy layout, 
+  // but acts as safe area for visual editor
   padding: number;
 }
 
@@ -88,7 +122,9 @@ export interface CardTemplate {
   name: string;
   description?: string;
   style: CardTemplateStyle;
-  content?: Record<string, any>;
+  
+  // The visual elements (If empty, falls back to legacy layout)
+  elements: CardElement[]; 
 }
 
 export interface DashboardConfig {
@@ -123,6 +159,7 @@ export function createDefaultCardTemplate(): CardTemplate {
       shadow: 'sm',
       opacity: 1,
       padding: 16
-    }
+    },
+    elements: [] // Empty by default = Legacy Layout
   };
 }
