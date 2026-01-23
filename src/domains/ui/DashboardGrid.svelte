@@ -76,8 +76,8 @@
     const cols = columns;
     const rws = rows;
 
-    // Strict zero margin for maximum space
-    const maxMargin = 0;
+    // Adjusted margin per user request
+    const maxMargin = 10;
     const gridMaxWidth = Math.max(0, contentWidth - 2 * maxMargin);
     const gridMaxHeight = Math.max(0, contentHeight - 2 * maxMargin);
     if (gridMaxWidth <= 0 || gridMaxHeight <= 0) return;
