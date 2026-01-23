@@ -39,6 +39,12 @@
     showEditor = false;
     selectedTemplate = undefined;
   }
+
+  function handleBackdropClick(e: MouseEvent) {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  }
 </script>
 
 <!-- If Editor is open, show it above the manager -->
@@ -53,8 +59,8 @@
 
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <!-- svelte-ignore a11y_no_static_element_interactions -->
-<div class="manager-overlay" onclick={onClose}>
-  <div class="manager-modal" onclick={(e) => e.stopPropagation()}>
+<div class="manager-overlay" onclick={handleBackdropClick}>
+  <div class="manager-modal">
     <header>
       <h3>{$t('templates.manager.title')}</h3>
       <button class="close-btn" onclick={onClose} type="button">

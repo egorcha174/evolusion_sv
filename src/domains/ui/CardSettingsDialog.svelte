@@ -33,12 +33,18 @@
     editorStore.setCardTemplate(card.id, selectedTemplateId);
     onClose();
   }
+
+  function handleBackdropClick(e: MouseEvent) {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  }
 </script>
 
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <!-- svelte-ignore a11y_no_static_element_interactions -->
-<div class="card-settings-overlay" onclick={onClose}>
-  <div class="card-settings-modal" onclick={(e) => e.stopPropagation()}>
+<div class="card-settings-overlay" onclick={handleBackdropClick}>
+  <div class="card-settings-modal">
     <h3>{$t('cardSettings.title')}</h3>
     
     <div class="field">
