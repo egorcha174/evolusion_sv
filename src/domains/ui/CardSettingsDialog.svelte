@@ -1,6 +1,7 @@
 
 <script lang="ts">
   import { dashboardStore } from '../app/dashboardStore';
+  import { editorStore } from './editor/store';
   import type { DashboardCardConfig, CardTemplate } from '$lib/types';
   
   let { tabId, card, onEditTemplate, onNewTemplate, onClose } = $props<{
@@ -16,7 +17,9 @@
   
   function handleTemplateChange(e: Event) {
     const val = (e.target as HTMLSelectElement).value;
-    dashboardStore.assignTemplateToCard(tabId, card.id, val === '' ? undefined : val);
+    // Use editorStore to handle the change as part of the edit session
+    // This allows for "Cancel" to revert the change and works for draft cards
+    editorStore.setCardTemplate(card.id, val === '' ? undefined : val);
   }
   
   function editSelected() {

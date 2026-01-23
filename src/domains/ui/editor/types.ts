@@ -43,6 +43,11 @@ export type EditorState = {
 
   // Draft state (the "dirty" layer)
   drafts: Map<CardId, GridRect>;
+  
+  // Template overrides (dirty templates)
+  // Maps CardId -> TemplateId (or undefined to unassign)
+  templateOverrides: Map<CardId, string | undefined>;
+
   // Store Entity ID mapping to support duplication/creation
   cardEntities: Map<CardId, string>;
   

@@ -34,18 +34,21 @@
       $editorStore.drafts.forEach((rect, id) => {
         const entityId = $editorStore.cardEntities.get(id);
         if (entityId) {
-          // In draft mode, we also need to preserve templateId from store if available
-          // For MVP, layoutAdapter loads layout. 
-          // NOTE: The current layoutAdapter only loads geometry. 
-          // We need to fetch the original card config to get templateId.
-          // Or just look it up from dashboardStore.tabs... which works because editorStore operates on IDs.
+          // Check for template overrides in editor first, then fall back to store
+          const overrideTpl = $editorStore.templateOverrides.get(id);
           const originalCard = gridConfig.cards.find(c => c.id === id);
           
+          // Note: overrideTpl can be undefined (no change) or explicit set.
+          // We need to know if it's in the map.
+          const finalTemplateId = $editorStore.templateOverrides.has(id) 
+             ? overrideTpl 
+             : originalCard?.templateId;
+
           list.push({
             id,
             entityId,
             position: { x: rect.col, y: rect.row, w: rect.w, h: rect.h },
-            templateId: originalCard?.templateId
+            templateId: finalTemplateId
           });
         }
       });
@@ -287,12 +290,12 @@
   }
 
   function handleTemplateSave(tpl: CardTemplate) {
-    // Save to store
+    // Save template definition to store (templates are global)
     dashboardStore.saveTemplate(tpl);
     
-    // If we were creating a new template for a specific card, assign it
+    // Assign to current card using editorStore (so it works for drafts and supports cancel)
     if (templateEditorMode === 'create' && activeSettingsCard) {
-      dashboardStore.assignTemplateToCard($activeTabId, activeSettingsCard.id, tpl.id);
+      editorStore.setCardTemplate(activeSettingsCard.id, tpl.id);
     }
     
     showTemplateEditor = false;

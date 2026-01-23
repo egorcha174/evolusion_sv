@@ -35,12 +35,33 @@ export const layoutAdapter = {
     return { cards, entities, cols, rows };
   },
 
-  saveLayout(tabId: TabId, drafts: Map<CardId, GridRect>, cardEntities: Map<CardId, string>) {
+  saveLayout(
+    tabId: TabId, 
+    drafts: Map<CardId, GridRect>, 
+    cardEntities: Map<CardId, string>,
+    templateOverrides?: Map<CardId, string | undefined>
+  ) {
+    // Fetch existing cards to preserve properties not managed by the editor
+    const state = get(dashboardStore);
+    const existingCards = state.tabs[tabId]?.cards || [];
+    const existingMap = new Map<string, DashboardCardConfig>(existingCards.map(c => [c.id, c]));
+
     const newCards: DashboardCardConfig[] = [];
     
     drafts.forEach((rect, id) => {
       const entityId = cardEntities.get(id);
       if (entityId) {
+        const existing = existingMap.get(id);
+        
+        // Determine template ID:
+        // 1. Override from editor session (highest priority)
+        // 2. Existing persistent value
+        // 3. undefined
+        let templateId = existing?.templateId;
+        if (templateOverrides && templateOverrides.has(id)) {
+           templateId = templateOverrides.get(id);
+        }
+
         newCards.push({
           id: id,
           entityId: entityId,
@@ -49,12 +70,13 @@ export const layoutAdapter = {
              y: rect.row,
              w: rect.w,
              h: rect.h
-          }
+          },
+          templateId: templateId
         });
       }
     });
 
-    // Atomic replacement handles moves, adds, and deletes
+    // Atomic replacement handles moves, adds, deletes, and template changes
     dashboardStore.replaceTabCards(tabId, newCards);
   }
 };

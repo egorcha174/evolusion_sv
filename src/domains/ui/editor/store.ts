@@ -14,6 +14,7 @@ const initialState: EditorState = {
   pointerOp: { kind: 'idle' },
   gridMetrics: { halfUnitSizePx: 0, cols: 8, rows: 6 },
   drafts: new Map(),
+  templateOverrides: new Map(),
   cardEntities: new Map(),
   collision: false
 };
@@ -36,6 +37,7 @@ function createEditorStore() {
         enabled: true,
         tabId,
         drafts: cards,
+        templateOverrides: new Map(), // Clear overrides on init
         cardEntities: entities,
         selectedCardId: null,
         showGridSettings: false,
@@ -53,8 +55,8 @@ function createEditorStore() {
       const s = get({ subscribe });
       if (!s.tabId) return;
 
-      // Save complete state (drafts + deletions + additions) via Adapter
-      layoutAdapter.saveLayout(s.tabId, s.drafts, s.cardEntities);
+      // Save complete state (drafts + deletions + additions + templates) via Adapter
+      layoutAdapter.saveLayout(s.tabId, s.drafts, s.cardEntities, s.templateOverrides);
 
       this.reset();
     },
@@ -115,20 +117,31 @@ function createEditorStore() {
       });
     },
 
+    setCardTemplate(cardId: CardId, templateId: string | undefined) {
+      update(s => {
+        const newOverrides = new Map(s.templateOverrides);
+        newOverrides.set(cardId, templateId);
+        return { ...s, templateOverrides: newOverrides };
+      });
+    },
+
     // --- Card Actions (Edit Mode) ---
 
     deleteCard(cardId: CardId) {
       update(s => {
         const newDrafts = new Map(s.drafts);
         const newEntities = new Map(s.cardEntities);
+        const newOverrides = new Map(s.templateOverrides);
         
         newDrafts.delete(cardId);
         newEntities.delete(cardId);
+        newOverrides.delete(cardId);
         
         return { 
           ...s, 
           drafts: newDrafts, 
           cardEntities: newEntities,
+          templateOverrides: newOverrides,
           selectedCardId: null 
         };
       });
@@ -139,17 +152,31 @@ function createEditorStore() {
         ...s, 
         drafts: new Map(), 
         cardEntities: new Map(),
+        templateOverrides: new Map(),
         selectedCardId: null 
       }));
     },
 
     duplicateCard(cardId: CardId) {
+      // Need to access dashboard store to find original template if it wasn't overridden
+      const dashboard = get(dashboardStore);
+      
       update(s => {
+        if (!s.tabId) return s;
+
         const sourceRect = s.drafts.get(cardId);
         const sourceEntity = s.cardEntities.get(cardId);
         
         if (!sourceRect || !sourceEntity) return s;
         
+        // Find source template ID (either override or from persistent store)
+        let sourceTemplateId = s.templateOverrides.get(cardId);
+        if (sourceTemplateId === undefined) {
+           // Fallback to store
+           const originalCard = dashboard.tabs[s.tabId]?.cards.find(c => c.id === cardId);
+           sourceTemplateId = originalCard?.templateId;
+        }
+
         // Create new ID
         const newId = `card_${Date.now()}`;
         
@@ -160,22 +187,21 @@ function createEditorStore() {
            row: sourceRect.row + sourceRect.h 
         };
         
-        // Check bounds? For now just place it, collision detection will highlight if needed
-        
         const newDrafts = new Map(s.drafts);
         const newEntities = new Map(s.cardEntities);
+        const newOverrides = new Map(s.templateOverrides);
         
         newDrafts.set(newId, newRect);
         newEntities.set(newId, sourceEntity);
-
-        // We also need to update collision state immediately
-        // reuse logic from updateDraft? Or just rely on user moving it.
-        // Let's rely on user moving it for now or collision logic in UI
+        if (sourceTemplateId) {
+           newOverrides.set(newId, sourceTemplateId);
+        }
 
         return { 
            ...s, 
            drafts: newDrafts, 
            cardEntities: newEntities,
+           templateOverrides: newOverrides,
            selectedCardId: newId 
         };
       });
@@ -189,6 +215,8 @@ function createEditorStore() {
        if (!entityId) return;
 
        // 1. Add to target tab (Persistent immediately - safe cross-tab action)
+       // Note: This loses the template if it was just changed in this session. 
+       // For MVP we accept this limitation or we can pass templateId to addCard.
        dashboardStore.addCard(targetTabId, entityId);
        
        // 2. Remove from current session (Draft - will be persisted on Commit)
