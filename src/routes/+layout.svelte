@@ -12,7 +12,8 @@
   import BackgroundRenderer from '../domains/theme/BackgroundRenderer.svelte';
   import Sidebar from '../domains/ui/Sidebar.svelte';
   import DashboardHeader from '../domains/ui/DashboardHeader.svelte';
-  import TemplateManager from '../domains/ui/editor/templates/TemplateManager.svelte'; // Import Template Manager
+  import TemplateManager from '../domains/ui/editor/templates/TemplateManager.svelte';
+  import SettingsDrawer from '../domains/ui/settings/SettingsDrawer.svelte'; // New Component
   import 'iconify-icon';
   import '../app.css';
   
@@ -69,6 +70,8 @@
 {/if}
 
 <!-- Global Modals Layer -->
+<SettingsDrawer />
+
 {#if $editorStore.isTemplateManagerOpen}
   <TemplateManager onClose={() => editorStore.closeTemplateManager()} />
 {/if}

@@ -7,6 +7,7 @@
   import { dashboardStore } from '../app/dashboardStore';
   import { haStore } from '../ha/store';
   import { editorStore } from './editor/store';
+  import { toggleSettings } from './store'; // Import toggle function
   import 'iconify-icon';
 
   let isMobileMenuOpen = $state(false);
@@ -46,6 +47,11 @@
     e.stopPropagation();
     isKebabMenuOpen = !isKebabMenuOpen;
     isMobileMenuOpen = false;
+  }
+
+  function openSettings() {
+    isKebabMenuOpen = false;
+    toggleSettings();
   }
 
   // --- Tab Management ---
@@ -158,9 +164,9 @@
 
       {#if isKebabMenuOpen}
         <div class="dropdown-menu" onclick={(e) => e.stopPropagation()}>
-          <a href="/settings" class="menu-item" onclick={() => isKebabMenuOpen = false}>
+          <button class="menu-item" onclick={openSettings}>
             <iconify-icon icon="mdi:cog-outline"></iconify-icon> {$t('settings.title')}
-          </a>
+          </button>
           <a href="/entities" class="menu-item" onclick={() => isKebabMenuOpen = false}>
             <iconify-icon icon="mdi:format-list-bulleted"></iconify-icon> {$t('entities.title')}
           </a>
