@@ -1,5 +1,5 @@
 
-import type { CardTemplate } from './types';
+import type { CardTemplate } from '$lib/types';
 
 export function exportTemplate(template: CardTemplate): void {
   const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(template, null, 2));

@@ -1,6 +1,6 @@
 
 <script lang="ts">
-  import type { CardTemplateStyle } from '../types';
+  import type { CardTemplateStyle } from '$lib/types';
 
   let { value, onChange } = $props<{ 
     value: CardTemplateStyle, 

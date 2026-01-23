@@ -1,6 +1,6 @@
 
 <script lang="ts">
-  import { createDefaultCardTemplate, type CardTemplate, type CardTemplateStyle } from './types';
+  import { createDefaultCardTemplate, type CardTemplate, type CardTemplateStyle } from '$lib/types';
   import { exportTemplate, importTemplate } from './io';
   import CardPreview from './components/CardPreview.svelte';
   import CardStylePanel from './components/CardStylePanel.svelte';

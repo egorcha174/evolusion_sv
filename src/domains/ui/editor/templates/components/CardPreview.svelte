@@ -1,6 +1,6 @@
 
 <script lang="ts">
-  import type { CardTemplate } from '../types';
+  import type { CardTemplate } from '$lib/types';
   import { buildCardStyle } from '../style';
 
   let { template } = $props<{ template: CardTemplate }>();

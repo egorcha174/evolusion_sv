@@ -1,13 +1,14 @@
 
 <script lang="ts">
   import { t } from 'svelte-i18n';
-  import type { HAEntity } from '$lib/types';
+  import type { HAEntity, CardTemplate } from '$lib/types';
   import { toggleEntity } from '../ha/store';
   import { extractDomain } from '$lib/utils';
   import { getIcon } from '$lib/icons';
   import { lazyLoad } from '$lib/actions';
+  import { getTemplateCssVariables } from './editor/templates/style';
   
-  let { entity }: { entity: HAEntity } = $props();
+  let { entity, template }: { entity: HAEntity, template?: CardTemplate } = $props();
   
   let isToggling = $state(false);
   let error = $state<string | null>(null);
@@ -43,6 +44,9 @@
      if (entity.state === 'unknown') return $t('entities.status.unknown');
      return entity.state;
   });
+
+  // Calculate overridden styles if template exists
+  let customStyle = $derived(template ? getTemplateCssVariables(template.style) : '');
 </script>
 
 <div 
@@ -52,6 +56,7 @@
   use:lazyLoad
   onenter={handleEnter}
   onclick={isToggleable ? handleToggle : undefined}
+  style={customStyle}
 >
   {#if !isLoaded}
     <div class="skeleton"></div>
@@ -96,8 +101,10 @@
     /* Opacity */
     opacity: var(--card-opacity, 0.85);
     
+    /* Padding override */
+    padding: var(--card-padding, 16px);
+    
     /* Other Styles */
-    padding: 16px;
     cursor: pointer;
     transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
     
@@ -237,7 +244,9 @@
     .device-card {
       flex-direction: row; /* Horizontal layout */
       align-items: center;
-      padding: 0 16px;
+      padding-left: 16px; 
+      padding-right: 16px;
+      /* If template sets custom padding, it might override this via var, handled by var(--card-padding) */
       gap: 12px;
     }
     
@@ -269,7 +278,6 @@
   /* Even more compact for very small cards */
   @container (height < 50px) {
      .device-card {
-        padding: 0 8px;
         gap: 8px;
      }
      .icon {

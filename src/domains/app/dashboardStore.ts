@@ -1,7 +1,7 @@
 
 import { writable, get } from 'svelte/store';
 import { browser } from '$app/environment';
-import type { DashboardConfig, TabGridConfig, DashboardCardConfig, HAEntity } from '$lib/types';
+import type { DashboardConfig, TabGridConfig, DashboardCardConfig, HAEntity, CardTemplate } from '$lib/types';
 import { getOrCreateEncryptionKey, encrypt, decrypt } from '../ha/crypto';
 
 const STORAGE_KEY = 'evolusion_dashboard_v2_encrypted';
@@ -27,7 +27,8 @@ const initialState: DashboardConfig = {
   tabOrder: ['home'],
   tabs: {
     'home': createDefaultTabConfig('home', 'Home')
-  }
+  },
+  templates: {}
 };
 
 function createDashboardStore() {
@@ -56,6 +57,10 @@ function createDashboardStore() {
             Object.values(data.tabs).forEach((tab: any) => {
               if (!tab.title) tab.title = tab.id;
             });
+          }
+          // Migration: Ensure templates exist
+          if (!data.templates) {
+            data.templates = {};
           }
 
           set({ ...initialState, ...data });
@@ -170,6 +175,28 @@ function createDashboardStore() {
       this.save();
     },
 
+    // --- Template Management ---
+
+    saveTemplate(template: CardTemplate) {
+      update(state => ({
+        ...state,
+        templates: {
+          ...state.templates,
+          [template.id]: template
+        }
+      }));
+      this.save();
+    },
+
+    deleteTemplate(id: string) {
+      update(state => {
+        const newTemplates = { ...state.templates };
+        delete newTemplates[id];
+        return { ...state, templates: newTemplates };
+      });
+      this.save();
+    },
+
     // --- Card Management ---
 
     replaceTabCards(tabId: string, cards: DashboardCardConfig[]) {
@@ -195,6 +222,26 @@ function createDashboardStore() {
 
         const cards = tab.cards.map(c => c.id === cardId ? { ...c, position: pos } : c);
         
+        return {
+          ...state,
+          tabs: {
+            ...state.tabs,
+            [tabId]: { ...tab, cards, provisioned: true }
+          }
+        };
+      });
+      this.save();
+    },
+
+    assignTemplateToCard(tabId: string, cardId: string, templateId: string | undefined) {
+      update(state => {
+        const tab = state.tabs[tabId];
+        if (!tab) return state;
+
+        const cards = tab.cards.map(c => 
+          c.id === cardId ? { ...c, templateId } : c
+        );
+
         return {
           ...state,
           tabs: {

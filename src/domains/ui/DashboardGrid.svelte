@@ -9,13 +9,16 @@
   import DeviceCard from './DeviceCard.svelte';
   import GridItem from './GridItem.svelte';
   import GridSettings from './GridSettings.svelte';
-  import type { HAEntity, DashboardCardConfig } from '$lib/types';
+  import CardSettingsDialog from './CardSettingsDialog.svelte';
+  import CardTemplateEditor from './editor/templates/CardTemplateEditor.svelte';
+  import type { HAEntity, DashboardCardConfig, CardTemplate } from '$lib/types';
 
   // Editor imports
   import { editorStore } from './editor/store';
   import { onPointerMove, onPointerUp, onPointerCancel } from './editor/pointer';
   import EditToolbar from './editor/components/EditToolbar.svelte';
   import GridOverlay from './editor/components/GridOverlay.svelte';
+  import { createDefaultCardTemplate } from '$lib/types';
 
   // ---------- Состояние вкладки ----------
 
@@ -31,10 +34,18 @@
       $editorStore.drafts.forEach((rect, id) => {
         const entityId = $editorStore.cardEntities.get(id);
         if (entityId) {
+          // In draft mode, we also need to preserve templateId from store if available
+          // For MVP, layoutAdapter loads layout. 
+          // NOTE: The current layoutAdapter only loads geometry. 
+          // We need to fetch the original card config to get templateId.
+          // Or just look it up from dashboardStore.tabs... which works because editorStore operates on IDs.
+          const originalCard = gridConfig.cards.find(c => c.id === id);
+          
           list.push({
             id,
             entityId,
-            position: { x: rect.col, y: rect.row, w: rect.w, h: rect.h }
+            position: { x: rect.col, y: rect.row, w: rect.w, h: rect.h },
+            templateId: originalCard?.templateId
           });
         }
       });
@@ -176,6 +187,10 @@
   function getEntity(id: string): HAEntity | undefined {
     return $haStore.entities.get(id);
   }
+  
+  function getTemplate(id?: string): CardTemplate | undefined {
+    return id ? $dashboardStore.templates[id] : undefined;
+  }
 
   // CSS‑переменные для сетки
   let gridStyle = $derived(`
@@ -192,12 +207,21 @@
     --margin-bottom: ${marginBottom}px;
   `);
 
-  // ---------- Context menu ----------
+  // ---------- Context menu & Template UI ----------
 
   let cmOpen = $state(false);
   let cmX = $state(0);
   let cmY = $state(0);
   let cmCardId = $state<string | null>(null);
+
+  // Card Settings Modal State
+  let showCardSettings = $state(false);
+  let activeSettingsCard = $state<DashboardCardConfig | null>(null);
+
+  // Template Editor State
+  let showTemplateEditor = $state(false);
+  let templateEditorMode = $state<'create'|'edit'>('create');
+  let templateInitial = $state<CardTemplate | undefined>(undefined);
 
   function handleCardContext(e: MouseEvent, cardId: string) {
     if (!$isEditMode) return;
@@ -234,6 +258,48 @@
     if (cmCardId) editorStore.moveCardToTab(cmCardId);
     cmOpen = false;
   }
+  
+  function cmOpenSettings() {
+    if (cmCardId) {
+      const card = cards.find(c => c.id === cmCardId);
+      if (card) {
+        activeSettingsCard = card;
+        showCardSettings = true;
+      }
+    }
+    cmOpen = false;
+  }
+
+  // --- Template Editor Handlers ---
+
+  function openNewTemplate() {
+    showCardSettings = false;
+    templateEditorMode = 'create';
+    templateInitial = createDefaultCardTemplate();
+    showTemplateEditor = true;
+  }
+
+  function openEditTemplate(tpl: CardTemplate) {
+    showCardSettings = false;
+    templateEditorMode = 'edit';
+    templateInitial = tpl;
+    showTemplateEditor = true;
+  }
+
+  function handleTemplateSave(tpl: CardTemplate) {
+    // Save to store
+    dashboardStore.saveTemplate(tpl);
+    
+    // If we were creating a new template for a specific card, assign it
+    if (templateEditorMode === 'create' && activeSettingsCard) {
+      dashboardStore.assignTemplateToCard($activeTabId, activeSettingsCard.id, tpl.id);
+    }
+    
+    showTemplateEditor = false;
+    templateInitial = undefined;
+    activeSettingsCard = null;
+  }
+
 </script>
 
 <svelte:window onclick={handleGlobalClick} />
@@ -269,7 +335,10 @@
         {@const entity = getEntity(card.entityId)}
         {#if entity}
           <GridItem {card} oncontextmenu={handleCardContext}>
-            <DeviceCard {entity} />
+            <DeviceCard 
+              {entity} 
+              template={getTemplate(card.templateId)}
+            />
           </GridItem>
         {/if}
       {/each}
@@ -284,18 +353,24 @@
   {/if}
 </div>
 
+<!-- Context Menu -->
 {#if cmOpen}
   <div
     class="context-menu"
     style="top: {cmY}px; left: {cmX}px"
     onclick={(e) => e.stopPropagation()}
   >
+    <button class="menu-item" onclick={cmOpenSettings}>
+      <iconify-icon icon="mdi:palette-swatch-outline"></iconify-icon>
+      Appearance
+    </button>
+  
+    <div class="divider"></div>
+  
     <button class="menu-item" onclick={cmDuplicate}>
       <iconify-icon icon="mdi:content-copy"></iconify-icon>
       {$t('dashboard.menu.duplicateCard')}
     </button>
-
-    <div class="divider"></div>
 
     <div class="submenu-label">{$t('dashboard.menu.moveCard')}</div>
     {#each $tabs as tab}
@@ -313,6 +388,26 @@
       {$t('dashboard.menu.deleteCard')}
     </button>
   </div>
+{/if}
+
+<!-- Dialogs -->
+{#if showCardSettings && activeSettingsCard}
+  <CardSettingsDialog
+    tabId={$activeTabId}
+    card={activeSettingsCard}
+    onNewTemplate={openNewTemplate}
+    onEditTemplate={openEditTemplate}
+    onClose={() => { showCardSettings = false; activeSettingsCard = null; }}
+  />
+{/if}
+
+{#if showTemplateEditor}
+  <CardTemplateEditor
+    mode={templateEditorMode}
+    initialTemplate={templateInitial}
+    onSave={handleTemplateSave}
+    onCancel={() => { showTemplateEditor = false; templateInitial = undefined; }}
+  />
 {/if}
 
 <style>
