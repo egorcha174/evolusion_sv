@@ -40,6 +40,12 @@
     showEditor = false;
     selectedTemplate = undefined;
   }
+
+  function handleOverlayClick(e: MouseEvent) {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  }
 </script>
 
 <!-- If Editor is open, show it above the manager -->
@@ -52,11 +58,12 @@
   />
 {/if}
 
-<div class="manager-overlay" onclick={onClose} use:portal>
-  <div class="manager-modal" onclick={(e) => e.stopPropagation()}>
+<!-- svelte-ignore a11y_no_static_element_interactions -->
+<div class="manager-overlay" onclick={handleOverlayClick} use:portal>
+  <div class="manager-modal">
     <header>
       <h3>{$t('templates.manager.title')}</h3>
-      <button class="close-btn" onclick={onClose}>
+      <button class="close-btn" onclick={onClose} type="button">
         <iconify-icon icon="mdi:close"></iconify-icon>
       </button>
     </header>
@@ -73,10 +80,10 @@
                 <span class="id">{tpl.id.slice(0, 8)}...</span>
               </div>
               <div class="actions">
-                <button class="icon-btn" onclick={() => handleEdit(tpl)} title={$t('templates.editor.edit')}>
+                <button class="icon-btn" onclick={() => handleEdit(tpl)} title={$t('templates.editor.edit')} type="button">
                   <iconify-icon icon="mdi:pencil"></iconify-icon>
                 </button>
-                <button class="icon-btn danger" onclick={() => handleDelete(tpl.id)} title={$t('common.delete')}>
+                <button class="icon-btn danger" onclick={() => handleDelete(tpl.id)} title={$t('common.delete')} type="button">
                   <iconify-icon icon="mdi:delete"></iconify-icon>
                 </button>
               </div>
@@ -87,7 +94,7 @@
     </div>
 
     <footer>
-      <button class="btn primary full" onclick={handleCreate}>
+      <button class="btn primary full" onclick={handleCreate} type="button">
         <iconify-icon icon="mdi:plus"></iconify-icon>
         {$t('templates.manager.create')}
       </button>
@@ -104,7 +111,7 @@
     height: 100vh;
     background: rgba(0,0,0,0.5);
     backdrop-filter: blur(4px);
-    z-index: 1500;
+    z-index: 3000; /* Increased z-index */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -120,6 +127,7 @@
     flex-direction: column;
     overflow: hidden;
     border: 1px solid var(--border-primary);
+    pointer-events: auto; /* Ensure clicks are captured */
   }
 
   header {
@@ -202,6 +210,8 @@
     padding: 6px;
     border-radius: 4px;
     display: flex;
+    align-items: center; /* Ensure icon is centered */
+    justify-content: center;
   }
 
   .icon-btn:hover {
@@ -212,6 +222,11 @@
   .icon-btn.danger:hover {
     background: rgba(244, 67, 54, 0.1);
     color: var(--accent-error);
+  }
+  
+  /* Make sure icon clicks pass through to button */
+  .icon-btn :global(iconify-icon) {
+    pointer-events: none;
   }
 
   footer {
@@ -231,6 +246,10 @@
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
+  }
+  
+  .btn :global(iconify-icon) {
+    pointer-events: none;
   }
 
   .btn.primary {

@@ -34,10 +34,17 @@
     editorStore.setCardTemplate(card.id, selectedTemplateId);
     onClose();
   }
+
+  function handleOverlayClick(e: MouseEvent) {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  }
 </script>
 
-<div class="card-settings-overlay" onclick={onClose} use:portal>
-  <div class="card-settings-modal" onclick={(e) => e.stopPropagation()}>
+<!-- svelte-ignore a11y_no_static_element_interactions -->
+<div class="card-settings-overlay" onclick={handleOverlayClick} use:portal>
+  <div class="card-settings-modal">
     <h3>{$t('cardSettings.title')}</h3>
     
     <div class="field">
@@ -52,8 +59,8 @@
     </div>
     
     <div class="footer">
-       <button class="btn text" onclick={onClose}>{$t('common.cancel')}</button>
-       <button class="btn primary" onclick={handleSave}>{$t('common.save')}</button>
+       <button class="btn text" onclick={onClose} type="button">{$t('common.cancel')}</button>
+       <button class="btn primary" onclick={handleSave} type="button">{$t('common.save')}</button>
     </div>
   </div>
 </div>
@@ -67,7 +74,7 @@
     height: 100vh;
     background: rgba(0,0,0,0.4);
     backdrop-filter: blur(2px);
-    z-index: 2500;
+    z-index: 5000; /* Highest priority */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -80,6 +87,7 @@
     width: 320px;
     box-shadow: var(--shadow-modal);
     border: 1px solid var(--border-primary);
+    pointer-events: auto;
   }
   
   h3 {

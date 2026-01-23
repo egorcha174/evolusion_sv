@@ -82,6 +82,15 @@
     template.style = newStyle;
   }
   
+  function handleOverlayClick(e: MouseEvent) {
+    // Only close if clicked directly on overlay (not on children)
+    // Note: Since this is an editor with potential unsaved changes, 
+    // maybe we shouldn't auto-close on overlay click? 
+    // For consistency with other modals, let's allow it but we could add a dirty check later.
+    // For now, let's keep it manual close via button to prevent accidental loss.
+    // So NO op here.
+  }
+  
   // --- DRAG LOGIC ---
   
   function handlePointerDown(e: PointerEvent, el: CardElement) {
@@ -166,6 +175,7 @@
   }
 </script>
 
+<!-- svelte-ignore a11y_no_static_element_interactions -->
 <div class="template-editor-overlay" use:portal>
   <div class="editor-window">
     <!-- Header -->
@@ -175,10 +185,10 @@
         <input type="text" class="name-input" bind:value={template.name} placeholder={$t('templates.editor.namePlaceholder')} />
       </div>
       <div class="header-right">
-        <button class="btn secondary" onclick={triggerImport}><iconify-icon icon="mdi:upload"></iconify-icon> {$t('templates.editor.importJson')}</button>
-        <button class="btn secondary" onclick={handleExport}><iconify-icon icon="mdi:download"></iconify-icon> {$t('templates.editor.exportJson')}</button>
-        <button class="btn primary" onclick={handleSave}>{$t('common.save')}</button>
-        <button class="btn text" onclick={onCancel}>{$t('common.close')}</button>
+        <button class="btn secondary" onclick={triggerImport} type="button"><iconify-icon icon="mdi:upload"></iconify-icon> {$t('templates.editor.importJson')}</button>
+        <button class="btn secondary" onclick={handleExport} type="button"><iconify-icon icon="mdi:download"></iconify-icon> {$t('templates.editor.exportJson')}</button>
+        <button class="btn primary" onclick={handleSave} type="button">{$t('common.save')}</button>
+        <button class="btn text" onclick={onCancel} type="button">{$t('common.close')}</button>
       </div>
     </header>
 
@@ -187,19 +197,19 @@
       <!-- Toolbar (Left) -->
       <div class="toolbar">
         <div class="tool-label">Elements</div>
-        <button class="tool-btn" onclick={() => addElement('icon')}>
+        <button class="tool-btn" onclick={() => addElement('icon')} type="button">
            <iconify-icon icon="mdi:lightbulb"></iconify-icon> Icon
         </button>
-        <button class="tool-btn" onclick={() => addElement('name')}>
+        <button class="tool-btn" onclick={() => addElement('name')} type="button">
            <iconify-icon icon="mdi:format-text"></iconify-icon> Name
         </button>
-        <button class="tool-btn" onclick={() => addElement('state')}>
+        <button class="tool-btn" onclick={() => addElement('state')} type="button">
            <iconify-icon icon="mdi:toggle-switch"></iconify-icon> State
         </button>
-        <button class="tool-btn" onclick={() => addElement('label')}>
+        <button class="tool-btn" onclick={() => addElement('label')} type="button">
            <iconify-icon icon="mdi:label"></iconify-icon> Label
         </button>
-        <button class="tool-btn" onclick={() => addElement('shape')}>
+        <button class="tool-btn" onclick={() => addElement('shape')} type="button">
            <iconify-icon icon="mdi:shape-rectangle-plus"></iconify-icon> Shape
         </button>
       </div>
@@ -245,9 +255,9 @@
       <!-- Properties (Right) -->
       <div class="properties-pane">
         <div class="tabs">
-          <button class="tab" class:active={activeTab === 'elements'} onclick={() => activeTab = 'elements'}>Layers</button>
-          <button class="tab" class:active={activeTab === 'properties'} onclick={() => activeTab = 'properties'}>Props</button>
-          <button class="tab" class:active={activeTab === 'style'} onclick={() => activeTab = 'style'}>{$t('templates.editor.tabStyle')}</button>
+          <button class="tab" class:active={activeTab === 'elements'} onclick={() => activeTab = 'elements'} type="button">Layers</button>
+          <button class="tab" class:active={activeTab === 'properties'} onclick={() => activeTab = 'properties'} type="button">Props</button>
+          <button class="tab" class:active={activeTab === 'style'} onclick={() => activeTab = 'style'} type="button">{$t('templates.editor.tabStyle')}</button>
         </div>
 
         <div class="props-content">
@@ -263,7 +273,7 @@
                       onclick={() => templateEditorState.selectElement(el.id)}
                    >
                       <span class="type">{el.type}</span>
-                      <button class="del-btn" onclick={(e) => { e.stopPropagation(); deleteElement(el.id); }}>
+                      <button class="del-btn" onclick={(e) => { e.stopPropagation(); deleteElement(el.id); }} type="button">
                         <iconify-icon icon="mdi:close"></iconify-icon>
                       </button>
                    </div>
@@ -326,7 +336,7 @@
     top: 0; left: 0; width: 100vw; height: 100vh;
     background: rgba(0,0,0,0.8);
     backdrop-filter: blur(5px);
-    z-index: 2000;
+    z-index: 4000; /* Higher than manager */
     display: flex; align-items: center; justify-content: center;
   }
   .editor-window {
@@ -335,6 +345,7 @@
     border-radius: 12px;
     display: flex; flex-direction: column;
     overflow: hidden;
+    pointer-events: auto;
   }
   .editor-header {
     height: 60px;
@@ -349,6 +360,8 @@
   
   .header-right { display: flex; gap: 0.5rem; }
   .btn { padding: 0.5rem 1rem; border-radius: 6px; border: none; cursor: pointer; display: flex; gap: 0.5rem; }
+  .btn :global(iconify-icon) { pointer-events: none; }
+  
   .btn.primary { background: var(--accent-primary); color: white; }
   .btn.secondary { background: transparent; border: 1px solid var(--border-primary); color: var(--text-primary); }
   .btn.text { background: transparent; color: var(--text-primary); }
@@ -369,7 +382,7 @@
     font-size: 0.6rem; gap: 2px; cursor: pointer; color: var(--text-secondary);
   }
   .tool-btn:hover { background: var(--bg-card-hover); color: var(--text-primary); }
-  .tool-btn iconify-icon { font-size: 1.2rem; }
+  .tool-btn iconify-icon { font-size: 1.2rem; pointer-events: none; }
   
   /* Canvas */
   .canvas-area {
@@ -428,8 +441,9 @@
     border: 1px solid transparent;
   }
   .layer-item.active { border-color: var(--accent-primary); background: var(--bg-card-hover); }
-  .del-btn { background: transparent; border: none; color: var(--text-muted); cursor: pointer; }
+  .del-btn { background: transparent; border: none; color: var(--text-muted); cursor: pointer; display: flex; }
   .del-btn:hover { color: var(--accent-error); }
+  .del-btn iconify-icon { pointer-events: none; }
   
   .prop-group { margin-bottom: 1rem; }
   .prop-group label { display: block; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.25rem; }
