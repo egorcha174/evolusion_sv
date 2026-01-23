@@ -6,7 +6,7 @@
   import { templateEditorState } from './store';
   import CardStylePanel from './components/CardStylePanel.svelte';
   import 'iconify-icon';
-  import { onMount } from 'svelte';
+  import { onMount, untrack } from 'svelte';
 
   let { mode = 'create', initialTemplate, onSave, onCancel } = $props<{
     mode?: 'create' | 'edit',
@@ -21,8 +21,9 @@
   }
 
   // --- STATE ---
+  // Using untrack to suppress warnings about referencing props in state init, as we only need the initial value
   let template = $state<CardTemplate>(
-    initialTemplate ? safeClone(initialTemplate) : createDefaultCardTemplate()
+    untrack(() => initialTemplate ? safeClone(initialTemplate) : createDefaultCardTemplate())
   );
   
   let activeTab = $state<'elements' | 'properties' | 'style'>('elements');
@@ -174,11 +175,17 @@
     <header class="editor-header">
       <div class="header-left">
         <h2>{mode === 'create' ? $t('templates.editor.new') : $t('templates.editor.edit')}</h2>
-        <input type="text" class="name-input" bind:value={template.name} placeholder={$t('templates.editor.namePlaceholder')} />
+        <input 
+          type="text" 
+          class="name-input" 
+          bind:value={template.name} 
+          placeholder={$t('templates.editor.namePlaceholder')} 
+          aria-label={$t('templates.editor.namePlaceholder')}
+        />
       </div>
       <div class="header-right">
-        <button class="btn secondary" onclick={triggerImport} type="button"><iconify-icon icon="mdi:upload"></iconify-icon> {$t('templates.editor.importJson')}</button>
-        <button class="btn secondary" onclick={handleExport} type="button"><iconify-icon icon="mdi:download"></iconify-icon> {$t('templates.editor.exportJson')}</button>
+        <button class="btn secondary" onclick={triggerImport} type="button" aria-label="Import"><iconify-icon icon="mdi:upload"></iconify-icon> {$t('templates.editor.importJson')}</button>
+        <button class="btn secondary" onclick={handleExport} type="button" aria-label="Export"><iconify-icon icon="mdi:download"></iconify-icon> {$t('templates.editor.exportJson')}</button>
         <button class="btn primary" onclick={handleSave} type="button">{$t('common.save')}</button>
         <button class="btn text" onclick={onCancel} type="button">{$t('common.close')}</button>
       </div>
@@ -189,19 +196,19 @@
       <!-- Toolbar (Left) -->
       <div class="toolbar">
         <div class="tool-label">Elements</div>
-        <button class="tool-btn" onclick={() => addElement('icon')} type="button">
+        <button class="tool-btn" onclick={() => addElement('icon')} type="button" aria-label="Add Icon">
            <iconify-icon icon="mdi:lightbulb"></iconify-icon> Icon
         </button>
-        <button class="tool-btn" onclick={() => addElement('name')} type="button">
+        <button class="tool-btn" onclick={() => addElement('name')} type="button" aria-label="Add Name">
            <iconify-icon icon="mdi:format-text"></iconify-icon> Name
         </button>
-        <button class="tool-btn" onclick={() => addElement('state')} type="button">
+        <button class="tool-btn" onclick={() => addElement('state')} type="button" aria-label="Add State">
            <iconify-icon icon="mdi:toggle-switch"></iconify-icon> State
         </button>
-        <button class="tool-btn" onclick={() => addElement('label')} type="button">
+        <button class="tool-btn" onclick={() => addElement('label')} type="button" aria-label="Add Label">
            <iconify-icon icon="mdi:label"></iconify-icon> Label
         </button>
-        <button class="tool-btn" onclick={() => addElement('shape')} type="button">
+        <button class="tool-btn" onclick={() => addElement('shape')} type="button" aria-label="Add Shape">
            <iconify-icon icon="mdi:shape-rectangle-plus"></iconify-icon> Shape
         </button>
       </div>
@@ -216,6 +223,8 @@
              style:background-color={template.style.backgroundType === 'color' ? template.style.backgroundColor : 'transparent'}
              onpointermove={handlePointerMove}
              onpointerup={handlePointerUp}
+             role="application"
+             aria-label="Card Template Canvas"
           >
              {#each template.elements as el (el.id)}
                <!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -259,13 +268,16 @@
              {:else}
                <div class="layers-list">
                  {#each template.elements as el, i}
+                   <!-- svelte-ignore a11y_click_events_have_key_events -->
                    <div 
                       class="layer-item" 
                       class:active={selectedElementId === el.id}
                       onclick={() => templateEditorState.selectElement(el.id)}
+                      role="button"
+                      tabindex="0"
                    >
                       <span class="type">{el.type}</span>
-                      <button class="del-btn" onclick={(e) => { e.stopPropagation(); deleteElement(el.id); }} type="button">
+                      <button class="del-btn" onclick={(e) => { e.stopPropagation(); deleteElement(el.id); }} type="button" aria-label="Delete">
                         <iconify-icon icon="mdi:close"></iconify-icon>
                       </button>
                    </div>
@@ -277,36 +289,36 @@
                 <div class="prop-group">
                    <label>Position (%)</label>
                    <div class="row">
-                     <input type="number" bind:value={selectedElement.x} />
-                     <input type="number" bind:value={selectedElement.y} />
+                     <input type="number" bind:value={selectedElement.x} aria-label="X Position" />
+                     <input type="number" bind:value={selectedElement.y} aria-label="Y Position" />
                    </div>
                 </div>
                 {#if selectedElement.type === 'shape'}
                   <div class="prop-group">
                      <label>Size (%)</label>
                      <div class="row">
-                       <input type="number" bind:value={selectedElement.w} />
-                       <input type="number" bind:value={selectedElement.h} />
+                       <input type="number" bind:value={selectedElement.w} aria-label="Width" />
+                       <input type="number" bind:value={selectedElement.h} aria-label="Height" />
                      </div>
                   </div>
                   <div class="prop-group">
                      <label>Color</label>
-                     <input type="color" bind:value={selectedElement.style.backgroundColor} />
+                     <input type="color" bind:value={selectedElement.style.backgroundColor} aria-label="Background Color" />
                   </div>
                 {/if}
                 {#if selectedElement.type === 'label'}
                    <div class="prop-group">
                      <label>Text</label>
-                     <input type="text" bind:value={selectedElement.label} />
+                     <input type="text" bind:value={selectedElement.label} aria-label="Label Text" />
                    </div>
                 {/if}
                 <div class="prop-group">
                    <label>Font Size</label>
-                   <input type="number" bind:value={selectedElement.style.fontSize} />
+                   <input type="number" bind:value={selectedElement.style.fontSize} aria-label="Font Size" />
                 </div>
                 <div class="prop-group">
                    <label>Color</label>
-                   <input type="color" bind:value={selectedElement.style.color} />
+                   <input type="color" bind:value={selectedElement.style.color} aria-label="Text Color" />
                 </div>
              {:else}
                 <p class="hint">Select an element to edit properties.</p>

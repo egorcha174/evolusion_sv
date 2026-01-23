@@ -7,13 +7,17 @@
     hint?: string;
     disabled?: boolean;
   }>();
+
+  // Generate unique ID for accessibility association
+  const id = 'input-' + Math.random().toString(36).substr(2, 9);
 </script>
 
 <div class="control-group">
-  <label class="label">
+  <label class="label" for={id}>
     {label}
   </label>
   <input 
+    {id}
     {type} 
     bind:value 
     {placeholder} 

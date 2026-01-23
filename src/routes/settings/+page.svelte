@@ -1,11 +1,11 @@
 
 <script lang="ts">
+  import { onMount } from 'svelte';
 	import { t } from 'svelte-i18n';
 	import { appState, saveServerConfig, clearServerConfig } from '../../domains/app/store';
   import { haStore, disconnectHA, initializeHAConnection } from '../../domains/ha/store';
 	import { themeStore } from '../../domains/ui/theme/store';
   import { weatherSettings, refreshWeatherConfig } from '../../lib/weather/store';
-  import { resolveCoordinates } from '../../lib/weather/service';
   import { exportAllSettings, importAllSettings, clearAllData } from '../../domains/app/backup';
   import { setLocale, availableLanguages, currentLang } from '../../lib/i18n';
   import type { ServerConfig } from '$lib/types';
@@ -15,7 +15,10 @@
   import Section from '../../domains/ui/settings/Section.svelte';
   import LabeledInput from '../../domains/ui/settings/controls/LabeledInput.svelte';
   import RangeInput from '../../domains/ui/settings/controls/RangeInput.svelte';
-  import 'iconify-icon';
+  
+  onMount(async () => {
+    await import('iconify-icon');
+  });
 
   // --- Connection State ---
 	let url = $state('');
@@ -137,43 +140,51 @@
     <!-- SECTION 2: Appearance -->
     <Section title={$t('settings.appearance')} description="Theme and language settings">
       <div class="control-row">
-        <label>{$t('settings.language')}</label>
-        <select value={$currentLang} onchange={(e) => setLocale(e.currentTarget.value)}>
-          {#each $availableLanguages as lang}
-            <option value={lang.code}>{lang.name}</option>
-          {/each}
-        </select>
+        <label>
+          {$t('settings.language')}
+          <select value={$currentLang} onchange={(e) => setLocale(e.currentTarget.value)}>
+            {#each $availableLanguages as lang}
+              <option value={lang.code}>{lang.name}</option>
+            {/each}
+          </select>
+        </label>
       </div>
 
       <div class="control-row">
-        <label>{$t('settings.themeMode')}</label>
-        <select value={$themeStore.mode} onchange={(e) => themeStore.setMode(e.currentTarget.value as ThemeMode)}>
-          <option value="auto">{$t('settings.themeModeAuto')}</option>
-          <option value="day">{$t('settings.themeModeDay')}</option>
-          <option value="night">{$t('settings.themeModeNight')}</option>
-          <option value="schedule">{$t('settings.themeModeSchedule')}</option>
-        </select>
+        <label>
+          {$t('settings.themeMode')}
+          <select value={$themeStore.mode} onchange={(e) => themeStore.setMode(e.currentTarget.value as ThemeMode)}>
+            <option value="auto">{$t('settings.themeModeAuto')}</option>
+            <option value="day">{$t('settings.themeModeDay')}</option>
+            <option value="night">{$t('settings.themeModeNight')}</option>
+            <option value="schedule">{$t('settings.themeModeSchedule')}</option>
+          </select>
+        </label>
       </div>
 
       <div class="control-row">
-        <label>{$t('settings.theme')}</label>
-        <select value={$themeStore.currentThemeId} onchange={(e) => themeStore.setTheme(e.currentTarget.value)}>
-          {#each $themeStore.availableThemes as theme}
-            <option value={theme.id}>{theme.name} {theme.isCustom ? $t('settings.themeCustom') : ''}</option>
-          {/each}
-        </select>
+        <label>
+          {$t('settings.theme')}
+          <select value={$themeStore.currentThemeId} onchange={(e) => themeStore.setTheme(e.currentTarget.value)}>
+            {#each $themeStore.availableThemes as theme}
+              <option value={theme.id}>{theme.name} {theme.isCustom ? $t('settings.themeCustom') : ''}</option>
+            {/each}
+          </select>
+        </label>
       </div>
     </Section>
 
     <!-- SECTION 3: Weather -->
     <Section title={$t('settings.weather')} description="Configure weather widget provider">
       <div class="control-row">
-        <label>{$t('settings.weatherProvider')}</label>
-        <select bind:value={wProvider}>
-          <option value="openmeteo">Open-Meteo (Free)</option>
-          <option value="openweathermap">OpenWeatherMap</option>
-          <option value="weatherapi">WeatherAPI</option>
-        </select>
+        <label>
+          {$t('settings.weatherProvider')}
+          <select bind:value={wProvider}>
+            <option value="openmeteo">Open-Meteo (Free)</option>
+            <option value="openweathermap">OpenWeatherMap</option>
+            <option value="weatherapi">WeatherAPI</option>
+          </select>
+        </label>
       </div>
 
       {#if wProvider !== 'openmeteo'}
@@ -236,15 +247,18 @@
 
   /* Controls */
   .control-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
     margin-bottom: 1rem;
   }
   
+  /* Wrap labels nicely */
   label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
     font-weight: 500;
     color: var(--text-primary);
+    cursor: pointer;
   }
 
   select {

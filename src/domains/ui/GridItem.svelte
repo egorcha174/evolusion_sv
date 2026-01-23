@@ -4,10 +4,12 @@
   import { onCardPointerDown } from './editor/pointer';
   import CardEditOverlay from './editor/components/CardEditOverlay.svelte';
   import type { DashboardCardConfig } from '$lib/types';
+  import type { Snippet } from 'svelte';
   
-  let { card, oncontextmenu } = $props<{ 
+  let { card, oncontextmenu, children } = $props<{ 
     card: DashboardCardConfig,
-    oncontextmenu?: (e: MouseEvent, cardId: string) => void
+    oncontextmenu?: (e: MouseEvent, cardId: string) => void,
+    children?: Snippet
   }>();
 
   // If editor is enabled, check if card exists in drafts. If not, it's deleted.
@@ -95,7 +97,7 @@
     oncontextmenu={handleContextMenu}
   >
     <div class="content-wrapper">
-      <slot />
+      {@render children?.()}
     </div>
 
     <CardEditOverlay cardId={card.id} />

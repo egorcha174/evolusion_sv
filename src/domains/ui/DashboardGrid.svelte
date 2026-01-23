@@ -281,6 +281,8 @@
       class="grid-layout"
       class:edit-mode={$isEditMode}
       style={gridStyle}
+      role="region"
+      aria-label="Dashboard Grid"
       onpointermove={onPointerMove}
       onpointerup={onPointerUp}
       onpointercancel={onPointerCancel}
@@ -325,6 +327,7 @@
     class="context-menu"
     style="top: {cmY}px; left: {cmX}px"
     onclick={(e) => e.stopPropagation()}
+    role="menu"
   >
     <button class="menu-item" onclick={cmOpenSettings}>
       <iconify-icon icon="mdi:palette-swatch-outline"></iconify-icon>

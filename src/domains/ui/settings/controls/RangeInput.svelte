@@ -7,14 +7,17 @@
     step?: number;
     unit?: string;
   }>();
+
+  const id = 'range-' + Math.random().toString(36).substr(2, 9);
 </script>
 
 <div class="control-group">
   <div class="header">
-    <label>{label}</label>
+    <label for={id}>{label}</label>
     <span class="value">{value}{unit}</span>
   </div>
   <input 
+    {id}
     type="range" 
     bind:value 
     {min} 
