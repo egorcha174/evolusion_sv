@@ -100,12 +100,18 @@
     min-width: 0;
     position: relative;
     height: 100%;
-    overflow-y: auto;
+    /* STRICT: Prevent global scrollbar */
+    overflow: hidden; 
   }
 
   main {
     flex: 1;
     padding: 2rem;
+    /* STRICT: Ensure main is a flex container that clips content */
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 0; /* Allow shrinking */
   }
   
   .loading-screen {

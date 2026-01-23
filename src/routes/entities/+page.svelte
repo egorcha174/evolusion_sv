@@ -1,3 +1,4 @@
+
 <script lang="ts">
   import { t } from 'svelte-i18n';
   import { haStore } from '../../domains/ha/store';
@@ -72,10 +73,13 @@
     height: 100%;
     display: flex;
     flex-direction: column;
+    /* Prevent outer scroll */
+    overflow: hidden; 
   }
 
   .page-header {
     margin-bottom: 1.5rem;
+    flex-shrink: 0;
   }
   
   .controls {
@@ -84,6 +88,7 @@
     padding: 1rem;
     border-radius: 8px;
     border: 1px solid var(--border-primary);
+    flex-shrink: 0;
   }
   
   .filters {

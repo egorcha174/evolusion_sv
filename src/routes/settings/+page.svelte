@@ -171,223 +171,233 @@
   }
 </script>
 
-<div class="settings-panel">
-	<h1>{$t('settings.title')}</h1>
+<div class="settings-page">
+  <div class="settings-panel">
+    <h1>{$t('settings.title')}</h1>
 
-  <!-- Appearance Section -->
-  <section class="settings-section">
-    <h2>{$t('settings.appearance')}</h2>
-    
-    <div class="form-group">
-      <label for="lang-select">{$t('settings.languageSelect')}</label>
-      <select id="lang-select" value={$currentLang} onchange={handleLanguageChange}>
-         {#each $availableLanguages as lang}
-            <option value={lang.code}>{lang.name}</option>
-         {/each}
-      </select>
-    </div>
-    
-    <div class="form-group">
-      <label for="lang-import">{$t('settings.importLanguage')}</label>
-      <div class="file-upload">
-         <input 
-           type="file" 
-           id="lang-import" 
-           accept=".json" 
-           onchange={handleLanguageImport}
-           bind:this={fileInput}
-         />
-      </div>
-    </div>
-    
-    <div class="form-group">
-        <label>{$t('settings.exportLanguage')}</label>
-        <button class="btn-secondary full-width" onclick={handleLanguageExport}>
-            {$t('settings.exportBtn')}
-        </button>
-    </div>
-
-    <div class="divider"></div>
-
-    <div class="form-group">
-      <label for="theme-mode">{$t('settings.themeMode')}</label>
-      <select id="theme-mode" value={$themeStore.mode} onchange={handleThemeModeChange}>
-        <option value="auto">{$t('settings.themeModeAuto')}</option>
-        <option value="day">{$t('settings.themeModeDay')}</option>
-        <option value="night">{$t('settings.themeModeNight')}</option>
-        <option value="schedule">{$t('settings.themeModeSchedule')}</option>
-      </select>
-    </div>
-
-    <div class="form-group">
-      <label for="theme-select">{$t('settings.theme')}</label>
-      <select id="theme-select" value={$themeStore.currentThemeId} onchange={handleThemeChange}>
-        {#each $themeStore.availableThemes as theme}
-          <option value={theme.id}>{theme.name} {theme.isCustom ? $t('settings.themeCustom') : ''}</option>
-        {/each}
-      </select>
-    </div>
-
-    {#if $themeStore.mode === 'schedule'}
-      <div class="schedule-inputs">
-        <div class="form-group">
-          <label for="day-start">{$t('settings.themeScheduleDay')}</label>
-          <input 
-            type="time" 
-            id="day-start" 
-            value={$themeStore.schedule?.dayStart || '07:00'} 
-            onchange={(e) => handleScheduleChange('dayStart', e.currentTarget.value)}
-          />
-        </div>
-        <div class="form-group">
-          <label for="night-start">{$t('settings.themeScheduleNight')}</label>
-          <input 
-            type="time" 
-            id="night-start" 
-            value={$themeStore.schedule?.nightStart || '22:00'} 
-            onchange={(e) => handleScheduleChange('nightStart', e.currentTarget.value)}
-          />
-        </div>
-      </div>
-    {/if}
-  </section>
-
-  <!-- Weather Section -->
-  <section class="settings-section">
-    <h2>{$t('settings.weather')}</h2>
-    
-    <div class="form-group">
-       <label for="w-provider">{$t('settings.weatherProvider')}</label>
-       <select id="w-provider" bind:value={wProvider}>
-         <option value="openmeteo">Open-Meteo (Free, No Key)</option>
-         <option value="openweathermap">OpenWeatherMap (Key Required)</option>
-         <option value="weatherapi">WeatherAPI (Key Required)</option>
-       </select>
-    </div>
-
-    {#if wProvider !== 'openmeteo'}
+    <!-- Appearance Section -->
+    <section class="settings-section">
+      <h2>{$t('settings.appearance')}</h2>
+      
       <div class="form-group">
-        <label for="w-key">{$t('settings.weatherKey')}</label>
-        <input id="w-key" type="password" bind:value={wApiKey} placeholder={$t('settings.weatherKeyPlaceholder')} />
-      </div>
-    {/if}
-    
-    <!-- Forecast Config -->
-    <div class="form-group checkbox-group">
-      <label>
-        <input type="checkbox" bind:checked={wShowForecast} />
-        {$t('settings.weatherShowForecast')}
-      </label>
-    </div>
-    
-    {#if wShowForecast}
-      <div class="form-group">
-        <label for="w-days">{$t('settings.forecast.daysLabel')}: {wForecastDays}</label>
-        <input id="w-days" type="range" min="1" max="7" step="1" bind:value={wForecastDays} />
+        <label for="lang-select">{$t('settings.languageSelect')}</label>
+        <select id="lang-select" value={$currentLang} onchange={handleLanguageChange}>
+          {#each $availableLanguages as lang}
+              <option value={lang.code}>{lang.name}</option>
+          {/each}
+        </select>
       </div>
       
       <div class="form-group">
-        <label>{$t('settings.weatherLayout')}</label>
-        <div class="radio-group">
-           <label>
-             <input type="radio" bind:group={wForecastLayout} value="vertical"> 
-             {$t('settings.layoutVertical')}
-           </label>
-           <label>
-             <input type="radio" bind:group={wForecastLayout} value="horizontal"> 
-             {$t('settings.layoutHorizontal')}
-           </label>
+        <label for="lang-import">{$t('settings.importLanguage')}</label>
+        <div class="file-upload">
+          <input 
+            type="file" 
+            id="lang-import" 
+            accept=".json" 
+            onchange={handleLanguageImport}
+            bind:this={fileInput}
+          />
         </div>
       </div>
-    {/if}
-    
-    <div class="form-group">
-      <label for="w-icon-pack">{$t('settings.weatherIconPack')}</label>
-      <select id="w-icon-pack" bind:value={wIconPack}>
-        <option value="default">Default</option>
-        <option value="outline">Outline</option>
-        <option value="filled">Filled</option>
-      </select>
-    </div>
+      
+      <div class="form-group">
+          <label>{$t('settings.exportLanguage')}</label>
+          <button class="btn-secondary full-width" onclick={handleLanguageExport}>
+              {$t('settings.exportBtn')}
+          </button>
+      </div>
 
-    <!-- Location -->
-    <div class="form-group checkbox-group">
-      <label>
-        <input type="checkbox" bind:checked={wUseCustom} />
-        {$t('settings.useCustomLocation')}
-      </label>
-    </div>
+      <div class="divider"></div>
 
-    {#if wUseCustom}
-      <div class="schedule-inputs">
+      <div class="form-group">
+        <label for="theme-mode">{$t('settings.themeMode')}</label>
+        <select id="theme-mode" value={$themeStore.mode} onchange={handleThemeModeChange}>
+          <option value="auto">{$t('settings.themeModeAuto')}</option>
+          <option value="day">{$t('settings.themeModeDay')}</option>
+          <option value="night">{$t('settings.themeModeNight')}</option>
+          <option value="schedule">{$t('settings.themeModeSchedule')}</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="theme-select">{$t('settings.theme')}</label>
+        <select id="theme-select" value={$themeStore.currentThemeId} onchange={handleThemeChange}>
+          {#each $themeStore.availableThemes as theme}
+            <option value={theme.id}>{theme.name} {theme.isCustom ? $t('settings.themeCustom') : ''}</option>
+          {/each}
+        </select>
+      </div>
+
+      {#if $themeStore.mode === 'schedule'}
+        <div class="schedule-inputs">
+          <div class="form-group">
+            <label for="day-start">{$t('settings.themeScheduleDay')}</label>
+            <input 
+              type="time" 
+              id="day-start" 
+              value={$themeStore.schedule?.dayStart || '07:00'} 
+              onchange={(e) => handleScheduleChange('dayStart', e.currentTarget.value)}
+            />
+          </div>
+          <div class="form-group">
+            <label for="night-start">{$t('settings.themeScheduleNight')}</label>
+            <input 
+              type="time" 
+              id="night-start" 
+              value={$themeStore.schedule?.nightStart || '22:00'} 
+              onchange={(e) => handleScheduleChange('nightStart', e.currentTarget.value)}
+            />
+          </div>
+        </div>
+      {/if}
+    </section>
+
+    <!-- Weather Section -->
+    <section class="settings-section">
+      <h2>{$t('settings.weather')}</h2>
+      
+      <div class="form-group">
+        <label for="w-provider">{$t('settings.weatherProvider')}</label>
+        <select id="w-provider" bind:value={wProvider}>
+          <option value="openmeteo">Open-Meteo (Free, No Key)</option>
+          <option value="openweathermap">OpenWeatherMap (Key Required)</option>
+          <option value="weatherapi">WeatherAPI (Key Required)</option>
+        </select>
+      </div>
+
+      {#if wProvider !== 'openmeteo'}
         <div class="form-group">
-          <label for="w-lat">{$t('settings.latitude')}</label>
-          <input id="w-lat" type="number" step="0.0001" bind:value={wLat} />
+          <label for="w-key">{$t('settings.weatherKey')}</label>
+          <input id="w-key" type="password" bind:value={wApiKey} placeholder={$t('settings.weatherKeyPlaceholder')} />
         </div>
+      {/if}
+      
+      <!-- Forecast Config -->
+      <div class="form-group checkbox-group">
+        <label>
+          <input type="checkbox" bind:checked={wShowForecast} />
+          {$t('settings.weatherShowForecast')}
+        </label>
+      </div>
+      
+      {#if wShowForecast}
         <div class="form-group">
-           <label for="w-lon">{$t('settings.longitude')}</label>
-           <input id="w-lon" type="number" step="0.0001" bind:value={wLon} />
+          <label for="w-days">{$t('settings.forecast.daysLabel')}: {wForecastDays}</label>
+          <input id="w-days" type="range" min="1" max="7" step="1" bind:value={wForecastDays} />
         </div>
+        
+        <div class="form-group">
+          <label>{$t('settings.weatherLayout')}</label>
+          <div class="radio-group">
+            <label>
+              <input type="radio" bind:group={wForecastLayout} value="vertical"> 
+              {$t('settings.layoutVertical')}
+            </label>
+            <label>
+              <input type="radio" bind:group={wForecastLayout} value="horizontal"> 
+              {$t('settings.layoutHorizontal')}
+            </label>
+          </div>
+        </div>
+      {/if}
+      
+      <div class="form-group">
+        <label for="w-icon-pack">{$t('settings.weatherIconPack')}</label>
+        <select id="w-icon-pack" bind:value={wIconPack}>
+          <option value="default">Default</option>
+          <option value="outline">Outline</option>
+          <option value="filled">Filled</option>
+        </select>
       </div>
-    {:else}
-      <div class="info-box">
-        <p>{$t('settings.locationFromHA')}</p>
-        <code>{locationInfo.name}: {locationInfo.lat}, {locationInfo.lon}</code>
+
+      <!-- Location -->
+      <div class="form-group checkbox-group">
+        <label>
+          <input type="checkbox" bind:checked={wUseCustom} />
+          {$t('settings.useCustomLocation')}
+        </label>
       </div>
-    {/if}
 
-    <div class="actions">
-      <button class="btn-primary" onclick={saveWeather}>{$t('settings.updateWeather')}</button>
-    </div>
+      {#if wUseCustom}
+        <div class="schedule-inputs">
+          <div class="form-group">
+            <label for="w-lat">{$t('settings.latitude')}</label>
+            <input id="w-lat" type="number" step="0.0001" bind:value={wLat} />
+          </div>
+          <div class="form-group">
+            <label for="w-lon">{$t('settings.longitude')}</label>
+            <input id="w-lon" type="number" step="0.0001" bind:value={wLon} />
+          </div>
+        </div>
+      {:else}
+        <div class="info-box">
+          <p>{$t('settings.locationFromHA')}</p>
+          <code>{locationInfo.name}: {locationInfo.lat}, {locationInfo.lon}</code>
+        </div>
+      {/if}
 
-    {#if $weatherStore.error}
-       <div class="message error">{$weatherStore.error}</div>
-    {/if}
-  </section>
-
-  <!-- Connection Section -->
-  <section class="settings-section">
-    <h2>{$t('settings.connection')}</h2>
-    <p class="description">Configure your Home Assistant connection details.</p>
-
-    <div class="form-group">
-      <label for="url">{$t('settings.serverUrl')}</label>
-      <input 
-        id="url" 
-        type="url" 
-        bind:value={url} 
-        placeholder="http://homeassistant.local:8123" 
-        autocomplete="url"
-      />
-      <span class="hint">e.g. http://192.168.1.100:8123</span>
-    </div>
-
-    <div class="form-group">
-      <label for="token">{$t('settings.token')}</label>
-      <input 
-        id="token" 
-        type="password" 
-        bind:value={token} 
-        placeholder={$t('settings.tokenPlaceholder')} 
-        autocomplete="current-password"
-      />
-      <span class="hint">Create this in your HA profile settings.</span>
-    </div>
-
-    <div class="actions">
-      <button class="btn-secondary" onclick={handleTest}>{$t('settings.testConnection')}</button>
-      <button class="btn-primary" onclick={handleSave}>{$t('settings.saveConfig')}</button>
-    </div>
-
-    {#if message}
-      <div class="message {messageType}">
-        {message}
+      <div class="actions">
+        <button class="btn-primary" onclick={saveWeather}>{$t('settings.updateWeather')}</button>
       </div>
-    {/if}
-  </section>
+
+      {#if $weatherStore.error}
+        <div class="message error">{$weatherStore.error}</div>
+      {/if}
+    </section>
+
+    <!-- Connection Section -->
+    <section class="settings-section">
+      <h2>{$t('settings.connection')}</h2>
+      <p class="description">Configure your Home Assistant connection details.</p>
+
+      <div class="form-group">
+        <label for="url">{$t('settings.serverUrl')}</label>
+        <input 
+          id="url" 
+          type="url" 
+          bind:value={url} 
+          placeholder="http://homeassistant.local:8123" 
+          autocomplete="url"
+        />
+        <span class="hint">e.g. http://192.168.1.100:8123</span>
+      </div>
+
+      <div class="form-group">
+        <label for="token">{$t('settings.token')}</label>
+        <input 
+          id="token" 
+          type="password" 
+          bind:value={token} 
+          placeholder={$t('settings.tokenPlaceholder')} 
+          autocomplete="current-password"
+        />
+        <span class="hint">Create this in your HA profile settings.</span>
+      </div>
+
+      <div class="actions">
+        <button class="btn-secondary" onclick={handleTest}>{$t('settings.testConnection')}</button>
+        <button class="btn-primary" onclick={handleSave}>{$t('settings.saveConfig')}</button>
+      </div>
+
+      {#if message}
+        <div class="message {messageType}">
+          {message}
+        </div>
+      {/if}
+    </section>
+  </div>
 </div>
 
 <style>
+  .settings-page {
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+
 	.settings-panel {
 		max-width: 600px;
 		margin: 0 auto;
