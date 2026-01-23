@@ -13,10 +13,21 @@
     onCancel: () => void
   }>();
 
+  // Helper to safely clone objects, handling Svelte proxies if necessary
+  function safeClone<T>(obj: T): T {
+    try {
+      return JSON.parse(JSON.stringify(obj));
+    } catch (e) {
+      console.error('Failed to clone template', e);
+      // Fallback for types that JSON doesn't handle well, though CardTemplate is JSON-safe
+      return structuredClone(obj);
+    }
+  }
+
   // State
   // We clone the initial template to avoid mutating props directly until save
   let template = $state<CardTemplate>(
-    initialTemplate ? structuredClone(initialTemplate) : createDefaultCardTemplate()
+    initialTemplate ? safeClone(initialTemplate) : createDefaultCardTemplate()
   );
 
   let activeTab = $state<'style' | 'content'>('style');
@@ -32,7 +43,8 @@
       alert("Please enter a template name");
       return;
     }
-    onSave(template);
+    // Return a plain object clone to strip any proxies before saving to store
+    onSave(safeClone(template));
   }
 
   function handleExport() {
