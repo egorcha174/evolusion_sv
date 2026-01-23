@@ -3,7 +3,7 @@
 	import { t } from 'svelte-i18n';
 	import { appState, saveServerConfig, clearServerConfig } from '../../domains/app/store';
   import { haStore, disconnectHA, initializeHAConnection } from '../../domains/ha/store';
-	import { themeStore, themeSettings } from '../../domains/ui/theme/store';
+	import { themeStore } from '../../domains/ui/theme/store';
   import { weatherSettings, refreshWeatherConfig } from '../../lib/weather/store';
   import { resolveCoordinates } from '../../lib/weather/service';
   import { exportAllSettings, importAllSettings, clearAllData } from '../../domains/app/backup';
@@ -147,7 +147,7 @@
 
       <div class="control-row">
         <label>{$t('settings.themeMode')}</label>
-        <select value={$themeSettings.mode} onchange={(e) => themeStore.setMode(e.currentTarget.value as ThemeMode)}>
+        <select value={$themeStore.mode} onchange={(e) => themeStore.setMode(e.currentTarget.value as ThemeMode)}>
           <option value="auto">{$t('settings.themeModeAuto')}</option>
           <option value="day">{$t('settings.themeModeDay')}</option>
           <option value="night">{$t('settings.themeModeNight')}</option>
