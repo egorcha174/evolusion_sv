@@ -4,7 +4,7 @@
 	import { t } from 'svelte-i18n';
 	import { appState, saveServerConfig, clearServerConfig } from '../../domains/app/store';
   import { haStore, disconnectHA, initializeHAConnection } from '../../domains/ha/store';
-	import { themeStore } from '../../domains/ui/theme/store';
+	import { themeStore } from '../../domains/theme/store';
   import { weatherSettings, refreshWeatherConfig } from '../../lib/weather/store';
   import { exportAllSettings, importAllSettings, clearAllData } from '../../domains/app/backup';
   import { setLocale, availableLanguages, currentLang } from '../../lib/i18n';

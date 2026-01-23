@@ -1,13 +1,8 @@
 
-import { get } from 'svelte/store';
-import { themeSettings } from '../ui/theme/store';
-import { dashboardStore } from './dashboardStore';
-import { weatherSettings } from '../../lib/weather/store';
-
 // Storage Keys (Must match what is used in stores)
 const KEYS = {
   server: 'app_server_config_encrypted',
-  theme: 'evolusion_theme_settings',
+  theme: 'evolusion-theme-settings', // Updated from underscore to dash to match src/domains/theme/store.ts
   dashboard: 'evolusion_dashboard_v2_encrypted',
   weather: 'evolusion_weather_settings',
   ui: 'evolusion.sidebar.width'

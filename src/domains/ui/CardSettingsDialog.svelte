@@ -3,6 +3,7 @@
   import { t } from 'svelte-i18n';
   import { dashboardStore } from '../app/dashboardStore';
   import { editorStore } from './editor/store';
+  import { untrack } from 'svelte';
   import type { DashboardCardConfig } from '$lib/types';
   
   let { card, onClose } = $props<{
@@ -18,7 +19,9 @@
   let templates = $derived(Object.values($dashboardStore.templates || {}));
   
   // Local state for the selection (don't commit to store yet)
-  let selectedTemplateId = $state<string | undefined>(card.templateId);
+  let selectedTemplateId = $state<string | undefined>(
+    untrack(() => card.templateId)
+  );
 
   // Initialize selectedId from editor override if present
   $effect(() => {
