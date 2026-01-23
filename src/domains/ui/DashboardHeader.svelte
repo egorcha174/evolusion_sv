@@ -175,7 +175,7 @@
 
           <div class="divider"></div>
           <button class="menu-item" onclick={handleRefresh}>
-            <iconify-icon icon="mdi:refresh"></iconify-icon> Refresh Page
+            <iconify-icon icon="mdi:refresh"></iconify-icon> {$t('dashboard.menu.refresh')}
           </button>
           <div class="divider"></div>
           <button class="menu-item highlight" onclick={() => { toggleEditMode(); isKebabMenuOpen = false; }}>

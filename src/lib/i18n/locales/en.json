@@ -1,4 +1,3 @@
-
 {
   "common": {
     "ok": "OK",
@@ -28,7 +27,8 @@
       "deleteCard": "Delete Card",
       "duplicateCard": "Duplicate",
       "moveCard": "Move to...",
-      "appearance": "Appearance"
+      "appearance": "Appearance",
+      "refresh": "Refresh Page"
     },
     "grid": {
       "columns": "Columns",

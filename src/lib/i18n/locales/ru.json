@@ -1,4 +1,3 @@
-
 {
   "common": {
     "ok": "ОК",
@@ -28,7 +27,8 @@
       "deleteCard": "Удалить карточку",
       "duplicateCard": "Дублировать",
       "moveCard": "Перенести на...",
-      "appearance": "Внешний вид"
+      "appearance": "Внешний вид",
+      "refresh": "Обновить страницу"
     },
     "grid": {
       "columns": "Колонки",
