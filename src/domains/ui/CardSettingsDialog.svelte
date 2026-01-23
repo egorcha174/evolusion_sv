@@ -3,7 +3,6 @@
   import { t } from 'svelte-i18n';
   import { dashboardStore } from '../app/dashboardStore';
   import { editorStore } from './editor/store';
-  import { portal } from '$lib/portal';
   import type { DashboardCardConfig } from '$lib/types';
   
   let { card, onClose } = $props<{
@@ -34,17 +33,12 @@
     editorStore.setCardTemplate(card.id, selectedTemplateId);
     onClose();
   }
-
-  function handleOverlayClick(e: MouseEvent) {
-    if (e.target === e.currentTarget) {
-      onClose();
-    }
-  }
 </script>
 
+<!-- svelte-ignore a11y_click_events_have_key_events -->
 <!-- svelte-ignore a11y_no_static_element_interactions -->
-<div class="card-settings-overlay" onclick={handleOverlayClick} use:portal>
-  <div class="card-settings-modal">
+<div class="card-settings-overlay" onclick={onClose}>
+  <div class="card-settings-modal" onclick={(e) => e.stopPropagation()}>
     <h3>{$t('cardSettings.title')}</h3>
     
     <div class="field">

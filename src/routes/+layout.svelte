@@ -5,12 +5,14 @@
   import { dashboardStore } from '../domains/app/dashboardStore';
   import { initializeHAConnection, disconnectHA } from '../domains/ha/store';
   import { themeStore } from '../domains/theme/store';
-  import { initClientI18n } from '../lib/i18n'; // Updated import
+  import { editorStore } from '../domains/ui/editor/store'; // Import Editor Store
+  import { initClientI18n } from '../lib/i18n'; 
   import { initWeather, destroyWeather } from '../lib/weather/store';
-  import { isLoading } from 'svelte-i18n'; // Wait for translations
+  import { isLoading } from 'svelte-i18n'; 
   import BackgroundRenderer from '../domains/theme/BackgroundRenderer.svelte';
   import Sidebar from '../domains/ui/Sidebar.svelte';
   import DashboardHeader from '../domains/ui/DashboardHeader.svelte';
+  import TemplateManager from '../domains/ui/editor/templates/TemplateManager.svelte'; // Import Template Manager
   import 'iconify-icon';
   import '../app.css';
   
@@ -64,6 +66,11 @@
       </main>
     </div>
   </div>
+{/if}
+
+<!-- Global Modals Layer -->
+{#if $editorStore.isTemplateManagerOpen}
+  <TemplateManager onClose={() => editorStore.closeTemplateManager()} />
 {/if}
 
 <style>

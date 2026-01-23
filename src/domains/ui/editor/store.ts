@@ -6,11 +6,17 @@ import { editorHistory } from './history';
 import { rectWithinBounds, rectCollides } from './geometry';
 import { dashboardStore } from '../../app/dashboardStore';
 
-const initialState: EditorState = {
+// Extended state to include modal visibility
+export interface ExtendedEditorState extends EditorState {
+  isTemplateManagerOpen: boolean;
+}
+
+const initialState: ExtendedEditorState = {
   enabled: false,
   tabId: null,
   selectedCardId: null,
   showGridSettings: false,
+  isTemplateManagerOpen: false,
   pointerOp: { kind: 'idle' },
   gridMetrics: { halfUnitSizePx: 0, cols: 8, rows: 6 },
   drafts: new Map(),
@@ -20,12 +26,21 @@ const initialState: EditorState = {
 };
 
 function createEditorStore() {
-  const { subscribe, set, update } = writable<EditorState>(initialState);
+  const { subscribe, set, update } = writable<ExtendedEditorState>(initialState);
 
   return {
     subscribe,
     update, // Expose update to allow pointer logic to modify state directly
     
+    // --- Modals ---
+    openTemplateManager() {
+      update(s => ({ ...s, isTemplateManagerOpen: true }));
+    },
+    
+    closeTemplateManager() {
+      update(s => ({ ...s, isTemplateManagerOpen: false }));
+    },
+
     // --- Lifecycle ---
 
     initSession(tabId: string) {
@@ -66,6 +81,8 @@ function createEditorStore() {
     },
     
     reset() {
+      // Preserve isTemplateManagerOpen if needed, or reset all? 
+      // Usually edit mode toggle resets everything.
       set(initialState);
       editorHistory.clear();
     },

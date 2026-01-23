@@ -5,7 +5,6 @@
   import { exportTemplate, importTemplate } from './io';
   import { templateEditorState } from './store';
   import CardStylePanel from './components/CardStylePanel.svelte';
-  import { portal } from '$lib/portal';
   import 'iconify-icon';
   import { onMount } from 'svelte';
 
@@ -80,15 +79,6 @@
   
   function handleStyleChange(newStyle: CardTemplateStyle) {
     template.style = newStyle;
-  }
-  
-  function handleOverlayClick(e: MouseEvent) {
-    // Only close if clicked directly on overlay (not on children)
-    // Note: Since this is an editor with potential unsaved changes, 
-    // maybe we shouldn't auto-close on overlay click? 
-    // For consistency with other modals, let's allow it but we could add a dirty check later.
-    // For now, let's keep it manual close via button to prevent accidental loss.
-    // So NO op here.
   }
   
   // --- DRAG LOGIC ---
@@ -175,8 +165,10 @@
   }
 </script>
 
+<!-- svelte-ignore a11y_click_events_have_key_events -->
 <!-- svelte-ignore a11y_no_static_element_interactions -->
-<div class="template-editor-overlay" use:portal>
+<!-- No portal used, relies on being mounted at root -->
+<div class="template-editor-overlay">
   <div class="editor-window">
     <!-- Header -->
     <header class="editor-header">

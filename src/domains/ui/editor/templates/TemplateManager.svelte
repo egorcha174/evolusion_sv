@@ -4,7 +4,6 @@
   import { dashboardStore } from '../../../app/dashboardStore';
   import { createDefaultCardTemplate, type CardTemplate } from '$lib/types';
   import CardTemplateEditor from './CardTemplateEditor.svelte';
-  import { portal } from '$lib/portal';
   import 'iconify-icon';
 
   let { onClose } = $props<{ onClose: () => void }>();
@@ -40,12 +39,6 @@
     showEditor = false;
     selectedTemplate = undefined;
   }
-
-  function handleOverlayClick(e: MouseEvent) {
-    if (e.target === e.currentTarget) {
-      onClose();
-    }
-  }
 </script>
 
 <!-- If Editor is open, show it above the manager -->
@@ -58,9 +51,10 @@
   />
 {/if}
 
+<!-- svelte-ignore a11y_click_events_have_key_events -->
 <!-- svelte-ignore a11y_no_static_element_interactions -->
-<div class="manager-overlay" onclick={handleOverlayClick} use:portal>
-  <div class="manager-modal">
+<div class="manager-overlay" onclick={onClose}>
+  <div class="manager-modal" onclick={(e) => e.stopPropagation()}>
     <header>
       <h3>{$t('templates.manager.title')}</h3>
       <button class="close-btn" onclick={onClose} type="button">
@@ -111,7 +105,7 @@
     height: 100vh;
     background: rgba(0,0,0,0.5);
     backdrop-filter: blur(4px);
-    z-index: 3000; /* Increased z-index */
+    z-index: 3000;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -127,7 +121,6 @@
     flex-direction: column;
     overflow: hidden;
     border: 1px solid var(--border-primary);
-    pointer-events: auto; /* Ensure clicks are captured */
   }
 
   header {
@@ -210,7 +203,7 @@
     padding: 6px;
     border-radius: 4px;
     display: flex;
-    align-items: center; /* Ensure icon is centered */
+    align-items: center;
     justify-content: center;
   }
 
@@ -224,7 +217,6 @@
     color: var(--accent-error);
   }
   
-  /* Make sure icon clicks pass through to button */
   .icon-btn :global(iconify-icon) {
     pointer-events: none;
   }
