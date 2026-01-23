@@ -46,14 +46,20 @@ export function getTemplateCssVariables(style: CardTemplateStyle): string {
   const parts: string[] = [];
 
   // Map Template properties to DeviceCard CSS variables
+  // We apply the same values to both default and 'on' (active) states 
+  // to ensure the template's look persists regardless of device state.
   if (style.backgroundType === 'transparent') {
     parts.push('--card-background: transparent');
+    parts.push('--card-background-on: transparent');
   } else {
     parts.push(`--card-background: ${style.backgroundColor}`);
+    parts.push(`--card-background-on: ${style.backgroundColor}`);
   }
 
   parts.push(`--card-border-width: ${style.borderWidth}px`);
   parts.push(`--card-border-color: ${style.borderColor}`);
+  parts.push(`--card-border-color-on: ${style.borderColor}`);
+  
   parts.push(`--card-border-radius: ${style.borderRadius}px`);
   parts.push(`--card-opacity: ${style.opacity}`);
   parts.push(`--card-padding: ${style.padding}px`);
