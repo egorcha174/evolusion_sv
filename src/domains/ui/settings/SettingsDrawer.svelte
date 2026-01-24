@@ -116,7 +116,7 @@
                       <div class="server-url">{$appState.activeServer?.url}</div>
                     </div>
                   </div>
-                  <button class="btn danger outline small" onclick={disconnectServer}>
+                  <button class="btn danger outline" onclick={disconnectServer}>
                     {$t('settings.disconnect')}
                   </button>
                </div>
@@ -295,31 +295,41 @@
   .scroll-inner { padding: 1.5rem; display: flex; flex-direction: column; gap: 1.5rem; min-height: min-content; }
 
   /* Server Status Styles */
-  .connected-state, .disconnected-state {
-    display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;
-    padding: 0.75rem; background: var(--bg-secondary); border-radius: 8px; border: 1px solid var(--border-primary); margin-bottom: 1rem;
+  .connected-state {
+    display: flex; 
+    flex-direction: column; /* Stack Vertically */
+    gap: 1rem;
+    padding: 1rem; 
+    background: var(--bg-secondary); 
+    border-radius: 8px; 
+    border: 1px solid var(--border-primary); 
+    margin-bottom: 1rem;
   }
-  .disconnected-state { color: var(--text-muted); justify-content: center; }
+  
+  .disconnected-state {
+    display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+    padding: 0.75rem; background: var(--bg-secondary); border-radius: 8px; border: 1px solid var(--border-primary); margin-bottom: 1rem;
+    color: var(--text-muted);
+  }
   
   .server-info {
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    flex: 1;
-    min-width: 0; /* Important for flex child truncation/wrapping */
+    width: 100%;
   }
 
   .status-icon { display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
   .status-icon.success { color: var(--accent-success); }
   .status-icon.error { color: var(--accent-error); }
   
-  .server-details { display: flex; flex-direction: column; min-width: 0; }
+  .server-details { display: flex; flex-direction: column; min-width: 0; flex: 1; }
   .server-name { 
     font-weight: 600; 
     color: var(--text-primary); 
-    white-space: normal; /* Allow wrapping */
+    white-space: normal; /* Allow text to wrap */
     word-break: break-word; 
-    line-height: 1.2;
+    line-height: 1.3;
     margin-bottom: 2px;
   }
   .server-url { font-size: 0.8rem; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -340,7 +350,7 @@
   .btn.primary { background: var(--accent-primary); color: white; }
   .btn.secondary { background: transparent; border: 1px solid var(--border-primary); color: var(--text-primary); }
   .btn.danger { background: rgba(244, 67, 54, 0.1); color: var(--accent-error); }
-  .btn.danger.outline { border: 1px solid var(--accent-error); background: transparent; }
+  .btn.danger.outline { border: 1px solid var(--accent-error); background: transparent; width: 100%; } /* Full width disconnect button */
   .btn.full { width: 100%; }
   .btn.small { padding: 0.4rem 0.8rem; font-size: 0.85rem; }
   .btn.flex-grow { flex-grow: 1; }
