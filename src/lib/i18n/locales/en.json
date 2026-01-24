@@ -107,6 +107,7 @@
     "testConnection": "Test Connection",
     "saveConfig": "Save Configuration",
     "weather": "Weather Widget",
+    "weatherDesc": "Configure weather widget provider",
     "weatherProvider": "Data Provider",
     "weatherKey": "API Key",
     "weatherKeyPlaceholder": "Paste API key here",

@@ -107,6 +107,7 @@
     "testConnection": "Проверить соединение",
     "saveConfig": "Сохранить конфигурацию",
     "weather": "Погода",
+    "weatherDesc": "Настройка провайдера данных",
     "weatherProvider": "Источник данных",
     "weatherKey": "API Ключ",
     "weatherKeyPlaceholder": "Вставьте API ключ",

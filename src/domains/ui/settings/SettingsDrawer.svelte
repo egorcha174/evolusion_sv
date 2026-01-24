@@ -203,7 +203,7 @@
         </Section>
 
         <!-- SECTION 3: Weather -->
-        <Section title={$t('settings.weather')} description="Configure weather widget provider">
+        <Section title={$t('settings.weather')} description={$t('settings.weatherDesc')}>
           <div class="control-row">
             <label>
               {$t('settings.weatherProvider')}
@@ -426,7 +426,12 @@
   .btn {
     padding: 0.6rem 1.2rem; border-radius: 8px; border: none; font-weight: 600;
     cursor: pointer; display: flex; align-items: center; gap: 0.5rem; justify-content: center;
-    font-size: 0.9rem; transition: opacity 0.2s; white-space: nowrap;
+    font-size: 0.9rem; transition: opacity 0.2s;
+    
+    /* FIX: Allow text wrap and multi-line content */
+    white-space: normal;
+    text-align: center;
+    line-height: 1.2;
   }
   .btn:hover { opacity: 0.9; }
   
