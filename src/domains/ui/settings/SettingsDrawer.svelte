@@ -216,19 +216,20 @@
         <!-- SECTION 4: Backup & Data -->
         <Section title="Backup & Data" description="Import/Export configuration">
           <div class="backup-actions">
-            <button class="btn secondary full" onclick={exportAllSettings}>
-              <iconify-icon icon="mdi:download"></iconify-icon> Export Backup
+            <!-- Using primary for Export to match user preference/screenshot style -->
+            <button class="btn primary flex-grow" onclick={exportAllSettings}>
+              <iconify-icon icon="mdi:download"></iconify-icon> {$t('settings.exportBtn')}
             </button>
 
-            <button class="btn secondary full" onclick={() => fileInput.click()}>
-              <iconify-icon icon="mdi:upload"></iconify-icon> Import Backup
+            <button class="btn secondary flex-grow" onclick={() => fileInput.click()}>
+              <iconify-icon icon="mdi:upload"></iconify-icon> {$t('settings.importBtn')}
             </button>
             <input type="file" hidden bind:this={fileInput} accept=".zip" onchange={handleBackupImport} />
           </div>
 
           <div class="danger-zone">
              <button class="btn danger full" onclick={handleReset}>
-               Reset All Data
+               {$t('settings.reset')}
              </button>
           </div>
         </Section>
@@ -309,15 +310,14 @@
 
   /* 
     SCROLL FIX:
-    Instead of making drawer-content a flex column directly, 
-    we treat it as a scroll container and put content in .scroll-inner.
-    This prevents flexbox height calculation bugs where items shrink/overlap.
+    Use flex: 1 for content but ensure correct overflow handling.
+    height: 0 is a trick to force flex containers to respect the parent height limit.
   */
   .drawer-content {
-    flex: 1;
+    flex: 1 1 auto;
     overflow-y: auto;
     overflow-x: hidden;
-    min-height: 0;
+    height: 0; /* Critical for Safari/Flex scroll */
     overscroll-behavior: contain;
     -webkit-overflow-scrolling: touch;
     
@@ -330,7 +330,7 @@
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
-    min-height: min-content; /* Ensure it can grow */
+    min-height: min-content;
   }
   
   .drawer-content::-webkit-scrollbar {
@@ -344,7 +344,6 @@
     border-radius: 3px;
   }
 
-  /* Prevent shrinking of children */
   :global(.settings-section), .footer-info {
     flex-shrink: 0;
   }
@@ -423,10 +422,18 @@
   .btn.danger.outline { border: 1px solid var(--accent-error); background: transparent; }
   .btn.full { width: 100%; }
   .btn.small { padding: 0.4rem 0.8rem; font-size: 0.85rem; }
+  .btn.flex-grow { flex-grow: 1; }
 
   .actions { display: flex; justify-content: flex-end; margin-top: 1rem; }
 
-  .backup-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1.5rem; }
+  /* FLEX LAYOUT FOR BUTTONS: Safer than Grid for variable text length */
+  .backup-actions { 
+    display: flex; 
+    flex-wrap: wrap; 
+    gap: 0.75rem; 
+    margin-bottom: 1.5rem; 
+  }
+  
   .danger-zone { border-top: 1px solid var(--border-divider); padding-top: 1.5rem; }
 
   .footer-info {
@@ -437,6 +444,7 @@
 
   @media (max-width: 480px) {
     .settings-drawer { width: 100vw; }
-    .backup-actions { grid-template-columns: 1fr; }
+    /* Force stack on very small screens if needed, otherwise wrap handles it */
+    .backup-actions .btn { width: 100%; }
   }
 </style>

@@ -1,3 +1,4 @@
+
 {
   "common": {
     "ok": "OK",
@@ -94,8 +95,8 @@
     "languageSelect": "Select Language",
     "importLanguage": "Import Language (JSON)",
     "exportLanguage": "Export Language",
-    "importBtn": "Import",
-    "exportBtn": "Export Current",
+    "importBtn": "Import Settings",
+    "exportBtn": "Export Settings",
     "connection": "Connection",
     "serverUrl": "Server URL",
     "token": "Access Token",
@@ -129,6 +130,7 @@
     "themeScheduleNight": "Night Start",
     "themeSelect": "Select Theme",
     "themeCustom": "(Custom)",
+    "reset": "Reset All Data",
     "messages": {
       "saveSuccess": "Settings saved successfully",
       "saveError": "Error saving settings",

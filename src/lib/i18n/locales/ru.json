@@ -1,3 +1,4 @@
+
 {
   "common": {
     "ok": "ОК",
@@ -94,8 +95,8 @@
     "languageSelect": "Выберите язык",
     "importLanguage": "Импорт языка (JSON)",
     "exportLanguage": "Экспорт языка",
-    "importBtn": "Импортировать",
-    "exportBtn": "Экспортировать текущий",
+    "importBtn": "Импорт настроек",
+    "exportBtn": "Экспорт настроек",
     "connection": "Подключение",
     "serverUrl": "URL сервера",
     "token": "Токен доступа",
@@ -129,6 +130,7 @@
     "themeScheduleNight": "Начало ночи",
     "themeSelect": "Выберите тему",
     "themeCustom": "(Польз.)",
+    "reset": "Сбросить все настройки и данные",
     "messages": {
       "saveSuccess": "Настройки успешно сохранены",
       "saveError": "Ошибка при сохранении",
