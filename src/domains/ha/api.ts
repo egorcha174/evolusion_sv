@@ -24,7 +24,13 @@ export class HAClient {
   
   private reconnectAttempts: number = 0;
   private maxReconnectAttempts: number = 5;
-  private connectPromise: { resolve: ResolveFn; reject: RejectFn } | null = null;
+  
+  // Connection state
+  private connectPromise: { 
+    resolve: ResolveFn; 
+    reject: RejectFn; 
+    promise: Promise<void> 
+  } | null = null;
   
   private forcedDisconnect: boolean = false;
 
@@ -36,34 +42,66 @@ export class HAClient {
   private formatUrl(url: string): string {
     const isSecure = url.startsWith('https');
     const protocol = isSecure ? 'wss://' : 'ws://';
-    // Remove protocol and trailing slash
     let host = url.replace(/^https?:\/\//, '').replace(/\/$/, '');
     return `${protocol}${host}/api/websocket`;
   }
 
-  async connect(): Promise<void> {
+  async connect(signal?: AbortSignal): Promise<void> {
     this.forcedDisconnect = false;
     
     if (this.isConnected()) {
       return;
     }
 
-    return new Promise((resolve, reject) => {
-      this.connectPromise = { resolve, reject };
+    // Reuse existing connection attempt if active
+    if (this.connectPromise) {
+      return this.connectPromise.promise;
+    }
 
-      try {
-        this.ws = new WebSocket(this.url);
-      } catch (e) {
-        this._onError(new Event('error'));
-        reject(e);
-        return;
-      }
+    // Reset attempts on fresh connect call
+    this.reconnectAttempts = 0;
 
+    let resolveFn: ResolveFn;
+    let rejectFn: RejectFn;
+
+    const promise = new Promise<void>((resolve, reject) => {
+      resolveFn = resolve;
+      rejectFn = reject;
+    });
+
+    this.connectPromise = { 
+      resolve: resolveFn!, 
+      reject: rejectFn!, 
+      promise 
+    };
+
+    // Handle AbortSignal
+    if (signal) {
+      signal.addEventListener('abort', () => {
+        if (this.connectPromise) {
+          this.connectPromise.reject(new Error('Connection aborted'));
+          this.connectPromise = null;
+        }
+        this.disconnect();
+      });
+    }
+
+    this._createSocket();
+
+    return promise;
+  }
+
+  private _createSocket() {
+    try {
+      this.ws = new WebSocket(this.url);
       this.ws.onopen = this._onOpen.bind(this);
       this.ws.onmessage = this._onMessage.bind(this);
       this.ws.onerror = this._onError.bind(this);
       this.ws.onclose = this._onClose.bind(this);
-    });
+    } catch (e) {
+      // Synchronous error during creation
+      this._handleConnectionFailure(e);
+    }
   }
 
   async disconnect(): Promise<void> {
@@ -71,6 +109,11 @@ export class HAClient {
     if (this.ws) {
       this.ws.close();
       this.ws = null;
+    }
+    // If we were waiting to connect, reject it
+    if (this.connectPromise) {
+      this.connectPromise.reject(new Error('Disconnected by user'));
+      this.connectPromise = null;
     }
   }
 
@@ -101,7 +144,6 @@ export class HAClient {
   }
 
   async callService(domain: string, service: string, serviceData: Record<string, any> = {}): Promise<void> {
-    // Reuse _sendCommand to handle request/response correlation with ID
     await this._sendCommand({
       type: 'call_service',
       domain,
@@ -132,10 +174,8 @@ export class HAClient {
       this.pendingCommands.set(id, { resolve, reject });
       this.ws!.send(JSON.stringify(message));
       
-      // If it's a subscribe command, we prepare to route future events with this ID
       if (payload.type === 'subscribe_events') {
         this.subscriptions.set(id, (eventData) => {
-           // Dispatch to global listeners if it's state_changed
            if (payload.event_type === 'state_changed' || !payload.event_type) {
              this.stateChangeCallbacks.forEach(cb => cb(eventData));
            }
@@ -144,7 +184,6 @@ export class HAClient {
     });
   }
   
-  // Internal fire-and-forget send (wrapped as promise for consistency)
   private async _send(payload: any): Promise<void> {
     if (!this.isConnected()) return;
     const id = ++this.messageId;
@@ -154,6 +193,7 @@ export class HAClient {
 
   private _onOpen() {
     console.log('WS Open');
+    // Wait for auth_required
   }
 
   private _onMessage(event: MessageEvent) {
@@ -195,11 +235,8 @@ export class HAClient {
         break;
 
       case 'pong':
-        this._handleResult(data as any); // Pong also uses ID matching
+        this._handleResult(data as any);
         break;
-        
-      default:
-        // console.log('Unknown message type', data.type);
     }
   }
 
@@ -218,8 +255,6 @@ export class HAClient {
         if (data.result !== undefined) {
            pending.resolve(data.result);
         } else {
-           // Assume it was a command where ID is the important return (like subscribe)
-           // or a void command like call_service
            pending.resolve(data.id);
         }
       } else {
@@ -238,25 +273,32 @@ export class HAClient {
 
   private _onError(event: Event) {
     console.error('WS Error', event);
-    if (this.connectPromise) {
-      this.connectPromise.reject(new Error('WebSocket connection failed'));
-      this.connectPromise = null;
-    }
+    // Error will eventually trigger close, so we handle logic there
   }
 
   private _onClose(event: CloseEvent) {
     console.log('WS Close', event.code, event.reason);
-    
-    if (this.connectPromise) {
-      this.connectPromise.reject(new Error('Connection closed during handshake'));
-      this.connectPromise = null;
-    }
-
-    // Clear state
     this.ws = null;
+
+    // Reject all operational pending commands (getStates, etc)
+    // They cannot survive a reconnect as session is lost
     this.pendingCommands.forEach(p => p.reject(new Error('Connection closed')));
     this.pendingCommands.clear();
 
+    // Determine if we should fail the connection attempt or retry
+    if (!this.forcedDisconnect) {
+      this._attemptReconnect();
+    } else {
+      // User forced disconnect
+      if (this.connectPromise) {
+        this.connectPromise.reject(new Error('Connection closed'));
+        this.connectPromise = null;
+      }
+    }
+  }
+
+  private _handleConnectionFailure(error: any) {
+    console.error('Connection failure:', error);
     if (!this.forcedDisconnect) {
       this._attemptReconnect();
     }
@@ -265,6 +307,10 @@ export class HAClient {
   private _attemptReconnect() {
     if (this.reconnectAttempts >= this.maxReconnectAttempts) {
       console.error('Max reconnect attempts reached');
+      if (this.connectPromise) {
+        this.connectPromise.reject(new Error('Max reconnect attempts reached'));
+        this.connectPromise = null;
+      }
       return;
     }
 
@@ -273,7 +319,9 @@ export class HAClient {
     console.log(`Reconnecting in ${delay}ms... (Attempt ${this.reconnectAttempts})`);
     
     setTimeout(() => {
-      this.connect().catch(e => console.error('Reconnect failed', e));
+      // If user disconnected while waiting
+      if (this.forcedDisconnect) return;
+      this._createSocket();
     }, delay);
   }
 }
