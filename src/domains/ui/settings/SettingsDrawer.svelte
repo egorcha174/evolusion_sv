@@ -1,7 +1,6 @@
 
 <script lang="ts">
-  import { onMount } from 'svelte';
-  import { fly, fade } from 'svelte/transition';
+  import { fade, fly } from 'svelte/transition';
   import { t } from 'svelte-i18n';
   import { isSettingsOpen } from '../store';
   import { appState, saveServerConfig, clearServerConfig } from '../../app/store';
@@ -113,7 +112,7 @@
   <aside class="settings-drawer" transition:fly={{ x: 400, duration: 300, opacity: 1 }}>
     <header class="drawer-header">
       <h2>{$t('settings.title')}</h2>
-      <button class="close-btn" onclick={close}>
+      <button class="close-btn" onclick={close} aria-label="Close settings">
         <iconify-icon icon="mdi:close" width="24"></iconify-icon>
       </button>
     </header>
@@ -124,8 +123,10 @@
         {#if $haStore.isConnected}
           <div class="connected-state">
              <div class="server-info">
-               <iconify-icon icon="mdi:server-network" width="32"></iconify-icon>
-               <div>
+               <div class="status-icon">
+                 <iconify-icon icon="mdi:check-circle" width="24"></iconify-icon>
+               </div>
+               <div class="server-details">
                  <div class="server-name">{$appState.activeServer?.name || 'Home Assistant'}</div>
                  <div class="server-url">{$appState.activeServer?.url}</div>
                </div>
@@ -254,8 +255,9 @@
     right: 0;
     width: 420px;
     max-width: 100vw;
-    height: 100vh;
-    background: var(--bg-page); /* Fallback to page bg, but often panel specific */
+    height: 100%; /* Ensure full height */
+    max-height: 100dvh; /* Handle mobile browser bars */
+    background: var(--bg-page);
     background-color: var(--bg-panel, #ffffff);
     box-shadow: -4px 0 24px rgba(0,0,0,0.15);
     z-index: 2001;
@@ -276,9 +278,10 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1.5rem;
+    padding: 1rem 1.5rem;
     border-bottom: 1px solid var(--border-divider);
     background: var(--bg-header);
+    flex-shrink: 0; /* Prevent header from shrinking */
   }
 
   .drawer-header h2 {
@@ -293,7 +296,7 @@
     border: none;
     cursor: pointer;
     color: var(--text-secondary);
-    padding: 4px;
+    padding: 8px;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -304,14 +307,33 @@
 
   .drawer-content {
     flex: 1;
-    overflow-y: auto;
+    overflow-y: auto; /* Enable vertical scrolling */
+    overflow-x: hidden;
+    min-height: 0; /* Crucial for nested flex scrolling */
     padding: 1.5rem;
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 1.5rem;
+    overscroll-behavior: contain; /* Prevent scrolling the body */
+    -webkit-overflow-scrolling: touch;
+    
+    /* Scrollbar styling */
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-input) transparent;
+  }
+  
+  .drawer-content::-webkit-scrollbar {
+    width: 6px;
+  }
+  .drawer-content::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .drawer-content::-webkit-scrollbar-thumb {
+    background-color: var(--border-input);
+    border-radius: 3px;
   }
 
-  /* --- Reuse of styles from page --- */
+  /* --- Styles reused from page --- */
   
   .control-row { margin-bottom: 1rem; }
   
@@ -325,18 +347,57 @@
     padding: 0.4rem; border-radius: 6px;
     border: 1px solid var(--border-input); background: var(--bg-input); color: var(--text-primary);
     min-width: 140px; font-size: 0.9rem;
+    max-width: 60%;
   }
 
-  .connected-state { display: flex; justify-content: space-between; align-items: center; }
-  .server-info { display: flex; gap: 1rem; align-items: center; color: var(--accent-success); }
-  .server-name { font-weight: 600; color: var(--text-primary); }
-  .server-url { font-size: 0.8rem; color: var(--text-secondary); }
+  .connected-state { 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    background: var(--bg-secondary);
+    padding: 1rem;
+    border-radius: 8px;
+  }
+  
+  .server-info { 
+    display: flex; 
+    gap: 0.75rem; 
+    align-items: center; 
+    overflow: hidden;
+  }
+  
+  .status-icon {
+    color: var(--accent-success);
+    display: flex;
+    flex-shrink: 0;
+  }
+  
+  .server-details {
+    overflow: hidden;
+  }
+  
+  .server-name { 
+    font-weight: 600; 
+    color: var(--text-primary); 
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .server-url { 
+    font-size: 0.8rem; 
+    color: var(--text-secondary); 
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
   .error-msg { color: var(--accent-error); margin-bottom: 1rem; font-size: 0.9rem; }
 
   .btn {
     padding: 0.6rem 1.2rem; border-radius: 8px; border: none; font-weight: 600;
     cursor: pointer; display: flex; align-items: center; gap: 0.5rem; justify-content: center;
-    font-size: 0.9rem; transition: opacity 0.2s;
+    font-size: 0.9rem; transition: opacity 0.2s; white-space: nowrap;
   }
   .btn:hover { opacity: 0.9; }
   
@@ -350,14 +411,20 @@
   .actions { display: flex; justify-content: flex-end; margin-top: 1rem; }
 
   .backup-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1.5rem; }
-  .danger-zone { border-top: 1px solid var(--border-divider); padding-top: 1rem; }
+  .danger-zone { border-top: 1px solid var(--border-divider); padding-top: 1.5rem; }
 
   .footer-info {
-    text-align: center; color: var(--text-muted); font-size: 0.75rem; margin-top: 2rem; margin-bottom: 1rem;
+    text-align: center; color: var(--text-muted); font-size: 0.75rem; 
+    margin-top: auto; /* Push to bottom if content is short */
+    padding-top: 1rem;
   }
 
   /* Responsive Mobile */
   @media (max-width: 480px) {
     .settings-drawer { width: 100vw; }
+    
+    .backup-actions {
+      grid-template-columns: 1fr;
+    }
   }
 </style>
