@@ -4,6 +4,7 @@
   import { haStore } from '../../domains/ha/store';
   import { uiDashboardState, selectFilteredEntities, toggleSettings } from '../../domains/ui/store';
   import EntityList from '../../domains/ui/EntityList.svelte';
+  import 'iconify-icon';
   
   // Binding variables to update store
   let searchQuery = $state($uiDashboardState.filters.search || '');
@@ -87,7 +88,9 @@
       </div>
     </div>
 
-    <EntityList entities={$selectFilteredEntities} />
+    <div class="list-wrapper">
+      <EntityList entities={$selectFilteredEntities} />
+    </div>
   {/if}
 </div>
 
@@ -99,7 +102,6 @@
     height: 100%;
     display: flex;
     flex-direction: column;
-    /* Prevent outer scroll */
     overflow: hidden; 
   }
 
@@ -115,6 +117,12 @@
     border-radius: 8px;
     border: 1px solid var(--border-primary);
     flex-shrink: 0;
+  }
+  
+  .list-wrapper {
+    flex: 1;
+    min-height: 0; /* Crucial for nested scroll */
+    overflow: hidden;
   }
   
   .filters {

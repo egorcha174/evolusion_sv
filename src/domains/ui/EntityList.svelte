@@ -14,7 +14,7 @@
   <VirtualList 
     items={entities} 
     itemHeight={ITEM_HEIGHT} 
-    height="calc(100vh - 200px)"
+    height="100%"
     keyField="entity_id"
   >
     {#snippet children({ item })}
@@ -28,10 +28,12 @@
 <style>
   .entity-list-container {
     width: 100%;
+    height: 100%; /* Fill parent */
     background: var(--bg-card);
     border-radius: 8px;
     border: 1px solid var(--border-primary);
     overflow: hidden;
+    box-sizing: border-box;
   }
   
   .row-wrapper {
