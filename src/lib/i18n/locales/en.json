@@ -101,6 +101,7 @@
     "importBtn": "Import Settings",
     "exportBtn": "Export Settings",
     "connection": "Connection",
+    "disconnect": "Disconnect",
     "serverUrl": "Server URL",
     "token": "Access Token",
     "tokenPlaceholder": "Paste your long-lived access token",

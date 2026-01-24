@@ -101,6 +101,7 @@
     "importBtn": "Импорт настроек",
     "exportBtn": "Экспорт настроек",
     "connection": "Подключение",
+    "disconnect": "Отключить",
     "serverUrl": "URL сервера",
     "token": "Токен доступа",
     "tokenPlaceholder": "Вставьте долгосрочный токен",

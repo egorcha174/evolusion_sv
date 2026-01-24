@@ -138,15 +138,16 @@
             <div class="connected-state">
                <div class="server-info">
                  <div class="status-icon">
-                   <iconify-icon icon="mdi:check-circle" width="24"></iconify-icon>
+                   <iconify-icon icon="mdi:check-circle" width="28"></iconify-icon>
                  </div>
                  <div class="server-details">
                    <div class="server-name">{$appState.activeServer?.name || 'Home Assistant'}</div>
                    <div class="server-url">{$appState.activeServer?.url}</div>
                  </div>
                </div>
-               <button class="btn danger outline small" onclick={disconnectServer}>
-                 Disconnect
+               <button class="btn danger small" onclick={disconnectServer}>
+                 <iconify-icon icon="mdi:logout-variant"></iconify-icon>
+                 {$t('settings.disconnect')}
                </button>
             </div>
           {:else}
@@ -384,8 +385,10 @@
     justify-content: space-between; 
     align-items: center; 
     background: var(--bg-secondary);
-    padding: 1rem;
-    border-radius: 8px;
+    border: 1px solid var(--border-primary);
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+    gap: 1rem;
   }
   
   .server-info { 
@@ -393,16 +396,22 @@
     gap: 0.75rem; 
     align-items: center; 
     overflow: hidden;
+    min-width: 0; /* Allow truncation */
+    flex: 1;
   }
   
   .status-icon {
     color: var(--accent-success);
     display: flex;
     flex-shrink: 0;
+    font-size: 1.25rem;
   }
   
   .server-details {
     overflow: hidden;
+    display: flex; 
+    flex-direction: column;
+    min-width: 0;
   }
   
   .server-name { 
@@ -419,6 +428,7 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    opacity: 0.8;
   }
   
   .error-msg { color: var(--accent-error); margin-bottom: 1rem; font-size: 0.9rem; }
