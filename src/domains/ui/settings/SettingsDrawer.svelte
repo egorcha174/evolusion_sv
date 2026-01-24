@@ -1,3 +1,4 @@
+
 <script lang="ts">
   import { fade, fly } from 'svelte/transition';
   import { t } from 'svelte-i18n';
@@ -297,7 +298,9 @@
   /* Server Status Styles */
   .connected-state {
     display: flex; 
-    flex-direction: column; /* Stack Vertically */
+    flex-direction: row; /* Horizontal */
+    align-items: center;
+    justify-content: space-between;
     gap: 1rem;
     padding: 1rem; 
     background: var(--bg-secondary); 
@@ -316,7 +319,8 @@
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    width: 100%;
+    min-width: 0;
+    flex: 1;
   }
 
   .status-icon { display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
@@ -327,8 +331,9 @@
   .server-name { 
     font-weight: 600; 
     color: var(--text-primary); 
-    white-space: normal; /* Allow text to wrap */
-    word-break: break-word; 
+    white-space: nowrap; 
+    overflow: hidden; 
+    text-overflow: ellipsis;
     line-height: 1.3;
     margin-bottom: 2px;
   }
@@ -350,7 +355,7 @@
   .btn.primary { background: var(--accent-primary); color: white; }
   .btn.secondary { background: transparent; border: 1px solid var(--border-primary); color: var(--text-primary); }
   .btn.danger { background: rgba(244, 67, 54, 0.1); color: var(--accent-error); }
-  .btn.danger.outline { border: 1px solid var(--accent-error); background: transparent; width: 100%; } /* Full width disconnect button */
+  .btn.danger.outline { border: 1px solid var(--accent-error); background: transparent; }
   .btn.full { width: 100%; }
   .btn.small { padding: 0.4rem 0.8rem; font-size: 0.85rem; }
   .btn.flex-grow { flex-grow: 1; }

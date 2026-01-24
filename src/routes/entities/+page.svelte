@@ -35,7 +35,7 @@
   {:else if $haStore.error}
     <div class="state-container error">
       <div class="icon-wrapper">
-        <iconify-icon icon="mdi:alert-circle" width="64"></iconify-icon>
+        <iconify-icon icon="mdi:alert-circle-outline" width="64"></iconify-icon>
       </div>
       <h3>{$t('common.error')}</h3>
       <div class="message-box">
@@ -176,18 +176,20 @@
 
   /* Error State Styles */
   .state-container.error .icon-wrapper { color: var(--accent-error); }
-  .state-container.error h3 { color: var(--accent-error); }
+  .state-container.error h3 { color: var(--text-primary); }
   
   .message-box {
     max-width: 450px;
-    background: rgba(244, 67, 54, 0.05);
-    border: 1px solid rgba(244, 67, 54, 0.1);
+    background: var(--bg-secondary);
+    border-left: 4px solid var(--accent-error);
+    border-radius: 4px;
     color: var(--text-primary);
-    padding: 1rem;
-    border-radius: 8px;
+    padding: 1rem 1.5rem;
     font-family: monospace;
     font-size: 0.9rem;
     word-break: break-word;
+    text-align: left;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
   }
   
   .state-container.warning .icon-wrapper { color: var(--text-muted); }
