@@ -214,7 +214,7 @@
         </Section>
 
         <!-- SECTION 4: Backup & Data -->
-        <Section title="Backup & Data" description="Import/Export configuration">
+        <Section title={$t('settings.backup')} description={$t('settings.backupDesc')}>
           <div class="backup-actions">
             <!-- Using primary for Export to match user preference/screenshot style -->
             <button class="btn primary flex-grow" onclick={exportAllSettings}>
@@ -228,7 +228,8 @@
           </div>
 
           <div class="danger-zone">
-             <button class="btn danger full" onclick={handleReset}>
+             <div class="dz-label">{$t('settings.dangerZone')}</div>
+             <button class="btn danger outline full" onclick={handleReset}>
                {$t('settings.reset')}
              </button>
           </div>
@@ -434,7 +435,17 @@
     margin-bottom: 1.5rem; 
   }
   
-  .danger-zone { border-top: 1px solid var(--border-divider); padding-top: 1.5rem; }
+  .danger-zone { 
+    border-top: 1px solid var(--border-divider); 
+    padding-top: 1.5rem; 
+  }
+  
+  .dz-label {
+    color: var(--accent-error);
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+  }
 
   .footer-info {
     text-align: center; color: var(--text-muted); font-size: 0.75rem; 
