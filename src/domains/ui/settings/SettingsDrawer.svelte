@@ -1,21 +1,20 @@
-
 <script lang="ts">
   import { fade, fly } from 'svelte/transition';
   import { t } from 'svelte-i18n';
   import { isSettingsOpen } from '../store';
-  import { appState, saveServerConfig, clearServerConfig } from '../../app/store';
-  import { haStore, disconnectHA, initializeHAConnection } from '../../ha/store';
+  import { appState, clearServerConfig } from '../../app/store';
+  import { haStore, disconnectHA } from '../../ha/store';
   import { themeStore } from '../../theme/store';
   import { weatherSettings, refreshWeatherConfig } from '../../../lib/weather/store';
   import { exportAllSettings, importAllSettings, clearAllData } from '../../app/backup';
   import { setLocale, availableLanguages, currentLang } from '../../../lib/i18n';
-  import type { ServerConfig } from '$lib/types';
   import type { ThemeMode } from '../../../themes/types';
 
   // Components
   import Section from './Section.svelte';
   import LabeledInput from './controls/LabeledInput.svelte';
   import RangeInput from './controls/RangeInput.svelte';
+  import ServerManager from './ServerManager.svelte';
   import 'iconify-icon';
 
   function close() {
@@ -23,44 +22,14 @@
   }
 
   // --- Connection State ---
-  let url = $state('');
-  let token = $state('');
-  let connMessage = $state('');
-
-  // Sync form with active server if connected
-  $effect(() => {
-    if ($appState.activeServer && !url && !token) {
-      url = $appState.activeServer.url;
-      token = $appState.activeServer.token;
-    }
-  });
-
-  async function connectServer() {
-    if (!url || !token) {
-      connMessage = $t('settings.messages.fillRequired');
-      return;
-    }
-
-    const config: ServerConfig = {
-      url: url.replace(/\/$/, ''),
-      token: token.trim(),
-      name: 'Home Assistant'
-    };
-
-    await saveServerConfig(config);
-    // Trigger connection immediately
-    initializeHAConnection(config.url, config.token);
-  }
+  let isServerManagerOpen = $state(false);
 
   function disconnectServer() {
     disconnectHA();
     clearServerConfig();
-    url = '';
-    token = '';
   }
 
   // --- Weather State ---
-  // Initialize with defaults, but sync on open
   let wProvider = $state($weatherSettings.provider);
   let wApiKey = $state($weatherSettings.apiKey || '');
   let wUseCustom = $state($weatherSettings.useCustomLocation);
@@ -68,7 +37,6 @@
   let wLon = $state($weatherSettings.customLocation?.lon ?? 0);
   let wDays = $state($weatherSettings.forecastDays);
 
-  // Sync local state with store whenever the drawer is opened
   $effect(() => {
     if ($isSettingsOpen) {
       wProvider = $weatherSettings.provider;
@@ -133,37 +101,41 @@
     <div class="drawer-content">
       <div class="scroll-inner">
         <!-- SECTION 1: Connection -->
-        <Section title={$t('settings.connection')} description="Manage your Home Assistant server" initiallyOpen={!$haStore.isConnected}>
-          {#if $haStore.isConnected}
-            <div class="connected-state">
-               <div class="server-info">
-                 <div class="status-icon">
-                   <iconify-icon icon="mdi:check-circle" width="28"></iconify-icon>
-                 </div>
-                 <div class="server-details">
-                   <div class="server-name">{$appState.activeServer?.name || 'Home Assistant'}</div>
-                   <div class="server-url">{$appState.activeServer?.url}</div>
-                 </div>
+        <Section title={$t('settings.connection')} description="Manage your Home Assistant server" initiallyOpen={true}>
+            {#if $haStore.isConnected}
+               <!-- Active Connected State -->
+               <div class="connected-state">
+                  <div class="server-info">
+                    <div class="status-icon success">
+                      <iconify-icon icon="mdi:check-circle" width="24"></iconify-icon>
+                    </div>
+                    <div class="server-details">
+                      <div class="server-name">{$appState.activeServer?.name || 'Home Assistant'}</div>
+                      <div class="server-url">{$appState.activeServer?.url}</div>
+                    </div>
+                  </div>
                </div>
-               <button class="btn danger small" onclick={disconnectServer}>
-                 <iconify-icon icon="mdi:logout-variant"></iconify-icon>
-                 {$t('settings.disconnect')}
+            {:else}
+               <!-- Disconnected State -->
+               <div class="disconnected-state">
+                  <div class="status-icon error">
+                      <iconify-icon icon="mdi:alert-circle" width="24"></iconify-icon>
+                  </div>
+                  <span>Not Connected</span>
+               </div>
+            {/if}
+
+            <div class="connection-actions">
+               <button class="btn secondary full" onclick={() => isServerManagerOpen = true}>
+                 <iconify-icon icon="mdi:server-network"></iconify-icon> Manage Servers
                </button>
+               
+               {#if $haStore.isConnected}
+                 <button class="btn danger full" onclick={disconnectServer}>
+                   <iconify-icon icon="mdi:logout-variant"></iconify-icon> Disconnect
+                 </button>
+               {/if}
             </div>
-          {:else}
-            <div class="login-form">
-              <LabeledInput label={$t('settings.serverUrl')} bind:value={url} placeholder="http://homeassistant.local:8123" />
-              <LabeledInput label={$t('settings.token')} bind:value={token} type="password" placeholder="Long-lived access token" />
-
-              {#if connMessage}
-                <div class="error-msg">{connMessage}</div>
-              {/if}
-
-              <button class="btn primary full" onclick={connectServer}>
-                {$t('settings.saveConfig')}
-              </button>
-            </div>
-          {/if}
         </Section>
 
         <!-- SECTION 2: Appearance -->
@@ -230,7 +202,6 @@
         <!-- SECTION 4: Backup & Data -->
         <Section title={$t('settings.backup')} description={$t('settings.backupDesc')}>
           <div class="backup-actions">
-            <!-- Using primary for Export to match user preference/screenshot style -->
             <button class="btn primary flex-grow" onclick={exportAllSettings}>
               <iconify-icon icon="mdi:download"></iconify-icon> {$t('settings.exportBtn')}
             </button>
@@ -255,6 +226,11 @@
       </div>
     </div>
   </aside>
+{/if}
+
+<!-- Server Manager Overlay -->
+{#if isServerManagerOpen}
+   <ServerManager onClose={() => isServerManagerOpen = false} />
 {/if}
 
 <style>
@@ -302,149 +278,51 @@
     flex-shrink: 0;
   }
 
-  .drawer-header h2 {
-    margin: 0;
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: var(--text-primary);
-  }
-
-  .close-btn {
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    color: var(--text-secondary);
-    padding: 8px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.2s;
-  }
+  .drawer-header h2 { margin: 0; font-size: 1.25rem; font-weight: 600; color: var(--text-primary); }
+  .close-btn { background: transparent; border: none; cursor: pointer; color: var(--text-secondary); padding: 8px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
   .close-btn:hover { background: var(--bg-chip); color: var(--text-primary); }
 
-  /* 
-    SCROLL FIX:
-    Use flex: 1 for content but ensure correct overflow handling.
-    height: 0 is a trick to force flex containers to respect the parent height limit.
-  */
   .drawer-content {
     flex: 1 1 auto;
     overflow-y: auto;
     overflow-x: hidden;
-    height: 0; /* Critical for Safari/Flex scroll */
+    height: 0;
     overscroll-behavior: contain;
     -webkit-overflow-scrolling: touch;
-    
     scrollbar-width: thin;
     scrollbar-color: var(--border-input) transparent;
   }
   
-  .scroll-inner {
-    padding: 1.5rem;
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-    min-height: min-content;
-  }
-  
-  .drawer-content::-webkit-scrollbar {
-    width: 6px;
-  }
-  .drawer-content::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  .drawer-content::-webkit-scrollbar-thumb {
-    background-color: var(--border-input);
-    border-radius: 3px;
-  }
+  .scroll-inner { padding: 1.5rem; display: flex; flex-direction: column; gap: 1.5rem; min-height: min-content; }
 
-  :global(.settings-section), .footer-info {
-    flex-shrink: 0;
+  /* Server Status Styles */
+  .connected-state, .disconnected-state {
+    display: flex; align-items: center; gap: 1rem;
+    padding: 0.75rem; background: var(--bg-secondary); border-radius: 8px; border: 1px solid var(--border-primary); margin-bottom: 1rem;
   }
-
-  /* --- Styles reused from page --- */
+  .disconnected-state { color: var(--text-muted); justify-content: center; }
   
+  .status-icon { display: flex; align-items: center; justify-content: center; }
+  .status-icon.success { color: var(--accent-success); }
+  .status-icon.error { color: var(--accent-error); }
+  
+  .server-details { display: flex; flex-direction: column; overflow: hidden; }
+  .server-name { font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .server-url { font-size: 0.8rem; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  
+  .connection-actions { display: flex; flex-direction: column; gap: 0.5rem; }
+
+  /* Generic UI */
   .control-row { margin-bottom: 1rem; }
-  
-  label {
-    display: flex; justify-content: space-between; align-items: center;
-    width: 100%; font-weight: 500; color: var(--text-primary); cursor: pointer;
-    font-size: 0.9rem;
-  }
-
-  select {
-    padding: 0.4rem; border-radius: 6px;
-    border: 1px solid var(--border-input); background: var(--bg-input); color: var(--text-primary);
-    min-width: 140px; font-size: 0.9rem;
-    max-width: 60%;
-  }
-
-  .connected-state { 
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center; 
-    background: var(--bg-secondary);
-    border: 1px solid var(--border-primary);
-    padding: 0.75rem 1rem;
-    border-radius: 12px;
-    gap: 1rem;
-  }
-  
-  .server-info { 
-    display: flex; 
-    gap: 0.75rem; 
-    align-items: center; 
-    overflow: hidden;
-    min-width: 0; /* Allow truncation */
-    flex: 1;
-  }
-  
-  .status-icon {
-    color: var(--accent-success);
-    display: flex;
-    flex-shrink: 0;
-    font-size: 1.25rem;
-  }
-  
-  .server-details {
-    overflow: hidden;
-    display: flex; 
-    flex-direction: column;
-    min-width: 0;
-  }
-  
-  .server-name { 
-    font-weight: 600; 
-    color: var(--text-primary); 
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  
-  .server-url { 
-    font-size: 0.8rem; 
-    color: var(--text-secondary); 
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    opacity: 0.8;
-  }
-  
-  .error-msg { color: var(--accent-error); margin-bottom: 1rem; font-size: 0.9rem; }
+  label { display: flex; justify-content: space-between; align-items: center; width: 100%; font-weight: 500; color: var(--text-primary); cursor: pointer; font-size: 0.9rem; }
+  select { padding: 0.4rem; border-radius: 6px; border: 1px solid var(--border-input); background: var(--bg-input); color: var(--text-primary); min-width: 140px; font-size: 0.9rem; max-width: 60%; }
 
   .btn {
     padding: 0.6rem 1.2rem; border-radius: 8px; border: none; font-weight: 600;
     cursor: pointer; display: flex; align-items: center; gap: 0.5rem; justify-content: center;
-    font-size: 0.9rem; transition: opacity 0.2s;
-    
-    /* FIX: Allow text wrap and multi-line content */
-    white-space: normal;
-    text-align: center;
-    line-height: 1.2;
+    font-size: 0.9rem; transition: opacity 0.2s; white-space: normal; text-align: center; line-height: 1.2;
   }
   .btn:hover { opacity: 0.9; }
-  
   .btn.primary { background: var(--accent-primary); color: white; }
   .btn.secondary { background: transparent; border: 1px solid var(--border-primary); color: var(--text-primary); }
   .btn.danger { background: rgba(244, 67, 54, 0.1); color: var(--accent-error); }
@@ -454,36 +332,15 @@
   .btn.flex-grow { flex-grow: 1; }
 
   .actions { display: flex; justify-content: flex-end; margin-top: 1rem; }
-
-  /* FLEX LAYOUT FOR BUTTONS: Safer than Grid for variable text length */
-  .backup-actions { 
-    display: flex; 
-    flex-wrap: wrap; 
-    gap: 0.75rem; 
-    margin-bottom: 1.5rem; 
-  }
+  .backup-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.5rem; }
   
-  .danger-zone { 
-    border-top: 1px solid var(--border-divider); 
-    padding-top: 1.5rem; 
-  }
-  
-  .dz-label {
-    color: var(--accent-error);
-    font-size: 0.85rem;
-    font-weight: 600;
-    margin-bottom: 0.75rem;
-  }
+  .danger-zone { border-top: 1px solid var(--border-divider); padding-top: 1.5rem; }
+  .dz-label { color: var(--accent-error); font-size: 0.85rem; font-weight: 600; margin-bottom: 0.75rem; }
 
-  .footer-info {
-    text-align: center; color: var(--text-muted); font-size: 0.75rem; 
-    margin-top: auto; 
-    padding-top: 1rem;
-  }
+  .footer-info { text-align: center; color: var(--text-muted); font-size: 0.75rem; margin-top: auto; padding-top: 1rem; }
 
   @media (max-width: 480px) {
     .settings-drawer { width: 100vw; }
-    /* Force stack on very small screens if needed, otherwise wrap handles it */
     .backup-actions .btn { width: 100%; }
   }
 </style>

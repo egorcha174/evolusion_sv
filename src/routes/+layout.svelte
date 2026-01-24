@@ -1,7 +1,7 @@
 
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { appState, loadLayout, loadServerConfig } from '../domains/app/store';
+  import { appState, loadLayout, loadServerConfig, loadSavedServers } from '../domains/app/store';
   import { dashboardStore } from '../domains/app/dashboardStore';
   import { initializeHAConnection, disconnectHA } from '../domains/ha/store';
   import { themeStore } from '../domains/theme/store';
@@ -25,6 +25,7 @@
     
     // 2. Load other configs
     await loadServerConfig();
+    await loadSavedServers(); // Load server list
     await loadLayout();
     await themeStore.init();
     await dashboardStore.init(); // Initialize 2D grid store

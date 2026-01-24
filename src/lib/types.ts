@@ -1,8 +1,10 @@
 
+
 // Re-export HA contracts
 export * from '../domains/ha/contracts/messages';
 
 export interface ServerConfig {
+	id: string;
 	url: string;
 	token: string;
 	name?: string;
@@ -10,6 +12,7 @@ export interface ServerConfig {
 
 export interface AppState {
 	activeServer: ServerConfig | null;
+	savedServers: ServerConfig[];
 }
 
 export interface LayoutConfig {
@@ -134,7 +137,7 @@ export interface DashboardConfig {
   templates: Record<string, CardTemplate>;
 }
 
-function generateId(): string {
+export function generateId(): string {
   if (typeof crypto !== 'undefined' && crypto.randomUUID) {
     try {
       return crypto.randomUUID();
