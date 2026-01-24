@@ -118,122 +118,124 @@
     </header>
 
     <div class="drawer-content">
-      <!-- SECTION 1: Connection -->
-      <Section title={$t('settings.connection')} description="Manage your Home Assistant server" initiallyOpen={!$haStore.isConnected}>
-        {#if $haStore.isConnected}
-          <div class="connected-state">
-             <div class="server-info">
-               <div class="status-icon">
-                 <iconify-icon icon="mdi:check-circle" width="24"></iconify-icon>
+      <div class="scroll-inner">
+        <!-- SECTION 1: Connection -->
+        <Section title={$t('settings.connection')} description="Manage your Home Assistant server" initiallyOpen={!$haStore.isConnected}>
+          {#if $haStore.isConnected}
+            <div class="connected-state">
+               <div class="server-info">
+                 <div class="status-icon">
+                   <iconify-icon icon="mdi:check-circle" width="24"></iconify-icon>
+                 </div>
+                 <div class="server-details">
+                   <div class="server-name">{$appState.activeServer?.name || 'Home Assistant'}</div>
+                   <div class="server-url">{$appState.activeServer?.url}</div>
+                 </div>
                </div>
-               <div class="server-details">
-                 <div class="server-name">{$appState.activeServer?.name || 'Home Assistant'}</div>
-                 <div class="server-url">{$appState.activeServer?.url}</div>
-               </div>
-             </div>
-             <button class="btn danger outline small" onclick={disconnectServer}>
-               Disconnect
+               <button class="btn danger outline small" onclick={disconnectServer}>
+                 Disconnect
+               </button>
+            </div>
+          {:else}
+            <div class="login-form">
+              <LabeledInput label={$t('settings.serverUrl')} bind:value={url} placeholder="http://homeassistant.local:8123" />
+              <LabeledInput label={$t('settings.token')} bind:value={token} type="password" placeholder="Long-lived access token" />
+
+              {#if connMessage}
+                <div class="error-msg">{connMessage}</div>
+              {/if}
+
+              <button class="btn primary full" onclick={connectServer}>
+                {$t('settings.saveConfig')}
+              </button>
+            </div>
+          {/if}
+        </Section>
+
+        <!-- SECTION 2: Appearance -->
+        <Section title={$t('settings.appearance')} description="Theme and language settings">
+          <div class="control-row">
+            <label>
+              {$t('settings.language')}
+              <select value={$currentLang} onchange={(e) => setLocale(e.currentTarget.value)}>
+                {#each $availableLanguages as lang}
+                  <option value={lang.code}>{lang.name}</option>
+                {/each}
+              </select>
+            </label>
+          </div>
+
+          <div class="control-row">
+            <label>
+              {$t('settings.themeMode')}
+              <select value={$themeStore.mode} onchange={(e) => themeStore.setMode(e.currentTarget.value as ThemeMode)}>
+                <option value="auto">{$t('settings.themeModeAuto')}</option>
+                <option value="day">{$t('settings.themeModeDay')}</option>
+                <option value="night">{$t('settings.themeModeNight')}</option>
+                <option value="schedule">{$t('settings.themeModeSchedule')}</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="control-row">
+            <label>
+              {$t('settings.theme')}
+              <select value={$themeStore.currentThemeId} onchange={(e) => themeStore.setTheme(e.currentTarget.value)}>
+                {#each $themeStore.availableThemes as theme}
+                  <option value={theme.id}>{theme.name} {theme.isCustom ? $t('settings.themeCustom') : ''}</option>
+                {/each}
+              </select>
+            </label>
+          </div>
+        </Section>
+
+        <!-- SECTION 3: Weather -->
+        <Section title={$t('settings.weather')} description="Configure weather widget provider">
+          <div class="control-row">
+            <label>
+              {$t('settings.weatherProvider')}
+              <select bind:value={wProvider}>
+                <option value="openmeteo">Open-Meteo (Free)</option>
+                <option value="openweathermap">OpenWeatherMap</option>
+                <option value="weatherapi">WeatherAPI</option>
+              </select>
+            </label>
+          </div>
+
+          {#if wProvider !== 'openmeteo'}
+            <LabeledInput label={$t('settings.weatherKey')} bind:value={wApiKey} type="password" />
+          {/if}
+
+          <RangeInput label={$t('settings.forecast.daysLabel')} bind:value={wDays} min={1} max={7} />
+
+          <div class="actions">
+            <button class="btn secondary small" onclick={saveWeather}>{$t('settings.updateWeather')}</button>
+          </div>
+        </Section>
+
+        <!-- SECTION 4: Backup & Data -->
+        <Section title="Backup & Data" description="Import/Export configuration">
+          <div class="backup-actions">
+            <button class="btn secondary full" onclick={exportAllSettings}>
+              <iconify-icon icon="mdi:download"></iconify-icon> Export Backup
+            </button>
+
+            <button class="btn secondary full" onclick={() => fileInput.click()}>
+              <iconify-icon icon="mdi:upload"></iconify-icon> Import Backup
+            </button>
+            <input type="file" hidden bind:this={fileInput} accept=".zip" onchange={handleBackupImport} />
+          </div>
+
+          <div class="danger-zone">
+             <button class="btn danger full" onclick={handleReset}>
+               Reset All Data
              </button>
           </div>
-        {:else}
-          <div class="login-form">
-            <LabeledInput label={$t('settings.serverUrl')} bind:value={url} placeholder="http://homeassistant.local:8123" />
-            <LabeledInput label={$t('settings.token')} bind:value={token} type="password" placeholder="Long-lived access token" />
+        </Section>
 
-            {#if connMessage}
-              <div class="error-msg">{connMessage}</div>
-            {/if}
-
-            <button class="btn primary full" onclick={connectServer}>
-              {$t('settings.saveConfig')}
-            </button>
-          </div>
-        {/if}
-      </Section>
-
-      <!-- SECTION 2: Appearance -->
-      <Section title={$t('settings.appearance')} description="Theme and language settings">
-        <div class="control-row">
-          <label>
-            {$t('settings.language')}
-            <select value={$currentLang} onchange={(e) => setLocale(e.currentTarget.value)}>
-              {#each $availableLanguages as lang}
-                <option value={lang.code}>{lang.name}</option>
-              {/each}
-            </select>
-          </label>
+        <div class="footer-info">
+          Evolusion v0.0.1
         </div>
-
-        <div class="control-row">
-          <label>
-            {$t('settings.themeMode')}
-            <select value={$themeStore.mode} onchange={(e) => themeStore.setMode(e.currentTarget.value as ThemeMode)}>
-              <option value="auto">{$t('settings.themeModeAuto')}</option>
-              <option value="day">{$t('settings.themeModeDay')}</option>
-              <option value="night">{$t('settings.themeModeNight')}</option>
-              <option value="schedule">{$t('settings.themeModeSchedule')}</option>
-            </select>
-          </label>
-        </div>
-
-        <div class="control-row">
-          <label>
-            {$t('settings.theme')}
-            <select value={$themeStore.currentThemeId} onchange={(e) => themeStore.setTheme(e.currentTarget.value)}>
-              {#each $themeStore.availableThemes as theme}
-                <option value={theme.id}>{theme.name} {theme.isCustom ? $t('settings.themeCustom') : ''}</option>
-              {/each}
-            </select>
-          </label>
-        </div>
-      </Section>
-
-      <!-- SECTION 3: Weather -->
-      <Section title={$t('settings.weather')} description="Configure weather widget provider">
-        <div class="control-row">
-          <label>
-            {$t('settings.weatherProvider')}
-            <select bind:value={wProvider}>
-              <option value="openmeteo">Open-Meteo (Free)</option>
-              <option value="openweathermap">OpenWeatherMap</option>
-              <option value="weatherapi">WeatherAPI</option>
-            </select>
-          </label>
-        </div>
-
-        {#if wProvider !== 'openmeteo'}
-          <LabeledInput label={$t('settings.weatherKey')} bind:value={wApiKey} type="password" />
-        {/if}
-
-        <RangeInput label={$t('settings.forecast.daysLabel')} bind:value={wDays} min={1} max={7} />
-
-        <div class="actions">
-          <button class="btn secondary small" onclick={saveWeather}>{$t('settings.updateWeather')}</button>
-        </div>
-      </Section>
-
-      <!-- SECTION 4: Backup & Data -->
-      <Section title="Backup & Data" description="Import/Export configuration">
-        <div class="backup-actions">
-          <button class="btn secondary full" onclick={exportAllSettings}>
-            <iconify-icon icon="mdi:download"></iconify-icon> Export Backup
-          </button>
-
-          <button class="btn secondary full" onclick={() => fileInput.click()}>
-            <iconify-icon icon="mdi:upload"></iconify-icon> Import Backup
-          </button>
-          <input type="file" hidden bind:this={fileInput} accept=".zip" onchange={handleBackupImport} />
-        </div>
-
-        <div class="danger-zone">
-           <button class="btn danger full" onclick={handleReset}>
-             Reset All Data
-           </button>
-        </div>
-      </Section>
-
-      <div class="footer-info">
-        Evolusion v0.0.1
       </div>
     </div>
   </aside>
@@ -255,8 +257,8 @@
     right: 0;
     width: 420px;
     max-width: 100vw;
-    height: 100%; /* Ensure full height */
-    max-height: 100dvh; /* Handle mobile browser bars */
+    height: 100%;
+    max-height: 100dvh;
     background: var(--bg-page);
     background-color: var(--bg-panel, #ffffff);
     box-shadow: -4px 0 24px rgba(0,0,0,0.15);
@@ -281,7 +283,7 @@
     padding: 1rem 1.5rem;
     border-bottom: 1px solid var(--border-divider);
     background: var(--bg-header);
-    flex-shrink: 0; /* Prevent header from shrinking */
+    flex-shrink: 0;
   }
 
   .drawer-header h2 {
@@ -305,21 +307,30 @@
   }
   .close-btn:hover { background: var(--bg-chip); color: var(--text-primary); }
 
+  /* 
+    SCROLL FIX:
+    Instead of making drawer-content a flex column directly, 
+    we treat it as a scroll container and put content in .scroll-inner.
+    This prevents flexbox height calculation bugs where items shrink/overlap.
+  */
   .drawer-content {
     flex: 1;
-    overflow-y: auto; /* Enable vertical scrolling */
+    overflow-y: auto;
     overflow-x: hidden;
-    min-height: 0; /* Crucial for nested flex scrolling */
+    min-height: 0;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-input) transparent;
+  }
+  
+  .scroll-inner {
     padding: 1.5rem;
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
-    overscroll-behavior: contain; /* Prevent scrolling the body */
-    -webkit-overflow-scrolling: touch;
-    
-    /* Scrollbar styling */
-    scrollbar-width: thin;
-    scrollbar-color: var(--border-input) transparent;
+    min-height: min-content; /* Ensure it can grow */
   }
   
   .drawer-content::-webkit-scrollbar {
@@ -331,6 +342,11 @@
   .drawer-content::-webkit-scrollbar-thumb {
     background-color: var(--border-input);
     border-radius: 3px;
+  }
+
+  /* Prevent shrinking of children */
+  :global(.settings-section), .footer-info {
+    flex-shrink: 0;
   }
 
   /* --- Styles reused from page --- */
@@ -415,16 +431,12 @@
 
   .footer-info {
     text-align: center; color: var(--text-muted); font-size: 0.75rem; 
-    margin-top: auto; /* Push to bottom if content is short */
+    margin-top: auto; 
     padding-top: 1rem;
   }
 
-  /* Responsive Mobile */
   @media (max-width: 480px) {
     .settings-drawer { width: 100vw; }
-    
-    .backup-actions {
-      grid-template-columns: 1fr;
-    }
+    .backup-actions { grid-template-columns: 1fr; }
   }
 </style>
