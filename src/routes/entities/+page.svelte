@@ -33,21 +33,29 @@
     </div>
   {:else if $haStore.error}
     <div class="state-container error">
-      <iconify-icon icon="mdi:alert-circle" width="64"></iconify-icon>
+      <div class="icon-wrapper">
+        <iconify-icon icon="mdi:alert-circle" width="64"></iconify-icon>
+      </div>
       <h3>{$t('common.error')}</h3>
-      <p class="message">{$haStore.error}</p>
+      <div class="message-box">
+        {$haStore.error}
+      </div>
       <button class="btn primary" onclick={toggleSettings}>{$t('settings.title')}</button>
     </div>
   {:else if !$haStore.isConnected}
     <div class="state-container warning">
-      <iconify-icon icon="mdi:lan-disconnect" width="64"></iconify-icon>
+      <div class="icon-wrapper">
+        <iconify-icon icon="mdi:lan-disconnect" width="64"></iconify-icon>
+      </div>
       <h3>{$t('sidebar.offline')}</h3>
       <p class="message">{$t('entities.noEntities')}</p>
       <button class="btn primary" onclick={toggleSettings}>{$t('settings.title')}</button>
     </div>
   {:else if $selectFilteredEntities.length === 0 && !$uiDashboardState.filters.search && !$uiDashboardState.filters.domain}
     <div class="state-container empty">
-       <iconify-icon icon="mdi:package-variant-closed" width="64"></iconify-icon>
+       <div class="icon-wrapper">
+         <iconify-icon icon="mdi:package-variant-closed" width="64"></iconify-icon>
+       </div>
        <p>{$t('entities.noEntities')}</p>
     </div>
   {:else}
@@ -139,7 +147,7 @@
     align-items: center;
     justify-content: center;
     text-align: center;
-    gap: 1rem;
+    gap: 1.5rem;
     color: var(--text-secondary);
     min-height: 300px;
     padding: 2rem;
@@ -157,11 +165,25 @@
     margin: 0;
     font-size: 1rem;
   }
-  
-  .state-container.error { color: var(--accent-error); }
+
+  /* Error State Styles */
+  .state-container.error .icon-wrapper { color: var(--accent-error); }
   .state-container.error h3 { color: var(--accent-error); }
   
-  .state-container.warning { color: var(--text-muted); }
+  .message-box {
+    max-width: 450px;
+    background: rgba(244, 67, 54, 0.05);
+    border: 1px solid rgba(244, 67, 54, 0.1);
+    color: var(--text-primary);
+    padding: 1rem;
+    border-radius: 8px;
+    font-family: monospace;
+    font-size: 0.9rem;
+    word-break: break-word;
+  }
+  
+  .state-container.warning .icon-wrapper { color: var(--text-muted); }
+  .state-container.empty .icon-wrapper { color: var(--text-muted); opacity: 0.5; }
   
   .spinner {
     width: 40px;
@@ -185,7 +207,6 @@
     cursor: pointer;
     font-size: 1rem;
     transition: opacity 0.2s;
-    margin-top: 1rem;
   }
   .btn:hover { opacity: 0.9; }
   .btn.primary { background: var(--accent-primary); color: white; }
