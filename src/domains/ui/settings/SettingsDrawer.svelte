@@ -110,16 +110,18 @@
                <div class="connected-state">
                   <div class="server-info">
                     <div class="status-icon success">
-                      <iconify-icon icon="mdi:home-assistant" width="24"></iconify-icon>
+                      <iconify-icon icon="mdi:home-assistant" width="32"></iconify-icon>
                     </div>
                     <div class="server-details">
                       <div class="server-name">{$appState.activeServer?.name || 'Home Assistant'}</div>
                       <div class="server-url">{$appState.activeServer?.url}</div>
                     </div>
                   </div>
-                  <button class="btn danger outline" onclick={disconnectServer}>
-                    {$t('settings.disconnect')}
-                  </button>
+                  <div class="connected-actions">
+                    <button class="btn danger outline full" onclick={disconnectServer}>
+                      {$t('settings.disconnect')}
+                    </button>
+                  </div>
                </div>
             {:else}
                <!-- Disconnected State -->
@@ -298,11 +300,9 @@
   /* Server Status Styles */
   .connected-state {
     display: flex; 
-    flex-direction: row; /* Horizontal */
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    padding: 1rem; 
+    flex-direction: column; /* Stack vertically */
+    gap: 1.25rem;
+    padding: 1.25rem; 
     background: var(--bg-secondary); 
     border-radius: 8px; 
     border: 1px solid var(--border-primary); 
@@ -317,27 +317,35 @@
   
   .server-info {
     display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    min-width: 0;
-    flex: 1;
+    align-items: flex-start;
+    gap: 1rem;
+    width: 100%;
   }
 
-  .status-icon { display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .status-icon { display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
   .status-icon.success { color: var(--accent-success); }
   .status-icon.error { color: var(--accent-error); }
   
-  .server-details { display: flex; flex-direction: column; min-width: 0; flex: 1; }
+  .server-details { display: flex; flex-direction: column; min-width: 0; flex: 1; gap: 0.25rem; }
   .server-name { 
     font-weight: 600; 
     color: var(--text-primary); 
-    white-space: nowrap; 
-    overflow: hidden; 
-    text-overflow: ellipsis;
+    white-space: normal; /* Allow wrapping */
+    word-break: break-word;
     line-height: 1.3;
-    margin-bottom: 2px;
+    font-size: 1rem;
   }
-  .server-url { font-size: 0.8rem; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .server-url { 
+    font-size: 0.85rem; 
+    color: var(--text-secondary); 
+    white-space: normal; /* Allow wrapping */
+    word-break: break-all;
+    line-height: 1.3;
+  }
+  
+  .connected-actions {
+    width: 100%;
+  }
   
   .connection-actions { display: flex; flex-direction: column; gap: 0.5rem; }
 
