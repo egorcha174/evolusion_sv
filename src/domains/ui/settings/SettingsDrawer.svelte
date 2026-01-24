@@ -25,8 +25,10 @@
   let isServerManagerOpen = $state(false);
 
   function disconnectServer() {
-    disconnectHA();
-    clearServerConfig();
+    if (confirm($t('settings.messages.confirmDisconnect') || 'Disconnect?')) {
+      disconnectHA();
+      clearServerConfig();
+    }
   }
 
   // --- Weather State ---
@@ -107,13 +109,16 @@
                <div class="connected-state">
                   <div class="server-info">
                     <div class="status-icon success">
-                      <iconify-icon icon="mdi:check-circle" width="24"></iconify-icon>
+                      <iconify-icon icon="mdi:home-assistant" width="24"></iconify-icon>
                     </div>
                     <div class="server-details">
                       <div class="server-name">{$appState.activeServer?.name || 'Home Assistant'}</div>
                       <div class="server-url">{$appState.activeServer?.url}</div>
                     </div>
                   </div>
+                  <button class="btn danger outline small" onclick={disconnectServer}>
+                    {$t('settings.disconnect')}
+                  </button>
                </div>
             {:else}
                <!-- Disconnected State -->
@@ -129,12 +134,6 @@
                <button class="btn secondary full" onclick={() => isServerManagerOpen = true}>
                  <iconify-icon icon="mdi:server-network"></iconify-icon> Manage Servers
                </button>
-               
-               {#if $haStore.isConnected}
-                 <button class="btn danger full" onclick={disconnectServer}>
-                   <iconify-icon icon="mdi:logout-variant"></iconify-icon> Disconnect
-                 </button>
-               {/if}
             </div>
         </Section>
 
@@ -297,17 +296,32 @@
 
   /* Server Status Styles */
   .connected-state, .disconnected-state {
-    display: flex; align-items: center; gap: 1rem;
+    display: flex; align-items: center; justify-content: space-between; gap: 0.5rem;
     padding: 0.75rem; background: var(--bg-secondary); border-radius: 8px; border: 1px solid var(--border-primary); margin-bottom: 1rem;
   }
   .disconnected-state { color: var(--text-muted); justify-content: center; }
   
-  .status-icon { display: flex; align-items: center; justify-content: center; }
+  .server-info {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex: 1;
+    min-width: 0; /* Important for flex child truncation/wrapping */
+  }
+
+  .status-icon { display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
   .status-icon.success { color: var(--accent-success); }
   .status-icon.error { color: var(--accent-error); }
   
-  .server-details { display: flex; flex-direction: column; overflow: hidden; }
-  .server-name { font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .server-details { display: flex; flex-direction: column; min-width: 0; }
+  .server-name { 
+    font-weight: 600; 
+    color: var(--text-primary); 
+    white-space: normal; /* Allow wrapping */
+    word-break: break-word; 
+    line-height: 1.2;
+    margin-bottom: 2px;
+  }
   .server-url { font-size: 0.8rem; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   
   .connection-actions { display: flex; flex-direction: column; gap: 0.5rem; }
