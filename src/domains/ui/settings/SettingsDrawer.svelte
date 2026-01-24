@@ -1,4 +1,3 @@
-
 <script lang="ts">
   import { fade, fly } from 'svelte/transition';
   import { t } from 'svelte-i18n';
@@ -104,7 +103,7 @@
     <div class="drawer-content">
       <div class="scroll-inner">
         <!-- SECTION 1: Connection -->
-        <Section title={$t('settings.connection')} description="Manage your Home Assistant server" initiallyOpen={true}>
+        <Section title={$t('settings.connection')} description="Manage your Home Assistant server">
             {#if $haStore.isConnected}
                <!-- Active Connected State -->
                <div class="connected-state">

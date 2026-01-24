@@ -1,9 +1,8 @@
-
 <script lang="ts">
   import { slide } from 'svelte/transition';
   import { cubicInOut } from 'svelte/easing';
   
-  let { title, description, initiallyOpen = true, children } = $props<{
+  let { title, description, initiallyOpen = false, children } = $props<{
     title: string;
     description?: string;
     initiallyOpen?: boolean;
