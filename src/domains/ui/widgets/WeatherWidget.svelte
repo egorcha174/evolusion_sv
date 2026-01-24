@@ -44,11 +44,9 @@
              <div class="forecast-icon">
                <iconify-icon icon={day.icon} width="20"></iconify-icon>
              </div>
-             <div class="forecast-temp">
+             <div class="forecast-temp-stack">
                <span class="max">{day.maxTemp}°</span>
-               {#if $weatherSettings.forecastLayout === 'vertical'}
-                 <span class="min">{day.minTemp}°</span>
-               {/if}
+               <span class="min">{day.minTemp}°</span>
              </div>
            </div>
          {/each}
@@ -146,14 +144,24 @@
     justify-content: center;
   }
   
-  .forecast-temp {
+  .forecast-temp-stack {
     display: flex;
-    gap: 0.5rem;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0;
     font-variant-numeric: tabular-nums;
+    line-height: 1.1;
   }
   
-  .forecast-temp .max { font-weight: 600; color: var(--text-primary); }
-  .forecast-temp .min { color: var(--text-muted); }
+  .forecast-temp-stack .max { 
+    font-weight: 600; 
+    color: var(--text-primary);
+    font-size: 0.9rem;
+  }
+  .forecast-temp-stack .min { 
+    color: var(--text-muted); 
+    font-size: 0.8rem;
+  }
 
   /* Forecast List - Horizontal Mode */
   .forecast-list.horizontal {
@@ -189,9 +197,9 @@
     width: auto;
     font-size: 0.75rem;
   }
-
-  .forecast-list.horizontal .forecast-temp {
-    font-size: 0.8rem;
+  
+  .forecast-list.horizontal .forecast-temp-stack {
+    align-items: center;
   }
 
   .spinner {

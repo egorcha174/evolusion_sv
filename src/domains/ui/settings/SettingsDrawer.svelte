@@ -60,12 +60,25 @@
   }
 
   // --- Weather State ---
+  // Initialize with defaults, but sync on open
   let wProvider = $state($weatherSettings.provider);
   let wApiKey = $state($weatherSettings.apiKey || '');
   let wUseCustom = $state($weatherSettings.useCustomLocation);
   let wLat = $state($weatherSettings.customLocation?.lat ?? 0);
   let wLon = $state($weatherSettings.customLocation?.lon ?? 0);
   let wDays = $state($weatherSettings.forecastDays);
+
+  // Sync local state with store whenever the drawer is opened
+  $effect(() => {
+    if ($isSettingsOpen) {
+      wProvider = $weatherSettings.provider;
+      wApiKey = $weatherSettings.apiKey || '';
+      wUseCustom = $weatherSettings.useCustomLocation;
+      wLat = $weatherSettings.customLocation?.lat ?? 0;
+      wLon = $weatherSettings.customLocation?.lon ?? 0;
+      wDays = $weatherSettings.forecastDays;
+    }
+  });
 
   function saveWeather() {
      weatherSettings.update(s => ({
