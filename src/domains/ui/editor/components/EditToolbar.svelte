@@ -1,4 +1,3 @@
-
 <script lang="ts">
   import { t } from 'svelte-i18n';
   import { editorStore } from '../store';
@@ -53,14 +52,14 @@
   
   <div class="divider"></div>
   
-  <div class="group">
+  <div class="group actions">
     <button class="tool-btn cancel" onclick={cancel}>
       <iconify-icon icon="mdi:close"></iconify-icon>
-      {$t('common.cancel')}
+      <span class="btn-text">{$t('common.cancel')}</span>
     </button>
     <button class="tool-btn primary" onclick={save}>
       <iconify-icon icon="mdi:check"></iconify-icon>
-      {$t('dashboard.done')}
+      <span class="btn-text">{$t('dashboard.done')}</span>
     </button>
   </div>
 </div>
@@ -72,68 +71,113 @@
     left: 50%;
     transform: translateX(-50%);
     background: var(--bg-panel, rgba(255, 255, 255, 0.9));
-    backdrop-filter: blur(12px);
-    border: 1px solid var(--border-primary);
-    border-radius: 32px;
-    padding: 8px 16px;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--border-primary, rgba(0,0,0,0.1));
+    border-radius: 40px; /* Pill shape */
+    padding: 6px 12px;
     display: flex;
-    gap: 16px;
+    gap: 12px;
     align-items: center;
-    box-shadow: 0 4px 24px rgba(0,0,0,0.2);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.05);
     z-index: 1000;
+    transition: all 0.2s ease;
   }
   
   .group {
     display: flex;
-    gap: 8px;
+    gap: 4px;
     align-items: center;
+  }
+  
+  .group.actions {
+    gap: 8px;
+    margin-left: 4px;
   }
 
   .divider {
     width: 1px;
-    height: 24px;
-    background: var(--border-primary);
-    opacity: 0.5;
+    height: 20px;
+    background: var(--border-primary, rgba(0,0,0,0.1));
   }
   
   .tool-btn {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 6px;
     background: transparent;
     border: none;
-    padding: 8px 12px;
-    border-radius: 20px;
+    height: 36px;
+    min-width: 36px;
+    padding: 0 8px;
+    border-radius: 18px;
     cursor: pointer;
     font-size: 0.9rem;
-    color: var(--text-primary);
-    transition: background 0.2s;
+    color: var(--text-secondary);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
   
   .tool-btn:hover:not(:disabled) {
-    background: rgba(0,0,0,0.05);
+    background: var(--bg-card-hover, rgba(0,0,0,0.05));
+    color: var(--text-primary);
+    transform: translateY(-1px);
+  }
+  
+  .tool-btn:active:not(:disabled) {
+    transform: translateY(0);
   }
 
   .tool-btn.active {
     background: var(--accent-primary);
-    color: #fff;
+    color: var(--text-on-accent, white);
   }
   
   .tool-btn:disabled {
     opacity: 0.3;
     cursor: default;
+    pointer-events: none;
   }
   
+  /* Primary Action (Done) */
   .tool-btn.primary {
     background: var(--accent-primary);
-    color: white;
+    color: var(--text-on-accent, #ffffff);
+    padding: 0 16px;
+    font-weight: 600;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
   }
   
   .tool-btn.primary:hover {
-    filter: brightness(1.1);
+    filter: brightness(1.05);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
   }
   
+  /* Cancel Action */
   .tool-btn.cancel {
+    color: var(--text-secondary);
+    padding: 0 12px;
+  }
+  
+  .tool-btn.cancel:hover {
+    background: rgba(244, 67, 54, 0.1);
     color: var(--accent-error);
+  }
+  
+  .btn-text {
+    font-size: 0.9rem;
+    line-height: 1;
+  }
+  
+  /* Mobile adjustments */
+  @media (max-width: 480px) {
+    .btn-text {
+      display: none;
+    }
+    .tool-btn.primary, .tool-btn.cancel {
+      padding: 0;
+      width: 36px;
+    }
+    /* Show checkmark/close only */
   }
 </style>
