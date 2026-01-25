@@ -1,104 +1,272 @@
 
-import type { SchemeSettings } from './types';
+import type { ThemeFile } from './types';
 
-export const defaultLightScheme: SchemeSettings = {
-  dashboardBackgroundType: 'gradient',
-  dashboardGradient: {
-    angle: 135,
-    stops: [
-      { color: '#EAEAEB', position: 0 },
-      { color: '#DCDCDC', position: 100 }
-    ]
+// Default Light / Dark (Minimalist)
+export const defaultTheme: ThemeFile = {
+  schemaVersion: 1,
+  manifest: {
+    name: "Default",
+    version: "1.0.0",
+    author: "Evolusion",
+    description: "Clean default theme",
+    generatedAt: new Date().toISOString()
   },
-  
-  bgPage: '#f0f2f5',
-  
-  cardOpacity: 0.85,
-  cardBorderRadius: 16,
-  cardBorderWidth: 0,
-  cardBorderColor: 'transparent',
-  cardBorderColorOn: '#2196f3',
-  cardBackground: 'rgba(255, 255, 255, 0.8)',
-  cardBackgroundOn: 'rgba(255, 255, 255, 0.95)',
-  shadowCard: '0 1px 2px rgba(0, 0, 0, 0.05)',
-  shadowDropdown: '0 4px 12px rgba(0, 0, 0, 0.15)',
-  
-  panelOpacity: 0.95,
-  bgPanel: 'rgba(255, 255, 255, 0.95)',
-  
-  bgInput: '#ffffff',
-  bgHeader: 'rgba(255, 255, 255, 0.8)',
-
-  textPrimary: '#1a1d21',
-  textSecondary: '#65676b',
-  textMuted: '#b0b3b8',
-
-  nameTextColor: '#1a1d21',
-  statusTextColor: '#65676b',
-  valueTextColor: '#1a1d21',
-  unitTextColor: '#65676b',
-  
-  nameTextColorOn: '#1a1d21',
-  statusTextColorOn: '#2196f3',
-  valueTextColorOn: '#1a1d21',
-  unitTextColorOn: '#2196f3',
-
-  accentPrimary: '#2196f3',
-  accentError: '#f44336',
-  accentSuccess: '#4caf50',
-  accentWarning: '#ff9800',
-  accentInfo: '#03a9f4',
-  
-  widgetSwitchOn: '#4caf50',
-  
-  gridCellBg: 'rgba(0, 0, 0, 0.06)',
-  gridCellBorder: 'rgba(0, 0, 0, 0.15)'
+  theme: {
+    id: "default",
+    name: "Default",
+    isCustom: false,
+    scheme: {
+      light: {
+        dashboardBackgroundType: "color",
+        dashboardBackgroundColor1: "#f0f2f5",
+        cardOpacity: 1,
+        cardBorderRadius: 12,
+        cardBorderWidth: 0,
+        cardBorderColor: "transparent",
+        cardBorderColorOn: "#2196f3",
+        cardBackground: "#ffffff",
+        cardBackgroundOn: "#ffffff",
+        iconBackgroundShape: "circle",
+        iconBackgroundColorOn: "rgba(33, 150, 243, 0.1)",
+        iconBackgroundColorOff: "rgba(0, 0, 0, 0.05)",
+        panelOpacity: 1,
+        tabTextColor: "#65676b",
+        activeTabTextColor: "#2196f3",
+        tabIndicatorColor: "#2196f3",
+        nameTextColor: "#050505",
+        statusTextColor: "#65676b",
+        valueTextColor: "#050505",
+        unitTextColor: "#65676b",
+        nameTextColorOn: "#2196f3",
+        statusTextColorOn: "#2196f3",
+        valueTextColorOn: "#2196f3",
+        unitTextColorOn: "#2196f3",
+        clockTextColor: "#050505",
+        thermostatHandleColor: "#ffffff",
+        thermostatDialTextColor: "#050505",
+        thermostatDialLabelColor: "#65676b",
+        thermostatHeatingColor: "#ff9800",
+        thermostatCoolingColor: "#2196f3"
+      },
+      dark: {
+        dashboardBackgroundType: "color",
+        dashboardBackgroundColor1: "#18191a",
+        cardOpacity: 1,
+        cardBorderRadius: 12,
+        cardBorderWidth: 0,
+        cardBorderColor: "transparent",
+        cardBorderColorOn: "#2d88ff",
+        cardBackground: "#242526",
+        cardBackgroundOn: "#242526",
+        iconBackgroundShape: "circle",
+        iconBackgroundColorOn: "rgba(45, 136, 255, 0.2)",
+        iconBackgroundColorOff: "rgba(255, 255, 255, 0.1)",
+        panelOpacity: 1,
+        tabTextColor: "#b0b3b8",
+        activeTabTextColor: "#2d88ff",
+        tabIndicatorColor: "#2d88ff",
+        nameTextColor: "#e4e6eb",
+        statusTextColor: "#b0b3b8",
+        valueTextColor: "#e4e6eb",
+        unitTextColor: "#b0b3b8",
+        nameTextColorOn: "#2d88ff",
+        statusTextColorOn: "#2d88ff",
+        valueTextColorOn: "#2d88ff",
+        unitTextColorOn: "#2d88ff",
+        clockTextColor: "#e4e6eb",
+        thermostatHandleColor: "#e4e6eb",
+        thermostatDialTextColor: "#e4e6eb",
+        thermostatDialLabelColor: "#b0b3b8",
+        thermostatHeatingColor: "#ff9800",
+        thermostatCoolingColor: "#2d88ff"
+      }
+    }
+  }
 };
 
-export const defaultDarkScheme: SchemeSettings = {
-  dashboardBackgroundType: 'color',
-  dashboardBackgroundColor: '#1C1C1E',
-
-  bgPage: '#111315',
-
-  cardOpacity: 0.8,
-  cardBorderRadius: 16,
-  cardBorderWidth: 0,
-  cardBorderColor: 'transparent',
-  cardBorderColorOn: '#64b5f6',
-  cardBackground: 'rgba(44, 44, 46, 0.8)',
-  cardBackgroundOn: 'rgba(60, 60, 62, 0.85)',
-  shadowCard: '0 2px 4px rgba(0, 0, 0, 0.2)',
-  shadowDropdown: '0 4px 12px rgba(0, 0, 0, 0.4)',
-
-  panelOpacity: 0.95,
-  bgPanel: 'rgba(28, 28, 30, 0.95)',
-
-  bgInput: '#2d3035',
-  bgHeader: 'rgba(28, 28, 30, 0.8)',
-
-  textPrimary: '#e4e6eb',
-  textSecondary: '#b0b3b8',
-  textMuted: '#6d7177',
-
-  nameTextColor: '#e4e6eb',
-  statusTextColor: '#b0b3b8',
-  valueTextColor: '#e4e6eb',
-  unitTextColor: '#b0b3b8',
-
-  nameTextColorOn: '#e4e6eb',
-  statusTextColorOn: '#64b5f6',
-  valueTextColorOn: '#e4e6eb',
-  unitTextColorOn: '#64b5f6',
-
-  accentPrimary: '#64b5f6',
-  accentError: '#e57373',
-  accentSuccess: '#81c784',
-  accentWarning: '#ffb74d',
-  accentInfo: '#4fc3f7',
-  
-  widgetSwitchOn: '#81c784',
-  
-  gridCellBg: 'rgba(255, 255, 255, 0.08)',
-  gridCellBorder: 'rgba(255, 255, 255, 0.15)'
+export const tronTheme: ThemeFile = {
+  schemaVersion: 1,
+  manifest: {
+    name: "Трон",
+    version: "1.0.0",
+    author: "User",
+    description: "Exported from dashboard",
+    generatedAt: "2026-01-25T05:39:28.944Z"
+  },
+  theme: {
+    id: "tron",
+    name: "Трон",
+    isCustom: false,
+    scheme: {
+      light: {
+        dashboardBackgroundType: "gradient",
+        dashboardBackgroundColor1: "#F0F9FF",
+        dashboardBackgroundColor2: "#CFFAFE",
+        dashboardBackgroundImageBlur: 0,
+        dashboardBackgroundImageBrightness: 100,
+        cardOpacity: 0.9,
+        panelOpacity: 0.8,
+        cardBorderRadius: 6,
+        cardBorderWidth: 1,
+        cardBorderColor: "#0891B2",
+        cardBorderColorOn: "#0891B2",
+        iconBackgroundShape: "rounded-square",
+        iconBackgroundColorOn: "rgba(8, 145, 178, 0.15)",
+        iconBackgroundColorOff: "rgba(8, 145, 178, 0.05)",
+        cardBackground: "rgba(255, 255, 255, 0.9)",
+        cardBackgroundOn: "rgba(224, 242, 254, 1)",
+        tabTextColor: "#64748B",
+        activeTabTextColor: "#0891B2",
+        tabIndicatorColor: "#0891B2",
+        thermostatHandleColor: "#FFFFFF",
+        thermostatDialTextColor: "#0891B2",
+        thermostatDialLabelColor: "#64748B",
+        thermostatHeatingColor: "#EA580C",
+        thermostatCoolingColor: "#06B6D4",
+        clockTextColor: "#0891B2",
+        weatherIconSize: 96,
+        weatherForecastIconSize: 48,
+        weatherCurrentTempFontSize: 36,
+        weatherCurrentDescFontSize: 14,
+        weatherForecastDayFontSize: 12,
+        weatherForecastMaxTempFontSize: 18,
+        weatherForecastMinTempFontSize: 14,
+        nameTextColor: "#334155",
+        statusTextColor: "#64748B",
+        valueTextColor: "#0891B2",
+        unitTextColor: "#0891B2",
+        nameTextColorOn: "#0C4A6E",
+        statusTextColorOn: "#0369A1",
+        valueTextColorOn: "#0891B2",
+        unitTextColorOn: "#0891B2"
+      },
+      dark: {
+        dashboardBackgroundType: "gradient",
+        dashboardBackgroundColor1: "#020617",
+        dashboardBackgroundColor2: "#0B1120",
+        dashboardBackgroundImageBlur: 0,
+        dashboardBackgroundImageBrightness: 100,
+        cardOpacity: 0.85,
+        panelOpacity: 0.85,
+        cardBorderRadius: 6,
+        cardBorderWidth: 1,
+        cardBorderColor: "#22D3EE",
+        cardBorderColorOn: "#22D3EE",
+        iconBackgroundShape: "rounded-square",
+        iconBackgroundColorOn: "rgba(34, 211, 238, 0.15)",
+        iconBackgroundColorOff: "rgba(34, 211, 238, 0.05)",
+        cardBackground: "rgba(15, 23, 42, 0.6)",
+        cardBackgroundOn: "rgba(6, 182, 212, 0.25)",
+        tabTextColor: "#475569",
+        activeTabTextColor: "#22D3EE",
+        tabIndicatorColor: "#22D3EE",
+        thermostatHandleColor: "#0F172A",
+        thermostatDialTextColor: "#22D3EE",
+        thermostatDialLabelColor: "#94A3B8",
+        thermostatHeatingColor: "#F97316",
+        thermostatCoolingColor: "#22D3EE",
+        clockTextColor: "#22D3EE",
+        weatherIconSize: 96,
+        weatherForecastIconSize: 48,
+        weatherCurrentTempFontSize: 36,
+        weatherCurrentDescFontSize: 14,
+        weatherForecastDayFontSize: 12,
+        weatherForecastMaxTempFontSize: 18,
+        weatherForecastMinTempFontSize: 14,
+        nameTextColor: "#E2E8F0",
+        statusTextColor: "#64748B",
+        valueTextColor: "#22D3EE",
+        unitTextColor: "#22D3EE",
+        nameTextColorOn: "#FFFFFF",
+        statusTextColorOn: "#A5F3FC",
+        valueTextColorOn: "#FFFFFF",
+        unitTextColorOn: "#FFFFFF"
+      }
+    }
+  }
 };
+
+export const deepSpaceTheme: ThemeFile = {
+  schemaVersion: 1,
+  manifest: {
+    name: "Глубокий космос",
+    version: "1.0.0",
+    author: "User",
+    description: "Exported from dashboard",
+    generatedAt: "2026-01-25T05:37:40.857Z"
+  },
+  theme: {
+    id: "deep-space",
+    name: "Глубокий космос",
+    isCustom: false,
+    scheme: {
+      light: {
+        dashboardBackgroundType: "gradient",
+        dashboardBackgroundColor1: "#D4DEE7",
+        dashboardBackgroundColor2: "#BCC8D6",
+        cardOpacity: 0.85,
+        panelOpacity: 0.75,
+        cardBorderRadius: 16,
+        cardBorderWidth: 0,
+        cardBorderColor: "#E2E8F0",
+        cardBorderColorOn: "#3182CE",
+        iconBackgroundShape: "circle",
+        iconBackgroundColorOn: "rgba(255, 255, 255, 0.9)",
+        iconBackgroundColorOff: "rgba(255, 255, 255, 0.4)",
+        cardBackground: "rgba(255, 255, 255, 0.7)",
+        cardBackgroundOn: "rgba(255, 255, 255, 0.9)",
+        tabTextColor: "#4A5568",
+        activeTabTextColor: "#1A202C",
+        tabIndicatorColor: "#2D3748",
+        thermostatHandleColor: "#FFFFFF",
+        thermostatDialTextColor: "#1A202C",
+        thermostatDialLabelColor: "#4A5568",
+        thermostatHeatingColor: "#DD6B20",
+        thermostatCoolingColor: "#3182CE",
+        clockTextColor: "#1A202C",
+        nameTextColor: "#2D3748",
+        statusTextColor: "#718096",
+        valueTextColor: "#1A202C",
+        unitTextColor: "#1A202C",
+        nameTextColorOn: "#1A202C",
+        statusTextColorOn: "#2D3748",
+        valueTextColorOn: "#1A202C",
+        unitTextColorOn: "#1A202C"
+      },
+      dark: {
+        dashboardBackgroundType: "color",
+        dashboardBackgroundColor1: "#0a0f14",
+        cardOpacity: 0.8,
+        panelOpacity: 0.7,
+        cardBorderRadius: 16,
+        cardBorderWidth: 0,
+        cardBorderColor: "#2D3748",
+        cardBorderColorOn: "#89B3F8",
+        iconBackgroundShape: "circle",
+        iconBackgroundColorOn: "rgba(255, 255, 255, 0.15)",
+        iconBackgroundColorOff: "rgba(255, 255, 255, 0.05)",
+        cardBackground: "rgba(18, 25, 35, 0.8)",
+        cardBackgroundOn: "rgba(25, 33, 45, 0.9)",
+        tabTextColor: "#9FB1CC",
+        activeTabTextColor: "#EAF0F6",
+        tabIndicatorColor: "#89B3F8",
+        thermostatHandleColor: "#121923",
+        thermostatDialTextColor: "#EAF0F6",
+        thermostatDialLabelColor: "#9FB1CC",
+        thermostatHeatingColor: "#F6AD55",
+        thermostatCoolingColor: "#63B3ED",
+        clockTextColor: "#EAF0F6",
+        nameTextColor: "#CBD5E0",
+        statusTextColor: "#A0AEC0",
+        valueTextColor: "#EAF0F6",
+        unitTextColor: "#EAF0F6",
+        nameTextColorOn: "#EAF0F6",
+        statusTextColorOn: "#CBD5E0",
+        valueTextColorOn: "#EAF0F6",
+        unitTextColorOn: "#EAF0F6"
+      }
+    }
+  }
+};
+
+export const BUILTIN_THEMES: ThemeFile[] = [defaultTheme, tronTheme, deepSpaceTheme];

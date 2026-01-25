@@ -1,42 +1,24 @@
 
-export type ThemeMode = 'auto' | 'schedule' | 'day' | 'night';
-export type ColorScheme = 'light' | 'dark';
-export type BackgroundType = 'color' | 'gradient' | 'image' | 'animation';
-
-export interface GradientConfig {
-  angle: number;
-  stops: Array<{
-    color: string;
-    position: number;
-  }>;
+export interface ThemeManifest {
+  name: string;
+  version: string;
+  author: string;
+  description: string;
+  generatedAt: string;
+  tags?: string[];
+  preview?: string;
 }
 
-export interface ImageConfig {
-  url: string;
-  size: 'cover' | 'contain' | 'auto' | string;
-  position: string;
-  repeat: 'no-repeat' | 'repeat' | 'repeat-x' | 'repeat-y';
-  opacity?: number;
-  blur?: number;
-}
+export interface ColorScheme {
+  // Dashboard
+  dashboardBackgroundType: 'color' | 'gradient' | 'image';
+  dashboardBackgroundColor1: string;
+  dashboardBackgroundColor2?: string;
+  dashboardBackgroundImageUrl?: string;
+  dashboardBackgroundImageBlur?: number;
+  dashboardBackgroundImageBrightness?: number;
 
-export interface AnimationConfig {
-  type: 'particles' | 'waves' | 'gradient-shift' | 'custom';
-  config: Record<string, any>;
-}
-
-export interface SchemeSettings {
-  // === BACKGROUND ===
-  dashboardBackgroundType: BackgroundType;
-  dashboardBackgroundColor?: string;
-  dashboardGradient?: GradientConfig;
-  dashboardBackgroundImage?: ImageConfig;
-  dashboardBackgroundAnimation?: AnimationConfig;
-  
-  // === PAGE ===
-  bgPage: string;
-
-  // === CARDS ===
+  // Card
   cardOpacity: number;
   cardBorderRadius: number;
   cardBorderWidth: number;
@@ -44,80 +26,66 @@ export interface SchemeSettings {
   cardBorderColorOn: string;
   cardBackground: string;
   cardBackgroundOn: string;
-  shadowCard: string;
-  shadowDropdown: string;
-  
-  // === PANELS (Sidebar, Settings, Modals) ===
+
+  // Panel
   panelOpacity: number;
-  bgPanel: string;
-  
-  // === UI ELEMENTS ===
-  bgInput: string;
-  bgHeader: string;
-  
-  // === TEXT ===
-  textPrimary: string;
-  textSecondary: string;
-  textMuted: string;
-  
-  // === WIDGET TEXT ===
+
+  // Tabs
+  tabTextColor: string;
+  activeTabTextColor: string;
+  tabIndicatorColor: string;
+
+  // Icon
+  iconBackgroundShape: 'circle' | 'rounded-square' | 'square';
+  iconBackgroundColorOn: string;
+  iconBackgroundColorOff: string;
+
+  // Thermostat
+  thermostatHandleColor: string;
+  thermostatDialTextColor: string;
+  thermostatDialLabelColor: string;
+  thermostatHeatingColor: string;
+  thermostatCoolingColor: string;
+
+  // Clock
+  clockTextColor: string;
+
+  // Weather
+  weatherIconSize?: number;
+  weatherForecastIconSize?: number;
+  weatherCurrentTempFontSize?: number;
+  weatherCurrentDescFontSize?: number;
+  weatherForecastDayFontSize?: number;
+  weatherForecastMaxTempFontSize?: number;
+  weatherForecastMinTempFontSize?: number;
+
+  // Widget Text
   nameTextColor: string;
   statusTextColor: string;
   valueTextColor: string;
   unitTextColor: string;
-  
   nameTextColorOn: string;
   statusTextColorOn: string;
   valueTextColorOn: string;
   unitTextColorOn: string;
-
-  // === ACCENTS ===
-  accentPrimary: string;
-  accentError: string;
-  accentSuccess: string;
-  accentWarning: string;
-  accentInfo: string;
-  
-  widgetSwitchOn: string;
-
-  // === EDITOR ===
-  gridCellBg?: string;
-  gridCellBorder?: string;
 }
 
-export interface ThemeManifest {
-  id: string;
-  name: string;
-  version: string;
-  author: string;
-  description: string;
-  preview?: string;
-  isCustom: boolean;
-  generatedAt?: string;
+export interface ThemeScheme {
+  light: ColorScheme;
+  dark: ColorScheme;
 }
 
 export interface Theme {
+  id: string;
+  name: string;
+  isCustom: boolean;
+  scheme: ThemeScheme;
+}
+
+export interface ThemeFile {
   schemaVersion: number;
   manifest: ThemeManifest;
-  light: SchemeSettings;
-  dark: SchemeSettings;
+  theme: Theme;
 }
 
-export interface ThemeSchedule {
-  mode: 'time' | 'sunriseSunset';
-  dayStart?: string;
-  nightStart?: string;
-  coordinates?: {
-    latitude: number;
-    longitude: number;
-  };
-}
-
-export interface ThemeState {
-  currentThemeId: string;
-  currentScheme: ColorScheme;
-  mode: ThemeMode;
-  schedule?: ThemeSchedule;
-  availableThemes: ThemeManifest[];
-  loadedTheme: Theme | null;
-}
+export type ThemeMode = 'auto' | 'light' | 'dark';

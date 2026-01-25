@@ -1,4 +1,4 @@
-import type { Theme, ThemeManifest } from './types';
+import type { Theme, ThemeManifest, ThemeFile } from './types';
 
 // Define necessary types for Vite's import.meta.glob to avoid dependency on vite/client types
 interface ViteImportMeta {
@@ -6,23 +6,25 @@ interface ViteImportMeta {
 }
 
 // Use Vite's glob import with type casting
-const presetThemes = (import.meta as unknown as ViteImportMeta).glob<{ default: Theme }>('./presets/*.json', { eager: true });
-const customThemes = (import.meta as unknown as ViteImportMeta).glob<{ default: Theme }>('./custom/*.json', { eager: true });
+const presetThemes = (import.meta as unknown as ViteImportMeta).glob<{ default: ThemeFile }>('./presets/*.json', { eager: true });
+const customThemes = (import.meta as unknown as ViteImportMeta).glob<{ default: ThemeFile }>('./custom/*.json', { eager: true });
 
 export function getAvailableThemes(): ThemeManifest[] {
   const themes: ThemeManifest[] = [];
   
   for (const path in presetThemes) {
-    const theme = presetThemes[path].default;
-    if (theme && theme.manifest) {
-      themes.push({ ...theme.manifest, isCustom: false });
+    const file = presetThemes[path].default;
+    if (file && file.manifest) {
+      // @ts-ignore
+      themes.push({ ...file.manifest, isCustom: false });
     }
   }
   
   for (const path in customThemes) {
-    const theme = customThemes[path].default;
-    if (theme && theme.manifest) {
-      themes.push({ ...theme.manifest, isCustom: true });
+    const file = customThemes[path].default;
+    if (file && file.manifest) {
+      // @ts-ignore
+      themes.push({ ...file.manifest, isCustom: true });
     }
   }
   
@@ -42,17 +44,17 @@ export function getAvailableThemes(): ThemeManifest[] {
 export async function loadTheme(themeId: string): Promise<Theme | null> {
   // 1. Presets
   for (const path in presetThemes) {
-    const theme = presetThemes[path].default;
-    if (theme.manifest.id === themeId) {
-      return theme;
+    const file = presetThemes[path].default;
+    if (file.theme.id === themeId) {
+      return file.theme;
     }
   }
   
   // 2. Custom Files
   for (const path in customThemes) {
-    const theme = customThemes[path].default;
-    if (theme.manifest.id === themeId) {
-      return theme;
+    const file = customThemes[path].default;
+    if (file.theme.id === themeId) {
+      return file.theme;
     }
   }
   
@@ -60,18 +62,18 @@ export async function loadTheme(themeId: string): Promise<Theme | null> {
   if (typeof localStorage !== 'undefined') {
       try {
         const stored = JSON.parse(localStorage.getItem('evolusion-custom-themes') || '{}');
-        if (stored[themeId]) return stored[themeId];
+        if (stored[themeId]) return stored[themeId].theme;
       } catch (e) { /* ignore */ }
   }
   
   return null;
 }
 
-export async function saveCustomTheme(theme: Theme): Promise<void> {
+export async function saveCustomTheme(file: ThemeFile): Promise<void> {
   if (typeof localStorage === 'undefined') return;
   const customThemesKey = 'evolusion-custom-themes';
   const existing = JSON.parse(localStorage.getItem(customThemesKey) || '{}');
-  existing[theme.manifest.id] = theme;
+  existing[file.theme.id] = file;
   localStorage.setItem(customThemesKey, JSON.stringify(existing));
 }
 

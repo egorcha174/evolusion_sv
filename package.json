@@ -27,6 +27,7 @@
     "iconify-icon": "^1.0.8",
     "svelte-i18n": "^4.0.0",
     "jszip": "^3.10.1",
-    "file-saver": "^2.0.5"
+    "file-saver": "^2.0.5",
+    "zod": "^3.22.4"
   }
 }

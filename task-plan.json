@@ -1,0 +1,18 @@
+
+{
+  "task_id": "theme-sys-01",
+  "step_id": "core-setup",
+  "title": "Theme System Core Infrastructure",
+  "goal": "Implement TypeScript types, Zod schemas, updated utilities, and store for the new theme system.",
+  "files": [
+    "package.json",
+    "src/themes/types.ts",
+    "src/themes/schemas.ts",
+    "src/themes/utils.ts",
+    "src/themes/defaults.ts",
+    "src/domains/theme/store.ts"
+  ],
+  "verification": "npm run check && npm run build",
+  "risk": "Breaking changes to existing theme usage in components. CSS variables will change names.",
+  "rollback": "Revert changes to theme files."
+}
