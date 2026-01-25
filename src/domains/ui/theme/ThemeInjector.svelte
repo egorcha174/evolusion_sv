@@ -1,12 +1,5 @@
+
 <script lang="ts">
-  import { onMount } from 'svelte';
-  import { themeState, themeSettings } from './store';
-
-  onMount(() => {
-    themeSettings.init();
-  });
+  // ThemeInjector is deprecated as theme application is handled via store subscription.
+  // Kept as empty placeholder to avoid build errors if referenced.
 </script>
-
-<svelte:head>
-  {@html `<style id="theme-styles">${$themeState.css}</style>`}
-</svelte:head>

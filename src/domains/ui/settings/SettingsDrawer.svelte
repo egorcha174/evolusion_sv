@@ -6,13 +6,12 @@
   import { isSettingsOpen } from '../store';
   import { appState, clearServerConfig } from '../../app/store';
   import { haStore, disconnectHA } from '../../ha/store';
-  import { themeSettings, themeStore } from '../theme/store';
-  import { BUILTIN_THEMES, defaultTheme } from '../../../themes/defaults';
+  import { themeStore } from '../theme/store';
+  import { defaultTheme } from '../../../themes/defaults';
   import { weatherSettings, refreshWeatherConfig } from '../../../lib/weather/store';
   import { exportAllSettings, importAllSettings, clearAllData } from '../../app/backup';
   import { setLocale, availableLanguages, currentLang } from '../../../lib/i18n';
-  import type { ThemeMode, ThemeFile, Theme } from '../../../themes/types';
-  import { applyThemeCSS } from '../../../themes/utils';
+  import type { ThemeMode, ThemeFile } from '../../../themes/types';
 
   // Components
   import Section from './Section.svelte';
@@ -92,17 +91,20 @@
   let isEditingTheme = $state(false);
   let themeDraft = $state<ThemeFile | null>(null);
   
-  let allThemes = $derived([
-    ...BUILTIN_THEMES.map(t => ({ ...t, isBuiltIn: true })),
-    ...($themeSettings.customThemes || []).map(t => ({ ...t, isBuiltIn: false }))
-  ]);
+  // Flatten themes from store
+  let allThemes = $derived(
+    $themeStore.themes.map(t => ({
+      ...t,
+      isBuiltIn: !t.theme.isCustom
+    }))
+  );
 
   function handleThemeSelect(id: string) {
     if (isEditingTheme) {
        if (!confirm($t('common.cancel') + '?')) return;
        cancelThemeEdit();
     }
-    themeSettings.setActiveTheme(id);
+    themeStore.setActiveTheme(id);
   }
 
   function createThemeCopy(baseTheme: ThemeFile) {
@@ -115,11 +117,8 @@
         themeDraft.theme.id = newId;
         themeDraft.theme.name = newName;
         themeDraft.theme.isCustom = true;
-        // Make sure isBuiltIn is false for the editor logic
-        (themeDraft as any).isBuiltIn = false; 
         
         isEditingTheme = true;
-        // Scroll to editor?
     }
   }
 
@@ -129,15 +128,15 @@
   }
 
   function saveTheme(theme: ThemeFile) {
-    themeSettings.saveTheme(theme);
-    themeSettings.setActiveTheme(theme.theme.id);
+    themeStore.saveTheme(theme);
+    themeStore.setActiveTheme(theme.theme.id);
     isEditingTheme = false;
     themeDraft = null;
   }
 
   function deleteTheme(id: string) {
     if (confirm($t('templates.manager.confirmDelete'))) {
-        themeSettings.deleteTheme(id);
+        themeStore.deleteTheme(id);
         if (isEditingTheme && themeDraft?.theme.id === id) {
             isEditingTheme = false;
             themeDraft = null;
@@ -148,13 +147,8 @@
   function cancelThemeEdit() {
     isEditingTheme = false;
     themeDraft = null;
-    // Restore active theme CSS in case live preview messed it up
-    const active = allThemes.find(t => t.theme.id === $themeSettings.activeThemeId) || defaultTheme;
-    // We need to re-apply the correct scheme based on current mode
-    // Ideally store does this, but to be sure:
-    // (Actual restoration happens because ThemeEditor calls applyThemeCSS on unmount or we can force update store)
-    // Re-triggering store update is safest:
-    themeStore.setActiveTheme($themeSettings.activeThemeId);
+    // Re-trigger active theme to ensure CSS is consistent
+    themeStore.setActiveTheme($themeStore.activeThemeId);
   }
 
   // --- Weather State ---
@@ -212,7 +206,7 @@
 </script>
 
 {#if $isSettingsOpen}
-  <!-- Backdrop: Transparent & Non-blocking visually, but catches clicks to close -->
+  <!-- Backdrop -->
   <!-- svelte-ignore a11y_click_events_have_key_events -->
   <!-- svelte-ignore a11y_no_static_element_interactions -->
   <div class="backdrop" onclick={close}></div>
@@ -292,7 +286,7 @@
           <div class="control-row">
             <label>
               {$t('settings.themeMode')}
-              <select value={$themeSettings.mode} onchange={(e) => themeSettings.setMode(e.currentTarget.value as ThemeMode)}>
+              <select value={$themeStore.mode} onchange={(e) => themeStore.setMode(e.currentTarget.value as ThemeMode)}>
                 <option value="auto">{$t('settings.themeModeAuto')}</option>
                 <option value="day">{$t('settings.themeModeDay')}</option>
                 <option value="night">{$t('settings.themeModeNight')}</option>
@@ -309,7 +303,7 @@
                  <!-- svelte-ignore a11y_no_static_element_interactions -->
                  <div 
                     class="theme-card" 
-                    class:active={$themeSettings.activeThemeId === theme.theme.id}
+                    class:active={$themeStore.activeThemeId === theme.theme.id}
                     onclick={() => handleThemeSelect(theme.theme.id)}
                  >
                     <div class="preview" style:background={theme.theme.scheme.light.dashboardBackgroundColor1}>
