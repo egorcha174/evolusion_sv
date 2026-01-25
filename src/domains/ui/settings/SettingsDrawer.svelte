@@ -324,9 +324,6 @@
           <div class="theme-gallery-section">
              <div class="section-header-row">
                 <div class="label">{$t('settings.theme')}</div>
-                <button class="link-btn" onclick={() => themeFileInput.click()}>
-                   <iconify-icon icon="mdi:upload"></iconify-icon> Import JSON
-                </button>
                 <input 
                    type="file" 
                    hidden 
@@ -379,6 +376,12 @@
                <button class="theme-card create-btn" onclick={() => createThemeCopy(defaultTheme)}>
                   <iconify-icon icon="mdi:plus" width="32"></iconify-icon>
                   <span>{$t('templates.manager.create')}</span>
+               </button>
+
+               <!-- Import Button -->
+               <button class="theme-card create-btn" onclick={() => themeFileInput.click()}>
+                  <iconify-icon icon="mdi:upload" width="32"></iconify-icon>
+                  <span>{$t('settings.importTheme')}</span>
                </button>
              </div>
           </div>

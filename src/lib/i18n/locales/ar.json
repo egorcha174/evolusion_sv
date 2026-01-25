@@ -40,7 +40,8 @@
     "themeModeAuto": "تلقائي (النظام)",
     "themeModeDay": "نهار (دائما فاتح)",
     "themeModeNight": "ليل (دائما داكن)",
-    "themeModeSchedule": "جدول زمني"
+    "themeModeSchedule": "جدول زمني",
+    "importTheme": "استيراد JSON"
   },
   "entities": {
     "title": "كل الكيانات",
