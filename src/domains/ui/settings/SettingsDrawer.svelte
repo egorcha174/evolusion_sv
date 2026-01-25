@@ -579,8 +579,8 @@
     width: 24px; height: 24px;
     font-size: 14px;
     border-radius: 4px;
-    background: var(--bg-input); /* Added visible background */
-    border: 1px solid var(--border-primary); /* Added border */
+    background: var(--bg-input); 
+    border: 1px solid var(--border-primary); 
   }
   .icon-btn.small:hover {
     background: var(--bg-card-hover);
@@ -610,25 +610,31 @@
 
   /* Generic Buttons */
   .btn {
-    padding: 0.6rem 1.2rem; border-radius: 8px; border: none; font-weight: 600;
+    padding: 0.7rem 1.2rem; border-radius: 8px; border: none; font-weight: 600;
     cursor: pointer; display: flex; align-items: center; gap: 0.5rem; justify-content: center;
-    font-size: 0.9rem; transition: all 0.2s; white-space: normal; text-align: center; line-height: 1.2;
+    font-size: 0.95rem; transition: all 0.2s; white-space: normal; text-align: center; line-height: 1.2;
+    min-height: 48px;
   }
-  .btn:hover { transform: translateY(-1px); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+  .btn:hover { transform: translateY(-1px); filter: brightness(0.95); }
   .btn:active { transform: translateY(0); }
   
-  .btn.primary { background: var(--accent-primary); color: white; }
-  .btn.secondary { 
-    background: var(--bg-input); /* Explicit background instead of transparent */
-    color: var(--text-primary); 
-    border: 1px solid var(--border-primary); 
+  .btn.primary { 
+    background: var(--accent-primary); 
+    color: #ffffff; /* Force white */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
   }
-  .btn.secondary:hover { background: var(--bg-card-hover); border-color: var(--border-focus); }
+  
+  .btn.secondary { 
+    background: var(--bg-chip, #e0e0e0); /* Distinct from inputs */
+    color: var(--text-primary, #333); 
+    border: none; 
+  }
+  .btn.secondary:hover { background: var(--bg-chip-active, #d0d0d0); }
   
   .btn.danger { background: rgba(244, 67, 54, 0.1); color: var(--accent-error); }
   .btn.danger.outline { border: 1px solid var(--accent-error); background: transparent; }
   .btn.full { width: 100%; }
-  .btn.small { padding: 0.4rem 0.8rem; font-size: 0.85rem; }
+  .btn.small { padding: 0.4rem 0.8rem; font-size: 0.85rem; min-height: 36px; }
   .btn.flex-grow { flex-grow: 1; }
   .btn.icon-only { padding: 0.4rem; border: 1px solid var(--border-primary); background: var(--bg-card); color: var(--text-secondary); width: 32px; height: 32px; }
   

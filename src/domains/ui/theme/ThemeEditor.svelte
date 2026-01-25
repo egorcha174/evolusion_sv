@@ -212,10 +212,12 @@
   </div>
 
   <div class="editor-footer">
-    <button class="btn secondary" onclick={onCancel}>{$t('common.cancel')}</button>
+    <button class="btn secondary" onclick={onCancel}>
+      <span>{$t('common.cancel')}</span>
+    </button>
     <button class="btn primary" onclick={() => onSave(draft)}>
       <iconify-icon icon="mdi:content-save"></iconify-icon>
-      {$t('common.save')}
+      <span>{$t('common.save')}</span>
     </button>
   </div>
 </div>
@@ -227,7 +229,7 @@
     display: flex;
     flex-direction: column;
     height: 100%;
-    max-height: 85vh; /* Keep within viewport */
+    max-height: 85vh;
     overflow: hidden;
     color: var(--text-primary);
   }
@@ -274,7 +276,7 @@
     flex: 1; display: flex; align-items: center; justify-content: center; gap: 0.5rem;
     padding: 0.75rem; border-radius: 8px; 
     border: 1px solid var(--border-primary);
-    background: var(--bg-input); /* Explicit background */
+    background: var(--bg-input); 
     color: var(--text-secondary); cursor: pointer;
     font-size: 0.95rem; font-weight: 600; transition: all 0.2s;
   }
@@ -295,7 +297,7 @@
   .sec-tab {
     display: flex; flex-direction: column; align-items: center; justify-content: center;
     padding: 0.6rem 0.8rem; gap: 4px; 
-    background: var(--bg-card); /* Card background for visibility */
+    background: var(--bg-card); 
     border: 1px solid var(--border-primary); 
     border-radius: 8px;
     color: var(--text-secondary); cursor: pointer; font-size: 0.75rem; font-weight: 600;
@@ -308,7 +310,7 @@
     color: var(--text-primary); 
   }
   .sec-tab.active { 
-    background: var(--bg-chip-active); /* Highlight background */
+    background: var(--bg-chip-active); 
     color: var(--accent-primary); 
     border-color: var(--accent-primary); 
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
@@ -328,7 +330,6 @@
   }
   .section-divider:first-child { margin-top: 0; }
 
-  /* New Card Style Controls */
   .control-card {
     background: var(--bg-card);
     border: 1px solid var(--border-primary);
@@ -358,7 +359,7 @@
   .color-swatch {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%;
     z-index: 1;
-    box-shadow: inset 0 0 0 2px rgba(0,0,0,0.1); /* Inner shadow for definition */
+    box-shadow: inset 0 0 0 2px rgba(0,0,0,0.1); 
   }
 
   .range-wrapper { width: 100%; padding: 0 2px; }
@@ -374,14 +375,26 @@
   }
 
   .btn {
-    padding: 0.75rem 1.5rem; border-radius: 8px; border: none; font-weight: 600; font-size: 1rem;
+    padding: 0.8rem 1.5rem; border-radius: 8px; border: none; font-weight: 600; font-size: 1rem;
     cursor: pointer; flex: 1; display: flex; align-items: center; justify-content: center; gap: 0.5rem;
     transition: all 0.2s;
+    min-height: 48px; /* Touch target size */
   }
-  .btn:hover { transform: translateY(-1px); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+  .btn:hover { transform: translateY(-1px); filter: brightness(0.95); }
   .btn:active { transform: translateY(0); }
   
-  .btn.primary { background: var(--accent-primary); color: white; }
-  .btn.secondary { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-primary); }
-  .btn.secondary:hover { background: var(--bg-card-hover); border-color: var(--border-focus); }
+  .btn.primary { 
+    background: var(--accent-primary, #007bff); 
+    color: #ffffff; /* Force white text on primary */
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+  }
+  
+  .btn.secondary { 
+    background: var(--bg-chip, #e0e0e0); /* Distinct chip background instead of input background */
+    color: var(--text-primary, #333); 
+    border: none;
+  }
+  .btn.secondary:hover { 
+    background: var(--bg-chip-active, #d0d0d0);
+  }
 </style>
