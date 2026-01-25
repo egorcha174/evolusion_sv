@@ -67,21 +67,21 @@
 <style>
   .edit-toolbar {
     position: fixed;
-    bottom: 24px;
+    bottom: 32px;
     left: 50%;
     transform: translateX(-50%);
-    background: var(--bg-panel, rgba(255, 255, 255, 0.9));
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
+    background: var(--bg-panel, rgba(255, 255, 255, 0.95));
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     border: 1px solid var(--border-primary, rgba(0,0,0,0.1));
-    border-radius: 40px; /* Pill shape */
-    padding: 6px 12px;
+    border-radius: 100px; /* Full Pill */
+    padding: 6px 8px;
     display: flex;
-    gap: 12px;
+    gap: 8px;
     align-items: center;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.05);
-    z-index: 1000;
-    transition: all 0.2s ease;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.15), 0 4px 12px rgba(0,0,0,0.05);
+    z-index: 2000;
+    transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
   }
   
   .group {
@@ -93,44 +93,51 @@
   .group.actions {
     gap: 8px;
     margin-left: 4px;
+    padding-left: 4px;
   }
 
   .divider {
     width: 1px;
-    height: 20px;
-    background: var(--border-primary, rgba(0,0,0,0.1));
+    height: 24px;
+    background: var(--border-divider, rgba(0,0,0,0.1));
+    margin: 0 4px;
   }
   
   .tool-btn {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
+    gap: 8px;
     background: transparent;
     border: none;
-    height: 36px;
-    min-width: 36px;
-    padding: 0 8px;
-    border-radius: 18px;
+    height: 40px;
+    min-width: 40px;
+    padding: 0 12px;
+    border-radius: 20px;
     cursor: pointer;
-    font-size: 0.9rem;
-    color: var(--text-secondary);
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--text-secondary, #666);
+    transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+  }
+  
+  .tool-btn iconify-icon {
+    font-size: 1.25rem;
   }
   
   .tool-btn:hover:not(:disabled) {
     background: var(--bg-card-hover, rgba(0,0,0,0.05));
-    color: var(--text-primary);
+    color: var(--text-primary, #000);
     transform: translateY(-1px);
   }
   
   .tool-btn:active:not(:disabled) {
-    transform: translateY(0);
+    transform: translateY(0) scale(0.96);
   }
 
   .tool-btn.active {
-    background: var(--accent-primary);
-    color: var(--text-on-accent, white);
+    background: var(--accent-primary, var(--tab-indicator-color, #2196f3));
+    color: #ffffff;
   }
   
   .tool-btn:disabled {
@@ -141,31 +148,36 @@
   
   /* Primary Action (Done) */
   .tool-btn.primary {
-    background: var(--accent-primary);
-    color: var(--text-on-accent, #ffffff);
-    padding: 0 16px;
+    /* Robust fallback: accentPrimary -> tabIndicator -> Blue */
+    background: var(--accent-primary, var(--tab-indicator-color, #2196f3));
+    color: #ffffff;
+    padding: 0 20px;
     font-weight: 600;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
   }
   
   .tool-btn.primary:hover {
-    filter: brightness(1.05);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    filter: brightness(1.08);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+    transform: translateY(-2px);
+  }
+  
+  .tool-btn.primary:active {
+    transform: translateY(0);
   }
   
   /* Cancel Action */
   .tool-btn.cancel {
-    color: var(--text-secondary);
-    padding: 0 12px;
+    color: var(--text-secondary, #666);
+    padding: 0 16px;
   }
   
   .tool-btn.cancel:hover {
     background: rgba(244, 67, 54, 0.1);
-    color: var(--accent-error);
+    color: var(--accent-error, #f44336);
   }
   
   .btn-text {
-    font-size: 0.9rem;
     line-height: 1;
   }
   
@@ -176,8 +188,14 @@
     }
     .tool-btn.primary, .tool-btn.cancel {
       padding: 0;
-      width: 36px;
+      width: 40px;
     }
-    /* Show checkmark/close only */
+    .divider {
+      display: none;
+    }
+    .edit-toolbar {
+      gap: 4px;
+      padding: 4px;
+    }
   }
 </style>
