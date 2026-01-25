@@ -413,7 +413,7 @@
     position: fixed;
     top: 0; left: 0;
     width: 100vw; height: 100vh;
-    background: transparent; /* No dimming as requested */
+    background: transparent;
     z-index: 2000;
   }
 
@@ -572,12 +572,19 @@
     color: var(--text-primary);
   }
   
-  .actions { display: flex; gap: 2px; }
+  .actions { display: flex; gap: 4px; }
   
   .icon-btn.small {
     padding: 4px;
     width: 24px; height: 24px;
     font-size: 14px;
+    border-radius: 4px;
+    background: var(--bg-input); /* Added visible background */
+    border: 1px solid var(--border-primary); /* Added border */
+  }
+  .icon-btn.small:hover {
+    background: var(--bg-card-hover);
+    border-color: var(--border-focus);
   }
   
   .create-btn {
@@ -605,18 +612,27 @@
   .btn {
     padding: 0.6rem 1.2rem; border-radius: 8px; border: none; font-weight: 600;
     cursor: pointer; display: flex; align-items: center; gap: 0.5rem; justify-content: center;
-    font-size: 0.9rem; transition: opacity 0.2s; white-space: normal; text-align: center; line-height: 1.2;
+    font-size: 0.9rem; transition: all 0.2s; white-space: normal; text-align: center; line-height: 1.2;
   }
-  .btn:hover { opacity: 0.9; }
+  .btn:hover { transform: translateY(-1px); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+  .btn:active { transform: translateY(0); }
+  
   .btn.primary { background: var(--accent-primary); color: white; }
-  .btn.secondary { background: transparent; border: 1px solid var(--border-primary); color: var(--text-primary); }
+  .btn.secondary { 
+    background: var(--bg-input); /* Explicit background instead of transparent */
+    color: var(--text-primary); 
+    border: 1px solid var(--border-primary); 
+  }
+  .btn.secondary:hover { background: var(--bg-card-hover); border-color: var(--border-focus); }
+  
   .btn.danger { background: rgba(244, 67, 54, 0.1); color: var(--accent-error); }
   .btn.danger.outline { border: 1px solid var(--accent-error); background: transparent; }
   .btn.full { width: 100%; }
   .btn.small { padding: 0.4rem 0.8rem; font-size: 0.85rem; }
   .btn.flex-grow { flex-grow: 1; }
   .btn.icon-only { padding: 0.4rem; border: 1px solid var(--border-primary); background: var(--bg-card); color: var(--text-secondary); width: 32px; height: 32px; }
-  .icon-btn { background: transparent; border: none; cursor: pointer; color: var(--text-secondary); display: flex; align-items: center; justify-content: center; border-radius: 4px; }
+  
+  .icon-btn { background: transparent; border: none; cursor: pointer; color: var(--text-secondary); display: flex; align-items: center; justify-content: center; border-radius: 4px; transition: all 0.2s; }
   .icon-btn:hover { background: var(--bg-chip); color: var(--text-primary); }
   .icon-btn.danger:hover { color: var(--accent-error); background: rgba(244,67,54,0.1); }
 

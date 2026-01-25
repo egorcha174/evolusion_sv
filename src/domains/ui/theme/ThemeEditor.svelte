@@ -246,9 +246,10 @@
   
   .icon-btn {
     background: transparent; border: none; cursor: pointer; color: var(--text-secondary);
-    padding: 4px; display: flex;
+    padding: 8px; border-radius: 50%; display: flex;
+    transition: background 0.2s;
   }
-  .icon-btn:hover { color: var(--text-primary); }
+  .icon-btn:hover { color: var(--text-primary); background: var(--bg-chip); }
 
   .meta-section {
     padding: 1rem 1.5rem 0.5rem 1.5rem;
@@ -265,45 +266,65 @@
   .text-input:focus, .select-input:focus { outline: none; border-color: var(--accent-primary); }
 
   .mode-tabs {
-    display: flex; gap: 0.5rem; padding: 0.5rem 1.5rem;
+    display: flex; gap: 0.75rem; padding: 0.75rem 1.5rem;
     background: var(--bg-panel); border-bottom: 1px solid var(--border-divider);
   }
   
   .mode-tab {
     flex: 1; display: flex; align-items: center; justify-content: center; gap: 0.5rem;
-    padding: 0.6rem; border-radius: 8px; border: 1px solid var(--border-primary);
-    background: var(--bg-card); color: var(--text-secondary); cursor: pointer;
-    font-size: 0.9rem; font-weight: 500; transition: all 0.2s;
+    padding: 0.75rem; border-radius: 8px; 
+    border: 1px solid var(--border-primary);
+    background: var(--bg-input); /* Explicit background */
+    color: var(--text-secondary); cursor: pointer;
+    font-size: 0.95rem; font-weight: 600; transition: all 0.2s;
   }
-  .mode-tab:hover { background: var(--bg-card-hover); }
-  .mode-tab.active { background: var(--accent-primary); color: white; border-color: var(--accent-primary); }
+  .mode-tab:hover { background: var(--bg-chip-active); color: var(--text-primary); border-color: var(--border-focus); }
+  .mode-tab.active { 
+    background: var(--accent-primary); 
+    color: white; 
+    border-color: var(--accent-primary); 
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  }
 
   .section-tabs {
-    display: flex; gap: 1rem; padding: 0 1.5rem;
+    display: flex; gap: 0.5rem; padding: 0.75rem 1.5rem;
     background: var(--bg-secondary); border-bottom: 1px solid var(--border-divider);
     overflow-x: auto; flex-shrink: 0;
   }
   
   .sec-tab {
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    padding: 0.8rem 0.5rem; gap: 4px; background: transparent; border: none;
+    padding: 0.6rem 0.8rem; gap: 4px; 
+    background: var(--bg-card); /* Card background for visibility */
+    border: 1px solid var(--border-primary); 
+    border-radius: 8px;
     color: var(--text-secondary); cursor: pointer; font-size: 0.75rem; font-weight: 600;
-    border-bottom: 2px solid transparent; min-width: 60px;
+    min-width: 64px; transition: all 0.2s;
   }
-  .sec-tab iconify-icon { font-size: 1.2rem; }
-  .sec-tab:hover { color: var(--text-primary); }
-  .sec-tab.active { color: var(--accent-primary); border-bottom-color: var(--accent-primary); }
+  .sec-tab iconify-icon { font-size: 1.4rem; }
+  .sec-tab:hover { 
+    background: var(--bg-card-hover); 
+    border-color: var(--border-focus);
+    color: var(--text-primary); 
+  }
+  .sec-tab.active { 
+    background: var(--bg-chip-active); /* Highlight background */
+    color: var(--accent-primary); 
+    border-color: var(--accent-primary); 
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
 
   .scroll-content {
     flex: 1; overflow-y: auto; padding: 1.5rem;
     background: var(--bg-secondary);
   }
 
-  .section-content { display: flex; flex-direction: column; gap: 0.75rem; }
+  .section-content { display: flex; flex-direction: column; gap: 1rem; }
 
   .section-divider {
-    font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;
-    color: var(--text-muted); font-weight: 700; margin: 1rem 0 0.5rem 0;
+    font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em;
+    color: var(--text-primary); font-weight: 700; margin: 1.5rem 0 0.5rem 0;
+    padding-bottom: 0.25rem; border-bottom: 2px solid var(--border-divider);
   }
   .section-divider:first-child { margin-top: 0; }
 
@@ -312,21 +333,23 @@
     background: var(--bg-card);
     border: 1px solid var(--border-primary);
     border-radius: 10px;
-    padding: 0.8rem;
+    padding: 1rem;
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.75rem;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
   }
 
   .control-header {
     display: flex; justify-content: space-between; align-items: center;
   }
-  .control-header .label { font-size: 0.9rem; font-weight: 500; color: var(--text-primary); }
-  .value-preview { font-family: monospace; font-size: 0.8rem; color: var(--text-muted); }
+  .control-header .label { font-size: 0.95rem; font-weight: 600; color: var(--text-primary); }
+  .value-preview { font-family: monospace; font-size: 0.85rem; color: var(--text-muted); background: var(--bg-chip); padding: 2px 6px; border-radius: 4px; }
 
   .color-picker-container {
-    position: relative; height: 36px; width: 100%;
-    border-radius: 6px; overflow: hidden; border: 1px solid var(--border-input);
+    position: relative; height: 40px; width: 100%;
+    border-radius: 8px; overflow: hidden; border: 1px solid var(--border-input);
+    cursor: pointer;
   }
   .color-input {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%;
@@ -335,10 +358,11 @@
   .color-swatch {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%;
     z-index: 1;
+    box-shadow: inset 0 0 0 2px rgba(0,0,0,0.1); /* Inner shadow for definition */
   }
 
   .range-wrapper { width: 100%; padding: 0 2px; }
-  .range-input { width: 100%; accent-color: var(--accent-primary); cursor: pointer; }
+  .range-input { width: 100%; accent-color: var(--accent-primary); cursor: pointer; height: 6px; }
 
   /* Footer */
   .editor-footer {
@@ -352,9 +376,12 @@
   .btn {
     padding: 0.75rem 1.5rem; border-radius: 8px; border: none; font-weight: 600; font-size: 1rem;
     cursor: pointer; flex: 1; display: flex; align-items: center; justify-content: center; gap: 0.5rem;
-    transition: opacity 0.2s;
+    transition: all 0.2s;
   }
-  .btn:hover { opacity: 0.9; }
+  .btn:hover { transform: translateY(-1px); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+  .btn:active { transform: translateY(0); }
+  
   .btn.primary { background: var(--accent-primary); color: white; }
-  .btn.secondary { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-input); }
+  .btn.secondary { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-primary); }
+  .btn.secondary:hover { background: var(--bg-card-hover); border-color: var(--border-focus); }
 </style>
