@@ -6,7 +6,8 @@
   import { isSettingsOpen } from '../store';
   import { appState, clearServerConfig } from '../../app/store';
   import { haStore, disconnectHA } from '../../ha/store';
-  import { themeStore } from '../../theme/store';
+  import { themeSettings } from '../../theme/store';
+  import { BUILTIN_THEMES } from '../../theme/defaults';
   import { weatherSettings, refreshWeatherConfig } from '../../../lib/weather/store';
   import { exportAllSettings, importAllSettings, clearAllData } from '../../app/backup';
   import { setLocale, availableLanguages, currentLang } from '../../../lib/i18n';
@@ -17,6 +18,7 @@
   import LabeledInput from './controls/LabeledInput.svelte';
   import RangeInput from './controls/RangeInput.svelte';
   import ServerManager from './ServerManager.svelte';
+  import ThemeEditor from '../theme/ThemeEditor.svelte';
   import 'iconify-icon';
 
   const STORAGE_KEY_WIDTH = 'evolusion_settings_width';
@@ -87,6 +89,19 @@
       disconnectHA();
       clearServerConfig();
     }
+  }
+
+  // --- Theme State ---
+  let isThemeEditorOpen = $state(false);
+  
+  // Combine built-in and custom themes for the dropdown
+  let availableThemes = $derived([
+    ...BUILTIN_THEMES.map(t => ({ id: t.id, name: t.name, isCustom: false })),
+    ...($themeSettings.customThemes || []).map(t => ({ id: t.theme.id, name: t.theme.name, isCustom: true }))
+  ]);
+
+  function setActiveTheme(id: string) {
+    themeSettings.update(s => ({ ...s, activeThemeId: id }));
   }
 
   // --- Weather State ---
@@ -225,7 +240,7 @@
           <div class="control-row">
             <label>
               {$t('settings.themeMode')}
-              <select value={$themeStore.mode} onchange={(e) => themeStore.setMode(e.currentTarget.value as ThemeMode)}>
+              <select value={$themeSettings.mode} onchange={(e) => themeSettings.update(s => ({...s, mode: e.currentTarget.value as ThemeMode}))}>
                 <option value="auto">{$t('settings.themeModeAuto')}</option>
                 <option value="day">{$t('settings.themeModeDay')}</option>
                 <option value="night">{$t('settings.themeModeNight')}</option>
@@ -237,11 +252,16 @@
           <div class="control-row">
             <label>
               {$t('settings.theme')}
-              <select value={$themeStore.currentThemeId} onchange={(e) => themeStore.setTheme(e.currentTarget.value)}>
-                {#each $themeStore.availableThemes as theme}
-                  <option value={theme.id}>{theme.name} {theme.isCustom ? $t('settings.themeCustom') : ''}</option>
-                {/each}
-              </select>
+              <div class="theme-row">
+                <select value={$themeSettings.activeThemeId} onchange={(e) => setActiveTheme(e.currentTarget.value)}>
+                  {#each availableThemes as theme}
+                    <option value={theme.id}>{theme.name} {theme.isCustom ? $t('settings.themeCustom') : ''}</option>
+                  {/each}
+                </select>
+                <button class="btn icon-only" onclick={() => isThemeEditorOpen = true} title="Theme Editor">
+                  <iconify-icon icon="mdi:pencil"></iconify-icon>
+                </button>
+              </div>
             </label>
           </div>
         </Section>
@@ -302,6 +322,11 @@
 <!-- Server Manager Overlay -->
 {#if isServerManagerOpen}
    <ServerManager onClose={() => isServerManagerOpen = false} />
+{/if}
+
+<!-- Theme Editor Overlay -->
+{#if isThemeEditorOpen}
+   <ThemeEditor onClose={() => isThemeEditorOpen = false} />
 {/if}
 
 <style>
@@ -445,6 +470,15 @@
   .control-row { margin-bottom: 1rem; }
   label { display: flex; justify-content: space-between; align-items: center; width: 100%; font-weight: 500; color: var(--text-primary); cursor: pointer; font-size: 0.9rem; }
   select { padding: 0.4rem; border-radius: 6px; border: 1px solid var(--border-input); background: var(--bg-input); color: var(--text-primary); min-width: 140px; font-size: 0.9rem; max-width: 60%; }
+  
+  .theme-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .theme-row select {
+    flex: 1;
+  }
 
   .btn {
     padding: 0.6rem 1.2rem; border-radius: 8px; border: none; font-weight: 600;
@@ -459,6 +493,7 @@
   .btn.full { width: 100%; }
   .btn.small { padding: 0.4rem 0.8rem; font-size: 0.85rem; }
   .btn.flex-grow { flex-grow: 1; }
+  .btn.icon-only { padding: 0.4rem; border: 1px solid var(--border-primary); background: var(--bg-card); color: var(--text-secondary); width: 32px; height: 32px; }
 
   .actions { display: flex; justify-content: flex-end; margin-top: 1rem; }
   .backup-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.5rem; }
