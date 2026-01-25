@@ -6,13 +6,33 @@ export function camelToKebab(str: string): string {
   return str.replace(/([A-Z])/g, '-$1').toLowerCase();
 }
 
+// List of properties that require 'px' units in CSS
+const PIXEL_PROPERTIES = new Set([
+  'cardBorderRadius',
+  'cardBorderWidth',
+  'dashboardBackgroundImageBlur',
+  'weatherIconSize',
+  'weatherForecastIconSize',
+  'weatherCurrentTempFontSize',
+  'weatherCurrentDescFontSize',
+  'weatherForecastDayFontSize',
+  'weatherForecastMaxTempFontSize',
+  'weatherForecastMinTempFontSize',
+]);
+
 export function generateCSSVariables(scheme: ColorScheme): Record<string, string> {
   const vars: Record<string, string> = {};
 
   // Helper to flatten the object
   for (const [key, value] of Object.entries(scheme)) {
     if (value !== undefined && value !== null) {
-      vars[`--${camelToKebab(key)}`] = String(value);
+      const varName = `--${camelToKebab(key)}`;
+      // Check if we need to append 'px'
+      if (typeof value === 'number' && PIXEL_PROPERTIES.has(key)) {
+        vars[varName] = `${value}px`;
+      } else {
+        vars[varName] = String(value);
+      }
     }
   }
 
@@ -22,9 +42,9 @@ export function generateCSSVariables(scheme: ColorScheme): Record<string, string
   } else if (scheme.dashboardBackgroundType === 'gradient') {
     vars['--dashboard-background'] = `linear-gradient(135deg, ${scheme.dashboardBackgroundColor1}, ${scheme.dashboardBackgroundColor2 || scheme.dashboardBackgroundColor1})`;
   } else if (scheme.dashboardBackgroundType === 'image') {
-    // Note: Image URL handling usually requires more logic (url())
-    // We'll set a base color just in case
-    vars['--dashboard-background'] = scheme.dashboardBackgroundColor1;
+    // Basic image implementation
+    const url = scheme.dashboardBackgroundImageUrl ? `url('${scheme.dashboardBackgroundImageUrl}')` : 'none';
+    vars['--dashboard-background'] = url;
   }
 
   return vars;

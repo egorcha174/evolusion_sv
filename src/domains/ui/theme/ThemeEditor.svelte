@@ -29,17 +29,17 @@
 
 {#snippet colorRow(label, key)}
   <div class="control-row">
-    <span class="label">{label}</span>
-    <div class="color-composite">
+    <div class="label-group">
+      <span class="label">{label}</span>
       <span class="hex-value">{currentScheme[key]}</span>
-      <div class="color-wrapper">
-        <input 
-          type="color" 
-          value={currentScheme[key] as string} 
-          oninput={(e) => updateField(key, e.currentTarget.value)}
-        />
-        <div class="swatch" style:background-color={currentScheme[key] as string}></div>
-      </div>
+    </div>
+    <div class="color-wrapper">
+      <input 
+        type="color" 
+        value={currentScheme[key] as string} 
+        oninput={(e) => updateField(key, e.currentTarget.value)}
+      />
+      <div class="swatch" style:background-color={currentScheme[key] as string}></div>
     </div>
   </div>
 {/snippet}
@@ -50,13 +50,16 @@
       <span class="label">{label}</span>
       <span class="value-badge">{currentScheme[key]}{unit}</span>
     </div>
-    <input 
-      type="range" 
-      class="slider"
-      {min} {max} {step}
-      value={currentScheme[key] as number}
-      oninput={(e) => updateField(key, parseFloat(e.currentTarget.value))}
-    />
+    <div class="slider-container">
+      <input 
+        type="range" 
+        class="slider"
+        {min} {max} {step}
+        value={currentScheme[key] as number}
+        oninput={(e) => updateField(key, parseFloat(e.currentTarget.value))}
+        style="background-size: {((currentScheme[key] as number - min) * 100) / (max - min)}% 100%"
+      />
+    </div>
   </div>
 {/snippet}
 
@@ -64,69 +67,76 @@
   <!-- 1. Header -->
   <header class="editor-header">
     <div class="title-block">
-      <h2>{$t('settings.theme')} Editor</h2>
-      <p class="subtitle">Customize the look and feel of your dashboard</p>
+      <h2>Theme Editor</h2>
     </div>
-    <button class="icon-btn close" onclick={onCancel} title={$t('common.close')}>
-      <iconify-icon icon="mdi:close"></iconify-icon>
-    </button>
+    <div class="header-actions">
+      <button class="icon-btn close" onclick={onCancel} title={$t('common.close')}>
+        <iconify-icon icon="mdi:close"></iconify-icon>
+      </button>
+    </div>
   </header>
 
   <div class="editor-body">
-    <!-- 2. Meta & Mode -->
+    <!-- 2. Top Controls (Name & Mode) -->
     <div class="top-controls">
       <div class="input-group">
-        <label>Theme Name</label>
         <input 
           type="text" 
           class="modern-input" 
           bind:value={draft.theme.name} 
-          placeholder="My Awesome Theme" 
+          placeholder="Theme Name" 
         />
       </div>
 
-      <!-- Segmented Control for Mode -->
-      <div class="segmented-control">
+      <!-- Mode Switcher -->
+      <div class="mode-switcher">
         <button 
-          class="segment" 
+          class="mode-btn" 
           class:active={activeTab === 'light'} 
           onclick={() => activeTab = 'light'}
         >
           <iconify-icon icon="mdi:white-balance-sunny"></iconify-icon>
-          <span>Light</span>
+          Light
         </button>
         <button 
-          class="segment" 
+          class="mode-btn" 
           class:active={activeTab === 'dark'} 
           onclick={() => activeTab = 'dark'}
         >
           <iconify-icon icon="mdi:weather-night"></iconify-icon>
-          <span>Dark</span>
+          Dark
         </button>
-        <div class="segment-indicator" style:left={activeTab === 'light' ? '4px' : '50%'}></div>
       </div>
     </div>
 
-    <!-- 3. Navigation Pills -->
-    <div class="nav-pills">
-      <button class="pill" class:active={activeSection === 'background'} onclick={() => activeSection = 'background'}>
-        Background
-      </button>
-      <button class="pill" class:active={activeSection === 'cards'} onclick={() => activeSection = 'cards'}>
-        Cards
-      </button>
-      <button class="pill" class:active={activeSection === 'colors'} onclick={() => activeSection = 'colors'}>
-        Colors
-      </button>
-      <button class="pill" class:active={activeSection === 'text'} onclick={() => activeSection = 'text'}>
-        Typography
-      </button>
+    <!-- 3. Navigation (Apple Style Segmented Control) -->
+    <div class="nav-container">
+      <div class="segmented-nav">
+        <button class="nav-item" class:active={activeSection === 'background'} onclick={() => activeSection = 'background'}>
+          Background
+        </button>
+        <button class="nav-item" class:active={activeSection === 'cards'} onclick={() => activeSection = 'cards'}>
+          Cards
+        </button>
+        <button class="nav-item" class:active={activeSection === 'colors'} onclick={() => activeSection = 'colors'}>
+          Colors
+        </button>
+        <button class="nav-item" class:active={activeSection === 'text'} onclick={() => activeSection = 'text'}>
+          Text
+        </button>
+        <!-- Animated Background Pill -->
+        <div class="active-bg" style:transform="translateX({
+          activeSection === 'background' ? '0%' : 
+          activeSection === 'cards' ? '100%' : 
+          activeSection === 'colors' ? '200%' : '300%'
+        })"></div>
+      </div>
     </div>
 
-    <!-- 4. Scrollable Content Area -->
+    <!-- 4. Content Area -->
     <div class="content-scroll">
       {#if activeSection === 'background'}
-        <div class="section-group" transition:slide|local={{ duration: 200 }}>
+        <div class="section-group" transition:slide|local={{ duration: 200, axis: 'x' }}>
           <div class="control-stack">
             <label class="label">Background Type</label>
             <select 
@@ -147,7 +157,7 @@
             {@render colorRow('End Color', 'dashboardBackgroundColor2')}
           {:else if currentScheme.dashboardBackgroundType === 'image'}
             <div class="input-group">
-              <label>Image URL</label>
+              <label class="label">Image URL</label>
               <input 
                 type="text" class="modern-input" 
                 value={currentScheme.dashboardBackgroundImageUrl || ''} 
@@ -159,27 +169,27 @@
             {@render sliderRow('Brightness', 'dashboardBackgroundImageBrightness', 0, 200, 5, '%')}
           {/if}
 
-          <div class="divider">Panel & UI</div>
+          <div class="section-divider">Panel & UI</div>
           {@render sliderRow('Panel Opacity', 'panelOpacity', 0, 1, 0.05)}
           {@render colorRow('Panel Background', 'bgPanel')}
         </div>
 
       {:else if activeSection === 'cards'}
-        <div class="section-group" transition:slide|local={{ duration: 200 }}>
-          <div class="divider">Appearance</div>
+        <div class="section-group" transition:slide|local={{ duration: 200, axis: 'x' }}>
+          <div class="section-divider">Appearance</div>
           {@render colorRow('Card Background', 'cardBackground')}
           {@render colorRow('Active Background', 'cardBackgroundOn')}
           {@render sliderRow('Opacity', 'cardOpacity', 0, 1, 0.05)}
           
-          <div class="divider">Borders</div>
+          <div class="section-divider">Borders</div>
           {@render sliderRow('Corner Radius', 'cardBorderRadius', 0, 32, 1, 'px')}
           {@render sliderRow('Border Width', 'cardBorderWidth', 0, 10, 1, 'px')}
           {@render colorRow('Border Color', 'cardBorderColor')}
           {@render colorRow('Active Border', 'cardBorderColorOn')}
           
-          <div class="divider">Shadow</div>
-          <div class="input-group">
-             <label>Box Shadow CSS</label>
+          <div class="section-divider">Shadow</div>
+          <div class="control-stack">
+             <label class="label">Box Shadow CSS</label>
              <input 
                type="text" class="modern-input" 
                value={currentScheme.shadowCard || 'none'} 
@@ -189,33 +199,33 @@
         </div>
 
       {:else if activeSection === 'colors'}
-        <div class="section-group" transition:slide|local={{ duration: 200 }}>
-          <div class="divider">Accents</div>
+        <div class="section-group" transition:slide|local={{ duration: 200, axis: 'x' }}>
+          <div class="section-divider">Brand Colors</div>
           {@render colorRow('Primary Brand', 'accentPrimary')}
           {@render colorRow('Secondary', 'accentSecondary')}
           {@render colorRow('Info Blue', 'accentInfo')}
           
-          <div class="divider">State Colors</div>
+          <div class="section-divider">States</div>
           {@render colorRow('State: On', 'stateOn')}
           {@render colorRow('State: Off', 'stateOff')}
-          {@render colorRow('Success / Green', 'accentSuccess')}
-          {@render colorRow('Warning / Orange', 'accentWarning')}
-          {@render colorRow('Error / Red', 'accentError')}
+          {@render colorRow('Success', 'accentSuccess')}
+          {@render colorRow('Warning', 'accentWarning')}
+          {@render colorRow('Error', 'accentError')}
         </div>
 
       {:else if activeSection === 'text'}
-        <div class="section-group" transition:slide|local={{ duration: 200 }}>
-          <div class="divider">Global</div>
+        <div class="section-group" transition:slide|local={{ duration: 200, axis: 'x' }}>
+          <div class="section-divider">Global Typography</div>
           {@render colorRow('Primary Text', 'textPrimary')}
           {@render colorRow('Secondary Text', 'textSecondary')}
           {@render colorRow('Muted Text', 'textMuted')}
           
-          <div class="divider">Cards (Idle)</div>
+          <div class="section-divider">Card Text (Idle)</div>
           {@render colorRow('Device Name', 'nameTextColor')}
           {@render colorRow('State Value', 'valueTextColor')}
           {@render colorRow('Secondary Info', 'statusTextColor')}
           
-          <div class="divider">Cards (Active)</div>
+          <div class="section-divider">Card Text (Active)</div>
           {@render colorRow('Device Name', 'nameTextColorOn')}
           {@render colorRow('State Value', 'valueTextColorOn')}
         </div>
@@ -223,7 +233,7 @@
     </div>
   </div>
 
-  <!-- 5. Footer Actions -->
+  <!-- 5. Footer -->
   <div class="editor-footer">
     <button class="btn secondary" onclick={onCancel}>
       {$t('common.cancel')}
@@ -236,19 +246,18 @@
 </div>
 
 <style>
-  /* --- Layout & Reset --- */
+  /* --- Layout --- */
   .theme-editor-container {
     display: flex;
     flex-direction: column;
     height: 100%;
-    max-height: 85vh; /* Keep it contained */
+    max-height: 85vh;
     background: var(--bg-panel, #ffffff);
     color: var(--text-primary, #333);
     border-radius: 16px;
     overflow: hidden;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.1);
-    /* Force font for editor consistency */
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   }
 
   /* --- Header --- */
@@ -256,199 +265,212 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1.25rem 1.5rem;
+    padding: 1rem 1.5rem;
     border-bottom: 1px solid rgba(0,0,0,0.06);
     background: var(--bg-panel, #ffffff);
   }
-  .title-block h2 { margin: 0; font-size: 1.2rem; font-weight: 700; color: var(--text-primary); }
-  .title-block .subtitle { margin: 4px 0 0 0; font-size: 0.85rem; color: var(--text-secondary); }
+  .title-block h2 { margin: 0; font-size: 1.1rem; font-weight: 600; color: var(--text-primary); }
   
   .icon-btn.close {
     background: rgba(0,0,0,0.05);
     border: none;
     border-radius: 50%;
-    width: 32px; height: 32px;
+    width: 28px; height: 28px;
     display: flex; align-items: center; justify-content: center;
-    cursor: pointer; color: var(--text-primary);
-    transition: background 0.2s;
+    cursor: pointer; color: var(--text-secondary);
+    transition: all 0.2s;
   }
-  .icon-btn.close:hover { background: rgba(0,0,0,0.1); }
+  .icon-btn.close:hover { background: rgba(0,0,0,0.1); color: var(--text-primary); }
 
-  /* --- Body --- */
+  /* --- Body & Controls --- */
   .editor-body {
     flex: 1;
     display: flex;
     flex-direction: column;
-    overflow: hidden; /* For inner scroll */
-    background: var(--bg-secondary, #f7f8fa); /* Content background slightly distinctive */
+    overflow: hidden;
+    background: var(--bg-secondary, #f7f8fa);
   }
 
   .top-controls {
-    padding: 1.5rem 1.5rem 0.5rem 1.5rem;
+    padding: 1.5rem;
     background: var(--bg-panel, #ffffff);
     display: flex;
-    flex-direction: column;
-    gap: 1.25rem;
-  }
-
-  /* --- Inputs & Controls --- */
-  .input-group label {
-    display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-secondary);
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
   }
   
-  /* Modern Input: Solid light grey background to ensure visibility */
-  .modern-input, .modern-select {
+  .input-group { flex: 1; }
+  
+  .modern-input {
     width: 100%;
-    padding: 0.75rem 1rem;
-    font-size: 0.95rem;
+    padding: 0.6rem 0.8rem;
+    font-size: 1rem;
+    font-weight: 600;
     border: 1px solid transparent;
-    border-radius: 10px;
-    background-color: rgba(0,0,0,0.06); /* Always visible grey */
+    border-radius: 8px;
+    background-color: transparent;
     color: var(--text-primary);
     transition: all 0.2s;
   }
-  .modern-input:focus, .modern-select:focus {
-    background-color: #ffffff;
-    border-color: var(--accent-primary, #007bff);
-    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.15);
-    outline: none;
-  }
+  .modern-input:hover { background-color: rgba(0,0,0,0.03); }
+  .modern-input:focus { background-color: rgba(0,0,0,0.05); outline: none; }
+  .modern-input::placeholder { font-weight: 400; opacity: 0.5; }
 
-  /* --- Segmented Control (iOS style) --- */
-  .segmented-control {
-    position: relative;
+  /* Mode Switcher (Pill) */
+  .mode-switcher {
     display: flex;
-    background: rgba(0,0,0,0.06);
-    padding: 4px;
-    border-radius: 10px;
-    height: 44px;
+    background: rgba(0,0,0,0.05);
+    padding: 3px;
+    border-radius: 8px;
   }
-  .segment {
-    flex: 1;
-    display: flex; align-items: center; justify-content: center; gap: 8px;
-    background: transparent;
-    border: none;
-    font-weight: 600;
-    font-size: 0.9rem;
+  .mode-btn {
+    display: flex; align-items: center; gap: 6px;
+    padding: 6px 12px;
+    border: none; background: transparent;
+    border-radius: 6px;
+    font-size: 0.85rem; font-weight: 500;
     color: var(--text-secondary);
-    z-index: 2;
-    cursor: pointer;
-    transition: color 0.2s;
+    cursor: pointer; transition: all 0.2s;
   }
-  .segment.active { color: var(--text-primary); }
-  .segment-indicator {
-    position: absolute;
-    top: 4px; bottom: 4px;
-    width: calc(50% - 4px);
-    background: #ffffff;
-    border-radius: 7px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    transition: left 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-    z-index: 1;
+  .mode-btn.active {
+    background: var(--bg-panel, #ffffff);
+    color: var(--text-primary);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
   }
 
-  /* --- Navigation Pills --- */
-  .nav-pills {
-    display: flex;
+  /* --- Navigation (Segmented) --- */
+  .nav-container {
     padding: 0 1.5rem 1rem 1.5rem;
     background: var(--bg-panel, #ffffff);
     border-bottom: 1px solid rgba(0,0,0,0.06);
-    gap: 0.5rem;
-    overflow-x: auto;
   }
-  .pill {
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
-    border: none;
+  
+  .segmented-nav {
+    display: flex;
+    position: relative;
+    background: rgba(0,0,0,0.05);
+    border-radius: 10px;
+    padding: 3px;
+  }
+  
+  .nav-item {
+    flex: 1;
+    position: relative;
+    z-index: 2;
     background: transparent;
-    font-weight: 600;
-    font-size: 0.9rem;
+    border: none;
+    padding: 6px 0;
+    font-size: 0.85rem;
+    font-weight: 500;
     color: var(--text-secondary);
     cursor: pointer;
-    white-space: nowrap;
-    transition: all 0.2s;
+    transition: color 0.2s;
+    text-align: center;
   }
-  .pill:hover { background: rgba(0,0,0,0.03); color: var(--text-primary); }
-  .pill.active {
-    background: var(--accent-primary, #007bff);
-    color: #ffffff;
+  .nav-item.active { color: var(--text-primary); font-weight: 600; }
+  
+  .active-bg {
+    position: absolute;
+    top: 3px; bottom: 3px; left: 3px;
+    width: calc(25% - 1.5px); /* 4 items -> 25% */
+    background: var(--bg-panel, #ffffff);
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+    transition: transform 0.25s cubic-bezier(0.2, 0, 0.2, 1);
+    z-index: 1;
   }
 
-  /* --- Content Area --- */
+  /* --- Content --- */
   .content-scroll {
     flex: 1;
     overflow-y: auto;
     padding: 1.5rem;
   }
   
-  .section-group {
-    display: flex;
-    flex-direction: column;
-    gap: 1.25rem;
-  }
+  .section-group { display: flex; flex-direction: column; gap: 1rem; }
 
-  .divider {
+  .section-divider {
     font-size: 0.75rem;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 0.05em;
     font-weight: 700;
     color: var(--text-muted);
-    margin: 1rem 0 0.25rem 0;
-    border-bottom: 1px solid rgba(0,0,0,0.06);
-    padding-bottom: 0.5rem;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
   }
-  .divider:first-child { margin-top: 0; }
+  .section-divider:first-child { margin-top: 0; }
 
   /* Control Rows */
   .control-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0.5rem 0;
+    padding: 0.25rem 0;
   }
-  .control-row .label { font-size: 0.95rem; font-weight: 500; color: var(--text-primary); }
+  .label-group { display: flex; flex-direction: column; }
+  .label { font-size: 0.9rem; font-weight: 500; color: var(--text-primary); }
+  .hex-value { font-size: 0.75rem; font-family: monospace; color: var(--text-muted); margin-top: 2px; }
   
-  .control-stack {
-    display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 0.5rem;
-  }
-  .header-row { display: flex; justify-content: space-between; }
-  .value-badge { 
-    font-family: monospace; font-size: 0.8rem; 
-    background: rgba(0,0,0,0.06); padding: 2px 6px; border-radius: 4px; 
-  }
+  .control-stack { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 0.5rem; }
+  .header-row { display: flex; justify-content: space-between; align-items: baseline; }
+  .value-badge { font-family: monospace; font-size: 0.8rem; background: rgba(0,0,0,0.06); padding: 2px 6px; border-radius: 4px; color: var(--text-primary); }
 
   /* Color Picker */
-  .color-composite {
-    display: flex; align-items: center; gap: 1rem;
-  }
-  .hex-value { font-family: monospace; font-size: 0.9rem; color: var(--text-secondary); }
-  
   .color-wrapper {
     position: relative;
-    width: 36px; height: 36px;
+    width: 32px; height: 32px;
     border-radius: 50%;
     overflow: hidden;
-    box-shadow: inset 0 0 0 2px rgba(0,0,0,0.1);
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.1);
     cursor: pointer;
   }
   .color-wrapper input {
-    position: absolute; top: -10px; left: -10px; width: 60px; height: 60px; opacity: 0; cursor: pointer;
+    position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; opacity: 0; cursor: pointer;
   }
-  .color-wrapper .swatch {
-    width: 100%; height: 100%;
-  }
+  .color-wrapper .swatch { width: 100%; height: 100%; border: 2px solid #fff; border-radius: 50%; box-sizing: border-box; }
 
   /* Slider */
+  .slider-container {
+    width: 100%;
+    height: 24px;
+    display: flex;
+    align-items: center;
+  }
   .slider {
-    width: 100%; height: 6px; border-radius: 3px; background: rgba(0,0,0,0.1); outline: none; appearance: none;
+    -webkit-appearance: none;
+    width: 100%;
+    height: 6px;
+    border-radius: 3px;
+    background: rgba(0,0,0,0.1);
+    background-image: linear-gradient(var(--accent-primary), var(--accent-primary));
+    background-repeat: no-repeat;
+    outline: none;
   }
   .slider::-webkit-slider-thumb {
-    appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--accent-primary, #007bff); cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    -webkit-appearance: none;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: #ffffff;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    cursor: pointer;
+    transition: transform 0.1s;
+  }
+  .slider::-webkit-slider-thumb:hover { transform: scale(1.1); }
+
+  .modern-select {
+    width: 100%;
+    padding: 0.6rem;
+    font-size: 0.9rem;
+    border: 1px solid rgba(0,0,0,0.1);
+    border-radius: 8px;
+    background: var(--bg-input);
+    color: var(--text-primary);
   }
 
   /* --- Footer --- */
   .editor-footer {
-    padding: 1.25rem 1.5rem;
+    padding: 1rem 1.5rem;
     background: var(--bg-panel, #ffffff);
     border-top: 1px solid rgba(0,0,0,0.06);
     display: flex; gap: 1rem;
@@ -457,9 +479,9 @@
   .btn {
     flex: 1;
     display: flex; align-items: center; justify-content: center; gap: 0.5rem;
-    padding: 0.9rem;
-    border: none; border-radius: 12px;
-    font-size: 1rem; font-weight: 600;
+    padding: 0.8rem;
+    border: none; border-radius: 10px;
+    font-size: 0.95rem; font-weight: 600;
     cursor: pointer; transition: transform 0.1s, opacity 0.2s;
   }
   .btn:active { transform: scale(0.98); }
@@ -467,11 +489,11 @@
   .btn.primary {
     background: var(--accent-primary, #007bff);
     color: #ffffff;
-    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
   }
   .btn.secondary {
-    background: rgba(0,0,0,0.06);
+    background: rgba(0,0,0,0.05);
     color: var(--text-primary, #333);
   }
-  .btn.secondary:hover { background: rgba(0,0,0,0.1); }
+  .btn.secondary:hover { background: rgba(0,0,0,0.08); }
 </style>
