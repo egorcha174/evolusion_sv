@@ -1,6 +1,7 @@
 
 <script lang="ts">
   import { t } from 'svelte-i18n';
+  import { slide } from 'svelte/transition';
   import type { ThemeFile, ColorScheme } from '../../../themes/types';
   import { applyThemeCSS } from '../../../themes/utils';
   import 'iconify-icon';
@@ -12,198 +13,380 @@
   }>();
 
   let activeTab = $state<'light' | 'dark'>('light');
+  let activeSection = $state<'background' | 'cards' | 'colors' | 'text'>('background');
   
   let currentScheme = $derived(draft.theme.scheme[activeTab]);
 
-  // Helper to update deeply nested color
-  function updateColor(key: keyof ColorScheme, value: string) {
+  function updateField(key: keyof ColorScheme, value: any) {
     // 1. Update draft state
-    (draft.theme.scheme[activeTab] as any)[key] = value;
+    // @ts-ignore - Dynamic assignment to scheme
+    draft.theme.scheme[activeTab][key] = value;
     
     // 2. Live Preview: Apply immediately to CSS
     applyThemeCSS(draft.theme.scheme[activeTab]);
   }
 
-  // Groups of colors for better UI organization
-  const colorGroups = [
-    {
-      title: 'Backgrounds',
-      fields: [
-        { key: 'dashboardBackgroundColor1', label: 'Dashboard Bg' },
-        { key: 'cardBackground', label: 'Card Bg' },
-        { key: 'bgPanel', label: 'Panel Bg', fallback: '#ffffff' }, // Optional in schema, ensure fallback
-      ]
-    },
-    {
-      title: 'Text & Icons',
-      fields: [
-        { key: 'textPrimary', label: 'Primary Text' },
-        { key: 'textSecondary', label: 'Secondary Text' },
-        { key: 'accentPrimary', label: 'Accent Color' },
-      ]
-    },
-    {
-        title: 'Status',
-        fields: [
-            { key: 'stateOn', label: 'State On' },
-            { key: 'stateOff', label: 'State Off' }
-        ]
-    }
-  ];
+  // --- Components for Inputs to reduce boilerplate in markup ---
+  // Note: In Svelte 5 we can use snippets for this locally
 </script>
 
-<div class="inline-editor">
+{#snippet colorInput(label, key)}
+  <div class="control-row">
+    <label class="control-label">{label}</label>
+    <div class="color-wrapper">
+      <input 
+        type="color" 
+        value={currentScheme[key] as string} 
+        oninput={(e) => updateField(key, e.currentTarget.value)}
+      />
+      <span class="hex">{currentScheme[key]}</span>
+    </div>
+  </div>
+{/snippet}
+
+{#snippet rangeInput(label, key, min, max, step, unit = '')}
+  <div class="control-col">
+    <div class="range-header">
+      <label class="control-label">{label}</label>
+      <span class="range-val">{currentScheme[key]}{unit}</span>
+    </div>
+    <input 
+      type="range" 
+      {min} {max} {step}
+      value={currentScheme[key] as number}
+      oninput={(e) => updateField(key, parseFloat(e.currentTarget.value))}
+    />
+  </div>
+{/snippet}
+
+<div class="theme-editor">
+  <!-- Header -->
   <div class="editor-header">
-    <h3>Edit Theme</h3>
-    <div class="header-actions">
+    <h3>{$t('settings.theme')} Editor</h3>
+    <div class="actions">
        <button class="btn primary small" onclick={() => onSave(draft)}>{$t('common.save')}</button>
        <button class="btn text small" onclick={onCancel}>{$t('common.cancel')}</button>
     </div>
   </div>
 
-  <div class="form-row">
-    <label>Name</label>
-    <input type="text" bind:value={draft.theme.name} />
+  <div class="main-config">
+    <div class="field-group">
+      <label>Theme Name</label>
+      <input type="text" class="text-input" bind:value={draft.theme.name} />
+    </div>
   </div>
 
-  <div class="scheme-tabs">
-    <button class="tab" class:active={activeTab === 'light'} onclick={() => activeTab = 'light'}>
+  <!-- Mode Switcher -->
+  <div class="mode-tabs">
+    <button class="mode-tab" class:active={activeTab === 'light'} onclick={() => activeTab = 'light'}>
         <iconify-icon icon="mdi:white-balance-sunny"></iconify-icon> Light
     </button>
-    <button class="tab" class:active={activeTab === 'dark'} onclick={() => activeTab = 'dark'}>
+    <button class="mode-tab" class:active={activeTab === 'dark'} onclick={() => activeTab = 'dark'}>
         <iconify-icon icon="mdi:weather-night"></iconify-icon> Dark
     </button>
   </div>
 
-  <div class="colors-container">
-     <!-- Render simplified color inputs. In a real app this would iterate all schema fields -->
-     {#each colorGroups as group}
-        <div class="group">
-           <h4>{group.title}</h4>
-           {#each group.fields as field}
-              <div class="color-row">
-                 <label>{field.label}</label>
-                 <div class="input-wrapper">
-                    <input 
-                        type="color" 
-                        value={(currentScheme as any)[field.key] || field.fallback || '#000000'} 
-                        oninput={(e) => updateColor(field.key as keyof ColorScheme, e.currentTarget.value)}
-                    />
-                    <span class="hex">{(currentScheme as any)[field.key]}</span>
-                 </div>
-              </div>
-           {/each}
+  <!-- Section Tabs -->
+  <div class="section-tabs">
+    <button class="sec-tab" class:active={activeSection === 'background'} onclick={() => activeSection = 'background'}>
+      <iconify-icon icon="mdi:image-outline"></iconify-icon>
+      <span>Background</span>
+    </button>
+    <button class="sec-tab" class:active={activeSection === 'cards'} onclick={() => activeSection = 'cards'}>
+      <iconify-icon icon="mdi:card-outline"></iconify-icon>
+      <span>Cards</span>
+    </button>
+    <button class="sec-tab" class:active={activeSection === 'colors'} onclick={() => activeSection = 'colors'}>
+      <iconify-icon icon="mdi:palette-outline"></iconify-icon>
+      <span>Palette</span>
+    </button>
+    <button class="sec-tab" class:active={activeSection === 'text'} onclick={() => activeSection = 'text'}>
+      <iconify-icon icon="mdi:format-font"></iconify-icon>
+      <span>Text</span>
+    </button>
+  </div>
+
+  <div class="scroll-content">
+    {#if activeSection === 'background'}
+      <div class="section-content" transition:slide|local>
+        <div class="control-col">
+          <label class="control-label">Background Type</label>
+          <select 
+            class="select-input"
+            value={currentScheme.dashboardBackgroundType}
+            onchange={(e) => updateField('dashboardBackgroundType', e.currentTarget.value)}
+          >
+            <option value="color">Solid Color</option>
+            <option value="gradient">Gradient</option>
+            <option value="image">Image URL</option>
+          </select>
         </div>
-     {/each}
-     
-     <div class="hint">
-        Click Save to persist changes. Changes are previewed live.
-     </div>
+
+        {#if currentScheme.dashboardBackgroundType === 'color'}
+          {@render colorInput('Background Color', 'dashboardBackgroundColor1')}
+        {:else if currentScheme.dashboardBackgroundType === 'gradient'}
+          {@render colorInput('Start Color', 'dashboardBackgroundColor1')}
+          {@render colorInput('End Color', 'dashboardBackgroundColor2')}
+        {:else if currentScheme.dashboardBackgroundType === 'image'}
+          <div class="control-col">
+            <label class="control-label">Image URL</label>
+            <input 
+              type="text" class="text-input" 
+              value={currentScheme.dashboardBackgroundImageUrl || ''} 
+              oninput={(e) => updateField('dashboardBackgroundImageUrl', e.currentTarget.value)}
+              placeholder="https://..."
+            />
+          </div>
+          {@render colorInput('Fallback Color', 'dashboardBackgroundColor1')}
+          {@render rangeInput('Blur', 'dashboardBackgroundImageBlur', 0, 20, 1, 'px')}
+          {@render rangeInput('Brightness', 'dashboardBackgroundImageBrightness', 0, 200, 5, '%')}
+        {/if}
+
+        <div class="divider"></div>
+        {@render rangeInput('Panel Opacity', 'panelOpacity', 0, 1, 0.05)}
+        {@render colorInput('Panel Background', 'bgPanel')}
+      </div>
+
+    {:else if activeSection === 'cards'}
+      <div class="section-content" transition:slide|local>
+        <div class="subsection-title">Appearance</div>
+        {@render colorInput('Background (Off)', 'cardBackground')}
+        {@render colorInput('Background (On)', 'cardBackgroundOn')}
+        {@render rangeInput('Opacity', 'cardOpacity', 0, 1, 0.05)}
+        
+        <div class="divider"></div>
+        <div class="subsection-title">Borders</div>
+        {@render rangeInput('Radius', 'cardBorderRadius', 0, 32, 1, 'px')}
+        {@render rangeInput('Width', 'cardBorderWidth', 0, 10, 1, 'px')}
+        {@render colorInput('Border Color', 'cardBorderColor')}
+        {@render colorInput('Border Active', 'cardBorderColorOn')}
+        
+        <div class="divider"></div>
+        <div class="control-col">
+           <label class="control-label">Shadow CSS</label>
+           <input 
+             type="text" class="text-input" 
+             value={currentScheme.shadowCard || 'none'} 
+             oninput={(e) => updateField('shadowCard', e.currentTarget.value)}
+           />
+        </div>
+      </div>
+
+    {:else if activeSection === 'colors'}
+      <div class="section-content" transition:slide|local>
+        <div class="subsection-title">Accents</div>
+        {@render colorInput('Primary Accent', 'accentPrimary')}
+        {@render colorInput('Secondary', 'accentSecondary')}
+        {@render colorInput('Info', 'accentInfo')}
+        
+        <div class="divider"></div>
+        <div class="subsection-title">States</div>
+        {@render colorInput('State On', 'stateOn')}
+        {@render colorInput('State Off', 'stateOff')}
+        {@render colorInput('Success', 'accentSuccess')}
+        {@render colorInput('Warning', 'accentWarning')}
+        {@render colorInput('Error', 'accentError')}
+      </div>
+
+    {:else if activeSection === 'text'}
+      <div class="section-content" transition:slide|local>
+        <div class="subsection-title">General Text</div>
+        {@render colorInput('Primary Text', 'textPrimary')}
+        {@render colorInput('Secondary Text', 'textSecondary')}
+        {@render colorInput('Muted Text', 'textMuted')}
+        
+        <div class="divider"></div>
+        <div class="subsection-title">Card Text</div>
+        {@render colorInput('Name', 'nameTextColor')}
+        {@render colorInput('State/Value', 'valueTextColor')}
+        {@render colorInput('Status/Unit', 'statusTextColor')}
+        
+        <div class="divider"></div>
+        <div class="subsection-title">Active Card Text</div>
+        {@render colorInput('Name (Active)', 'nameTextColorOn')}
+        {@render colorInput('Value (Active)', 'valueTextColorOn')}
+      </div>
+    {/if}
   </div>
 </div>
 
 <style>
-  .inline-editor {
+  .theme-editor {
     background: var(--bg-secondary);
-    border-radius: 8px;
-    padding: 1rem;
+    border-radius: 12px;
     border: 1px solid var(--border-primary);
+    display: flex;
+    flex-direction: column;
+    height: 600px; /* Fixed height for scrollable area */
+    max-height: 70vh;
+    overflow: hidden;
   }
 
   .editor-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 1rem;
+    padding: 1rem;
+    background: var(--bg-panel);
+    border-bottom: 1px solid var(--border-divider);
   }
   
-  h3 { margin: 0; font-size: 1rem; color: var(--text-primary); }
-  
-  .header-actions { display: flex; gap: 0.5rem; }
+  .editor-header h3 { margin: 0; font-size: 1rem; color: var(--text-primary); }
+  .actions { display: flex; gap: 0.5rem; }
 
-  .form-row { margin-bottom: 1rem; }
-  .form-row label { display: block; margin-bottom: 0.25rem; font-size: 0.85rem; color: var(--text-secondary); }
-  .form-row input { 
-    width: 100%; padding: 0.5rem; border-radius: 6px; 
-    border: 1px solid var(--border-input); background: var(--bg-input); color: var(--text-primary);
+  .main-config {
+    padding: 1rem;
+    background: var(--bg-panel);
   }
 
-  .scheme-tabs {
+  .mode-tabs {
     display: flex;
-    margin-bottom: 1rem;
-    background: var(--bg-input);
-    padding: 4px;
-    border-radius: 8px;
+    padding: 0.5rem 1rem;
+    gap: 0.5rem;
+    background: var(--bg-panel);
+    border-bottom: 1px solid var(--border-divider);
   }
   
-  .tab {
+  .mode-tab {
     flex: 1;
-    border: none;
-    background: transparent;
-    padding: 6px;
-    border-radius: 6px;
-    cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
-    font-size: 0.9rem;
-    color: var(--text-secondary);
-    transition: all 0.2s;
-  }
-  
-  .tab.active {
+    gap: 0.5rem;
+    padding: 0.5rem;
+    border-radius: 6px;
+    border: 1px solid var(--border-primary);
     background: var(--bg-card);
-    color: var(--text-primary);
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    font-weight: 500;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
+  .mode-tab.active {
+    background: var(--accent-primary);
+    color: white;
+    border-color: var(--accent-primary);
   }
 
-  .colors-container {
+  .section-tabs {
     display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
+    overflow-x: auto;
+    background: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-divider);
+    scrollbar-width: none;
   }
   
-  .group h4 {
-    margin: 0 0 0.75rem 0;
+  .sec-tab {
+    flex: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 0.75rem 1rem;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 0.75rem;
+    border-bottom: 2px solid transparent;
+    min-width: 80px;
+  }
+  .sec-tab iconify-icon { font-size: 1.2rem; }
+  .sec-tab.active { color: var(--accent-primary); border-bottom-color: var(--accent-primary); background: var(--bg-card-hover); }
+
+  .scroll-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem;
+    background: var(--bg-card);
+  }
+
+  .section-content {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .subsection-title {
     font-size: 0.8rem;
     text-transform: uppercase;
     color: var(--text-muted);
-    letter-spacing: 0.5px;
+    font-weight: 600;
+    margin-top: 0.5rem;
   }
-  
-  .color-row {
+
+  .field-group { margin-bottom: 0.5rem; }
+  .field-group label { display: block; font-size: 0.8rem; margin-bottom: 0.25rem; color: var(--text-secondary); }
+
+  /* Controls */
+  .control-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 0.5rem;
   }
-  
-  .color-row label { font-size: 0.9rem; color: var(--text-primary); }
-  
-  .input-wrapper { display: flex; align-items: center; gap: 0.5rem; }
+  .control-col {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  .control-label {
+    font-size: 0.9rem;
+    color: var(--text-primary);
+  }
+
+  .text-input, .select-input {
+    width: 100%;
+    padding: 0.5rem;
+    border-radius: 6px;
+    border: 1px solid var(--border-input);
+    background: var(--bg-input);
+    color: var(--text-primary);
+    font-size: 0.9rem;
+  }
+
+  .color-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .hex {
+    font-family: monospace;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    width: 65px;
+  }
   
   input[type="color"] {
     -webkit-appearance: none;
     border: none;
-    width: 24px;
-    height: 24px;
+    width: 32px;
+    height: 32px;
     padding: 0;
     background: none;
     cursor: pointer;
     border-radius: 50%;
     overflow: hidden;
   }
-  
   input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
   input[type="color"]::-webkit-color-swatch { border: 1px solid rgba(0,0,0,0.1); border-radius: 50%; }
-  
-  .hex {
-    font-family: monospace;
-    font-size: 0.8rem;
+
+  .range-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
     color: var(--text-secondary);
-    width: 60px;
+  }
+  .range-val { font-family: monospace; }
+  
+  input[type="range"] {
+    width: 100%;
+    accent-color: var(--accent-primary);
+  }
+
+  .divider {
+    height: 1px;
+    background: var(--border-divider);
+    margin: 0.5rem 0;
   }
 
   .btn {
@@ -212,6 +395,4 @@
   .btn.primary { background: var(--accent-primary); color: white; }
   .btn.text { background: transparent; color: var(--text-secondary); }
   .btn.text:hover { background: var(--bg-chip); color: var(--text-primary); }
-  
-  .hint { margin-top: 1rem; font-size: 0.8rem; color: var(--text-muted); text-align: center; }
 </style>

@@ -1,6 +1,6 @@
 
 <script lang="ts">
-  // No imports needed; logic is handled via CSS variables set by themeStore
+  import { activeScheme } from '../ui/theme/store';
 </script>
 
 <div class="background-renderer"></div>

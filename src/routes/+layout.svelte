@@ -4,7 +4,7 @@
   import { appState, loadLayout, loadServerConfig, loadSavedServers } from '../domains/app/store';
   import { dashboardStore } from '../domains/app/dashboardStore';
   import { initializeHAConnection, disconnectHA } from '../domains/ha/store';
-  import { themeStore } from '../domains/theme/store';
+  import { themeStore } from '../domains/ui/theme/store';
   import { editorStore } from '../domains/ui/editor/store'; // Import Editor Store
   import { initClientI18n } from '../lib/i18n'; 
   import { initWeather, destroyWeather } from '../lib/weather/store';

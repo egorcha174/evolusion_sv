@@ -288,9 +288,8 @@
               {$t('settings.themeMode')}
               <select value={$themeStore.mode} onchange={(e) => themeStore.setMode(e.currentTarget.value as ThemeMode)}>
                 <option value="auto">{$t('settings.themeModeAuto')}</option>
-                <option value="day">{$t('settings.themeModeDay')}</option>
-                <option value="night">{$t('settings.themeModeNight')}</option>
-                <option value="schedule">{$t('settings.themeModeSchedule')}</option>
+                <option value="light">{$t('settings.themeModeDay')}</option>
+                <option value="dark">{$t('settings.themeModeNight')}</option>
               </select>
             </label>
           </div>
