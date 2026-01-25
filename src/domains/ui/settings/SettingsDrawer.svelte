@@ -1,4 +1,3 @@
-
 <script lang="ts">
   import { onMount } from 'svelte';
   import { fade, fly, slide } from 'svelte/transition';
@@ -11,6 +10,7 @@
   import { weatherSettings, refreshWeatherConfig } from '../../../lib/weather/store';
   import { exportAllSettings, importAllSettings, clearAllData } from '../../app/backup';
   import { setLocale, availableLanguages, currentLang } from '../../../lib/i18n';
+  import { exportTheme, importTheme } from '../theme/io'; // Import IO functions
   import type { ThemeMode, ThemeFile } from '../../../themes/types';
 
   // Components
@@ -90,6 +90,7 @@
   // --- Theme State & Logic ---
   let isEditingTheme = $state(false);
   let themeDraft = $state<ThemeFile | null>(null);
+  let themeFileInput: HTMLInputElement; // Reference for file input
   
   // Flatten themes from store
   let allThemes = $derived(
@@ -149,6 +150,32 @@
     themeDraft = null;
     // Re-trigger active theme to ensure CSS is consistent
     themeStore.setActiveTheme($themeStore.activeThemeId);
+  }
+
+  // Theme Import/Export Handlers
+  async function handleThemeImport(e: Event) {
+    const file = (e.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+
+    try {
+      const theme = await importTheme(file);
+      themeStore.saveTheme(theme);
+      themeStore.setActiveTheme(theme.theme.id);
+      alert(`Theme "${theme.theme.name}" imported successfully!`);
+    } catch (err: any) {
+      alert(`Import failed: ${err.message}`);
+    } finally {
+      // Reset input
+      if (themeFileInput) themeFileInput.value = '';
+    }
+  }
+
+  function handleThemeExport(theme: ThemeFile) {
+    try {
+      exportTheme(theme);
+    } catch (err: any) {
+      alert(`Export failed: ${err.message}`);
+    }
   }
 
   // --- Weather State ---
@@ -295,7 +322,20 @@
           </div>
 
           <div class="theme-gallery-section">
-             <div class="label">{$t('settings.theme')}</div>
+             <div class="section-header-row">
+                <div class="label">{$t('settings.theme')}</div>
+                <button class="link-btn" onclick={() => themeFileInput.click()}>
+                   <iconify-icon icon="mdi:upload"></iconify-icon> Import JSON
+                </button>
+                <input 
+                   type="file" 
+                   hidden 
+                   accept=".json" 
+                   bind:this={themeFileInput}
+                   onchange={handleThemeImport} 
+                />
+             </div>
+             
              <div class="theme-grid">
                {#each allThemes as theme (theme.theme.id)}
                  <!-- svelte-ignore a11y_click_events_have_key_events -->
@@ -313,6 +353,11 @@
                     <div class="meta">
                        <span class="name">{theme.theme.name}</span>
                        <div class="actions">
+                          <!-- Export Button (All Themes) -->
+                          <button class="icon-btn small" onclick={(e) => { e.stopPropagation(); handleThemeExport(theme); }} title="Export JSON">
+                             <iconify-icon icon="mdi:download"></iconify-icon>
+                          </button>
+
                           {#if theme.isBuiltIn}
                              <button class="icon-btn small" onclick={(e) => { e.stopPropagation(); createThemeCopy(theme); }} title="Copy">
                                 <iconify-icon icon="mdi:content-copy"></iconify-icon>
@@ -503,7 +548,25 @@
   select { padding: 0.4rem; border-radius: 6px; border: 1px solid var(--border-input); background: var(--bg-input); color: var(--text-primary); min-width: 140px; font-size: 0.9rem; max-width: 60%; }
 
   /* Theme Gallery */
-  .theme-gallery-section .label { font-weight: 500; color: var(--text-primary); font-size: 0.9rem; margin-bottom: 0.75rem; }
+  .theme-gallery-section { display: flex; flex-direction: column; gap: 0.75rem; }
+  .section-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+  .section-header-row .label { font-weight: 500; color: var(--text-primary); font-size: 0.9rem; }
+  
+  .link-btn {
+    background: transparent;
+    border: none;
+    color: var(--accent-primary);
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 8px;
+    border-radius: 4px;
+  }
+  .link-btn:hover { background: var(--bg-chip); }
+
   .theme-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
