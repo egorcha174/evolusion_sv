@@ -1,6 +1,7 @@
 
 <script lang="ts">
-  import { activeScheme } from '../ui/theme/store';
+  // Background logic is handled via CSS variables injected by the global theme store.
+  // No imports needed here to avoid circular dependencies.
 </script>
 
 <div class="background-renderer"></div>
