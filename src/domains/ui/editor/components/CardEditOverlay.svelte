@@ -1,4 +1,3 @@
-
 <script lang="ts">
   import { editorStore } from '../store';
   import ResizeHandles from './ResizeHandles.svelte';
@@ -22,7 +21,10 @@
     left: 0;
     width: 100%;
     height: 100%;
-    border: 2px solid var(--accent-primary);
+    /* Stronger border */
+    border: 3px solid var(--accent-primary);
+    /* White outline + Shadow for contrast on all backgrounds */
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.9), 0 4px 12px rgba(0,0,0,0.3);
     border-radius: var(--card-border-radius, 16px);
     pointer-events: none;
     z-index: 50;
@@ -32,5 +34,6 @@
   .edit-overlay.collision {
     border-color: var(--accent-error);
     background: rgba(244, 67, 54, 0.2);
+    box-shadow: 0 0 0 2px #fff, 0 0 10px var(--accent-error);
   }
 </style>
