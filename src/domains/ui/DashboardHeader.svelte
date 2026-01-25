@@ -165,26 +165,26 @@
       {#if isKebabMenuOpen}
         <div class="dropdown-menu" onclick={(e) => e.stopPropagation()}>
           <button class="menu-item" onclick={openSettings}>
-            <iconify-icon icon="mdi:cog-outline"></iconify-icon> {$t('settings.title')}
+            <iconify-icon icon="mdi:cog-outline"></iconify-icon> <span>{$t('settings.title')}</span>
           </button>
           <a href="/entities" class="menu-item" onclick={() => isKebabMenuOpen = false}>
-            <iconify-icon icon="mdi:format-list-bulleted"></iconify-icon> {$t('entities.title')}
+            <iconify-icon icon="mdi:format-list-bulleted"></iconify-icon> <span>{$t('entities.title')}</span>
           </a>
           
           {#if $isEditMode}
             <button class="menu-item" onclick={() => { editorStore.openTemplateManager(); isKebabMenuOpen = false; }}>
-              <iconify-icon icon="mdi:palette-swatch-outline"></iconify-icon> Templates
+              <iconify-icon icon="mdi:palette-swatch-outline"></iconify-icon> <span>Templates</span>
             </button>
           {/if}
 
           <div class="divider"></div>
           <button class="menu-item" onclick={handleRefresh}>
-            <iconify-icon icon="mdi:refresh"></iconify-icon> {$t('dashboard.menu.refresh')}
+            <iconify-icon icon="mdi:refresh"></iconify-icon> <span>{$t('dashboard.menu.refresh')}</span>
           </button>
           <div class="divider"></div>
           <button class="menu-item highlight" onclick={() => { toggleEditMode(); isKebabMenuOpen = false; }}>
             <iconify-icon icon={$isEditMode ? 'mdi:check' : 'mdi:view-dashboard-edit-outline'}></iconify-icon> 
-            {$isEditMode ? $t('dashboard.done') : $t('dashboard.edit')}
+            <span>{$isEditMode ? $t('dashboard.done') : $t('dashboard.edit')}</span>
           </button>
         </div>
       {/if}
@@ -200,19 +200,19 @@
     onclick={(e) => e.stopPropagation()}
   >
     <button class="menu-item" onclick={renameTab}>
-      <iconify-icon icon="mdi:rename-box"></iconify-icon> {$t('dashboard.menu.renameTab')}
+      <iconify-icon icon="mdi:rename-box"></iconify-icon> <span>{$t('dashboard.menu.renameTab')}</span>
     </button>
     <button class="menu-item" onclick={() => { handleAddTab(); contextMenuOpen = false; }}>
-      <iconify-icon icon="mdi:plus"></iconify-icon> {$t('dashboard.menu.addTab')}
+      <iconify-icon icon="mdi:plus"></iconify-icon> <span>{$t('dashboard.menu.addTab')}</span>
     </button>
     
     <div class="divider"></div>
     
     <button class="menu-item" onclick={clearTab}>
-      <iconify-icon icon="mdi:eraser"></iconify-icon> {$t('dashboard.menu.clearTab')}
+      <iconify-icon icon="mdi:eraser"></iconify-icon> <span>{$t('dashboard.menu.clearTab')}</span>
     </button>
     <button class="menu-item danger" onclick={deleteTab}>
-      <iconify-icon icon="mdi:delete"></iconify-icon> {$t('dashboard.menu.deleteTab')}
+      <iconify-icon icon="mdi:delete"></iconify-icon> <span>{$t('dashboard.menu.deleteTab')}</span>
     </button>
   </div>
 {/if}
@@ -226,7 +226,6 @@
     align-items: center;
     justify-content: space-between;
     height: 64px;
-    /* Reduced horizontal padding from 1.5rem to 0.5rem (8px) */
     padding: 0 0.5rem;
     
     background: var(--bg-header);
@@ -307,76 +306,118 @@
 
   .menu-container { position: relative; }
 
-  /* Context Menu & Dropdown Styles */
+  /* --- Context Menu & Dropdown Styling (Redesigned) --- */
+  
   .dropdown-menu, .context-menu {
     position: absolute;
-    background: var(--bg-panel, rgba(255, 255, 255, 0.95));
+    /* High quality surface styling */
+    background: var(--bg-panel, #ffffff);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    border-radius: 12px;
-    box-shadow: var(--shadow-dropdown, 0 4px 12px rgba(0,0,0,0.15));
-    padding: 0.5rem;
-    border: 1px solid var(--border-primary, rgba(0,0,0,0.05));
+    
+    border-radius: 16px; /* Larger radius */
+    border: 1px solid var(--border-primary, rgba(0,0,0,0.08));
+    
+    /* Deep diffused shadow for floating effect */
+    box-shadow: 
+      0 4px 6px -1px rgba(0, 0, 0, 0.1),
+      0 10px 15px -3px rgba(0, 0, 0, 0.1),
+      0 0 0 1px rgba(0,0,0,0.02);
+      
+    /* Inner spacing */
+    padding: 8px;
     display: flex;
     flex-direction: column;
     z-index: 1000;
-    min-width: 180px;
+    min-width: 240px;
+    
+    /* Animation origin */
+    transform-origin: top right;
+    animation: scaleIn 0.15s cubic-bezier(0.2, 0, 0.13, 1.5);
   }
   
   .dropdown-menu {
-    top: 100%;
+    top: calc(100% + 4px);
     right: 0;
-    margin-top: 0.5rem;
-    width: 220px;
-    animation: fadeIn 0.1s ease-out;
   }
   
   .context-menu {
-    position: fixed; /* Fixed relative to viewport for context menu */
+    position: fixed;
+    transform-origin: top left;
   }
 
   :global(body.rtl) .dropdown-menu {
     right: auto;
     left: 0;
+    transform-origin: top left;
   }
+
+  /* --- Menu Items --- */
 
   .menu-item {
     display: flex;
     align-items: center;
-    gap: 0.75rem;
-    padding: 0.75rem 1rem;
+    gap: 12px;
+    padding: 10px 12px; /* Increased padding */
+    margin: 1px 0;
+    
     border: none;
     background: transparent;
     width: 100%;
     text-align: left;
+    
+    /* Typography */
     font-size: 0.95rem;
+    font-weight: 500;
     color: var(--text-primary);
+    
+    /* Shape */
+    border-radius: 8px; /* Internal radius */
     cursor: pointer;
-    border-radius: 8px;
     text-decoration: none;
+    transition: background-color 0.1s ease;
   }
 
   .menu-item:hover {
     background: var(--bg-card-hover, rgba(0,0,0,0.05));
   }
+  
+  .menu-item iconify-icon {
+    font-size: 1.25rem;
+    color: var(--text-secondary);
+    min-width: 24px; /* Fixed alignment width */
+  }
+  
+  .menu-item:hover iconify-icon {
+    color: var(--text-primary);
+  }
 
   .menu-item.highlight {
     color: var(--accent-primary);
-    font-weight: 500;
+  }
+  .menu-item.highlight iconify-icon {
+    color: var(--accent-primary);
   }
   
   .menu-item.danger {
     color: var(--accent-error);
   }
-  
+  .menu-item.danger iconify-icon {
+    color: var(--accent-error);
+  }
   .menu-item.danger:hover {
-    background: rgba(244, 67, 54, 0.1);
+    background: rgba(244, 67, 54, 0.08);
   }
 
   .divider {
     height: 1px;
-    background: var(--border-divider, rgba(128,128,128,0.2));
-    margin: 0.25rem 0;
+    background: var(--border-divider, rgba(128,128,128,0.15));
+    margin: 6px 0; /* More breathing room */
+  }
+
+  @keyframes scaleIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
   }
 
   .mobile-only { display: none; }
@@ -385,6 +426,4 @@
     .desktop-tabs { display: none; }
     .mobile-only { display: flex; }
   }
-
-  @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
 </style>
