@@ -619,8 +619,8 @@
   .btn:active { transform: translateY(0); }
   
   .btn.primary { 
-    background: var(--accent-primary); 
-    color: #ffffff; /* Force white */
+    background: var(--accent-primary, #2196f3); 
+    color: var(--text-on-accent, #ffffff);
     box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
   }
   
@@ -631,8 +631,18 @@
   }
   .btn.secondary:hover { background: var(--bg-chip-active, #d0d0d0); }
   
-  .btn.danger { background: rgba(244, 67, 54, 0.1); color: var(--accent-error); }
-  .btn.danger.outline { border: 1px solid var(--accent-error); background: transparent; }
+  .btn.danger { background: rgba(244, 67, 54, 0.1); color: var(--accent-error, #f44336); }
+  
+  .btn.danger.outline { 
+    border: 1px solid var(--accent-error, #f44336); 
+    background: transparent; 
+    color: var(--accent-error, #f44336);
+  }
+  
+  .btn.danger.outline:hover {
+    background: rgba(244, 67, 54, 0.05);
+  }
+  
   .btn.full { width: 100%; }
   .btn.small { padding: 0.4rem 0.8rem; font-size: 0.85rem; min-height: 36px; }
   .btn.flex-grow { flex-grow: 1; }
@@ -640,13 +650,13 @@
   
   .icon-btn { background: transparent; border: none; cursor: pointer; color: var(--text-secondary); display: flex; align-items: center; justify-content: center; border-radius: 4px; transition: all 0.2s; }
   .icon-btn:hover { background: var(--bg-chip); color: var(--text-primary); }
-  .icon-btn.danger:hover { color: var(--accent-error); background: rgba(244,67,54,0.1); }
+  .icon-btn.danger:hover { color: var(--accent-error, #f44336); background: rgba(244,67,54,0.1); }
 
   .actions { display: flex; justify-content: flex-end; margin-top: 1rem; }
   .backup-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.5rem; }
   
   .danger-zone { border-top: 1px solid var(--border-divider); padding-top: 1.5rem; }
-  .dz-label { color: var(--accent-error); font-size: 0.85rem; font-weight: 600; margin-bottom: 0.75rem; }
+  .dz-label { color: var(--accent-error, #f44336); font-size: 0.85rem; font-weight: 600; margin-bottom: 0.75rem; }
 
   .footer-info { text-align: center; color: var(--text-muted); font-size: 0.75rem; margin-top: auto; padding-top: 1rem; }
 
