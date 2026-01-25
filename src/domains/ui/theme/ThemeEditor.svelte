@@ -25,37 +25,42 @@
     // 2. Live Preview: Apply immediately to CSS
     applyThemeCSS(draft.theme.scheme[activeTab]);
   }
-
-  // --- Components for Inputs to reduce boilerplate in markup ---
-  // Note: In Svelte 5 we can use snippets for this locally
 </script>
 
 {#snippet colorInput(label, key)}
-  <div class="control-row">
-    <label class="control-label">{label}</label>
-    <div class="color-wrapper">
+  <div class="control-card">
+    <div class="control-header">
+      <span class="label">{label}</span>
+      <span class="value-preview">{currentScheme[key]}</span>
+    </div>
+    <div class="color-picker-container">
       <input 
         type="color" 
+        class="color-input"
         value={currentScheme[key] as string} 
         oninput={(e) => updateField(key, e.currentTarget.value)}
       />
-      <span class="hex">{currentScheme[key]}</span>
+      <!-- Visual Swatch overlaying the input -->
+      <div class="color-swatch" style:background-color={currentScheme[key] as string}></div>
     </div>
   </div>
 {/snippet}
 
 {#snippet rangeInput(label, key, min, max, step, unit = '')}
-  <div class="control-col">
-    <div class="range-header">
-      <label class="control-label">{label}</label>
-      <span class="range-val">{currentScheme[key]}{unit}</span>
+  <div class="control-card">
+    <div class="control-header">
+      <span class="label">{label}</span>
+      <span class="value-preview">{currentScheme[key]}{unit}</span>
     </div>
-    <input 
-      type="range" 
-      {min} {max} {step}
-      value={currentScheme[key] as number}
-      oninput={(e) => updateField(key, parseFloat(e.currentTarget.value))}
-    />
+    <div class="range-wrapper">
+      <input 
+        type="range" 
+        class="range-input"
+        {min} {max} {step}
+        value={currentScheme[key] as number}
+        oninput={(e) => updateField(key, parseFloat(e.currentTarget.value))}
+      />
+    </div>
   </div>
 {/snippet}
 
@@ -63,16 +68,16 @@
   <!-- Header -->
   <div class="editor-header">
     <h3>{$t('settings.theme')} Editor</h3>
-    <div class="actions">
-       <button class="btn primary small" onclick={() => onSave(draft)}>{$t('common.save')}</button>
-       <button class="btn text small" onclick={onCancel}>{$t('common.cancel')}</button>
-    </div>
+    <button class="icon-btn" onclick={onCancel} title={$t('common.close')}>
+      <iconify-icon icon="mdi:close"></iconify-icon>
+    </button>
   </div>
 
-  <div class="main-config">
-    <div class="field-group">
+  <!-- Name Input -->
+  <div class="meta-section">
+    <div class="input-group">
       <label>Theme Name</label>
-      <input type="text" class="text-input" bind:value={draft.theme.name} />
+      <input type="text" class="text-input" bind:value={draft.theme.name} placeholder="My Awesome Theme" />
     </div>
   </div>
 
@@ -90,7 +95,7 @@
   <div class="section-tabs">
     <button class="sec-tab" class:active={activeSection === 'background'} onclick={() => activeSection = 'background'}>
       <iconify-icon icon="mdi:image-outline"></iconify-icon>
-      <span>Background</span>
+      <span>BG</span>
     </button>
     <button class="sec-tab" class:active={activeSection === 'cards'} onclick={() => activeSection = 'cards'}>
       <iconify-icon icon="mdi:card-outline"></iconify-icon>
@@ -98,7 +103,7 @@
     </button>
     <button class="sec-tab" class:active={activeSection === 'colors'} onclick={() => activeSection = 'colors'}>
       <iconify-icon icon="mdi:palette-outline"></iconify-icon>
-      <span>Palette</span>
+      <span>Colors</span>
     </button>
     <button class="sec-tab" class:active={activeSection === 'text'} onclick={() => activeSection = 'text'}>
       <iconify-icon icon="mdi:format-font"></iconify-icon>
@@ -109,8 +114,8 @@
   <div class="scroll-content">
     {#if activeSection === 'background'}
       <div class="section-content" transition:slide|local>
-        <div class="control-col">
-          <label class="control-label">Background Type</label>
+        <div class="control-card">
+          <label class="label">Background Type</label>
           <select 
             class="select-input"
             value={currentScheme.dashboardBackgroundType}
@@ -128,13 +133,13 @@
           {@render colorInput('Start Color', 'dashboardBackgroundColor1')}
           {@render colorInput('End Color', 'dashboardBackgroundColor2')}
         {:else if currentScheme.dashboardBackgroundType === 'image'}
-          <div class="control-col">
-            <label class="control-label">Image URL</label>
+          <div class="control-card">
+            <label class="label">Image URL</label>
             <input 
               type="text" class="text-input" 
               value={currentScheme.dashboardBackgroundImageUrl || ''} 
               oninput={(e) => updateField('dashboardBackgroundImageUrl', e.currentTarget.value)}
-              placeholder="https://..."
+              placeholder="https://example.com/image.jpg"
             />
           </div>
           {@render colorInput('Fallback Color', 'dashboardBackgroundColor1')}
@@ -142,45 +147,44 @@
           {@render rangeInput('Brightness', 'dashboardBackgroundImageBrightness', 0, 200, 5, '%')}
         {/if}
 
-        <div class="divider"></div>
+        <div class="section-divider">Panel Settings</div>
         {@render rangeInput('Panel Opacity', 'panelOpacity', 0, 1, 0.05)}
         {@render colorInput('Panel Background', 'bgPanel')}
       </div>
 
     {:else if activeSection === 'cards'}
       <div class="section-content" transition:slide|local>
-        <div class="subsection-title">Appearance</div>
-        {@render colorInput('Background (Off)', 'cardBackground')}
-        {@render colorInput('Background (On)', 'cardBackgroundOn')}
+        <div class="section-divider">Appearance</div>
+        {@render colorInput('Background (Idle)', 'cardBackground')}
+        {@render colorInput('Background (Active)', 'cardBackgroundOn')}
         {@render rangeInput('Opacity', 'cardOpacity', 0, 1, 0.05)}
         
-        <div class="divider"></div>
-        <div class="subsection-title">Borders</div>
+        <div class="section-divider">Borders</div>
         {@render rangeInput('Radius', 'cardBorderRadius', 0, 32, 1, 'px')}
         {@render rangeInput('Width', 'cardBorderWidth', 0, 10, 1, 'px')}
         {@render colorInput('Border Color', 'cardBorderColor')}
         {@render colorInput('Border Active', 'cardBorderColorOn')}
         
-        <div class="divider"></div>
-        <div class="control-col">
-           <label class="control-label">Shadow CSS</label>
+        <div class="section-divider">Shadow</div>
+        <div class="control-card">
+           <label class="label">Shadow CSS</label>
            <input 
              type="text" class="text-input" 
              value={currentScheme.shadowCard || 'none'} 
              oninput={(e) => updateField('shadowCard', e.currentTarget.value)}
+             placeholder="e.g. 0 4px 6px rgba(0,0,0,0.1)"
            />
         </div>
       </div>
 
     {:else if activeSection === 'colors'}
       <div class="section-content" transition:slide|local>
-        <div class="subsection-title">Accents</div>
+        <div class="section-divider">Accents</div>
         {@render colorInput('Primary Accent', 'accentPrimary')}
         {@render colorInput('Secondary', 'accentSecondary')}
         {@render colorInput('Info', 'accentInfo')}
         
-        <div class="divider"></div>
-        <div class="subsection-title">States</div>
+        <div class="section-divider">States</div>
         {@render colorInput('State On', 'stateOn')}
         {@render colorInput('State Off', 'stateOff')}
         {@render colorInput('Success', 'accentSuccess')}
@@ -190,209 +194,167 @@
 
     {:else if activeSection === 'text'}
       <div class="section-content" transition:slide|local>
-        <div class="subsection-title">General Text</div>
+        <div class="section-divider">Global Text</div>
         {@render colorInput('Primary Text', 'textPrimary')}
         {@render colorInput('Secondary Text', 'textSecondary')}
         {@render colorInput('Muted Text', 'textMuted')}
         
-        <div class="divider"></div>
-        <div class="subsection-title">Card Text</div>
+        <div class="section-divider">Card Text</div>
         {@render colorInput('Name', 'nameTextColor')}
         {@render colorInput('State/Value', 'valueTextColor')}
         {@render colorInput('Status/Unit', 'statusTextColor')}
         
-        <div class="divider"></div>
-        <div class="subsection-title">Active Card Text</div>
+        <div class="section-divider">Active Card Text</div>
         {@render colorInput('Name (Active)', 'nameTextColorOn')}
         {@render colorInput('Value (Active)', 'valueTextColorOn')}
       </div>
     {/if}
   </div>
+
+  <div class="editor-footer">
+    <button class="btn secondary" onclick={onCancel}>{$t('common.cancel')}</button>
+    <button class="btn primary" onclick={() => onSave(draft)}>
+      <iconify-icon icon="mdi:content-save"></iconify-icon>
+      {$t('common.save')}
+    </button>
+  </div>
 </div>
 
 <style>
   .theme-editor {
-    background: var(--bg-secondary);
+    background: var(--bg-page);
     border-radius: 12px;
-    border: 1px solid var(--border-primary);
     display: flex;
     flex-direction: column;
-    height: 600px; /* Fixed height for scrollable area */
-    max-height: 70vh;
+    height: 100%;
+    max-height: 85vh; /* Keep within viewport */
     overflow: hidden;
+    color: var(--text-primary);
   }
 
   .editor-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1rem;
+    padding: 1rem 1.5rem;
     background: var(--bg-panel);
     border-bottom: 1px solid var(--border-divider);
+    flex-shrink: 0;
   }
   
-  .editor-header h3 { margin: 0; font-size: 1rem; color: var(--text-primary); }
-  .actions { display: flex; gap: 0.5rem; }
+  .editor-header h3 { margin: 0; font-size: 1.1rem; font-weight: 600; }
+  
+  .icon-btn {
+    background: transparent; border: none; cursor: pointer; color: var(--text-secondary);
+    padding: 4px; display: flex;
+  }
+  .icon-btn:hover { color: var(--text-primary); }
 
-  .main-config {
-    padding: 1rem;
+  .meta-section {
+    padding: 1rem 1.5rem 0.5rem 1.5rem;
     background: var(--bg-panel);
   }
 
+  .input-group label { display: block; font-size: 0.8rem; margin-bottom: 0.4rem; color: var(--text-secondary); font-weight: 500; }
+  .text-input, .select-input {
+    width: 100%; padding: 0.6rem; border-radius: 8px;
+    border: 1px solid var(--border-input); background: var(--bg-input);
+    color: var(--text-primary); font-size: 0.95rem;
+    transition: border-color 0.2s;
+  }
+  .text-input:focus, .select-input:focus { outline: none; border-color: var(--accent-primary); }
+
   .mode-tabs {
-    display: flex;
-    padding: 0.5rem 1rem;
-    gap: 0.5rem;
-    background: var(--bg-panel);
-    border-bottom: 1px solid var(--border-divider);
+    display: flex; gap: 0.5rem; padding: 0.5rem 1.5rem;
+    background: var(--bg-panel); border-bottom: 1px solid var(--border-divider);
   }
   
   .mode-tab {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    padding: 0.5rem;
-    border-radius: 6px;
-    border: 1px solid var(--border-primary);
-    background: var(--bg-card);
-    color: var(--text-secondary);
-    cursor: pointer;
-    font-size: 0.9rem;
+    flex: 1; display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+    padding: 0.6rem; border-radius: 8px; border: 1px solid var(--border-primary);
+    background: var(--bg-card); color: var(--text-secondary); cursor: pointer;
+    font-size: 0.9rem; font-weight: 500; transition: all 0.2s;
   }
-  .mode-tab.active {
-    background: var(--accent-primary);
-    color: white;
-    border-color: var(--accent-primary);
-  }
+  .mode-tab:hover { background: var(--bg-card-hover); }
+  .mode-tab.active { background: var(--accent-primary); color: white; border-color: var(--accent-primary); }
 
   .section-tabs {
-    display: flex;
-    overflow-x: auto;
-    background: var(--bg-secondary);
-    border-bottom: 1px solid var(--border-divider);
-    scrollbar-width: none;
+    display: flex; gap: 1rem; padding: 0 1.5rem;
+    background: var(--bg-secondary); border-bottom: 1px solid var(--border-divider);
+    overflow-x: auto; flex-shrink: 0;
   }
   
   .sec-tab {
-    flex: none;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 4px;
-    padding: 0.75rem 1rem;
-    background: transparent;
-    border: none;
-    color: var(--text-secondary);
-    cursor: pointer;
-    font-size: 0.75rem;
-    border-bottom: 2px solid transparent;
-    min-width: 80px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 0.8rem 0.5rem; gap: 4px; background: transparent; border: none;
+    color: var(--text-secondary); cursor: pointer; font-size: 0.75rem; font-weight: 600;
+    border-bottom: 2px solid transparent; min-width: 60px;
   }
   .sec-tab iconify-icon { font-size: 1.2rem; }
-  .sec-tab.active { color: var(--accent-primary); border-bottom-color: var(--accent-primary); background: var(--bg-card-hover); }
+  .sec-tab:hover { color: var(--text-primary); }
+  .sec-tab.active { color: var(--accent-primary); border-bottom-color: var(--accent-primary); }
 
   .scroll-content {
-    flex: 1;
-    overflow-y: auto;
-    padding: 1rem;
+    flex: 1; overflow-y: auto; padding: 1.5rem;
+    background: var(--bg-secondary);
+  }
+
+  .section-content { display: flex; flex-direction: column; gap: 0.75rem; }
+
+  .section-divider {
+    font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em;
+    color: var(--text-muted); font-weight: 700; margin: 1rem 0 0.5rem 0;
+  }
+  .section-divider:first-child { margin-top: 0; }
+
+  /* New Card Style Controls */
+  .control-card {
     background: var(--bg-card);
-  }
-
-  .section-content {
+    border: 1px solid var(--border-primary);
+    border-radius: 10px;
+    padding: 0.8rem;
     display: flex;
     flex-direction: column;
-    gap: 1rem;
-  }
-
-  .subsection-title {
-    font-size: 0.8rem;
-    text-transform: uppercase;
-    color: var(--text-muted);
-    font-weight: 600;
-    margin-top: 0.5rem;
-  }
-
-  .field-group { margin-bottom: 0.5rem; }
-  .field-group label { display: block; font-size: 0.8rem; margin-bottom: 0.25rem; color: var(--text-secondary); }
-
-  /* Controls */
-  .control-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .control-col {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-  }
-  .control-label {
-    font-size: 0.9rem;
-    color: var(--text-primary);
-  }
-
-  .text-input, .select-input {
-    width: 100%;
-    padding: 0.5rem;
-    border-radius: 6px;
-    border: 1px solid var(--border-input);
-    background: var(--bg-input);
-    color: var(--text-primary);
-    font-size: 0.9rem;
-  }
-
-  .color-wrapper {
-    display: flex;
-    align-items: center;
     gap: 0.5rem;
   }
-  .hex {
-    font-family: monospace;
-    font-size: 0.85rem;
-    color: var(--text-secondary);
-    width: 65px;
-  }
-  
-  input[type="color"] {
-    -webkit-appearance: none;
-    border: none;
-    width: 32px;
-    height: 32px;
-    padding: 0;
-    background: none;
-    cursor: pointer;
-    border-radius: 50%;
-    overflow: hidden;
-  }
-  input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
-  input[type="color"]::-webkit-color-swatch { border: 1px solid rgba(0,0,0,0.1); border-radius: 50%; }
 
-  .range-header {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.85rem;
-    color: var(--text-secondary);
+  .control-header {
+    display: flex; justify-content: space-between; align-items: center;
   }
-  .range-val { font-family: monospace; }
-  
-  input[type="range"] {
-    width: 100%;
-    accent-color: var(--accent-primary);
+  .control-header .label { font-size: 0.9rem; font-weight: 500; color: var(--text-primary); }
+  .value-preview { font-family: monospace; font-size: 0.8rem; color: var(--text-muted); }
+
+  .color-picker-container {
+    position: relative; height: 36px; width: 100%;
+    border-radius: 6px; overflow: hidden; border: 1px solid var(--border-input);
+  }
+  .color-input {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    opacity: 0; cursor: pointer; z-index: 2;
+  }
+  .color-swatch {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    z-index: 1;
   }
 
-  .divider {
-    height: 1px;
-    background: var(--border-divider);
-    margin: 0.5rem 0;
+  .range-wrapper { width: 100%; padding: 0 2px; }
+  .range-input { width: 100%; accent-color: var(--accent-primary); cursor: pointer; }
+
+  /* Footer */
+  .editor-footer {
+    padding: 1rem 1.5rem;
+    background: var(--bg-panel);
+    border-top: 1px solid var(--border-divider);
+    display: flex; gap: 1rem; flex-shrink: 0;
+    box-shadow: 0 -4px 12px rgba(0,0,0,0.05);
   }
 
   .btn {
-    padding: 0.4rem 0.8rem; border-radius: 6px; border: none; font-weight: 500; cursor: pointer; font-size: 0.85rem;
+    padding: 0.75rem 1.5rem; border-radius: 8px; border: none; font-weight: 600; font-size: 1rem;
+    cursor: pointer; flex: 1; display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+    transition: opacity 0.2s;
   }
+  .btn:hover { opacity: 0.9; }
   .btn.primary { background: var(--accent-primary); color: white; }
-  .btn.text { background: transparent; color: var(--text-secondary); }
-  .btn.text:hover { background: var(--bg-chip); color: var(--text-primary); }
+  .btn.secondary { background: var(--bg-input); color: var(--text-primary); border: 1px solid var(--border-input); }
 </style>
