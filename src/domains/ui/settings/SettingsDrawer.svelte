@@ -1,4 +1,6 @@
+
 <script lang="ts">
+  import { onMount } from 'svelte';
   import { fade, fly } from 'svelte/transition';
   import { t } from 'svelte-i18n';
   import { isSettingsOpen } from '../store';
@@ -16,6 +18,62 @@
   import RangeInput from './controls/RangeInput.svelte';
   import ServerManager from './ServerManager.svelte';
   import 'iconify-icon';
+
+  const STORAGE_KEY_WIDTH = 'evolusion_settings_width';
+
+  // --- Resize State ---
+  let settingsWidth = $state(420);
+  let isResizing = $state(false);
+
+  onMount(() => {
+    const stored = localStorage.getItem(STORAGE_KEY_WIDTH);
+    if (stored) {
+      const w = parseInt(stored, 10);
+      if (!isNaN(w) && w >= 300) {
+        settingsWidth = w;
+      }
+    }
+  });
+
+  function startResize(e: MouseEvent) {
+    e.preventDefault();
+    isResizing = true;
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', stopResize);
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+  }
+
+  function handleMouseMove(e: MouseEvent) {
+    if (!isResizing) return;
+    
+    let newWidth;
+    
+    // Check RTL
+    if (document.dir === 'rtl') {
+       newWidth = e.clientX;
+    } else {
+       // Drawer is on the right, so width is total - mouseX
+       newWidth = window.innerWidth - e.clientX;
+    }
+
+    // Constraints
+    if (newWidth < 300) newWidth = 300;
+    if (newWidth > window.innerWidth - 50) newWidth = window.innerWidth - 50;
+    
+    settingsWidth = newWidth;
+  }
+
+  function stopResize() {
+    if (isResizing) {
+      isResizing = false;
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', stopResize);
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+      localStorage.setItem(STORAGE_KEY_WIDTH, settingsWidth.toString());
+    }
+  }
 
   function close() {
     isSettingsOpen.set(false);
@@ -92,7 +150,19 @@
   <div class="backdrop" transition:fade={{ duration: 200 }} onclick={close}></div>
 
   <!-- Drawer -->
-  <aside class="settings-drawer" transition:fly={{ x: 400, duration: 300, opacity: 1 }}>
+  <aside 
+    class="settings-drawer" 
+    style="width: {settingsWidth}px"
+    transition:fly={{ x: 400, duration: 300, opacity: 1 }}
+  >
+    <!-- Resize Handle -->
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
+    <div 
+      class="resize-handle" 
+      class:active={isResizing}
+      onmousedown={startResize}
+    ></div>
+
     <header class="drawer-header">
       <h2>{$t('settings.title')}</h2>
       <button class="close-btn" onclick={close} aria-label="Close settings">
@@ -248,7 +318,7 @@
     position: fixed;
     top: 0;
     right: 0;
-    width: 420px;
+    /* width handled by inline style */
     max-width: 100vw;
     height: 100%;
     max-height: 100dvh;
@@ -259,8 +329,31 @@
     display: flex;
     flex-direction: column;
     border-left: 1px solid var(--border-primary);
+    transition: width 0.05s linear; /* Smooth resizing */
   }
   
+  /* Resize Handle */
+  .resize-handle {
+    position: absolute;
+    top: 0;
+    left: -6px; /* Straddle the border */
+    width: 12px;
+    height: 100%;
+    cursor: col-resize;
+    z-index: 2005;
+    background: transparent;
+    transition: background 0.2s;
+  }
+  
+  .resize-handle:hover, .resize-handle.active {
+    background: linear-gradient(to right, transparent 40%, var(--accent-primary) 40%, var(--accent-primary) 60%, transparent 60%);
+  }
+  
+  :global(body.rtl) .resize-handle {
+    left: auto;
+    right: -6px;
+  }
+
   :global(body.rtl) .settings-drawer {
     right: auto;
     left: 0;
@@ -376,7 +469,9 @@
   .footer-info { text-align: center; color: var(--text-muted); font-size: 0.75rem; margin-top: auto; padding-top: 1rem; }
 
   @media (max-width: 480px) {
-    .settings-drawer { width: 100vw; }
+    .settings-drawer { width: 100vw; max-width: 100vw; }
     .backup-actions .btn { width: 100%; }
+    /* Disable resize on mobile */
+    .resize-handle { display: none; }
   }
 </style>
