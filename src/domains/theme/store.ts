@@ -1,5 +1,5 @@
 
-import { writable, get } from 'svelte/store';
+import { writable, get, derived } from 'svelte/store';
 import { browser } from '$app/environment';
 import type { Theme, ThemeFile, ThemeMode } from '../../themes/types';
 import { BUILTIN_THEMES, defaultTheme } from '../../themes/defaults';
@@ -13,6 +13,15 @@ interface ThemeStoreState {
   themes: ThemeFile[];
   activeThemeId: string;
   mode: ThemeMode;
+}
+
+// System preference store
+const systemDark = writable(false);
+
+if (browser) {
+  const mq = window.matchMedia('(prefers-color-scheme: dark)');
+  systemDark.set(mq.matches);
+  mq.addEventListener('change', e => systemDark.set(e.matches));
 }
 
 function createThemeStore() {
@@ -60,15 +69,6 @@ function createThemeStore() {
           mode: savedMode || 'auto'
         };
       });
-
-      // Apply initial
-      const state = get({ subscribe });
-      const activeTheme = state.themes.find(t => t.theme.id === state.activeThemeId) || defaultTheme;
-      applyThemeCSS(
-        state.mode === 'dark' || (state.mode === 'auto' && getSystemColorMode() === 'dark') 
-          ? activeTheme.theme.scheme.dark 
-          : activeTheme.theme.scheme.light
-      );
     },
 
     setActiveTheme: (id: string) => {
@@ -77,12 +77,6 @@ function createThemeStore() {
         if (browser) localStorage.setItem(STORAGE_KEY_ACTIVE, id);
         return { ...s, activeThemeId: id };
       });
-      
-      // Re-apply logic
-      const s = get({ subscribe });
-      const t = s.themes.find(th => th.theme.id === s.activeThemeId)!;
-      const isDark = s.mode === 'dark' || (s.mode === 'auto' && getSystemColorMode() === 'dark');
-      applyThemeCSS(isDark ? t.theme.scheme.dark : t.theme.scheme.light);
     },
 
     setMode: (mode: ThemeMode) => {
@@ -90,11 +84,6 @@ function createThemeStore() {
         if (browser) localStorage.setItem(STORAGE_KEY_MODE, mode);
         return { ...s, mode };
       });
-      
-      const s = get({ subscribe });
-      const t = s.themes.find(th => th.theme.id === s.activeThemeId)!;
-      const isDark = mode === 'dark' || (mode === 'auto' && getSystemColorMode() === 'dark');
-      applyThemeCSS(isDark ? t.theme.scheme.dark : t.theme.scheme.light);
     },
 
     saveTheme: (themeFile: ThemeFile) => {
@@ -116,13 +105,6 @@ function createThemeStore() {
 
         return { ...s, themes: newThemes };
       });
-      
-      // If currently active, re-apply
-      const s = get({ subscribe });
-      if (s.activeThemeId === themeFile.theme.id) {
-         const isDark = s.mode === 'dark' || (s.mode === 'auto' && getSystemColorMode() === 'dark');
-         applyThemeCSS(isDark ? themeFile.theme.scheme.dark : themeFile.theme.scheme.light);
-      }
     },
 
     deleteTheme: (id: string) => {
@@ -145,16 +127,22 @@ function createThemeStore() {
 
         return { ...s, themes: newThemes, activeThemeId: newActive };
       });
-      
-      // Re-apply if active changed
-      const s = get({ subscribe });
-      if (s.activeThemeId !== id) { // It changed or was already different
-         const t = s.themes.find(th => th.theme.id === s.activeThemeId)!;
-         const isDark = s.mode === 'dark' || (s.mode === 'auto' && getSystemColorMode() === 'dark');
-         applyThemeCSS(isDark ? t.theme.scheme.dark : t.theme.scheme.light);
-      }
     }
   };
 }
 
 export const themeStore = createThemeStore();
+
+// Derived store for the active color scheme
+export const activeScheme = derived([themeStore, systemDark], ([$s, $sysDark]) => {
+  const themeFile = $s.themes.find(t => t.theme.id === $s.activeThemeId) || defaultTheme;
+  const isDark = $s.mode === 'dark' || ($s.mode === 'auto' && $sysDark);
+  return isDark ? themeFile.theme.scheme.dark : themeFile.theme.scheme.light;
+});
+
+// Reactively apply CSS variables when scheme changes
+if (browser) {
+  activeScheme.subscribe(scheme => {
+    applyThemeCSS(scheme);
+  });
+}
