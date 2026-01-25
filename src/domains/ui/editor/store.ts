@@ -144,6 +144,75 @@ function createEditorStore() {
 
     // --- Card Actions (Edit Mode) ---
 
+    addCard(entityId: string) {
+      update(s => {
+        if (!s.tabId) return s;
+
+        // 1. Scan for first available 1x1 spot
+        const cols = s.gridMetrics.cols;
+        const rows = s.gridMetrics.rows;
+        let x = 0, y = 0;
+        let found = false;
+        
+        const newW = 1;
+        const newH = 1;
+        
+        // Naive integer scan
+        for(let r = 0; r < rows; r++) {
+           for(let c = 0; c < cols; c++) {
+              // Rect candidate
+              const candidate = { col: c, row: r, w: newW, h: newH };
+              
+              // Check against all drafts
+              let collision = false;
+              for (const existing of s.drafts.values()) {
+                 // Simple overlap
+                 if (
+                    candidate.col < existing.col + existing.w &&
+                    candidate.col + candidate.w > existing.col &&
+                    candidate.row < existing.row + existing.h &&
+                    candidate.row + candidate.h > existing.row
+                 ) {
+                    collision = true;
+                    break;
+                 }
+              }
+              
+              if (!collision) {
+                 x = c; y = r;
+                 found = true;
+                 break;
+              }
+           }
+           if (found) break;
+        }
+        
+        if (!found) {
+           // Append to bottom
+           let maxR = 0;
+           s.drafts.forEach(r => maxR = Math.max(maxR, r.row + r.h));
+           y = Math.max(0, Math.ceil(maxR));
+           x = 0;
+        }
+
+        const newId = `card_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
+        
+        const newDrafts = new Map(s.drafts);
+        newDrafts.set(newId, { col: x, row: y, w: 1, h: 1 });
+        
+        const newEntities = new Map(s.cardEntities);
+        newEntities.set(newId, entityId);
+        
+        return {
+           ...s,
+           drafts: newDrafts,
+           cardEntities: newEntities,
+           selectedCardId: newId,
+           collision: false
+        };
+      });
+    },
+
     deleteCard(cardId: CardId) {
       update(s => {
         const newDrafts = new Map(s.drafts);

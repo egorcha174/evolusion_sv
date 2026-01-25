@@ -1,19 +1,14 @@
 
 {
-  "task_id": "feature-add-device-01",
-  "step_id": "impl-add-drawer",
-  "title": "Implement Add Device Drawer & Logic",
-  "goal": "Create the Add Device side panel, FAB, and integration with dashboard store.",
+  "task_id": "feature-add-device-02",
+  "step_id": "fix-add-logic-and-ui",
+  "title": "Fix Add Logic in Edit Mode & Improve UI",
+  "goal": "Ensure adding devices works while in Edit Mode by updating editor drafts, and make filter pills larger with labels.",
   "files": [
-    "src/domains/ui/store.ts",
-    "src/lib/i18n/locales/en.json",
-    "src/lib/i18n/locales/ru.json",
-    "src/domains/ui/add-device/DeviceAddItem.svelte",
-    "src/domains/ui/add-device/DeviceAddDrawer.svelte",
-    "src/routes/+layout.svelte",
-    "src/domains/ui/DashboardGrid.svelte"
+    "src/domains/ui/editor/store.ts",
+    "src/domains/ui/add-device/DeviceAddDrawer.svelte"
   ],
   "verification": "npm run check && npm run build",
-  "risk": "None",
-  "rollback": "Delete created files and revert changes."
+  "risk": "Low",
+  "rollback": "Revert changes"
 }

@@ -6,7 +6,8 @@
   import { isAddDeviceOpen } from '../store';
   import { haStore } from '../../ha/store';
   import { dashboardStore } from '../../app/dashboardStore';
-  import { activeTabId } from '../../app/tabsStore';
+  import { activeTabId, isEditMode } from '../../app/tabsStore';
+  import { editorStore } from '../editor/store'; // Import Editor Store
   import { extractDomain } from '$lib/utils';
   import DeviceAddItem from './DeviceAddItem.svelte';
   import 'iconify-icon';
@@ -30,10 +31,16 @@
 
   // --- DERIVED ---
   
-  // Get list of IDs already on current tab
+  // Get list of IDs already on current tab (Handle both Edit Mode and View Mode)
   let existingIds = $derived.by(() => {
-    const tab = $dashboardStore.tabs[$activeTabId];
-    return new Set(tab?.cards.map(c => c.entityId) || []);
+    if ($isEditMode && $editorStore.enabled) {
+       // In Edit Mode, use live entities from editor store
+       return new Set($editorStore.cardEntities.values());
+    } else {
+       // In View Mode, use persistent store
+       const tab = $dashboardStore.tabs[$activeTabId];
+       return new Set(tab?.cards.map(c => c.entityId) || []);
+    }
   });
 
   // Filter entities
@@ -79,8 +86,14 @@
   }
 
   function handleAdd(device: any) {
-    dashboardStore.addCard($activeTabId, device.entity_id);
-    // Optional: Toast logic here
+    if ($isEditMode && $editorStore.enabled) {
+       // If editing, add to drafts
+       editorStore.addCard(device.entity_id);
+    } else {
+       // If viewing (fallback), persist immediately
+       dashboardStore.addCard($activeTabId, device.entity_id);
+    }
+    // Optional: Toast logic here or visual feedback handled by 'existingIds' update
   }
 
   function toggleDomain(d: string) {
@@ -143,6 +156,7 @@
             title={d.id}
           >
             <iconify-icon icon={d.icon}></iconify-icon>
+            <span>{$t(`entities.domains.${d.id}`) || d.id}</span>
           </button>
         {/each}
       </div>
@@ -275,19 +289,19 @@
   .filters::-webkit-scrollbar { display: none; }
 
   .pill {
-    padding: 6px 12px;
+    padding: 8px 14px; /* Increased padding */
     border-radius: 20px;
     border: 1px solid var(--border-primary);
     background: var(--bg-card);
     color: var(--text-secondary);
-    font-size: 0.85rem;
+    font-size: 0.9rem; /* Increased font size */
     font-weight: 500;
     cursor: pointer;
     white-space: nowrap;
     transition: all 0.2s;
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 8px; /* More gap */
   }
 
   .pill:hover {
@@ -299,6 +313,10 @@
     background: var(--accent-primary);
     color: white;
     border-color: var(--accent-primary);
+  }
+  
+  .pill iconify-icon {
+    font-size: 1.1rem; /* Explicit size */
   }
 
   /* List */
