@@ -1,17 +1,18 @@
 
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { fade, fly } from 'svelte/transition';
+  import { fade, fly, slide } from 'svelte/transition';
   import { t } from 'svelte-i18n';
   import { isSettingsOpen } from '../store';
   import { appState, clearServerConfig } from '../../app/store';
   import { haStore, disconnectHA } from '../../ha/store';
-  import { themeSettings } from '../theme/store';
-  import { BUILTIN_THEMES } from '../theme/defaults';
+  import { themeSettings, themeStore } from '../theme/store';
+  import { BUILTIN_THEMES, defaultTheme } from '../../../themes/defaults';
   import { weatherSettings, refreshWeatherConfig } from '../../../lib/weather/store';
   import { exportAllSettings, importAllSettings, clearAllData } from '../../app/backup';
   import { setLocale, availableLanguages, currentLang } from '../../../lib/i18n';
-  import type { ThemeMode } from '../../../themes/types';
+  import type { ThemeMode, ThemeFile, Theme } from '../../../themes/types';
+  import { applyThemeCSS } from '../../../themes/utils';
 
   // Components
   import Section from './Section.svelte';
@@ -50,17 +51,13 @@
     if (!isResizing) return;
     
     let newWidth;
-    
-    // Check RTL
     if (document.dir === 'rtl') {
        newWidth = e.clientX;
     } else {
-       // Drawer is on the right, so width is total - mouseX
        newWidth = window.innerWidth - e.clientX;
     }
 
-    // Constraints
-    if (newWidth < 300) newWidth = 300;
+    if (newWidth < 350) newWidth = 350;
     if (newWidth > window.innerWidth - 50) newWidth = window.innerWidth - 50;
     
     settingsWidth = newWidth;
@@ -91,18 +88,73 @@
     }
   }
 
-  // --- Theme State ---
-  let isThemeEditorOpen = $state(false);
+  // --- Theme State & Logic ---
+  let isEditingTheme = $state(false);
+  let themeDraft = $state<ThemeFile | null>(null);
   
-  // Combine built-in (ThemeDefinition) and custom themes (ThemeFile) for the dropdown
-  // We normalize ID and Name access here
-  let availableThemes = $derived([
-    ...BUILTIN_THEMES.map(t => ({ id: t.id, name: t.name, isCustom: false })),
-    ...($themeSettings.customThemes || []).map(t => ({ id: t.theme.id, name: t.theme.name, isCustom: true }))
+  let allThemes = $derived([
+    ...BUILTIN_THEMES.map(t => ({ ...t, isBuiltIn: true })),
+    ...($themeSettings.customThemes || []).map(t => ({ ...t, isBuiltIn: false }))
   ]);
 
-  function setActiveTheme(id: string) {
-    themeSettings.update(s => ({ ...s, activeThemeId: id }));
+  function handleThemeSelect(id: string) {
+    if (isEditingTheme) {
+       if (!confirm($t('common.cancel') + '?')) return;
+       cancelThemeEdit();
+    }
+    themeSettings.setActiveTheme(id);
+  }
+
+  function createThemeCopy(baseTheme: ThemeFile) {
+    const newId = `custom_${Date.now()}`;
+    const newName = `${baseTheme.theme.name} (Copy)`;
+    
+    themeDraft = JSON.parse(JSON.stringify(baseTheme));
+    if (themeDraft) {
+        themeDraft.manifest.name = newName;
+        themeDraft.theme.id = newId;
+        themeDraft.theme.name = newName;
+        themeDraft.theme.isCustom = true;
+        // Make sure isBuiltIn is false for the editor logic
+        (themeDraft as any).isBuiltIn = false; 
+        
+        isEditingTheme = true;
+        // Scroll to editor?
+    }
+  }
+
+  function editCustomTheme(theme: ThemeFile) {
+    themeDraft = JSON.parse(JSON.stringify(theme));
+    isEditingTheme = true;
+  }
+
+  function saveTheme(theme: ThemeFile) {
+    themeSettings.saveTheme(theme);
+    themeSettings.setActiveTheme(theme.theme.id);
+    isEditingTheme = false;
+    themeDraft = null;
+  }
+
+  function deleteTheme(id: string) {
+    if (confirm($t('templates.manager.confirmDelete'))) {
+        themeSettings.deleteTheme(id);
+        if (isEditingTheme && themeDraft?.theme.id === id) {
+            isEditingTheme = false;
+            themeDraft = null;
+        }
+    }
+  }
+
+  function cancelThemeEdit() {
+    isEditingTheme = false;
+    themeDraft = null;
+    // Restore active theme CSS in case live preview messed it up
+    const active = allThemes.find(t => t.theme.id === $themeSettings.activeThemeId) || defaultTheme;
+    // We need to re-apply the correct scheme based on current mode
+    // Ideally store does this, but to be sure:
+    // (Actual restoration happens because ThemeEditor calls applyThemeCSS on unmount or we can force update store)
+    // Re-triggering store update is safest:
+    themeStore.setActiveTheme($themeSettings.activeThemeId);
   }
 
   // --- Weather State ---
@@ -160,10 +212,10 @@
 </script>
 
 {#if $isSettingsOpen}
-  <!-- Backdrop -->
+  <!-- Backdrop: Transparent & Non-blocking visually, but catches clicks to close -->
   <!-- svelte-ignore a11y_click_events_have_key_events -->
   <!-- svelte-ignore a11y_no_static_element_interactions -->
-  <div class="backdrop" transition:fade={{ duration: 200 }} onclick={close}></div>
+  <div class="backdrop" onclick={close}></div>
 
   <!-- Drawer -->
   <aside 
@@ -188,10 +240,10 @@
 
     <div class="drawer-content">
       <div class="scroll-inner">
+        
         <!-- SECTION 1: Connection -->
         <Section title={$t('settings.connection')} description="Manage your Home Assistant server">
             {#if $haStore.isConnected}
-               <!-- Active Connected State -->
                <div class="connected-state">
                   <div class="server-info">
                     <div class="status-icon success">
@@ -209,7 +261,6 @@
                   </div>
                </div>
             {:else}
-               <!-- Disconnected State -->
                <div class="disconnected-state">
                   <div class="status-icon error">
                       <iconify-icon icon="mdi:alert-circle" width="24"></iconify-icon>
@@ -225,8 +276,8 @@
             </div>
         </Section>
 
-        <!-- SECTION 2: Appearance -->
-        <Section title={$t('settings.appearance')} description="Theme and language settings">
+        <!-- SECTION 2: Appearance & Themes -->
+        <Section title={$t('settings.appearance')} description="Theme and language settings" initiallyOpen={true}>
           <div class="control-row">
             <label>
               {$t('settings.language')}
@@ -241,7 +292,7 @@
           <div class="control-row">
             <label>
               {$t('settings.themeMode')}
-              <select value={$themeSettings.mode} onchange={(e) => themeSettings.update(s => ({...s, mode: e.currentTarget.value as ThemeMode}))}>
+              <select value={$themeSettings.mode} onchange={(e) => themeSettings.setMode(e.currentTarget.value as ThemeMode)}>
                 <option value="auto">{$t('settings.themeModeAuto')}</option>
                 <option value="day">{$t('settings.themeModeDay')}</option>
                 <option value="night">{$t('settings.themeModeNight')}</option>
@@ -250,21 +301,60 @@
             </label>
           </div>
 
-          <div class="control-row">
-            <label>
-              {$t('settings.theme')}
-              <div class="theme-row">
-                <select value={$themeSettings.activeThemeId} onchange={(e) => setActiveTheme(e.currentTarget.value)}>
-                  {#each availableThemes as theme}
-                    <option value={theme.id}>{theme.name} {theme.isCustom ? $t('settings.themeCustom') : ''}</option>
-                  {/each}
-                </select>
-                <button class="btn icon-only" onclick={() => isThemeEditorOpen = true} title="Theme Editor">
-                  <iconify-icon icon="mdi:pencil"></iconify-icon>
-                </button>
-              </div>
-            </label>
+          <div class="theme-gallery-section">
+             <div class="label">{$t('settings.theme')}</div>
+             <div class="theme-grid">
+               {#each allThemes as theme (theme.theme.id)}
+                 <!-- svelte-ignore a11y_click_events_have_key_events -->
+                 <!-- svelte-ignore a11y_no_static_element_interactions -->
+                 <div 
+                    class="theme-card" 
+                    class:active={$themeSettings.activeThemeId === theme.theme.id}
+                    onclick={() => handleThemeSelect(theme.theme.id)}
+                 >
+                    <div class="preview" style:background={theme.theme.scheme.light.dashboardBackgroundColor1}>
+                       <!-- Mini representation of theme -->
+                       <div class="mini-card" style:background={theme.theme.scheme.light.cardBackground}></div>
+                       <div class="mini-accent" style:background={theme.theme.scheme.light.accentPrimary}></div>
+                    </div>
+                    <div class="meta">
+                       <span class="name">{theme.theme.name}</span>
+                       <div class="actions">
+                          {#if theme.isBuiltIn}
+                             <button class="icon-btn small" onclick={(e) => { e.stopPropagation(); createThemeCopy(theme); }} title="Copy">
+                                <iconify-icon icon="mdi:content-copy"></iconify-icon>
+                             </button>
+                          {:else}
+                             <button class="icon-btn small" onclick={(e) => { e.stopPropagation(); editCustomTheme(theme); }} title="Edit">
+                                <iconify-icon icon="mdi:pencil"></iconify-icon>
+                             </button>
+                             <button class="icon-btn small danger" onclick={(e) => { e.stopPropagation(); deleteTheme(theme.theme.id); }} title="Delete">
+                                <iconify-icon icon="mdi:delete"></iconify-icon>
+                             </button>
+                          {/if}
+                       </div>
+                    </div>
+                 </div>
+               {/each}
+               
+               <!-- Create New Button -->
+               <button class="theme-card create-btn" onclick={() => createThemeCopy(defaultTheme)}>
+                  <iconify-icon icon="mdi:plus" width="32"></iconify-icon>
+                  <span>{$t('templates.manager.create')}</span>
+               </button>
+             </div>
           </div>
+          
+          <!-- Inline Editor -->
+          {#if isEditingTheme && themeDraft}
+             <div class="editor-wrapper" transition:slide>
+                <ThemeEditor 
+                   draft={themeDraft} 
+                   onSave={saveTheme} 
+                   onCancel={cancelThemeEdit} 
+                />
+             </div>
+          {/if}
         </Section>
 
         <!-- SECTION 3: Weather -->
@@ -325,18 +415,12 @@
    <ServerManager onClose={() => isServerManagerOpen = false} />
 {/if}
 
-<!-- Theme Editor Overlay -->
-{#if isThemeEditorOpen}
-   <ThemeEditor onClose={() => isThemeEditorOpen = false} />
-{/if}
-
 <style>
   .backdrop {
     position: fixed;
     top: 0; left: 0;
     width: 100vw; height: 100vh;
-    background: rgba(0,0,0,0.4);
-    backdrop-filter: blur(2px);
+    background: transparent; /* No dimming as requested */
     z-index: 2000;
   }
 
@@ -344,7 +428,6 @@
     position: fixed;
     top: 0;
     right: 0;
-    /* width handled by inline style */
     max-width: 100vw;
     height: 100%;
     max-height: 100dvh;
@@ -355,14 +438,13 @@
     display: flex;
     flex-direction: column;
     border-left: 1px solid var(--border-primary);
-    transition: width 0.05s linear; /* Smooth resizing */
+    transition: width 0.05s linear;
   }
   
-  /* Resize Handle */
   .resize-handle {
     position: absolute;
     top: 0;
-    left: -6px; /* Straddle the border */
+    left: -6px;
     width: 12px;
     height: 100%;
     cursor: col-resize;
@@ -375,18 +457,8 @@
     background: linear-gradient(to right, transparent 40%, var(--accent-primary) 40%, var(--accent-primary) 60%, transparent 60%);
   }
   
-  :global(body.rtl) .resize-handle {
-    left: auto;
-    right: -6px;
-  }
-
-  :global(body.rtl) .settings-drawer {
-    right: auto;
-    left: 0;
-    border-left: none;
-    border-right: 1px solid var(--border-primary);
-    box-shadow: 4px 0 24px rgba(0,0,0,0.15);
-  }
+  :global(body.rtl) .resize-handle { left: auto; right: -6px; }
+  :global(body.rtl) .settings-drawer { right: auto; left: 0; border-left: none; border-right: 1px solid var(--border-primary); box-shadow: 4px 0 24px rgba(0,0,0,0.15); }
 
   .drawer-header {
     display: flex;
@@ -407,8 +479,6 @@
     overflow-y: auto;
     overflow-x: hidden;
     height: 0;
-    overscroll-behavior: contain;
-    -webkit-overflow-scrolling: touch;
     scrollbar-width: thin;
     scrollbar-color: var(--border-input) transparent;
   }
@@ -416,71 +486,129 @@
   .scroll-inner { padding: 1.5rem; display: flex; flex-direction: column; gap: 1.5rem; min-height: min-content; }
 
   /* Server Status Styles */
-  .connected-state {
-    display: flex; 
-    flex-direction: column; /* Stack vertically */
-    gap: 1.25rem;
-    padding: 1.25rem; 
-    background: var(--bg-secondary); 
-    border-radius: 8px; 
-    border: 1px solid var(--border-primary); 
-    margin-bottom: 1rem;
+  .connected-state, .disconnected-state {
+    display: flex; gap: 1rem; padding: 1.25rem; background: var(--bg-secondary); border-radius: 8px; border: 1px solid var(--border-primary); margin-bottom: 1rem;
   }
+  .connected-state { flex-direction: column; }
+  .disconnected-state { align-items: center; justify-content: center; color: var(--text-muted); padding: 0.75rem; gap: 0.5rem; }
   
-  .disconnected-state {
-    display: flex; align-items: center; justify-content: center; gap: 0.5rem;
-    padding: 0.75rem; background: var(--bg-secondary); border-radius: 8px; border: 1px solid var(--border-primary); margin-bottom: 1rem;
-    color: var(--text-muted);
-  }
-  
-  .server-info {
-    display: flex;
-    align-items: flex-start;
-    gap: 1rem;
-    width: 100%;
-  }
-
+  .server-info { display: flex; align-items: flex-start; gap: 1rem; width: 100%; }
   .status-icon { display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
   .status-icon.success { color: var(--accent-success); }
   .status-icon.error { color: var(--accent-error); }
   
   .server-details { display: flex; flex-direction: column; min-width: 0; flex: 1; gap: 0.25rem; }
-  .server-name { 
-    font-weight: 600; 
-    color: var(--text-primary); 
-    white-space: normal; /* Allow wrapping */
-    word-break: break-word;
-    line-height: 1.3;
-    font-size: 1rem;
-  }
-  .server-url { 
-    font-size: 0.85rem; 
-    color: var(--text-secondary); 
-    white-space: normal; /* Allow wrapping */
-    word-break: break-all;
-    line-height: 1.3;
-  }
+  .server-name { font-weight: 600; color: var(--text-primary); word-break: break-word; line-height: 1.3; font-size: 1rem; }
+  .server-url { font-size: 0.85rem; color: var(--text-secondary); word-break: break-all; line-height: 1.3; }
   
-  .connected-actions {
-    width: 100%;
-  }
-  
+  .connected-actions { width: 100%; }
   .connection-actions { display: flex; flex-direction: column; gap: 0.5rem; }
 
-  /* Generic UI */
+  /* UI Controls */
   .control-row { margin-bottom: 1rem; }
   label { display: flex; justify-content: space-between; align-items: center; width: 100%; font-weight: 500; color: var(--text-primary); cursor: pointer; font-size: 0.9rem; }
   select { padding: 0.4rem; border-radius: 6px; border: 1px solid var(--border-input); background: var(--bg-input); color: var(--text-primary); min-width: 140px; font-size: 0.9rem; max-width: 60%; }
+
+  /* Theme Gallery */
+  .theme-gallery-section .label { font-weight: 500; color: var(--text-primary); font-size: 0.9rem; margin-bottom: 0.75rem; }
+  .theme-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
   
-  .theme-row {
+  .theme-card {
+    border: 2px solid var(--border-primary);
+    border-radius: 8px;
+    background: var(--bg-card);
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .theme-card:hover {
+    border-color: var(--border-focus);
+    transform: translateY(-2px);
+  }
+  
+  .theme-card.active {
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 2px rgba(var(--accent-primary-rgb), 0.2);
+  }
+  
+  .preview {
+    height: 60px;
+    width: 100%;
+    position: relative;
+    background: #eee;
+  }
+  
+  .mini-card {
+    position: absolute;
+    top: 10px; left: 10px; right: 10px; height: 20px;
+    border-radius: 4px;
+    background: white;
+    opacity: 0.8;
+  }
+  .mini-accent {
+    position: absolute;
+    bottom: 10px; right: 10px;
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: blue;
+  }
+  
+  .meta {
+    padding: 0.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--bg-secondary);
+    border-top: 1px solid var(--border-primary);
+  }
+  
+  .name {
+    font-size: 0.8rem;
+    font-weight: 600;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--text-primary);
+  }
+  
+  .actions { display: flex; gap: 2px; }
+  
+  .icon-btn.small {
+    padding: 4px;
+    width: 24px; height: 24px;
+    font-size: 14px;
+  }
+  
+  .create-btn {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 0.5rem;
+    min-height: 94px;
+    background: var(--bg-secondary);
+    border: 1px dashed var(--border-primary);
+    color: var(--text-secondary);
   }
-  .theme-row select {
-    flex: 1;
+  .create-btn:hover {
+    border-color: var(--accent-primary);
+    color: var(--accent-primary);
+  }
+  
+  .editor-wrapper {
+    margin-top: 1rem;
+    border-top: 1px solid var(--border-divider);
+    padding-top: 1rem;
   }
 
+  /* Generic Buttons */
   .btn {
     padding: 0.6rem 1.2rem; border-radius: 8px; border: none; font-weight: 600;
     cursor: pointer; display: flex; align-items: center; gap: 0.5rem; justify-content: center;
@@ -495,6 +623,9 @@
   .btn.small { padding: 0.4rem 0.8rem; font-size: 0.85rem; }
   .btn.flex-grow { flex-grow: 1; }
   .btn.icon-only { padding: 0.4rem; border: 1px solid var(--border-primary); background: var(--bg-card); color: var(--text-secondary); width: 32px; height: 32px; }
+  .icon-btn { background: transparent; border: none; cursor: pointer; color: var(--text-secondary); display: flex; align-items: center; justify-content: center; border-radius: 4px; }
+  .icon-btn:hover { background: var(--bg-chip); color: var(--text-primary); }
+  .icon-btn.danger:hover { color: var(--accent-error); background: rgba(244,67,54,0.1); }
 
   .actions { display: flex; justify-content: flex-end; margin-top: 1rem; }
   .backup-actions { display: flex; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.5rem; }
@@ -506,8 +637,7 @@
 
   @media (max-width: 480px) {
     .settings-drawer { width: 100vw; max-width: 100vw; }
-    .backup-actions .btn { width: 100%; }
-    /* Disable resize on mobile */
+    .theme-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
     .resize-handle { display: none; }
   }
 </style>
