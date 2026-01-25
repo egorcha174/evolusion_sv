@@ -88,17 +88,25 @@ export const themeState = derived(
 
     // 2. Find Active Theme
     const allThemes = [...BUILTIN_THEMES, ...$settings.customThemes];
-    const activeTheme = allThemes.find(t => t.id === $settings.activeThemeId) || DEFAULT_THEME;
+    
+    const activeThemeRaw = allThemes.find(t => {
+       // Polymorphic ID access: ThemeDefinition has .id, ThemeFile has .theme.id
+       const id = (t as any).theme?.id || (t as any).id;
+       return id === $settings.activeThemeId;
+    }) || DEFAULT_THEME;
 
     // 3. Select Palette
-    const palette: ThemePalette = scheme === 'dark' ? activeTheme.dark : activeTheme.light;
+    // ThemeFile has nested structure: { theme: { scheme: { light: ..., dark: ... } } }
+    // ThemeDefinition has flat structure: { light: ..., dark: ... }
+    const palettes = (activeThemeRaw as any).theme?.scheme || activeThemeRaw;
+    const palette: ThemePalette = scheme === 'dark' ? palettes.dark : palettes.light;
 
     // 4. Generate CSS
     const css = generateThemeCss(palette);
 
     return {
       scheme,
-      activeTheme,
+      activeTheme: activeThemeRaw,
       palette,
       css
     };

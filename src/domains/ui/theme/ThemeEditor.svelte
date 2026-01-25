@@ -2,7 +2,7 @@
 <script lang="ts">
   import { t } from 'svelte-i18n';
   import { themeSettings } from './store';
-  import { BUILTIN_THEMES, defaultTheme } from '../../theme/defaults';
+  import { BUILTIN_THEMES, defaultTheme } from '../../../themes/defaults';
   import type { ThemeFile, Theme } from '../../../themes/types';
   import 'iconify-icon';
 
@@ -19,6 +19,7 @@
   let isEditing = $state(false);
 
   // Computed list for sidebar
+  // BUILTIN_THEMES from src/themes/defaults are ThemeFiles, so they match ThemeFile structure
   let allThemes = $derived([
     ...BUILTIN_THEMES.map(t => ({ ...t, isBuiltIn: true })),
     ...customThemes.map(t => ({ ...t, isBuiltIn: false }))

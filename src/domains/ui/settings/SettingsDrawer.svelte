@@ -6,8 +6,8 @@
   import { isSettingsOpen } from '../store';
   import { appState, clearServerConfig } from '../../app/store';
   import { haStore, disconnectHA } from '../../ha/store';
-  import { themeSettings } from '../../theme/store';
-  import { BUILTIN_THEMES } from '../../theme/defaults';
+  import { themeSettings } from '../theme/store';
+  import { BUILTIN_THEMES } from '../theme/defaults';
   import { weatherSettings, refreshWeatherConfig } from '../../../lib/weather/store';
   import { exportAllSettings, importAllSettings, clearAllData } from '../../app/backup';
   import { setLocale, availableLanguages, currentLang } from '../../../lib/i18n';
@@ -94,7 +94,8 @@
   // --- Theme State ---
   let isThemeEditorOpen = $state(false);
   
-  // Combine built-in and custom themes for the dropdown
+  // Combine built-in (ThemeDefinition) and custom themes (ThemeFile) for the dropdown
+  // We normalize ID and Name access here
   let availableThemes = $derived([
     ...BUILTIN_THEMES.map(t => ({ id: t.id, name: t.name, isCustom: false })),
     ...($themeSettings.customThemes || []).map(t => ({ id: t.theme.id, name: t.theme.name, isCustom: true }))
