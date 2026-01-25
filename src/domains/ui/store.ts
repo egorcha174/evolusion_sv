@@ -39,9 +39,14 @@ export function saveUIState(width: number): void {
 
 // --- Global UI State ---
 export const isSettingsOpen = writable<boolean>(false);
+export const isAddDeviceOpen = writable<boolean>(false);
 
 export function toggleSettings() {
   isSettingsOpen.update(v => !v);
+}
+
+export function toggleAddDevice() {
+  isAddDeviceOpen.update(v => !v);
 }
 
 // --- New UI Dashboard State ---

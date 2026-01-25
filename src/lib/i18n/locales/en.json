@@ -1,3 +1,4 @@
+
 {
   "common": {
     "ok": "OK",
@@ -35,6 +36,13 @@
       "rows": "Rows",
       "hint": "Drag to move. Drag corner to resize."
     }
+  },
+  "addDevice": {
+    "title": "Add Device",
+    "search": "Search devices...",
+    "all": "All",
+    "added": "Added",
+    "add": "Add"
   },
   "sidebar": {
     "connected": "Connected",

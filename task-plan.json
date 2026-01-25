@@ -1,14 +1,19 @@
 
 {
-  "task_id": "theme-sys-01",
-  "step_id": "fix-build-error-retry",
-  "title": "Fix BackgroundRenderer Build Error",
-  "goal": "Fix 'activeScheme is not exported' error by ensuring BackgroundRenderer does not import it and uses CSS variables instead.",
+  "task_id": "feature-add-device-01",
+  "step_id": "impl-add-drawer",
+  "title": "Implement Add Device Drawer & Logic",
+  "goal": "Create the Add Device side panel, FAB, and integration with dashboard store.",
   "files": [
-    "src/domains/theme/store.ts",
-    "src/domains/theme/BackgroundRenderer.svelte"
+    "src/domains/ui/store.ts",
+    "src/lib/i18n/locales/en.json",
+    "src/lib/i18n/locales/ru.json",
+    "src/domains/ui/add-device/DeviceAddItem.svelte",
+    "src/domains/ui/add-device/DeviceAddDrawer.svelte",
+    "src/routes/+layout.svelte",
+    "src/domains/ui/DashboardGrid.svelte"
   ],
   "verification": "npm run check && npm run build",
   "risk": "None",
-  "rollback": "Revert to previous version."
+  "rollback": "Delete created files and revert changes."
 }

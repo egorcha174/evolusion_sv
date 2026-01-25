@@ -14,6 +14,7 @@
   import DashboardHeader from '../domains/ui/DashboardHeader.svelte';
   import TemplateManager from '../domains/ui/editor/templates/TemplateManager.svelte';
   import SettingsDrawer from '../domains/ui/settings/SettingsDrawer.svelte'; // New Component
+  import DeviceAddDrawer from '../domains/ui/add-device/DeviceAddDrawer.svelte'; // New Add Device Drawer
   import 'iconify-icon';
   import '../app.css';
   
@@ -72,6 +73,7 @@
 
 <!-- Global Modals Layer -->
 <SettingsDrawer />
+<DeviceAddDrawer />
 
 {#if $editorStore.isTemplateManagerOpen}
   <TemplateManager onClose={() => editorStore.closeTemplateManager()} />

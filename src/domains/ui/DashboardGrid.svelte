@@ -2,7 +2,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { t } from 'svelte-i18n';
-  import { selectVisibleDashboardCards } from './store';
+  import { selectVisibleDashboardCards, toggleAddDevice } from './store'; // Import toggle
   import { dashboardStore } from '../app/dashboardStore';
   import { activeTabId, isEditMode, tabs } from '../app/tabsStore';
   import { haStore } from '../ha/store';
@@ -273,7 +273,13 @@
 <div class="dashboard-container" bind:this={container}>
   {#if cards.length === 0}
     <div class="empty-state">
-      {$t('dashboard.noDevices')}
+      <div class="empty-content">
+        <p>{$t('dashboard.noDevices')}</p>
+        <button class="btn primary" onclick={toggleAddDevice}>
+          <iconify-icon icon="mdi:plus"></iconify-icon>
+          {$t('dashboard.addWidget')}
+        </button>
+      </div>
     </div>
   {:else}
     <!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -318,6 +324,15 @@
     {#if $editorStore.showGridSettings}
       <GridSettings tabId={$activeTabId} cols={columns} rows={rows} />
     {/if}
+    
+    <!-- Floating Action Button for Adding Devices -->
+    <button 
+      class="fab-add" 
+      onclick={toggleAddDevice} 
+      title={$t('dashboard.addWidget')}
+    >
+      <iconify-icon icon="mdi:plus"></iconify-icon>
+    </button>
   {/if}
 </div>
 
@@ -403,6 +418,43 @@
     height: 100%;
     color: var(--text-muted);
   }
+  
+  .empty-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  /* FAB */
+  .fab-add {
+    position: absolute;
+    bottom: 32px;
+    right: 32px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--accent-primary);
+    color: #ffffff;
+    border: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1500;
+  }
+  
+  .fab-add:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.35);
+  }
+  
+  .fab-add:active {
+    transform: scale(0.95);
+  }
 
   @media (max-width: 768px) {
     .dashboard-container {
@@ -431,6 +483,11 @@
     .grid-layout.edit-mode {
       min-width: 100%;
       min-height: 50vh;
+    }
+    
+    .fab-add {
+      bottom: 24px;
+      right: 24px;
     }
   }
 
@@ -490,6 +547,21 @@
     color: var(--text-muted);
     font-weight: 600;
     text-transform: uppercase;
+  }
+  
+  .btn {
+    padding: 0.7rem 1.2rem;
+    border-radius: 8px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .btn.primary {
+    background: var(--accent-primary);
+    color: white;
   }
 
   @keyframes fadeIn {
