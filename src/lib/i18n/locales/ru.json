@@ -134,7 +134,8 @@
     "themeScheduleNight": "Начало ночи",
     "themeSelect": "Выберите тему",
     "themeCustom": "(Польз.)",
-    "importTheme": "Импорт JSON",
+    "importTheme": "Импорт темы",
+    "exportTheme": "Экспорт темы",
     "reset": "Сбросить все настройки и данные",
     "messages": {
       "saveSuccess": "Настройки успешно сохранены",

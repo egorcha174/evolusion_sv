@@ -134,7 +134,8 @@
     "themeScheduleNight": "Night Start",
     "themeSelect": "Select Theme",
     "themeCustom": "(Custom)",
-    "importTheme": "Import JSON",
+    "importTheme": "Import Theme",
+    "exportTheme": "Export Theme",
     "reset": "Reset All Data",
     "messages": {
       "saveSuccess": "Settings saved successfully",

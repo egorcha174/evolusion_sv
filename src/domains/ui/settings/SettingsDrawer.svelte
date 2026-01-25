@@ -351,7 +351,7 @@
                        <span class="name">{theme.theme.name}</span>
                        <div class="actions">
                           <!-- Export Button (All Themes) -->
-                          <button class="icon-btn small" onclick={(e) => { e.stopPropagation(); handleThemeExport(theme); }} title="Export JSON">
+                          <button class="icon-btn small" onclick={(e) => { e.stopPropagation(); handleThemeExport(theme); }} title={$t('settings.exportTheme')}>
                              <iconify-icon icon="mdi:download"></iconify-icon>
                           </button>
 

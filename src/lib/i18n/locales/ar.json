@@ -41,7 +41,8 @@
     "themeModeDay": "نهار (دائما فاتح)",
     "themeModeNight": "ليل (دائما داكن)",
     "themeModeSchedule": "جدول زمني",
-    "importTheme": "استيراد JSON"
+    "importTheme": "استيراد السمة",
+    "exportTheme": "تصدير السمة"
   },
   "entities": {
     "title": "كل الكيانات",
