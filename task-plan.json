@@ -1,12 +1,14 @@
 {
-  "task_id": "refactor-phase-1",
-  "step_id": "fix-settings-conflict",
-  "title": "Fix Merge Conflict in SettingsDrawer",
-  "goal": "Remove accidental git merge markers from SettingsDrawer.svelte and ensure clean state.",
+  "task_id": "i18n-fix-01",
+  "step_id": "translate-widget-settings",
+  "title": "Translate Widget Settings",
+  "goal": "Add missing translations for Clock and Weather Style settings in the Settings drawer.",
   "files": [
-    "src/domains/ui/settings/SettingsDrawer.svelte"
+    "src/lib/i18n/locales/ru.json",
+    "src/lib/i18n/locales/en.json",
+    "src/domains/ui/settings/sections/WidgetSettings.svelte"
   ],
   "verification": "npm run check && npm run build",
   "risk": "Low",
-  "rollback": "None"
+  "rollback": "Revert json changes"
 }
