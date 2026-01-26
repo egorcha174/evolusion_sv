@@ -1,3 +1,4 @@
+
 import type { Theme, ThemeManifest, ThemeFile } from './types';
 
 // Define necessary types for Vite's import.meta.glob to avoid dependency on vite/client types
@@ -108,17 +109,20 @@ const FALLBACK_THEME: ThemeFile = {
 const presetThemes = (import.meta as unknown as ViteImportMeta).glob<{ default: ThemeFile }>('./presets/*.json', { eager: true });
 const customThemes = (import.meta as unknown as ViteImportMeta).glob<{ default: ThemeFile }>('./custom/*.json', { eager: true });
 
-// Expose all built-in themes
-let loadedThemes: ThemeFile[] = Object.values(presetThemes).map(m => m.default);
+// Expose all built-in themes with strict filtering
+let loadedThemes: ThemeFile[] = Object.values(presetThemes)
+  .map(m => m.default)
+  .filter(t => t && t.theme && t.theme.id && t.theme.scheme);
 
 if (loadedThemes.length === 0) {
-  console.warn('No theme presets found in src/themes/presets/*.json. Using fallback theme.');
+  console.warn('No valid theme presets found in src/themes/presets/*.json. Using fallback theme.');
   loadedThemes = [FALLBACK_THEME];
 }
 
 export const builtInThemes = loadedThemes;
 
 // Expose default theme (fallback)
+// Safe find: we already filtered for valid theme structure
 export const defaultTheme: ThemeFile = builtInThemes.find(t => t.theme.id === 'default') || builtInThemes[0];
 
 export type AvailableTheme = ThemeManifest & { isCustom: boolean };
@@ -136,7 +140,7 @@ export function getAvailableThemes(): AvailableTheme[] {
   // 2. Custom Files
   for (const path in customThemes) {
     const file = customThemes[path].default;
-    if (file && file.manifest) {
+    if (file && file.manifest && file.theme) {
       // @ts-ignore
       themes.push({ ...file.manifest, isCustom: true });
     }
@@ -147,7 +151,7 @@ export function getAvailableThemes(): AvailableTheme[] {
       try {
         const stored = JSON.parse(localStorage.getItem('evolusion-custom-themes') || '{}');
         Object.values(stored).forEach((t: any) => {
-            if (t.manifest) themes.push({ ...t.manifest, isCustom: true });
+            if (t && t.manifest) themes.push({ ...t.manifest, isCustom: true });
         });
       } catch (e) { /* ignore */ }
   }
@@ -163,7 +167,7 @@ export async function loadTheme(themeId: string): Promise<Theme | null> {
   // 2. Custom Files
   for (const path in customThemes) {
     const file = customThemes[path].default;
-    if (file.theme.id === themeId) {
+    if (file && file.theme && file.theme.id === themeId) {
       return file.theme;
     }
   }
@@ -172,7 +176,7 @@ export async function loadTheme(themeId: string): Promise<Theme | null> {
   if (typeof localStorage !== 'undefined') {
       try {
         const stored = JSON.parse(localStorage.getItem('evolusion-custom-themes') || '{}');
-        if (stored[themeId]) return stored[themeId].theme;
+        if (stored[themeId] && stored[themeId].theme) return stored[themeId].theme;
       } catch (e) { /* ignore */ }
   }
   

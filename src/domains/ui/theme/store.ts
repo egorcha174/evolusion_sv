@@ -47,7 +47,11 @@ function createThemeStore() {
       try {
         const stored = localStorage.getItem(STORAGE_KEY_CUSTOM);
         if (stored) {
-          customThemes = JSON.parse(stored);
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed)) {
+             // Validate basic structure
+             customThemes = parsed.filter(t => t && t.theme && t.theme.id);
+          }
         }
       } catch (e) {
         console.error('Failed to load custom themes', e);
@@ -145,6 +149,12 @@ export const themeStore = createThemeStore();
 // Derived store for the active color scheme
 export const activeScheme = derived([themeStore, systemPrefersDark], ([$s, $sysDark]) => {
   const themeFile = $s.themes.find(t => t.theme.id === $s.activeThemeId) || defaultTheme;
+  
+  // Safety check in case defaultTheme itself is somehow broken or store has invalid ref
+  if (!themeFile || !themeFile.theme || !themeFile.theme.scheme) {
+     return defaultTheme.theme.scheme.light;
+  }
+
   // Fix: Strictly check for 'dark' mode or 'auto' with system dark preference. 
   // 'night' is not a valid ThemeMode type in strict usage.
   const isDark = $s.mode === 'dark' || ($s.mode === 'auto' && $sysDark);
@@ -154,6 +164,6 @@ export const activeScheme = derived([themeStore, systemPrefersDark], ([$s, $sysD
 // Reactively apply CSS variables when scheme changes
 if (browser) {
   activeScheme.subscribe(scheme => {
-    applyThemeCSS(scheme);
+    if (scheme) applyThemeCSS(scheme);
   });
 }
