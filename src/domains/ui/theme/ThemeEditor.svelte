@@ -4,6 +4,7 @@
   import { slide } from 'svelte/transition';
   import type { ThemeFile, ColorScheme } from '../../../themes/types';
   import { applyThemeCSS } from '../../../themes/utils';
+  import ColorPicker from '../settings/controls/ColorPicker.svelte';
   import 'iconify-icon';
 
   let { draft = $bindable(), onSave, onCancel } = $props<{ 
@@ -13,487 +14,367 @@
   }>();
 
   let activeTab = $state<'light' | 'dark'>('light');
-  let activeSection = $state<'background' | 'cards' | 'colors' | 'text'>('background');
+  // Updated navigation sections to match logical grouping of screenshots
+  let activeSection = $state<'main' | 'cards' | 'text' | 'widgets'>('main');
   
   let currentScheme = $derived(draft.theme.scheme[activeTab]);
 
   function updateField(key: keyof ColorScheme, value: any) {
-    // 1. Update draft state
-    // @ts-ignore - Dynamic assignment to scheme
+    // @ts-ignore - Dynamic assignment
     draft.theme.scheme[activeTab][key] = value;
-    
-    // 2. Live Preview: Apply immediately to CSS
     applyThemeCSS(draft.theme.scheme[activeTab]);
   }
 </script>
 
-{#snippet colorRow(label, key)}
-  <div class="control-row">
-    <div class="label-group">
+{#snippet sliderRow(label, key, min, max, step, unit = '')}
+  <div class="control-row slider-row">
+    <div class="slider-header">
       <span class="label">{label}</span>
-      <span class="hex-value">{currentScheme[key]}</span>
+      <span class="value">{currentScheme[key]}{unit}</span>
     </div>
-    <div class="color-wrapper">
-      <input 
-        type="color" 
-        value={currentScheme[key] as string} 
-        oninput={(e) => updateField(key, e.currentTarget.value)}
-      />
-      <div class="swatch" style:background-color={currentScheme[key] as string}></div>
-    </div>
+    <input 
+      type="range" 
+      class="slider"
+      {min} {max} {step}
+      value={currentScheme[key] as number}
+      oninput={(e) => updateField(key, parseFloat(e.currentTarget.value))}
+      style="background-size: {((currentScheme[key] as number - min) * 100) / (max - min)}% 100%"
+    />
   </div>
 {/snippet}
 
-{#snippet sliderRow(label, key, min, max, step, unit = '')}
-  <div class="control-stack">
-    <div class="header-row">
-      <span class="label">{label}</span>
-      <span class="value-badge">{currentScheme[key]}{unit}</span>
-    </div>
-    <div class="slider-container">
-      <input 
-        type="range" 
-        class="slider"
-        {min} {max} {step}
-        value={currentScheme[key] as number}
-        oninput={(e) => updateField(key, parseFloat(e.currentTarget.value))}
-        style="background-size: {((currentScheme[key] as number - min) * 100) / (max - min)}% 100%"
-      />
-    </div>
+{#snippet selectRow(label, key, options)}
+  <div class="control-row select-row">
+    <span class="label">{label}</span>
+    <select 
+      class="modern-select"
+      value={currentScheme[key]}
+      onchange={(e) => updateField(key, e.currentTarget.value)}
+    >
+      {#each options as opt}
+        <option value={opt.value}>{opt.label}</option>
+      {/each}
+    </select>
   </div>
+{/snippet}
+
+{#snippet sectionTitle(title)}
+  <div class="section-title">{title}</div>
 {/snippet}
 
 <div class="theme-editor-container">
-  <!-- 1. Header -->
+  <!-- Header -->
   <header class="editor-header">
-    <div class="title-block">
+    <div class="header-left">
+      <button class="icon-btn close" onclick={onCancel}>
+        <iconify-icon icon="mdi:close"></iconify-icon>
+      </button>
       <h2>{$t('settings.themeEditor.title')}</h2>
     </div>
-    <div class="header-actions">
-      <button class="icon-btn close" onclick={onCancel} title={$t('common.close')}>
-        <iconify-icon icon="mdi:close"></iconify-icon>
+    <div class="header-right">
+      <button class="btn primary small" onclick={() => onSave(draft)}>
+        {$t('common.save')}
       </button>
     </div>
   </header>
 
   <div class="editor-body">
-    <!-- 2. Top Controls (Name & Mode) -->
-    <div class="top-controls">
+    <!-- Meta & Mode -->
+    <div class="meta-section">
       <div class="input-group">
+        <label>{$t('settings.themeEditor.namePlaceholder')}</label>
         <input 
           type="text" 
           class="modern-input" 
           bind:value={draft.theme.name} 
-          placeholder={$t('settings.themeEditor.namePlaceholder')} 
         />
       </div>
 
-      <!-- Mode Switcher -->
-      <div class="mode-switcher">
-        <button 
-          class="mode-btn" 
-          class:active={activeTab === 'light'} 
-          onclick={() => activeTab = 'light'}
-        >
-          <iconify-icon icon="mdi:white-balance-sunny"></iconify-icon>
-          Light
+      <div class="mode-tabs">
+        <button class="mode-tab" class:active={activeTab === 'light'} onclick={() => activeTab = 'light'}>
+          {$t('settings.themeModeDay')}
         </button>
-        <button 
-          class="mode-btn" 
-          class:active={activeTab === 'dark'} 
-          onclick={() => activeTab = 'dark'}
-        >
-          <iconify-icon icon="mdi:weather-night"></iconify-icon>
-          Dark
+        <button class="mode-tab" class:active={activeTab === 'dark'} onclick={() => activeTab = 'dark'}>
+          {$t('settings.themeModeNight')}
         </button>
       </div>
     </div>
 
-    <!-- 3. Navigation (Apple Style Segmented Control) -->
-    <div class="nav-container">
-      <div class="segmented-nav">
-        <button class="nav-item" class:active={activeSection === 'background'} onclick={() => activeSection = 'background'}>
-          {$t('settings.themeEditor.nav.background')}
-        </button>
-        <button class="nav-item" class:active={activeSection === 'cards'} onclick={() => activeSection = 'cards'}>
-          {$t('settings.themeEditor.nav.cards')}
-        </button>
-        <button class="nav-item" class:active={activeSection === 'colors'} onclick={() => activeSection = 'colors'}>
-          {$t('settings.themeEditor.nav.colors')}
-        </button>
-        <button class="nav-item" class:active={activeSection === 'text'} onclick={() => activeSection = 'text'}>
-          {$t('settings.themeEditor.nav.text')}
-        </button>
-        <!-- Animated Background Pill -->
-        <div class="active-bg" style:transform="translateX({
-          activeSection === 'background' ? '0%' : 
-          activeSection === 'cards' ? '100%' : 
-          activeSection === 'colors' ? '200%' : '300%'
-        })"></div>
-      </div>
+    <!-- Navigation -->
+    <div class="nav-pills">
+      <button class="pill" class:active={activeSection === 'main'} onclick={() => activeSection = 'main'}>
+        Main
+      </button>
+      <button class="pill" class:active={activeSection === 'cards'} onclick={() => activeSection = 'cards'}>
+        Cards
+      </button>
+      <button class="pill" class:active={activeSection === 'text'} onclick={() => activeSection = 'text'}>
+        Text & UI
+      </button>
+      <button class="pill" class:active={activeSection === 'widgets'} onclick={() => activeSection = 'widgets'}>
+        Widgets
+      </button>
     </div>
 
-    <!-- 4. Content Area -->
-    <div class="content-scroll">
-      {#if activeSection === 'background'}
-        <div class="section-group" transition:slide|local={{ duration: 200, axis: 'x' }}>
-          <div class="control-stack">
-            <label class="label">{$t('settings.themeEditor.labels.bgType')}</label>
-            <select 
-              class="modern-select"
-              value={currentScheme.dashboardBackgroundType}
-              onchange={(e) => updateField('dashboardBackgroundType', e.currentTarget.value)}
-            >
-              <option value="color">{$t('settings.themeEditor.labels.solid')}</option>
-              <option value="gradient">{$t('settings.themeEditor.labels.gradient')}</option>
-              <option value="image">{$t('settings.themeEditor.labels.image')}</option>
-            </select>
-          </div>
+    <!-- Content -->
+    <div class="scroll-content">
+      {#if activeSection === 'main'}
+        <div class="group" transition:slide|local={{ axis: 'x' }}>
+          {@render sectionTitle($t('settings.themeEditor.labels.bgType'))}
+          {@render selectRow('Type', 'dashboardBackgroundType', [
+            {value: 'color', label: $t('settings.themeEditor.labels.solid')},
+            {value: 'gradient', label: $t('settings.themeEditor.labels.gradient')},
+            {value: 'image', label: $t('settings.themeEditor.labels.image')}
+          ])}
 
           {#if currentScheme.dashboardBackgroundType === 'color'}
-            {@render colorRow($t('settings.themeEditor.labels.activeBg'), 'dashboardBackgroundColor1')}
+             <ColorPicker label="Color" value={currentScheme.dashboardBackgroundColor1} />
           {:else if currentScheme.dashboardBackgroundType === 'gradient'}
-            {@render colorRow($t('settings.themeEditor.labels.startColor'), 'dashboardBackgroundColor1')}
-            {@render colorRow($t('settings.themeEditor.labels.endColor'), 'dashboardBackgroundColor2')}
-          {:else if currentScheme.dashboardBackgroundType === 'image'}
-            <div class="input-group">
-              <label class="label">{$t('settings.themeEditor.labels.image')}</label>
-              <input 
-                type="text" class="modern-input" 
-                value={currentScheme.dashboardBackgroundImageUrl || ''} 
-                oninput={(e) => updateField('dashboardBackgroundImageUrl', e.currentTarget.value)}
-                placeholder="https://..."
-              />
-            </div>
-            {@render sliderRow($t('settings.themeEditor.labels.blur'), 'dashboardBackgroundImageBlur', 0, 20, 1, 'px')}
-            {@render sliderRow($t('settings.themeEditor.labels.brightness'), 'dashboardBackgroundImageBrightness', 0, 200, 5, '%')}
+             <ColorPicker label={$t('settings.themeEditor.labels.startColor')} value={currentScheme.dashboardBackgroundColor1} />
+             <ColorPicker label={$t('settings.themeEditor.labels.endColor')} value={currentScheme.dashboardBackgroundColor2} />
+          {:else}
+             <div class="control-row">
+               <input type="text" class="modern-input" placeholder="Image URL" value={currentScheme.dashboardBackgroundImageUrl || ''} oninput={(e) => updateField('dashboardBackgroundImageUrl', e.currentTarget.value)} />
+             </div>
+             {@render sliderRow($t('settings.themeEditor.labels.blur'), 'dashboardBackgroundImageBlur', 0, 20, 1, 'px')}
+             {@render sliderRow($t('settings.themeEditor.labels.brightness'), 'dashboardBackgroundImageBrightness', 0, 200, 5, '%')}
           {/if}
 
-          <div class="section-divider">{$t('settings.themeEditor.labels.appearance')}</div>
-          {@render sliderRow($t('settings.themeEditor.labels.panelOpacity'), 'panelOpacity', 0, 1, 0.05)}
-          {@render colorRow($t('settings.themeEditor.labels.panelBg'), 'bgPanel')}
+          <div class="divider"></div>
+          {@render sectionTitle($t('settings.themeEditor.labels.panelOpacity'))}
+          {@render sliderRow('Transparency', 'panelOpacity', 0, 1, 0.05)}
+          {@render sliderRow('Cards Opacity', 'cardOpacity', 0, 1, 0.05)}
         </div>
 
       {:else if activeSection === 'cards'}
-        <div class="section-group" transition:slide|local={{ duration: 200, axis: 'x' }}>
-          <div class="section-divider">{$t('settings.themeEditor.labels.appearance')}</div>
-          {@render colorRow($t('settings.themeEditor.labels.cardBg'), 'cardBackground')}
-          {@render colorRow($t('settings.themeEditor.labels.activeBg'), 'cardBackgroundOn')}
-          {@render sliderRow($t('settings.themeEditor.labels.opacity'), 'cardOpacity', 0, 1, 0.05)}
-          
-          <div class="section-divider">{$t('settings.themeEditor.labels.borders')}</div>
+        <div class="group" transition:slide|local={{ axis: 'x' }}>
+          {@render sectionTitle($t('settings.themeEditor.labels.appearance'))}
           {@render sliderRow($t('settings.themeEditor.labels.radius'), 'cardBorderRadius', 0, 32, 1, 'px')}
-          {@render sliderRow($t('settings.themeEditor.labels.width'), 'cardBorderWidth', 0, 10, 1, 'px')}
-          {@render colorRow($t('settings.themeEditor.labels.color'), 'cardBorderColor')}
-          {@render colorRow($t('settings.themeEditor.labels.activeBorder'), 'cardBorderColorOn')}
           
-          <div class="section-divider">{$t('settings.themeEditor.labels.shadow')}</div>
-          <div class="control-stack">
-             <label class="label">{$t('settings.themeEditor.labels.shadowCss')}</label>
-             <input 
-               type="text" class="modern-input" 
-               value={currentScheme.shadowCard || 'none'} 
-               oninput={(e) => updateField('shadowCard', e.currentTarget.value)}
-             />
-          </div>
-        </div>
+          <ColorPicker label="Background (Off)" value={currentScheme.cardBackground} />
+          <ColorPicker label="Background (On)" value={currentScheme.cardBackgroundOn} />
 
-      {:else if activeSection === 'colors'}
-        <div class="section-group" transition:slide|local={{ duration: 200, axis: 'x' }}>
-          <div class="section-divider">{$t('settings.themeEditor.labels.brandColors')}</div>
-          {@render colorRow($t('settings.themeEditor.labels.primary'), 'accentPrimary')}
-          {@render colorRow($t('settings.themeEditor.labels.secondary'), 'accentSecondary')}
-          {@render colorRow($t('settings.themeEditor.labels.info'), 'accentInfo')}
-          
-          <div class="section-divider">{$t('settings.themeEditor.labels.states')}</div>
-          {@render colorRow($t('settings.themeEditor.labels.on'), 'stateOn')}
-          {@render colorRow($t('settings.themeEditor.labels.off'), 'stateOff')}
-          {@render colorRow($t('settings.themeEditor.labels.success'), 'accentSuccess')}
-          {@render colorRow($t('settings.themeEditor.labels.warning'), 'accentWarning')}
-          {@render colorRow($t('settings.themeEditor.labels.error'), 'accentError')}
+          <div class="divider"></div>
+          {@render sectionTitle($t('settings.themeEditor.labels.borders'))}
+          {@render sliderRow($t('settings.themeEditor.labels.width'), 'cardBorderWidth', 0, 10, 1, 'px')}
+          <ColorPicker label={$t('settings.themeEditor.labels.color') + ' (Off)'} value={currentScheme.cardBorderColor} />
+          <ColorPicker label={$t('settings.themeEditor.labels.color') + ' (On)'} value={currentScheme.cardBorderColorOn} />
+
+          <div class="divider"></div>
+          {@render sectionTitle('Icons')}
+          {@render selectRow('Shape', 'iconBackgroundShape', [
+             {value: 'circle', label: 'Circle'},
+             {value: 'rounded-square', label: 'Rounded Square'},
+             {value: 'square', label: 'Square'}
+          ])}
+          <ColorPicker label="Icon Bg (Off)" value={currentScheme.iconBackgroundColorOff} />
+          <ColorPicker label="Icon Bg (On)" value={currentScheme.iconBackgroundColorOn} />
         </div>
 
       {:else if activeSection === 'text'}
-        <div class="section-group" transition:slide|local={{ duration: 200, axis: 'x' }}>
-          <div class="section-divider">{$t('settings.themeEditor.labels.typography')}</div>
-          {@render colorRow($t('settings.themeEditor.labels.textPrimary'), 'textPrimary')}
-          {@render colorRow($t('settings.themeEditor.labels.textSecondary'), 'textSecondary')}
-          {@render colorRow($t('settings.themeEditor.labels.textMuted'), 'textMuted')}
-          
-          <div class="section-divider">{$t('settings.themeEditor.labels.cardTextIdle')}</div>
-          {@render colorRow($t('settings.themeEditor.labels.deviceName'), 'nameTextColor')}
-          {@render colorRow($t('settings.themeEditor.labels.stateValue'), 'valueTextColor')}
-          {@render colorRow($t('settings.themeEditor.labels.secondaryInfo'), 'statusTextColor')}
-          
-          <div class="section-divider">{$t('settings.themeEditor.labels.cardTextActive')}</div>
-          {@render colorRow($t('settings.themeEditor.labels.deviceName'), 'nameTextColorOn')}
-          {@render colorRow($t('settings.themeEditor.labels.stateValue'), 'valueTextColorOn')}
+        <div class="group" transition:slide|local={{ axis: 'x' }}>
+          <!-- TEXT (OFF) -->
+          {@render sectionTitle('TEXT (OFF)')}
+          <ColorPicker label={$t('settings.themeEditor.labels.deviceName')} value={currentScheme.nameTextColor} />
+          <ColorPicker label={$t('settings.themeEditor.labels.secondaryInfo')} value={currentScheme.statusTextColor} />
+          <ColorPicker label={$t('settings.themeEditor.labels.stateValue')} value={currentScheme.valueTextColor} />
+          <ColorPicker label="Unit" value={currentScheme.unitTextColor} />
+
+          <!-- TEXT (ON) -->
+          <div class="divider"></div>
+          {@render sectionTitle('TEXT (ON)')}
+          <ColorPicker label={$t('settings.themeEditor.labels.deviceName')} value={currentScheme.nameTextColorOn} />
+          <ColorPicker label={$t('settings.themeEditor.labels.secondaryInfo')} value={currentScheme.statusTextColorOn} />
+          <ColorPicker label={$t('settings.themeEditor.labels.stateValue')} value={currentScheme.valueTextColorOn} />
+          <ColorPicker label="Unit" value={currentScheme.unitTextColorOn} />
+
+          <!-- UI Elements -->
+          <div class="divider"></div>
+          {@render sectionTitle('UI Elements')}
+          <ColorPicker label="Tab Text" value={currentScheme.tabTextColor} />
+          <ColorPicker label="Active Tab" value={currentScheme.activeTabTextColor} />
+          <ColorPicker label="Tab Indicator" value={currentScheme.tabIndicatorColor} />
+          <ColorPicker label="Clock Color" value={currentScheme.clockTextColor} />
+        </div>
+
+      {:else if activeSection === 'widgets'}
+        <div class="group" transition:slide|local={{ axis: 'x' }}>
+          <!-- Thermostat -->
+          {@render sectionTitle('Thermostat')}
+          <ColorPicker label="Knob" value={currentScheme.thermostatHandleColor} />
+          <ColorPicker label="Target Text" value={currentScheme.thermostatDialTextColor} />
+          <ColorPicker label="Label" value={currentScheme.thermostatDialLabelColor} />
+          <ColorPicker label="Heating" value={currentScheme.thermostatHeatingColor} />
+          <ColorPicker label="Cooling" value={currentScheme.thermostatCoolingColor} />
+
+          <!-- Weather Widget -->
+          <div class="divider"></div>
+          {@render sectionTitle('Weather Widget')}
+          {@render sliderRow('Icon Size (Current)', 'weatherIconSize', 16, 128, 4, 'px')}
+          {@render sliderRow('Icon Size (Forecast)', 'weatherForecastIconSize', 16, 64, 4, 'px')}
+          {@render sliderRow('Font (Current Temp)', 'weatherCurrentTempFontSize', 12, 64, 1, 'px')}
+          {@render sliderRow('Font (Description)', 'weatherCurrentDescFontSize', 10, 24, 1, 'px')}
+          {@render sliderRow('Font (Forecast Day)', 'weatherForecastDayFontSize', 10, 24, 1, 'px')}
+          {@render sliderRow('Font (Max Temp)', 'weatherForecastMaxTempFontSize', 10, 24, 1, 'px')}
+          {@render sliderRow('Font (Min Temp)', 'weatherForecastMinTempFontSize', 10, 24, 1, 'px')}
         </div>
       {/if}
     </div>
   </div>
-
-  <!-- 5. Footer -->
-  <div class="editor-footer">
-    <button class="btn secondary" onclick={onCancel}>
-      {$t('common.cancel')}
-    </button>
-    <button class="btn primary" onclick={() => onSave(draft)}>
-      <iconify-icon icon="mdi:content-save"></iconify-icon>
-      {$t('common.save')}
-    </button>
-  </div>
 </div>
 
 <style>
-  /* --- Layout --- */
   .theme-editor-container {
     display: flex;
     flex-direction: column;
     height: 100%;
-    max-height: 85vh;
     background: var(--bg-panel, #ffffff);
     color: var(--text-primary, #333);
-    border-radius: 16px;
-    overflow: hidden;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.15);
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   }
 
-  /* --- Header --- */
+  /* HEADER */
   .editor-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: 1rem 1.5rem;
     border-bottom: 1px solid rgba(0,0,0,0.06);
-    background: var(--bg-panel, #ffffff);
   }
-  .title-block h2 { margin: 0; font-size: 1.1rem; font-weight: 600; color: var(--text-primary); }
-  
-  .icon-btn.close {
-    background: rgba(0,0,0,0.05);
-    border: none;
-    border-radius: 50%;
-    width: 28px; height: 28px;
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer; color: var(--text-secondary);
-    transition: all 0.2s;
-  }
-  .icon-btn.close:hover { background: rgba(0,0,0,0.1); color: var(--text-primary); }
+  .header-left { display: flex; align-items: center; gap: 1rem; }
+  .editor-header h2 { margin: 0; font-size: 1.1rem; font-weight: 700; }
 
-  /* --- Body & Controls --- */
+  .icon-btn {
+    background: transparent; border: none; cursor: pointer; color: var(--text-secondary);
+    display: flex; align-items: center; justify-content: center;
+    padding: 4px; border-radius: 50%;
+  }
+  .icon-btn:hover { background: rgba(0,0,0,0.05); color: var(--text-primary); }
+
+  .btn {
+    padding: 0.5rem 1rem; border-radius: 8px; border: none; font-weight: 600; cursor: pointer;
+    font-size: 0.9rem; transition: all 0.2s;
+  }
+  .btn.primary { background: var(--accent-primary, #007bff); color: #fff; }
+  .btn.primary:hover { filter: brightness(1.1); box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+
+  /* BODY */
   .editor-body {
     flex: 1;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
-    background: var(--bg-secondary, #f7f8fa);
+    background: var(--bg-secondary, #f9f9fb);
   }
 
-  .top-controls {
-    padding: 1.5rem;
-    background: var(--bg-panel, #ffffff);
+  .meta-section {
+    padding: 1.5rem 1.5rem 1rem 1.5rem;
+    background: var(--bg-panel);
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    gap: 1rem;
+    align-items: flex-end;
+    gap: 1.5rem;
   }
-  
-  .input-group { flex: 1; }
-  
+
+  .input-group { flex: 1; display: flex; flex-direction: column; gap: 0.5rem; }
+  .input-group label { font-size: 0.8rem; font-weight: 500; color: var(--text-secondary); }
   .modern-input {
-    width: 100%;
-    padding: 0.6rem 0.8rem;
-    font-size: 1rem;
-    font-weight: 600;
-    border: 1px solid transparent;
-    border-radius: 8px;
-    background-color: transparent;
-    color: var(--text-primary);
+    width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1);
+    background: var(--bg-input, #f5f5f7); color: var(--text-primary); font-size: 1rem;
+  }
+  .modern-input:focus { outline: none; border-color: var(--accent-primary); background: var(--bg-panel); }
+
+  .mode-tabs {
+    display: flex;
+    background: rgba(0,0,0,0.05);
+    padding: 3px;
+    border-radius: 10px;
+  }
+  .mode-tab {
+    padding: 6px 16px; border: none; background: transparent; cursor: pointer;
+    border-radius: 7px; font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);
     transition: all 0.2s;
   }
-  .modern-input:hover { background-color: rgba(0,0,0,0.03); }
-  .modern-input:focus { background-color: rgba(0,0,0,0.05); outline: none; }
-  .modern-input::placeholder { font-weight: 400; opacity: 0.5; }
+  .mode-tab.active { background: var(--bg-panel); color: var(--text-primary); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
 
-  /* Mode Switcher (Pill) */
-  .mode-switcher {
+  /* NAV PILLS */
+  .nav-pills {
     display: flex;
-    background: rgba(0,0,0,0.05);
-    padding: 3px;
-    border-radius: 8px;
-  }
-  .mode-btn {
-    display: flex; align-items: center; gap: 6px;
-    padding: 6px 12px;
-    border: none; background: transparent;
-    border-radius: 6px;
-    font-size: 0.85rem; font-weight: 500;
-    color: var(--text-secondary);
-    cursor: pointer; transition: all 0.2s;
-  }
-  .mode-btn.active {
-    background: var(--bg-panel, #ffffff);
-    color: var(--text-primary);
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-  }
-
-  /* --- Navigation (Segmented) --- */
-  .nav-container {
+    gap: 0.5rem;
     padding: 0 1.5rem 1rem 1.5rem;
-    background: var(--bg-panel, #ffffff);
+    background: var(--bg-panel);
     border-bottom: 1px solid rgba(0,0,0,0.06);
+    overflow-x: auto;
   }
-  
-  .segmented-nav {
-    display: flex;
-    position: relative;
-    background: rgba(0,0,0,0.05);
-    border-radius: 10px;
-    padding: 3px;
+  .pill {
+    padding: 6px 14px; border-radius: 20px; border: 1px solid transparent; background: transparent;
+    cursor: pointer; font-size: 0.9rem; color: var(--text-secondary); font-weight: 500; white-space: nowrap;
   }
-  
-  .nav-item {
-    flex: 1;
-    position: relative;
-    z-index: 2;
-    background: transparent;
-    border: none;
-    padding: 6px 0;
-    font-size: 0.85rem;
-    font-weight: 500;
-    color: var(--text-secondary);
-    cursor: pointer;
-    transition: color 0.2s;
-    text-align: center;
-  }
-  .nav-item.active { color: var(--text-primary); font-weight: 600; }
-  
-  .active-bg {
-    position: absolute;
-    top: 3px; bottom: 3px; left: 3px;
-    width: calc(25% - 1.5px); /* 4 items -> 25% */
-    background: var(--bg-panel, #ffffff);
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.08);
-    transition: transform 0.25s cubic-bezier(0.2, 0, 0.2, 1);
-    z-index: 1;
-  }
+  .pill:hover { background: rgba(0,0,0,0.03); }
+  .pill.active { background: var(--bg-primary); border-color: rgba(0,0,0,0.1); color: var(--text-primary); font-weight: 600; box-shadow: 0 2px 4px rgba(0,0,0,0.03); }
 
-  /* --- Content --- */
-  .content-scroll {
+  /* SCROLL CONTENT */
+  .scroll-content {
     flex: 1;
     overflow-y: auto;
     padding: 1.5rem;
   }
-  
-  .section-group { display: flex; flex-direction: column; gap: 1rem; }
 
-  .section-divider {
-    font-size: 0.75rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    font-weight: 700;
-    color: var(--text-muted);
-    margin-top: 1rem;
-    margin-bottom: 0.5rem;
+  .group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
   }
-  .section-divider:first-child { margin-top: 0; }
 
-  /* Control Rows */
+  .section-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 1.5rem 0 0.75rem 0;
+  }
+  .section-title:first-child { margin-top: 0; }
+
+  .divider { height: 1px; background: rgba(0,0,0,0.06); margin: 1.5rem 0; width: 100%; }
+
+  /* ROWS */
   .control-row {
     display: flex;
-    align-items: center;
     justify-content: space-between;
-    padding: 0.25rem 0;
-  }
-  .label-group { display: flex; flex-direction: column; }
-  .label { font-size: 0.9rem; font-weight: 500; color: var(--text-primary); }
-  .hex-value { font-size: 0.75rem; font-family: monospace; color: var(--text-muted); margin-top: 2px; }
-  
-  .control-stack { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 0.5rem; }
-  .header-row { display: flex; justify-content: space-between; align-items: baseline; }
-  .value-badge { font-family: monospace; font-size: 0.8rem; background: rgba(0,0,0,0.06); padding: 2px 6px; border-radius: 4px; color: var(--text-primary); }
-
-  /* Color Picker */
-  .color-wrapper {
-    position: relative;
-    width: 32px; height: 32px;
-    border-radius: 50%;
-    overflow: hidden;
-    box-shadow: 0 0 0 1px rgba(0,0,0,0.1);
-    cursor: pointer;
-  }
-  .color-wrapper input {
-    position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; opacity: 0; cursor: pointer;
-  }
-  .color-wrapper .swatch { width: 100%; height: 100%; border: 2px solid #fff; border-radius: 50%; box-sizing: border-box; }
-
-  /* Slider */
-  .slider-container {
-    width: 100%;
-    height: 24px;
-    display: flex;
     align-items: center;
+    padding: 0.6rem 0;
   }
+  .slider-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+  
+  .slider-header { display: flex; justify-content: space-between; }
+  .label { font-size: 0.9rem; font-weight: 500; color: var(--text-primary); }
+  .value { font-family: monospace; font-size: 0.85rem; color: var(--text-muted); }
+
+  .modern-select {
+    padding: 0.4rem 2rem 0.4rem 0.8rem;
+    border-radius: 6px;
+    border: 1px solid rgba(0,0,0,0.1);
+    background: var(--bg-panel);
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    text-align: right;
+  }
+
   .slider {
     -webkit-appearance: none;
-    width: 100%;
-    height: 6px;
-    border-radius: 3px;
+    width: 100%; height: 6px; border-radius: 3px;
     background: rgba(0,0,0,0.1);
     background-image: linear-gradient(var(--accent-primary), var(--accent-primary));
     background-repeat: no-repeat;
-    outline: none;
+    outline: none; cursor: pointer;
   }
   .slider::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    width: 18px; height: 18px;
-    border-radius: 50%;
-    background: #ffffff;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.3);
-    cursor: pointer;
-    transition: transform 0.1s;
+    -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%;
+    background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+    cursor: pointer; transition: transform 0.1s;
   }
   .slider::-webkit-slider-thumb:hover { transform: scale(1.1); }
-
-  .modern-select {
-    width: 100%;
-    padding: 0.6rem;
-    font-size: 0.9rem;
-    border: 1px solid rgba(0,0,0,0.1);
-    border-radius: 8px;
-    background: var(--bg-input);
-    color: var(--text-primary);
-  }
-
-  /* --- Footer --- */
-  .editor-footer {
-    padding: 1rem 1.5rem;
-    background: var(--bg-panel, #ffffff);
-    border-top: 1px solid rgba(0,0,0,0.06);
-    display: flex; gap: 1rem;
-  }
-  
-  .btn {
-    flex: 1;
-    display: flex; align-items: center; justify-content: center; gap: 0.5rem;
-    padding: 0.8rem;
-    border: none; border-radius: 10px;
-    font-size: 0.95rem; font-weight: 600;
-    cursor: pointer; transition: transform 0.1s, opacity 0.2s;
-  }
-  .btn:active { transform: scale(0.98); }
-  
-  .btn.primary {
-    background: var(--accent-primary, #007bff);
-    color: #ffffff;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-  }
-  .btn.secondary {
-    background: rgba(0,0,0,0.05);
-    color: var(--text-primary, #333);
-  }
-  .btn.secondary:hover { background: rgba(0,0,0,0.08); }
 </style>
