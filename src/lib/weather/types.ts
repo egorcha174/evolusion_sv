@@ -47,6 +47,14 @@ export interface WeatherSettings {
   forecastDays: number; // 1-7
   iconPack: WeatherIconPack;
   forecastLayout: ForecastLayout;
+  
+  // Visual Configuration (Global)
+  currentIconSize: number;
+  currentTempSize: number;
+  currentDescSize: number;
+  forecastIconSize: number;
+  forecastDaySize: number;
+  forecastTempSize: number;
 }
 
 export interface WeatherProvider {

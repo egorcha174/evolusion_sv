@@ -13,7 +13,15 @@ const defaultSettings: WeatherSettings = {
   showForecast: true,
   forecastDays: 3,
   iconPack: 'default',
-  forecastLayout: 'vertical'
+  forecastLayout: 'vertical',
+  
+  // Visual Defaults
+  currentIconSize: 48,
+  currentTempSize: 32, // px
+  currentDescSize: 14, // px
+  forecastIconSize: 24,
+  forecastDaySize: 13,
+  forecastTempSize: 14
 };
 
 const initialState: WeatherState = {

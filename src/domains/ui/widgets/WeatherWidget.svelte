@@ -7,9 +7,20 @@
   function formatDay(date: Date): string {
     return date.toLocaleDateString($locale || 'en', { weekday: 'short' });
   }
+  
+  // Reactive CSS variables based on global settings
+  let styleVars = $derived(`
+    --weather-icon-size: ${$weatherSettings.currentIconSize}px;
+    --weather-current-temp-font-size: ${$weatherSettings.currentTempSize}px;
+    --weather-current-desc-font-size: ${$weatherSettings.currentDescSize}px;
+    --weather-forecast-icon-size: ${$weatherSettings.forecastIconSize}px;
+    --weather-forecast-day-font-size: ${$weatherSettings.forecastDaySize}px;
+    --weather-forecast-max-temp-font-size: ${$weatherSettings.forecastTempSize}px;
+    --weather-forecast-min-temp-font-size: ${Math.max(10, $weatherSettings.forecastTempSize - 2)}px;
+  `);
 </script>
 
-<div class="widget weather-widget">
+<div class="widget weather-widget" style={styleVars}>
   {#if $weatherStore.isLoading && !$weatherStore.current}
      <div class="spinner"></div>
   {:else if $weatherStore.error}

@@ -262,17 +262,6 @@
           <ColorPicker label="Label" value={currentScheme.thermostatDialLabelColor} onChange={(v) => updateField('thermostatDialLabelColor', v)} />
           <ColorPicker label="Heating" value={currentScheme.thermostatHeatingColor} onChange={(v) => updateField('thermostatHeatingColor', v)} />
           <ColorPicker label="Cooling" value={currentScheme.thermostatCoolingColor} onChange={(v) => updateField('thermostatCoolingColor', v)} />
-
-          <!-- Weather Widget -->
-          <div class="divider"></div>
-          {@render sectionTitle('Weather Widget')}
-          {@render sliderRow('Icon Size (Current)', 'weatherIconSize', 16, 128, 4, 'px')}
-          {@render sliderRow('Icon Size (Forecast)', 'weatherForecastIconSize', 16, 64, 4, 'px')}
-          {@render sliderRow('Font (Current Temp)', 'weatherCurrentTempFontSize', 12, 64, 1, 'px')}
-          {@render sliderRow('Font (Description)', 'weatherCurrentDescFontSize', 10, 24, 1, 'px')}
-          {@render sliderRow('Font (Forecast Day)', 'weatherForecastDayFontSize', 10, 24, 1, 'px')}
-          {@render sliderRow('Font (Max Temp)', 'weatherForecastMaxTempFontSize', 10, 24, 1, 'px')}
-          {@render sliderRow('Font (Min Temp)', 'weatherForecastMinTempFontSize', 10, 24, 1, 'px')}
         </div>
       {/if}
     </div>

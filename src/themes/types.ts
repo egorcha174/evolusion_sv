@@ -1,4 +1,5 @@
 
+
 export interface ThemeManifest {
   name: string;
   version: string;
@@ -51,15 +52,6 @@ export interface ColorScheme {
   // Clock
   clockTextColor: string;
 
-  // Weather
-  weatherIconSize?: number;
-  weatherForecastIconSize?: number;
-  weatherCurrentTempFontSize?: number;
-  weatherCurrentDescFontSize?: number;
-  weatherForecastDayFontSize?: number;
-  weatherForecastMaxTempFontSize?: number;
-  weatherForecastMinTempFontSize?: number;
-
   // Widget Text
   nameTextColor: string;
   statusTextColor: string;
@@ -69,6 +61,15 @@ export interface ColorScheme {
   statusTextColorOn: string;
   valueTextColorOn: string;
   unitTextColorOn: string;
+
+  // Weather (Optional)
+  weatherIconSize?: number;
+  weatherForecastIconSize?: number;
+  weatherCurrentTempFontSize?: number;
+  weatherCurrentDescFontSize?: number;
+  weatherForecastDayFontSize?: number;
+  weatherForecastMaxTempFontSize?: number;
+  weatherForecastMinTempFontSize?: number;
 }
 
 export interface ThemeScheme {

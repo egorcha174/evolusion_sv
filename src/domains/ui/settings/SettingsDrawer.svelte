@@ -188,6 +188,12 @@
   let wLon = $state($weatherSettings.customLocation?.lon ?? 0);
   let wDays = $state($weatherSettings.forecastDays);
   let wIconPack = $state($weatherSettings.iconPack);
+  
+  // Weather Visuals
+  let wIconSize = $state($weatherSettings.currentIconSize);
+  let wTempSize = $state($weatherSettings.currentTempSize);
+  let wForecastIconSize = $state($weatherSettings.forecastIconSize);
+  let wForecastTempSize = $state($weatherSettings.forecastTempSize);
 
   $effect(() => {
     if ($isSettingsOpen) {
@@ -198,6 +204,11 @@
       wLon = $weatherSettings.customLocation?.lon ?? 0;
       wDays = $weatherSettings.forecastDays;
       wIconPack = $weatherSettings.iconPack;
+      
+      wIconSize = $weatherSettings.currentIconSize;
+      wTempSize = $weatherSettings.currentTempSize;
+      wForecastIconSize = $weatherSettings.forecastIconSize;
+      wForecastTempSize = $weatherSettings.forecastTempSize;
     }
   });
 
@@ -209,7 +220,15 @@
        useCustomLocation: wUseCustom,
        customLocation: { lat: wLat, lon: wLon },
        forecastDays: wDays,
-       iconPack: wIconPack
+       iconPack: wIconPack,
+       // Save visuals
+       currentIconSize: wIconSize,
+       currentTempSize: wTempSize,
+       forecastIconSize: wForecastIconSize,
+       forecastTempSize: wForecastTempSize,
+       // Derived defaults for others to keep simplified UI
+       currentDescSize: Math.max(10, Math.round(wTempSize * 0.4)),
+       forecastDaySize: Math.max(10, Math.round(wForecastTempSize * 0.9))
      }));
      refreshWeatherConfig();
   }
@@ -432,6 +451,14 @@
           </div>
 
           <RangeInput label={$t('settings.forecast.daysLabel')} bind:value={wDays} min={1} max={7} />
+          
+          <div class="divider"></div>
+          <div class="subsection-title">{$t('settings.appearance')}</div>
+          
+          <RangeInput label="Icon Size (Current)" bind:value={wIconSize} min={24} max={128} step={4} unit="px" />
+          <RangeInput label="Temp Size (Current)" bind:value={wTempSize} min={16} max={96} step={2} unit="px" />
+          <RangeInput label="Icon Size (Forecast)" bind:value={wForecastIconSize} min={12} max={64} step={2} unit="px" />
+          <RangeInput label="Temp Size (Forecast)" bind:value={wForecastTempSize} min={10} max={32} step={1} unit="px" />
 
           <div class="actions">
             <button class="btn secondary small" onclick={saveWeather}>{$t('settings.updateWeather')}</button>
@@ -741,6 +768,21 @@
   .dz-label { color: var(--accent-error, #f44336); font-size: 0.85rem; font-weight: 600; margin-bottom: 0.75rem; }
 
   .footer-info { text-align: center; color: var(--text-muted); font-size: 0.75rem; margin-top: auto; padding-top: 1rem; }
+  
+  .subsection-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin: 1.5rem 0 1rem 0;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  
+  .divider {
+    height: 1px;
+    background: var(--border-divider);
+    margin: 1.5rem 0;
+  }
 
   @media (max-width: 480px) {
     .settings-drawer { width: 100vw; max-width: 100vw; }
