@@ -486,14 +486,14 @@ export const beachTheme: ThemeFile = {
   }
 };
 
-// 5. Cyberpunk (High Contrast / Neon)
+// 5. Cyberpunk (High Contrast / Neon / HUD)
 export const cyberpunkTheme: ThemeFile = {
   schemaVersion: 1,
   manifest: {
     name: "Cyberpunk",
-    version: "1.0.0",
+    version: "2.0.0",
     author: "Evolusion",
-    description: "High contrast yellow and black with glitch aesthetic.",
+    description: "High contrast yellow and black with tactical HUD aesthetic.",
     generatedAt: new Date().toISOString()
   },
   theme: {
@@ -503,16 +503,16 @@ export const cyberpunkTheme: ThemeFile = {
     scheme: {
       dark: {
         dashboardBackgroundType: "color",
-        dashboardBackgroundColor1: "#050505",
+        dashboardBackgroundColor1: "#050505", // Deepest black
         
         cardOpacity: 1,
-        cardBorderRadius: 0,
+        cardBorderRadius: 0, // Sharp edges
         cardBorderWidth: 1,
-        cardBorderColor: "#333333",
-        cardBorderColorOn: "#FCEE0A",
-        cardBackground: "#000000",
-        cardBackgroundOn: "#000000",
-        shadowCard: "4px 4px 0px rgba(50,50,50,1)",
+        cardBorderColor: "#333333", // Dim grid lines
+        cardBorderColorOn: "#FCEE0A", // Neon Yellow Active
+        cardBackground: "#0A0A0A",
+        cardBackgroundOn: "#0A0A0A", // Keep background dark, highlight border
+        shadowCard: "0 0 0 1px rgba(252, 238, 10, 0.1)", // Subtle yellow glow
         
         panelOpacity: 1,
         
@@ -524,15 +524,13 @@ export const cyberpunkTheme: ThemeFile = {
         iconBackgroundColorOn: "#FCEE0A",
         iconBackgroundColorOff: "#1a1a1a",
         
-        nameTextColor: "#FCEE0A",
+        nameTextColor: "#FCEE0A", // Yellow headers
         statusTextColor: "#FFFFFF",
         valueTextColor: "#FCEE0A",
         unitTextColor: "#FFFFFF",
-        nameTextColorOn: "#000000", // Black text on Yellow icon usually, but card is black... 
-        // Wait, nameTextColorOn is for the text when card is active. 
-        // Card bg is black. So text should be Yellow or White.
-        // Let's make active cards have Yellow borders and text.
-        statusTextColorOn: "#FCEE0A",
+        
+        nameTextColorOn: "#FCEE0A",
+        statusTextColorOn: "#FFFFFF", 
         valueTextColorOn: "#FCEE0A",
         unitTextColorOn: "#FCEE0A",
         
@@ -543,19 +541,19 @@ export const cyberpunkTheme: ThemeFile = {
         thermostatHandleColor: "#FCEE0A",
         thermostatDialTextColor: "#FCEE0A",
         thermostatDialLabelColor: "#FFFFFF",
-        thermostatHeatingColor: "#FF003C",
-        thermostatCoolingColor: "#00F0FF",
+        thermostatHeatingColor: "#FF003C", // Red alert
+        thermostatCoolingColor: "#00F0FF", // Cyan
         
-        accentPrimary: "#FCEE0A",
-        accentSecondary: "#00F0FF",
-        accentError: "#FF003C",
+        accentPrimary: "#FCEE0A", // Yellow
+        accentSecondary: "#00F0FF", // Cyan
+        accentError: "#FF003C", // Red
         accentSuccess: "#FCEE0A",
         accentWarning: "#FCEE0A",
         accentInfo: "#00F0FF",
         widgetSwitchOn: "#FCEE0A"
       },
       light: {
-        // Inverted Cyberpunk (White/Black/Pink)
+        // High-vis Light Mode (White/Black/Yellow)
         dashboardBackgroundType: "color",
         dashboardBackgroundColor1: "#FFFFFF",
         
@@ -563,29 +561,29 @@ export const cyberpunkTheme: ThemeFile = {
         cardBorderRadius: 0,
         cardBorderWidth: 2,
         cardBorderColor: "#000000",
-        cardBorderColorOn: "#FF003C",
-        cardBackground: "#FFFFFF",
+        cardBorderColorOn: "#FCEE0A",
+        cardBackground: "#F2F2F2",
         cardBackgroundOn: "#FFFFFF",
-        shadowCard: "4px 4px 0px #000000",
+        shadowCard: "4px 4px 0px #000000", // Hard drop shadow
         
         panelOpacity: 1,
         
         tabTextColor: "#000000",
-        activeTabTextColor: "#FF003C",
-        tabIndicatorColor: "#FF003C",
+        activeTabTextColor: "#000000",
+        tabIndicatorColor: "#FCEE0A",
         
         iconBackgroundShape: "square",
-        iconBackgroundColorOn: "#FF003C",
-        iconBackgroundColorOff: "#EEEEEE",
+        iconBackgroundColorOn: "#FCEE0A",
+        iconBackgroundColorOff: "#DDDDDD",
         
         nameTextColor: "#000000",
-        statusTextColor: "#000000",
-        valueTextColor: "#FF003C",
-        unitTextColor: "#000000",
-        nameTextColorOn: "#FF003C",
+        statusTextColor: "#333333",
+        valueTextColor: "#000000",
+        unitTextColor: "#333333",
+        nameTextColorOn: "#000000",
         statusTextColorOn: "#000000",
-        valueTextColorOn: "#FF003C",
-        unitTextColorOn: "#FF003C",
+        valueTextColorOn: "#000000",
+        unitTextColorOn: "#000000",
         
         clockTextColor: "#000000",
         weatherPrimaryColor: "#000000",
@@ -597,13 +595,13 @@ export const cyberpunkTheme: ThemeFile = {
         thermostatHeatingColor: "#FF003C",
         thermostatCoolingColor: "#00F0FF",
         
-        accentPrimary: "#FF003C",
+        accentPrimary: "#FCEE0A",
         accentSecondary: "#00F0FF",
         accentError: "#FF003C",
         accentSuccess: "#000000",
-        accentWarning: "#FF003C",
+        accentWarning: "#FCEE0A",
         accentInfo: "#00F0FF",
-        widgetSwitchOn: "#FF003C"
+        widgetSwitchOn: "#FCEE0A"
       }
     }
   }
