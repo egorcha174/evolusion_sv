@@ -182,8 +182,19 @@
 
       {:else if activeSection === 'global_ui'}
         <div class="group" transition:slide|local={{ axis: 'x' }}>
-          {@render sectionTitle('Structure Colors')}
-          <ColorPicker label="Sidebar Background" value={currentScheme.bgSidebar} onChange={(v) => updateField('bgSidebar', v)} />
+          {@render sectionTitle('Sidebar')}
+          {@render sliderRow('Opacity', 'sidebarOpacity', 0, 1, 0.05)}
+          <ColorPicker label="Background" value={currentScheme.bgSidebar} onChange={(v) => updateField('bgSidebar', v)} />
+
+          <div class="divider"></div>
+          
+          {@render sectionTitle('Header')}
+          {@render sliderRow('Opacity', 'headerOpacity', 0, 1, 0.05)}
+          <ColorPicker label="Background" value={currentScheme.bgHeader} onChange={(v) => updateField('bgHeader', v)} />
+
+          <div class="divider"></div>
+          
+          {@render sectionTitle('Elements')}
           <ColorPicker label="Chips / Pills" value={currentScheme.bgChip} onChange={(v) => updateField('bgChip', v)} />
           <ColorPicker label="Dropdowns" value={currentScheme.bgDropdown} onChange={(v) => updateField('bgDropdown', v)} />
           <ColorPicker label="Hover Effect" value={currentScheme.bgCardHover} onChange={(v) => updateField('bgCardHover', v)} />
@@ -275,8 +286,8 @@
           <!-- UI Elements -->
           <div class="divider"></div>
           {@render sectionTitle('UI Elements')}
-          <ColorPicker label="Tab Text" value={currentScheme.tabTextColor} onChange={(v) => updateField('tabTextColor', v)} />
-          <ColorPicker label="Active Tab" value={currentScheme.activeTabTextColor} onChange={(v) => updateField('activeTabTextColor', v)} />
+          <ColorPicker label="Inactive Tab Text" value={currentScheme.tabTextColor} onChange={(v) => updateField('tabTextColor', v)} />
+          <ColorPicker label="Active Tab Text" value={currentScheme.activeTabTextColor} onChange={(v) => updateField('activeTabTextColor', v)} />
           <ColorPicker label="Tab Indicator" value={currentScheme.tabIndicatorColor} onChange={(v) => updateField('tabIndicatorColor', v)} />
         </div>
 

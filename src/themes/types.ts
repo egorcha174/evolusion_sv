@@ -22,11 +22,15 @@ export interface ColorScheme {
 
   // Global UI (New)
   bgSidebar: string;
+  sidebarOpacity?: number; // New
+  
   bgChip: string;
   bgCardHover: string;
   bgDropdown?: string; // Optional, falls back to panel
   bgInput?: string;
+  
   bgHeader?: string;
+  headerOpacity?: number; // New
   
   // Borders & Inputs (New)
   borderInput: string;

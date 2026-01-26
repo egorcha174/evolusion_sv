@@ -62,6 +62,24 @@ export function generateCSSVariables(scheme: ColorScheme): Record<string, string
         }
       }
 
+      // Special handling for Sidebar Background Opacity
+      if (key === 'bgSidebar') {
+        const opacity = scheme.sidebarOpacity ?? 1;
+        if (typeof value === 'string') {
+          vars[varName] = hexToRgba(value, opacity);
+          continue;
+        }
+      }
+
+      // Special handling for Header Background Opacity
+      if (key === 'bgHeader') {
+        const opacity = scheme.headerOpacity ?? 1;
+        if (typeof value === 'string') {
+          vars[varName] = hexToRgba(value, opacity);
+          continue;
+        }
+      }
+
       // Logic for Icon Shape
       if (key === 'iconBackgroundShape') {
         const shape = value as string;

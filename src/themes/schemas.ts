@@ -16,11 +16,15 @@ export const ColorSchemeSchema = z.object({
 
   // Global UI
   bgSidebar: ColorSchema.optional().default('#f0f2f5'),
+  sidebarOpacity: z.number().min(0).max(1).optional().default(1),
+  
   bgChip: ColorSchema.optional().default('#e4e6eb'),
   bgCardHover: ColorSchema.optional().default('rgba(0,0,0,0.05)'),
   bgDropdown: ColorSchema.optional(),
   bgInput: ColorSchema.optional(),
+  
   bgHeader: ColorSchema.optional(),
+  headerOpacity: z.number().min(0).max(1).optional().default(1),
   
   borderInput: ColorSchema.optional().default('#ccc'),
   borderFocus: ColorSchema.optional().default('#2196f3'),
