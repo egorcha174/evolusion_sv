@@ -289,19 +289,19 @@
   .filters::-webkit-scrollbar { display: none; }
 
   .pill {
-    padding: 8px 14px; /* Increased padding */
+    padding: 8px 14px; /* Default size pill */
     border-radius: 20px;
     border: 1px solid var(--border-primary);
     background: var(--bg-card);
     color: var(--text-secondary);
-    font-size: 0.9rem; /* Increased font size */
+    font-size: 0.9rem;
     font-weight: 500;
     cursor: pointer;
     white-space: nowrap;
     transition: all 0.2s;
     display: flex;
     align-items: center;
-    gap: 8px; /* More gap */
+    gap: 8px;
   }
 
   .pill:hover {
@@ -316,7 +316,7 @@
   }
   
   .pill iconify-icon {
-    font-size: 1.1rem; /* Explicit size */
+    font-size: 1.1rem;
   }
 
   /* List */

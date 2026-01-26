@@ -144,6 +144,7 @@ function createEditorStore() {
 
     // --- Card Actions (Edit Mode) ---
 
+    // Adds a new card to the current editor session (draft)
     addCard(entityId: string) {
       update(s => {
         if (!s.tabId) return s;
