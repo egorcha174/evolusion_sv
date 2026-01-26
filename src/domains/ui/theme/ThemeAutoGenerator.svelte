@@ -18,6 +18,7 @@
     themeId: 'my_auto_theme',
     themeName: 'My Auto Theme',
     primary: '#6366f1',
+    colorRole: 'accent', // Default
     harmony: 'analogous',
     radius: 'standard',
     cardOpacity: 0.5,
@@ -62,7 +63,6 @@
   function copyJson() {
     const preset = generateThemePreset(settings);
     navigator.clipboard.writeText(JSON.stringify(preset, null, 2));
-    // Optional: Toast feedback
   }
 </script>
 
@@ -91,6 +91,27 @@
             <h3>{$t('themeGenerator.sectionCore')}</h3>
             <ColorPicker label={$t('themeGenerator.lblPrimaryColor')} bind:value={settings.primary} />
             
+            <!-- Color Role Switch -->
+            <div class="control-group">
+               <label>{$t('themeGenerator.lblColorRole')}</label>
+               <div class="segmented-control">
+                  <button 
+                    class="segment" 
+                    class:active={settings.colorRole === 'accent'}
+                    onclick={() => settings.colorRole = 'accent'}
+                  >
+                    {$t('themeGenerator.roleAccent')} (10%)
+                  </button>
+                  <button 
+                    class="segment" 
+                    class:active={settings.colorRole === 'background'}
+                    onclick={() => settings.colorRole = 'background'}
+                  >
+                    {$t('themeGenerator.roleBg')} (60%)
+                  </button>
+               </div>
+            </div>
+
             <div class="control-group">
               <label>{$t('themeGenerator.lblHarmony')}</label>
               <select bind:value={settings.harmony}>

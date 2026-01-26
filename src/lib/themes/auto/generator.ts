@@ -1,7 +1,7 @@
 
 import type { BaseThemeSettings } from './types';
 import type { ThemeFile, ColorScheme } from '../../../themes/types';
-import { toRgba, adjustHsl } from './colorUtils';
+import { toRgba, adjustHsl, getLuminance, getContrastText } from './colorUtils';
 
 function getRadius(preset: BaseThemeSettings['radius']): number {
   switch (preset) {
@@ -22,110 +22,131 @@ function getSecondaryColor(primary: string, rule: BaseThemeSettings['harmony']):
   }
 }
 
-// Fixed semantic colors as per fusion.json
-const ACCENTS_LIGHT = {
-  error: '#EF4444',
-  success: '#34C759',
-  warning: '#F59E0B'
-};
-
-const ACCENTS_DARK = {
-  error: '#FF453A',
-  success: '#30D158',
-  warning: '#FF9F0A'
-};
+// Fixed semantic colors
+const ACCENTS_LIGHT = { error: '#EF4444', success: '#34C759', warning: '#F59E0B' };
+const ACCENTS_DARK = { error: '#FF453A', success: '#30D158', warning: '#FF9F0A' };
 
 export function generateThemePreset(s: BaseThemeSettings): ThemeFile {
-  const secondary = getSecondaryColor(s.primary, s.harmony);
   const radius = getRadius(s.radius);
   
-  // Calculate palette variants
-  // Dark Scheme: Dark BG, Light Text
-  const darkBg1 = adjustHsl(s.primary, 0, 30, 10); // Very dark version of primary
-  const darkBg2 = adjustHsl(secondary, 0, 30, 15); // Very dark version of secondary
-  const darkCardBg = adjustHsl(s.primary, 0, 20, 15); 
-  const darkCardBgOn = adjustHsl(s.primary, 0, 25, 20);
+  // Logic Branch based on Color Role
+  let accentColor: string;
+  let darkBg: string;
+  let lightBg: string;
   
-  // Light Scheme: Light BG, Dark Text
-  const lightBg1 = adjustHsl(s.primary, 0, 20, 95); // Very light version
-  const lightBg2 = adjustHsl(secondary, 0, 20, 90);
+  if (s.colorRole === 'background') {
+    // 60% Rule: User input IS the background (for Dark Mode usually, as dashboards are dark-first)
+    // If input is dark, use it as Dark BG. If light, use it as Light BG? 
+    // To stay consistent with "One Theme, Two Modes", we will derive based on input luminance.
+    
+    if (getLuminance(s.primary) < 0.5) {
+       // User picked a DARK color -> Set as Dark Mode BG
+       darkBg = s.primary;
+       lightBg = adjustHsl(s.primary, 0, 10, 95); // Derived light version
+    } else {
+       // User picked a LIGHT color -> Set as Light Mode BG
+       lightBg = s.primary;
+       darkBg = adjustHsl(s.primary, 0, 20, 10); // Derived dark version
+    }
+    
+    // 10% Rule: Calculate Accent from Harmony relative to the Background
+    accentColor = getSecondaryColor(s.primary, s.harmony);
+    
+  } else {
+    // Role = 'accent' (Standard 10% Rule)
+    // User input IS the Accent.
+    accentColor = s.primary;
+    
+    // 60% Rule: Background is derived neutral/tinted
+    const secondary = getSecondaryColor(s.primary, s.harmony);
+    darkBg = adjustHsl(secondary, 0, 30, 10); // Very dark tint of secondary
+    lightBg = adjustHsl(secondary, 0, 20, 95); // Very light tint
+  }
+
+  // Secondary/Tertiary for gradients
+  const darkBg2 = adjustHsl(darkBg, 10, null, null);
+  const lightBg2 = adjustHsl(lightBg, 10, null, null);
+
+  // Cards
+  const darkCardBg = adjustHsl(darkBg, 0, null, (getLuminance(darkBg) * 100) + 5); 
   const lightCardBg = '#FFFFFF';
-  const lightCardBgOn = adjustHsl(s.primary, 0, 10, 98);
+
+  // Text Contrast Check
+  const darkText = getContrastText(darkBg);
+  const lightText = getContrastText(lightBg);
 
   const darkScheme: ColorScheme = {
     dashboardBackgroundType: 'gradient',
-    dashboardBackgroundColor1: darkBg1,
+    dashboardBackgroundColor1: darkBg,
     dashboardBackgroundColor2: darkBg2,
     dashboardGradientAngle: 135,
     
     cardOpacity: s.cardOpacity,
     cardBorderRadius: radius,
     cardBorderWidth: 1,
-    cardBorderColor: toRgba('#FFFFFF', 0.1),
-    cardBorderColorOn: toRgba('#FFFFFF', 0.5),
+    cardBorderColor: toRgba(darkText, 0.1),
+    cardBorderColorOn: toRgba(accentColor, 0.5),
     cardBackground: toRgba(darkCardBg, 0.4), 
-    cardBackgroundOn: toRgba(darkCardBgOn, 0.6),
+    cardBackgroundOn: toRgba(darkCardBg, 0.6),
     shadowCard: '0 8px 32px rgba(0, 0, 0, 0.2)',
     
     panelOpacity: s.panelOpacity,
-    bgPanel: toRgba('#000000', 0.3),
-    bgInput: toRgba('#FFFFFF', 0.1),
+    bgPanel: toRgba(darkBg, 0.9),
+    bgInput: toRgba(darkText, 0.1),
     
-    // UI Global - Separated Opacity for Controls
-    bgHeader: '#000000',
-    headerOpacity: 0.2,
-    
-    bgSidebar: darkBg1,
+    bgHeader: darkBg,
+    headerOpacity: 0.8,
+    bgSidebar: darkBg,
     sidebarOpacity: 1,
 
-    bgChip: toRgba('#FFFFFF', 0.1),
-    bgCardHover: toRgba('#FFFFFF', 0.05),
-    borderInput: toRgba('#FFFFFF', 0.1),
-    borderFocus: s.primary,
-    borderDivider: toRgba('#FFFFFF', 0.1),
-    scrollbarThumb: toRgba('#FFFFFF', 0.2),
+    bgChip: toRgba(darkText, 0.1),
+    bgCardHover: toRgba(darkText, 0.05),
+    borderInput: toRgba(darkText, 0.1),
+    borderFocus: accentColor,
+    borderDivider: toRgba(darkText, 0.1),
+    scrollbarThumb: toRgba(darkText, 0.2),
     scrollbarTrack: 'transparent',
 
-    tabTextColor: toRgba('#FFFFFF', 0.6),
-    activeTabTextColor: '#FFFFFF',
-    tabIndicatorColor: '#FFFFFF',
+    tabTextColor: toRgba(darkText, 0.6),
+    activeTabTextColor: accentColor,
+    tabIndicatorColor: accentColor,
     
     iconBackgroundShape: 'circle',
-    iconBackgroundColorOn: '#FFFFFF',
-    iconBackgroundColorOff: toRgba('#000000', 0.2),
-    iconColorOn: s.primary, // Contrast fix
+    iconBackgroundColorOn: accentColor,
+    iconBackgroundColorOff: toRgba(darkText, 0.1),
+    iconColorOn: getContrastText(accentColor),
     
-    nameTextColor: '#FFFFFF',
-    statusTextColor: toRgba('#FFFFFF', 0.7),
-    valueTextColor: '#FFFFFF',
-    unitTextColor: toRgba('#FFFFFF', 0.7),
+    nameTextColor: darkText,
+    statusTextColor: toRgba(darkText, 0.7),
+    valueTextColor: accentColor,
+    unitTextColor: toRgba(darkText, 0.7),
     
-    nameTextColorOn: '#FFFFFF',
-    statusTextColorOn: '#FFFFFF',
-    valueTextColorOn: '#FFFFFF',
-    unitTextColorOn: '#FFFFFF',
+    nameTextColorOn: darkText,
+    statusTextColorOn: accentColor,
+    valueTextColorOn: accentColor,
+    unitTextColorOn: accentColor,
     
-    clockTextColor: '#FFFFFF',
-    weatherPrimaryColor: '#FFFFFF',
-    weatherSecondaryColor: toRgba('#FFFFFF', 0.7),
+    clockTextColor: darkText,
+    weatherPrimaryColor: darkText,
+    weatherSecondaryColor: toRgba(darkText, 0.7),
     
-    thermostatHandleColor: '#FFFFFF',
-    thermostatDialTextColor: '#FFFFFF',
-    thermostatDialLabelColor: toRgba('#FFFFFF', 0.7),
-    thermostatHeatingColor: '#FFFFFF',
-    thermostatCoolingColor: '#FFFFFF',
+    thermostatHandleColor: darkText,
+    thermostatDialTextColor: darkText,
+    thermostatDialLabelColor: toRgba(darkText, 0.7),
+    thermostatHeatingColor: accentColor,
+    thermostatCoolingColor: accentColor,
     
-    accentPrimary: '#FFFFFF',
+    accentPrimary: accentColor,
     accentError: ACCENTS_DARK.error,
     accentSuccess: ACCENTS_DARK.success,
     accentWarning: ACCENTS_DARK.warning,
-    accentInfo: '#FFFFFF',
+    accentInfo: accentColor,
     widgetSwitchOn: ACCENTS_DARK.success
   };
 
   const lightScheme: ColorScheme = {
     dashboardBackgroundType: 'gradient',
-    dashboardBackgroundColor1: lightBg1,
+    dashboardBackgroundColor1: lightBg,
     dashboardBackgroundColor2: lightBg2,
     dashboardGradientAngle: 135,
     
@@ -133,64 +154,62 @@ export function generateThemePreset(s: BaseThemeSettings): ThemeFile {
     cardBorderRadius: radius,
     cardBorderWidth: 0,
     cardBorderColor: 'transparent',
-    cardBorderColorOn: s.primary,
-    cardBackground: '#FFFFFF', // Clean white for light mode
-    cardBackgroundOn: '#FFFFFF',
-    shadowCard: `0 4px 16px ${toRgba(s.primary, 0.15)}`,
+    cardBorderColorOn: accentColor,
+    cardBackground: lightCardBg,
+    cardBackgroundOn: lightCardBg,
+    shadowCard: `0 4px 16px ${toRgba(accentColor, 0.15)}`,
     
     panelOpacity: s.panelOpacity,
-    bgPanel: toRgba('#FFFFFF', 0.6),
-    bgInput: toRgba('#FFFFFF', 0.5),
+    bgPanel: toRgba(lightBg, 0.9),
+    bgInput: toRgba(lightText, 0.05),
     
-    // UI Global
-    bgHeader: '#FFFFFF',
-    headerOpacity: 0.6,
-    
-    bgSidebar: lightBg1,
+    bgHeader: lightBg,
+    headerOpacity: 0.8,
+    bgSidebar: lightBg,
     sidebarOpacity: 1,
     
-    bgChip: toRgba(s.primary, 0.1),
-    bgCardHover: toRgba('#000000', 0.03),
-    borderInput: toRgba('#000000', 0.1),
-    borderFocus: s.primary,
-    borderDivider: toRgba('#000000', 0.06),
-    scrollbarThumb: toRgba('#000000', 0.2),
+    bgChip: toRgba(accentColor, 0.1),
+    bgCardHover: toRgba(lightText, 0.03),
+    borderInput: toRgba(lightText, 0.1),
+    borderFocus: accentColor,
+    borderDivider: toRgba(lightText, 0.06),
+    scrollbarThumb: toRgba(lightText, 0.2),
     scrollbarTrack: 'transparent',
 
-    tabTextColor: '#6B7280',
-    activeTabTextColor: s.primary,
-    tabIndicatorColor: s.primary,
+    tabTextColor: toRgba(lightText, 0.6),
+    activeTabTextColor: accentColor,
+    tabIndicatorColor: accentColor,
     
     iconBackgroundShape: 'circle',
-    iconBackgroundColorOn: s.primary,
-    iconBackgroundColorOff: toRgba('#FFFFFF', 0.5),
-    iconColorOn: '#FFFFFF',
+    iconBackgroundColorOn: accentColor,
+    iconBackgroundColorOff: toRgba(lightText, 0.1),
+    iconColorOn: getContrastText(accentColor),
     
-    nameTextColor: '#374151',
-    statusTextColor: '#6B7280',
-    valueTextColor: s.primary,
-    unitTextColor: '#6B7280',
+    nameTextColor: lightText,
+    statusTextColor: toRgba(lightText, 0.6),
+    valueTextColor: accentColor,
+    unitTextColor: toRgba(lightText, 0.6),
     
-    nameTextColorOn: s.primary,
-    statusTextColorOn: s.primary,
-    valueTextColorOn: s.primary,
-    unitTextColorOn: s.primary,
+    nameTextColorOn: accentColor,
+    statusTextColorOn: accentColor,
+    valueTextColorOn: accentColor,
+    unitTextColorOn: accentColor,
     
-    clockTextColor: s.primary,
-    weatherPrimaryColor: s.primary,
-    weatherSecondaryColor: '#6B7280',
+    clockTextColor: accentColor,
+    weatherPrimaryColor: accentColor,
+    weatherSecondaryColor: toRgba(lightText, 0.6),
     
-    thermostatHandleColor: '#FFFFFF',
-    thermostatDialTextColor: s.primary,
-    thermostatDialLabelColor: '#6B7280',
-    thermostatHeatingColor: s.primary,
-    thermostatCoolingColor: secondary,
+    thermostatHandleColor: lightText,
+    thermostatDialTextColor: accentColor,
+    thermostatDialLabelColor: toRgba(lightText, 0.6),
+    thermostatHeatingColor: accentColor,
+    thermostatCoolingColor: accentColor,
     
-    accentPrimary: s.primary,
+    accentPrimary: accentColor,
     accentError: ACCENTS_LIGHT.error,
     accentSuccess: ACCENTS_LIGHT.success,
     accentWarning: ACCENTS_LIGHT.warning,
-    accentInfo: secondary,
+    accentInfo: accentColor,
     widgetSwitchOn: ACCENTS_LIGHT.success
   };
 
@@ -200,7 +219,7 @@ export function generateThemePreset(s: BaseThemeSettings): ThemeFile {
       name: s.themeName,
       version: '1.0.0',
       author: 'AutoGenerator',
-      description: `Generated ${s.harmony} theme based on ${s.primary}`,
+      description: `Generated (${s.colorRole}) ${s.harmony}`,
       generatedAt: new Date().toISOString()
     },
     theme: {
