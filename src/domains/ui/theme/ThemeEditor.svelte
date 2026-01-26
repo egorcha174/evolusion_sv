@@ -147,10 +147,22 @@
           ], (e) => handleBackgroundTypeChange(e.currentTarget.value))}
 
           {#if currentScheme.dashboardBackgroundType === 'color'}
-             <ColorPicker label="Color" value={currentScheme.dashboardBackgroundColor1} />
+             <ColorPicker 
+               label="Color" 
+               value={currentScheme.dashboardBackgroundColor1} 
+               onChange={(v) => updateField('dashboardBackgroundColor1', v)} 
+             />
           {:else if currentScheme.dashboardBackgroundType === 'gradient'}
-             <ColorPicker label={$t('settings.themeEditor.labels.startColor')} value={currentScheme.dashboardBackgroundColor1} />
-             <ColorPicker label={$t('settings.themeEditor.labels.endColor')} value={currentScheme.dashboardBackgroundColor2} />
+             <ColorPicker 
+               label={$t('settings.themeEditor.labels.startColor')} 
+               value={currentScheme.dashboardBackgroundColor1} 
+               onChange={(v) => updateField('dashboardBackgroundColor1', v)} 
+             />
+             <ColorPicker 
+               label={$t('settings.themeEditor.labels.endColor')} 
+               value={currentScheme.dashboardBackgroundColor2 || currentScheme.dashboardBackgroundColor1} 
+               onChange={(v) => updateField('dashboardBackgroundColor2', v)} 
+             />
              {@render sliderRow('Angle', 'dashboardGradientAngle', 0, 360, 15, '°')}
           {:else}
              <div class="control-row">
@@ -163,22 +175,38 @@
           <div class="divider"></div>
           {@render sectionTitle($t('settings.themeEditor.labels.panelOpacity'))}
           {@render sliderRow('Transparency', 'panelOpacity', 0, 1, 0.05)}
-          {@render sliderRow('Cards Opacity', 'cardOpacity', 0, 1, 0.05)}
         </div>
 
       {:else if activeSection === 'cards'}
         <div class="group" transition:slide|local={{ axis: 'x' }}>
           {@render sectionTitle($t('settings.themeEditor.labels.appearance'))}
+          {@render sliderRow('Cards Opacity', 'cardOpacity', 0, 1, 0.05)}
           {@render sliderRow($t('settings.themeEditor.labels.radius'), 'cardBorderRadius', 0, 32, 1, 'px')}
           
-          <ColorPicker label="Background (Off)" value={currentScheme.cardBackground} />
-          <ColorPicker label="Background (On)" value={currentScheme.cardBackgroundOn} />
+          <ColorPicker 
+            label="Background (Off)" 
+            value={currentScheme.cardBackground} 
+            onChange={(v) => updateField('cardBackground', v)} 
+          />
+          <ColorPicker 
+            label="Background (On)" 
+            value={currentScheme.cardBackgroundOn} 
+            onChange={(v) => updateField('cardBackgroundOn', v)} 
+          />
 
           <div class="divider"></div>
           {@render sectionTitle($t('settings.themeEditor.labels.borders'))}
           {@render sliderRow($t('settings.themeEditor.labels.width'), 'cardBorderWidth', 0, 10, 1, 'px')}
-          <ColorPicker label={$t('settings.themeEditor.labels.color') + ' (Off)'} value={currentScheme.cardBorderColor} />
-          <ColorPicker label={$t('settings.themeEditor.labels.color') + ' (On)'} value={currentScheme.cardBorderColorOn} />
+          <ColorPicker 
+            label={$t('settings.themeEditor.labels.color') + ' (Off)'} 
+            value={currentScheme.cardBorderColor} 
+            onChange={(v) => updateField('cardBorderColor', v)} 
+          />
+          <ColorPicker 
+            label={$t('settings.themeEditor.labels.color') + ' (On)'} 
+            value={currentScheme.cardBorderColorOn} 
+            onChange={(v) => updateField('cardBorderColorOn', v)} 
+          />
 
           <div class="divider"></div>
           {@render sectionTitle('Icons')}
@@ -187,45 +215,53 @@
              {value: 'rounded-square', label: 'Rounded Square'},
              {value: 'square', label: 'Square'}
           ])}
-          <ColorPicker label="Icon Bg (Off)" value={currentScheme.iconBackgroundColorOff} />
-          <ColorPicker label="Icon Bg (On)" value={currentScheme.iconBackgroundColorOn} />
+          <ColorPicker 
+            label="Icon Bg (Off)" 
+            value={currentScheme.iconBackgroundColorOff} 
+            onChange={(v) => updateField('iconBackgroundColorOff', v)} 
+          />
+          <ColorPicker 
+            label="Icon Bg (On)" 
+            value={currentScheme.iconBackgroundColorOn} 
+            onChange={(v) => updateField('iconBackgroundColorOn', v)} 
+          />
         </div>
 
       {:else if activeSection === 'text'}
         <div class="group" transition:slide|local={{ axis: 'x' }}>
           <!-- TEXT (OFF) -->
           {@render sectionTitle('TEXT (OFF)')}
-          <ColorPicker label={$t('settings.themeEditor.labels.deviceName')} value={currentScheme.nameTextColor} />
-          <ColorPicker label={$t('settings.themeEditor.labels.secondaryInfo')} value={currentScheme.statusTextColor} />
-          <ColorPicker label={$t('settings.themeEditor.labels.stateValue')} value={currentScheme.valueTextColor} />
-          <ColorPicker label="Unit" value={currentScheme.unitTextColor} />
+          <ColorPicker label={$t('settings.themeEditor.labels.deviceName')} value={currentScheme.nameTextColor} onChange={(v) => updateField('nameTextColor', v)} />
+          <ColorPicker label={$t('settings.themeEditor.labels.secondaryInfo')} value={currentScheme.statusTextColor} onChange={(v) => updateField('statusTextColor', v)} />
+          <ColorPicker label={$t('settings.themeEditor.labels.stateValue')} value={currentScheme.valueTextColor} onChange={(v) => updateField('valueTextColor', v)} />
+          <ColorPicker label="Unit" value={currentScheme.unitTextColor} onChange={(v) => updateField('unitTextColor', v)} />
 
           <!-- TEXT (ON) -->
           <div class="divider"></div>
           {@render sectionTitle('TEXT (ON)')}
-          <ColorPicker label={$t('settings.themeEditor.labels.deviceName')} value={currentScheme.nameTextColorOn} />
-          <ColorPicker label={$t('settings.themeEditor.labels.secondaryInfo')} value={currentScheme.statusTextColorOn} />
-          <ColorPicker label={$t('settings.themeEditor.labels.stateValue')} value={currentScheme.valueTextColorOn} />
-          <ColorPicker label="Unit" value={currentScheme.unitTextColorOn} />
+          <ColorPicker label={$t('settings.themeEditor.labels.deviceName')} value={currentScheme.nameTextColorOn} onChange={(v) => updateField('nameTextColorOn', v)} />
+          <ColorPicker label={$t('settings.themeEditor.labels.secondaryInfo')} value={currentScheme.statusTextColorOn} onChange={(v) => updateField('statusTextColorOn', v)} />
+          <ColorPicker label={$t('settings.themeEditor.labels.stateValue')} value={currentScheme.valueTextColorOn} onChange={(v) => updateField('valueTextColorOn', v)} />
+          <ColorPicker label="Unit" value={currentScheme.unitTextColorOn} onChange={(v) => updateField('unitTextColorOn', v)} />
 
           <!-- UI Elements -->
           <div class="divider"></div>
           {@render sectionTitle('UI Elements')}
-          <ColorPicker label="Tab Text" value={currentScheme.tabTextColor} />
-          <ColorPicker label="Active Tab" value={currentScheme.activeTabTextColor} />
-          <ColorPicker label="Tab Indicator" value={currentScheme.tabIndicatorColor} />
-          <ColorPicker label="Clock Color" value={currentScheme.clockTextColor} />
+          <ColorPicker label="Tab Text" value={currentScheme.tabTextColor} onChange={(v) => updateField('tabTextColor', v)} />
+          <ColorPicker label="Active Tab" value={currentScheme.activeTabTextColor} onChange={(v) => updateField('activeTabTextColor', v)} />
+          <ColorPicker label="Tab Indicator" value={currentScheme.tabIndicatorColor} onChange={(v) => updateField('tabIndicatorColor', v)} />
+          <ColorPicker label="Clock Color" value={currentScheme.clockTextColor} onChange={(v) => updateField('clockTextColor', v)} />
         </div>
 
       {:else if activeSection === 'widgets'}
         <div class="group" transition:slide|local={{ axis: 'x' }}>
           <!-- Thermostat -->
           {@render sectionTitle('Thermostat')}
-          <ColorPicker label="Knob" value={currentScheme.thermostatHandleColor} />
-          <ColorPicker label="Target Text" value={currentScheme.thermostatDialTextColor} />
-          <ColorPicker label="Label" value={currentScheme.thermostatDialLabelColor} />
-          <ColorPicker label="Heating" value={currentScheme.thermostatHeatingColor} />
-          <ColorPicker label="Cooling" value={currentScheme.thermostatCoolingColor} />
+          <ColorPicker label="Knob" value={currentScheme.thermostatHandleColor} onChange={(v) => updateField('thermostatHandleColor', v)} />
+          <ColorPicker label="Target Text" value={currentScheme.thermostatDialTextColor} onChange={(v) => updateField('thermostatDialTextColor', v)} />
+          <ColorPicker label="Label" value={currentScheme.thermostatDialLabelColor} onChange={(v) => updateField('thermostatDialLabelColor', v)} />
+          <ColorPicker label="Heating" value={currentScheme.thermostatHeatingColor} onChange={(v) => updateField('thermostatHeatingColor', v)} />
+          <ColorPicker label="Cooling" value={currentScheme.thermostatCoolingColor} onChange={(v) => updateField('thermostatCoolingColor', v)} />
 
           <!-- Weather Widget -->
           <div class="divider"></div>

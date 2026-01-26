@@ -1,16 +1,21 @@
 
 <script lang="ts">
-  import { fade } from 'svelte/transition';
-  
-  let { value = $bindable(), label } = $props<{ 
+  let { value = $bindable(), label, onChange } = $props<{ 
     value: string, 
-    label?: string 
+    label?: string,
+    onChange?: (val: string) => void
   }>();
 
   let inputRef: HTMLInputElement;
 
   function trigger() {
     inputRef?.click();
+  }
+
+  function handleInput(e: Event) {
+    const newVal = (e.target as HTMLInputElement).value;
+    value = newVal;
+    if (onChange) onChange(newVal);
   }
 </script>
 
@@ -20,7 +25,7 @@
   {/if}
   
   <div class="right-side">
-    <span class="hex">{value.toUpperCase()}</span>
+    <span class="hex">{value?.toUpperCase() || '#000000'}</span>
     <!-- svelte-ignore a11y_click_events_have_key_events -->
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div class="swatch-wrapper" onclick={trigger}>
@@ -28,7 +33,8 @@
       <input 
         bind:this={inputRef}
         type="color" 
-        bind:value 
+        value={value} 
+        oninput={handleInput}
         class="hidden-input"
       />
     </div>
