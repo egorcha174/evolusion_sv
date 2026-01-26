@@ -1,9 +1,10 @@
+
 {
   "schemaVersion": 1,
   "manifest": {
     "id": "light-modern",
     "name": "Light Modern",
-    "version": "1.2.0",
+    "version": "1.2.1",
     "author": "Evolusion",
     "description": "Soft shadows and rounded corners with a singular Royal Blue accent.",
     "isCustom": false
@@ -11,7 +12,9 @@
   "light": {
     "dashboardBackgroundType": "color",
     "dashboardBackgroundColor1": "#F0F2F5",
-    "bgPage": "#F0F2F5",
+    
+    "bgSidebar": "#F0F2F5",
+    "sidebarOpacity": 1,
     
     "cardOpacity": 1,
     "cardBorderRadius": 12,
@@ -27,7 +30,16 @@
     "bgPanel": "#FFFFFF",
     
     "bgInput": "#F0F2F5",
+    "borderInput": "#dcdcdc",
+    "borderFocus": "#1877F2",
+    "borderDivider": "rgba(0,0,0,0.06)",
+    "scrollbarThumb": "#ccc",
+    "scrollbarTrack": "transparent",
+    
     "bgHeader": "#FFFFFF",
+    "headerOpacity": 0.9,
+    "bgChip": "#e4e6eb",
+    "bgCardHover": "rgba(0,0,0,0.03)",
 
     "textPrimary": "#050505",
     "textSecondary": "#65676B",
@@ -40,6 +52,7 @@
     "iconBackgroundShape": "circle",
     "iconBackgroundColorOn": "#1877F2",
     "iconBackgroundColorOff": "#F0F2F5",
+    "iconColorOn": "#FFFFFF",
     
     "nameTextColor": "#050505",
     "statusTextColor": "#65676B",
@@ -71,7 +84,9 @@
   "dark": {
     "dashboardBackgroundType": "color",
     "dashboardBackgroundColor1": "#18191A",
-    "bgPage": "#18191A",
+    
+    "bgSidebar": "#18191A",
+    "sidebarOpacity": 1,
     
     "cardOpacity": 1,
     "cardBorderRadius": 12,
@@ -87,7 +102,16 @@
     "bgPanel": "#242526",
     
     "bgInput": "#3A3B3C",
+    "borderInput": "#3e4042",
+    "borderFocus": "#2D88FF",
+    "borderDivider": "rgba(255,255,255,0.1)",
+    "scrollbarThumb": "#48484a",
+    "scrollbarTrack": "transparent",
+    
     "bgHeader": "#242526",
+    "headerOpacity": 0.9,
+    "bgChip": "#3a3b3c",
+    "bgCardHover": "rgba(255,255,255,0.05)",
 
     "textPrimary": "#E4E6EB",
     "textSecondary": "#B0B3B8",
@@ -100,6 +124,7 @@
     "iconBackgroundShape": "circle",
     "iconBackgroundColorOn": "#2D88FF",
     "iconBackgroundColorOff": "#3A3B3C",
+    "iconColorOn": "#FFFFFF",
     
     "nameTextColor": "#E4E6EB",
     "statusTextColor": "#B0B3B8",

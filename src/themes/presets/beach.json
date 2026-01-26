@@ -1,8 +1,9 @@
+
 {
   "schemaVersion": 1,
   "manifest": {
     "name": "Beach",
-    "version": "1.2.0",
+    "version": "1.2.1",
     "author": "Evolusion",
     "description": "Relaxing sandy tones with a strict Aqua accent.",
     "generatedAt": "2023-01-01T00:00:00.000Z"
@@ -17,6 +18,10 @@
         "dashboardBackgroundColor1": "#FFFDF5",
         "dashboardBackgroundColor2": "#E0F7FA",
         "dashboardGradientAngle": 180,
+        
+        "bgSidebar": "#FFFDF5",
+        "sidebarOpacity": 0.8,
+        
         "cardOpacity": 0.9,
         "cardBorderRadius": 20,
         "cardBorderWidth": 0,
@@ -25,16 +30,30 @@
         "cardBackground": "#FFFFFF",
         "cardBackgroundOn": "#E0F7FA",
         "shadowCard": "0 2px 10px rgba(0,0,0,0.05)",
+        
         "panelOpacity": 0.8,
         "bgPanel": "rgba(255, 255, 255, 0.8)",
+        
         "bgInput": "#FFFFFF",
-        "bgHeader": "rgba(255, 255, 255, 0.8)",
+        "borderInput": "#b2ebf2",
+        "borderFocus": "#00bcd4",
+        "borderDivider": "rgba(0,0,0,0.06)",
+        "scrollbarThumb": "#80deea",
+        "scrollbarTrack": "transparent",
+        
+        "bgHeader": "#FFFFFF",
+        "headerOpacity": 0.8,
+        "bgChip": "#e0f7fa",
+        "bgCardHover": "rgba(0,0,0,0.03)",
+        
         "tabTextColor": "#8D6E63",
         "activeTabTextColor": "#00838F",
         "tabIndicatorColor": "#00BCD4",
         "iconBackgroundShape": "rounded-square",
         "iconBackgroundColorOn": "#00BCD4",
         "iconBackgroundColorOff": "rgba(0, 188, 212, 0.1)",
+        "iconColorOn": "#FFFFFF",
+        
         "nameTextColor": "#4E342E",
         "statusTextColor": "#8D6E63",
         "valueTextColor": "#00838F",
@@ -64,6 +83,10 @@
         "dashboardBackgroundColor1": "#1A237E",
         "dashboardBackgroundColor2": "#0D47A1",
         "dashboardGradientAngle": 180,
+        
+        "bgSidebar": "#1A237E",
+        "sidebarOpacity": 0.8,
+        
         "cardOpacity": 0.8,
         "cardBorderRadius": 20,
         "cardBorderWidth": 0,
@@ -72,16 +95,30 @@
         "cardBackground": "rgba(255, 255, 255, 0.1)",
         "cardBackgroundOn": "rgba(77, 208, 225, 0.2)",
         "shadowCard": "0 4px 12px rgba(0,0,0,0.3)",
+        
         "panelOpacity": 0.6,
         "bgPanel": "rgba(13, 71, 161, 0.6)",
+        
         "bgInput": "rgba(255, 255, 255, 0.1)",
-        "bgHeader": "rgba(13, 71, 161, 0.6)",
+        "borderInput": "#0d47a1",
+        "borderFocus": "#4dd0e1",
+        "borderDivider": "rgba(255,255,255,0.1)",
+        "scrollbarThumb": "#1976d2",
+        "scrollbarTrack": "transparent",
+        
+        "bgHeader": "#0D47A1",
+        "headerOpacity": 0.6,
+        "bgChip": "rgba(255,255,255,0.15)",
+        "bgCardHover": "rgba(255,255,255,0.05)",
+        
         "tabTextColor": "#B39DDB",
         "activeTabTextColor": "#E0F7FA",
         "tabIndicatorColor": "#4DD0E1",
         "iconBackgroundShape": "rounded-square",
         "iconBackgroundColorOn": "#4DD0E1",
         "iconBackgroundColorOff": "rgba(255, 255, 255, 0.1)",
+        "iconColorOn": "#FFFFFF",
+        
         "nameTextColor": "#E0F7FA",
         "statusTextColor": "#B39DDB",
         "valueTextColor": "#80DEEA",

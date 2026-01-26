@@ -1,8 +1,9 @@
+
 {
   "schemaVersion": 1,
   "manifest": {
     "name": "Default",
-    "version": "2.3.0",
+    "version": "2.3.1",
     "author": "Evolusion",
     "description": "Clean, neutral style with a single System Blue accent.",
     "generatedAt": "2023-01-01T00:00:00.000Z"
@@ -18,9 +19,15 @@
         "dashboardGradientAngle": 135,
         
         "bgSidebar": "#F2F2F7",
+        "sidebarOpacity": 1,
+        
         "bgChip": "#E5E5EA",
         "bgCardHover": "rgba(0,0,0,0.05)",
         "bgDropdown": "#FFFFFF",
+        "bgInput": "#FFFFFF",
+        
+        "bgHeader": "#FFFFFF",
+        "headerOpacity": 0.8,
         
         "borderInput": "#D1D1D6",
         "borderFocus": "#007AFF",
@@ -86,9 +93,15 @@
         "dashboardGradientAngle": 135,
         
         "bgSidebar": "#000000",
+        "sidebarOpacity": 1,
+        
         "bgChip": "#2C2C2E",
         "bgCardHover": "rgba(255,255,255,0.1)",
         "bgDropdown": "#1C1C1E",
+        "bgInput": "#1C1C1E",
+        
+        "bgHeader": "#1C1C1E",
+        "headerOpacity": 0.8,
         
         "borderInput": "#3A3A3C",
         "borderFocus": "#0A84FF",

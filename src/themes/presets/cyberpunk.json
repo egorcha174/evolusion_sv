@@ -1,8 +1,9 @@
+
 {
   "schemaVersion": 1,
   "manifest": {
     "name": "Cyberpunk",
-    "version": "2.2.0",
+    "version": "2.2.1",
     "author": "Evolusion",
     "description": "High contrast yellow and black. Strict monochrome + accent.",
     "generatedAt": "2023-01-01T00:00:00.000Z"
@@ -15,6 +16,10 @@
       "dark": {
         "dashboardBackgroundType": "color",
         "dashboardBackgroundColor1": "#050505",
+        
+        "bgSidebar": "#000000",
+        "sidebarOpacity": 1,
+        
         "cardOpacity": 1,
         "cardBorderRadius": 0,
         "cardBorderWidth": 1,
@@ -23,16 +28,30 @@
         "cardBackground": "#0A0A0A",
         "cardBackgroundOn": "#0A0A0A",
         "shadowCard": "0 0 0 1px rgba(252, 238, 10, 0.1)",
+        
         "panelOpacity": 1,
         "bgPanel": "#000000",
+        
         "bgInput": "#1a1a1a",
+        "borderInput": "#333",
+        "borderFocus": "#fcee0a",
+        "borderDivider": "#333",
+        "scrollbarThumb": "#333",
+        "scrollbarTrack": "transparent",
+        
         "bgHeader": "#000000",
+        "headerOpacity": 1,
+        "bgChip": "#1a1a1a",
+        "bgCardHover": "rgba(252, 238, 10, 0.05)",
+        
         "tabTextColor": "#666666",
         "activeTabTextColor": "#FCEE0A",
         "tabIndicatorColor": "#FCEE0A",
         "iconBackgroundShape": "square",
         "iconBackgroundColorOn": "#FCEE0A",
         "iconBackgroundColorOff": "#1a1a1a",
+        "iconColorOn": "#000000",
+        
         "nameTextColor": "#FCEE0A",
         "statusTextColor": "#AAAAAA",
         "valueTextColor": "#FCEE0A",
@@ -60,6 +79,10 @@
       "light": {
         "dashboardBackgroundType": "color",
         "dashboardBackgroundColor1": "#FFFFFF",
+        
+        "bgSidebar": "#FFFFFF",
+        "sidebarOpacity": 1,
+        
         "cardOpacity": 1,
         "cardBorderRadius": 0,
         "cardBorderWidth": 1,
@@ -68,16 +91,30 @@
         "cardBackground": "#FFFFFF",
         "cardBackgroundOn": "#FFFFFF",
         "shadowCard": "none",
+        
         "panelOpacity": 1,
         "bgPanel": "#FFFFFF",
+        
         "bgInput": "#F2F2F2",
+        "borderInput": "#ddd",
+        "borderFocus": "#000",
+        "borderDivider": "#ddd",
+        "scrollbarThumb": "#999",
+        "scrollbarTrack": "transparent",
+        
         "bgHeader": "#FFFFFF",
+        "headerOpacity": 1,
+        "bgChip": "#f2f2f2",
+        "bgCardHover": "rgba(0,0,0,0.03)",
+        
         "tabTextColor": "#000000",
         "activeTabTextColor": "#000000",
         "tabIndicatorColor": "#FCEE0A",
         "iconBackgroundShape": "square",
         "iconBackgroundColorOn": "#FCEE0A",
         "iconBackgroundColorOff": "#DDDDDD",
+        "iconColorOn": "#000000",
+        
         "nameTextColor": "#000000",
         "statusTextColor": "#333333",
         "valueTextColor": "#000000",

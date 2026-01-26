@@ -52,9 +52,6 @@ export function generateThemePreset(s: BaseThemeSettings): ThemeFile {
   const lightCardBg = '#FFFFFF';
   const lightCardBgOn = adjustHsl(s.primary, 0, 10, 98);
 
-  // Common styles to replicate Fusion glassmorphism
-  // We use toRgba to ensure compliance with strict constraints
-  
   const darkScheme: ColorScheme = {
     dashboardBackgroundType: 'gradient',
     dashboardBackgroundColor1: darkBg1,
@@ -66,35 +63,21 @@ export function generateThemePreset(s: BaseThemeSettings): ThemeFile {
     cardBorderWidth: 1,
     cardBorderColor: toRgba('#FFFFFF', 0.1),
     cardBorderColorOn: toRgba('#FFFFFF', 0.5),
-    cardBackground: toRgba(darkCardBg, 0.4), // Base RGB from calc, fixed alpha override by variable? No, prompt says clamp opacity.
-    // Fusion uses fixed RGBA strings for backgrounds. We construct them dynamically.
-    // Wait, BaseThemeSettings has `cardOpacity`. We should use that for the base opacity variable?
-    // In `types.ts` ColorScheme has `cardOpacity` number. 
-    // Fusion.json uses `rgba(...)` for `cardBackground`.
-    // We will use the passed RGB color and apply a base alpha, relying on `cardOpacity` to scale it in CSS if used, 
-    // OR we bake it in. The `ThemeStore` / `utils` applies `cardOpacity` variable.
-    // Fusion sets `cardOpacity: 0.4` and `cardBackground: rgba(40,40,60, 0.4)`. 
-    // This effectively double dips if not careful, but `generateCSSVariables` handles it.
-    // We will produce opaque Hex/RGB for the colors here and let the `cardOpacity` key handle the alpha in the runtime utility 
-    // UNLESS the utility expects RGBA strings. 
-    // Inspecting `src/themes/utils.ts`: `hexToRgba(value, opacity)`.
-    // It takes the color value and the opacity value. 
-    // So we should provide HEX for background colors to allow the utility to compose RGBA properly.
-    // BUT constraint says "Strings rgba(...) must remain rgba(...)".
-    // Let's provide HEX and let the system work, OR provide RGBA with 1.0 alpha and let opacity scale it.
-    // To match Fusion exactly, Fusion provides RGBA.
-    // I will generate HEX for colors, as `utils.ts` handles the conversion using `cardOpacity`.
-    
+    cardBackground: toRgba(darkCardBg, 0.4), 
     cardBackgroundOn: toRgba(darkCardBgOn, 0.6),
     shadowCard: '0 8px 32px rgba(0, 0, 0, 0.2)',
     
     panelOpacity: s.panelOpacity,
     bgPanel: toRgba('#000000', 0.3),
     bgInput: toRgba('#FFFFFF', 0.1),
-    bgHeader: toRgba('#000000', 0.2),
     
-    // UI Global
+    // UI Global - Separated Opacity for Controls
+    bgHeader: '#000000',
+    headerOpacity: 0.2,
+    
     bgSidebar: darkBg1,
+    sidebarOpacity: 1,
+
     bgChip: toRgba('#FFFFFF', 0.1),
     bgCardHover: toRgba('#FFFFFF', 0.05),
     borderInput: toRgba('#FFFFFF', 0.1),
@@ -158,10 +141,14 @@ export function generateThemePreset(s: BaseThemeSettings): ThemeFile {
     panelOpacity: s.panelOpacity,
     bgPanel: toRgba('#FFFFFF', 0.6),
     bgInput: toRgba('#FFFFFF', 0.5),
-    bgHeader: toRgba('#FFFFFF', 0.6),
     
     // UI Global
+    bgHeader: '#FFFFFF',
+    headerOpacity: 0.6,
+    
     bgSidebar: lightBg1,
+    sidebarOpacity: 1,
+    
     bgChip: toRgba(s.primary, 0.1),
     bgCardHover: toRgba('#000000', 0.03),
     borderInput: toRgba('#000000', 0.1),

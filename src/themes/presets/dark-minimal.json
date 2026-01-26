@@ -1,9 +1,10 @@
+
 {
   "schemaVersion": 1,
   "manifest": {
     "id": "dark-minimal",
     "name": "Dark Minimal",
-    "version": "1.2.0",
+    "version": "1.2.1",
     "author": "Evolusion",
     "description": "Monochrome high contrast with semantic states.",
     "isCustom": false
@@ -11,7 +12,9 @@
   "light": {
     "dashboardBackgroundType": "color",
     "dashboardBackgroundColor1": "#FFFFFF",
-    "bgPage": "#FFFFFF",
+    
+    "bgSidebar": "#FFFFFF",
+    "sidebarOpacity": 1,
     
     "cardOpacity": 1,
     "cardBorderRadius": 4,
@@ -27,7 +30,16 @@
     "bgPanel": "#FFFFFF",
     
     "bgInput": "#FFFFFF",
+    "borderInput": "#333",
+    "borderFocus": "#000",
+    "borderDivider": "#eee",
+    "scrollbarThumb": "#333",
+    "scrollbarTrack": "transparent",
+    
     "bgHeader": "#FFFFFF",
+    "headerOpacity": 1,
+    "bgChip": "#eee",
+    "bgCardHover": "rgba(0,0,0,0.03)",
 
     "textPrimary": "#000000",
     "textSecondary": "#333333",
@@ -40,6 +52,7 @@
     "iconBackgroundShape": "square",
     "iconBackgroundColorOn": "#FFFFFF",
     "iconBackgroundColorOff": "#EEEEEE",
+    "iconColorOn": "#000000",
     
     "nameTextColor": "#000000",
     "statusTextColor": "#666666",
@@ -71,7 +84,9 @@
   "dark": {
     "dashboardBackgroundType": "color",
     "dashboardBackgroundColor1": "#000000",
-    "bgPage": "#000000",
+    
+    "bgSidebar": "#000000",
+    "sidebarOpacity": 1,
     
     "cardOpacity": 1,
     "cardBorderRadius": 4,
@@ -87,7 +102,16 @@
     "bgPanel": "#000000",
     
     "bgInput": "#111111",
+    "borderInput": "#333",
+    "borderFocus": "#fff",
+    "borderDivider": "#222",
+    "scrollbarThumb": "#333",
+    "scrollbarTrack": "transparent",
+    
     "bgHeader": "#000000",
+    "headerOpacity": 1,
+    "bgChip": "#222",
+    "bgCardHover": "rgba(255,255,255,0.05)",
 
     "textPrimary": "#FFFFFF",
     "textSecondary": "#CCCCCC",
@@ -100,6 +124,7 @@
     "iconBackgroundShape": "square",
     "iconBackgroundColorOn": "#000000",
     "iconBackgroundColorOff": "#222222",
+    "iconColorOn": "#FFFFFF",
     
     "nameTextColor": "#FFFFFF",
     "statusTextColor": "#999999",

@@ -1,8 +1,9 @@
+
 {
   "schemaVersion": 1,
   "manifest": {
     "name": "Deep Space",
-    "version": "1.2.0",
+    "version": "1.2.1",
     "author": "Evolusion",
     "description": "Futuristic HUD style. Dark blue with single Cyan accent.",
     "generatedAt": "2023-01-01T00:00:00.000Z"
@@ -17,6 +18,10 @@
         "dashboardBackgroundColor1": "#020408",
         "dashboardBackgroundColor2": "#0A101F",
         "dashboardGradientAngle": 160,
+        
+        "bgSidebar": "#020408",
+        "sidebarOpacity": 0.8,
+        
         "cardOpacity": 0.7,
         "cardBorderRadius": 4,
         "cardBorderWidth": 1,
@@ -25,16 +30,29 @@
         "cardBackground": "rgba(11, 17, 32, 0.8)",
         "cardBackgroundOn": "rgba(11, 17, 32, 0.9)",
         "shadowCard": "0 0 15px rgba(0, 242, 255, 0.05)",
+        
         "panelOpacity": 0.8,
         "bgPanel": "rgba(11, 17, 32, 0.9)",
+        
         "bgInput": "rgba(11, 17, 32, 0.8)",
-        "bgHeader": "rgba(11, 17, 32, 0.8)",
+        "borderInput": "rgba(56, 189, 248, 0.2)",
+        "borderFocus": "#00F2FF",
+        "borderDivider": "rgba(56, 189, 248, 0.1)",
+        "scrollbarThumb": "rgba(56, 189, 248, 0.3)",
+        "scrollbarTrack": "transparent",
+        
+        "bgHeader": "#0B1120",
+        "headerOpacity": 0.8,
+        "bgChip": "rgba(11, 17, 32, 0.8)",
+        "bgCardHover": "rgba(56, 189, 248, 0.05)",
+        
         "tabTextColor": "#64748B",
         "activeTabTextColor": "#38BDF8",
         "tabIndicatorColor": "#38BDF8",
         "iconBackgroundShape": "square",
         "iconBackgroundColorOn": "#00F2FF",
         "iconBackgroundColorOff": "rgba(56, 189, 248, 0.1)",
+        "iconColorOn": "#000000",
         "nameTextColor": "#E2E8F0",
         "statusTextColor": "#94A3B8",
         "valueTextColor": "#38BDF8",
@@ -61,6 +79,10 @@
       "light": {
         "dashboardBackgroundType": "color",
         "dashboardBackgroundColor1": "#F0F9FF",
+        
+        "bgSidebar": "#F0F9FF",
+        "sidebarOpacity": 0.9,
+        
         "cardOpacity": 0.9,
         "cardBorderRadius": 4,
         "cardBorderWidth": 1,
@@ -69,16 +91,29 @@
         "cardBackground": "#FFFFFF",
         "cardBackgroundOn": "#E0F2FE",
         "shadowCard": "0 2px 4px rgba(0,0,0,0.05)",
+        
         "panelOpacity": 0.9,
         "bgPanel": "#FFFFFF",
+        
         "bgInput": "#F0F9FF",
+        "borderInput": "#BAE6FD",
+        "borderFocus": "#0284C7",
+        "borderDivider": "#BAE6FD",
+        "scrollbarThumb": "#7dd3fc",
+        "scrollbarTrack": "transparent",
+        
         "bgHeader": "#FFFFFF",
+        "headerOpacity": 0.9,
+        "bgChip": "#E0F2FE",
+        "bgCardHover": "rgba(2, 132, 199, 0.05)",
+        
         "tabTextColor": "#64748B",
         "activeTabTextColor": "#0284C7",
         "tabIndicatorColor": "#0284C7",
         "iconBackgroundShape": "square",
         "iconBackgroundColorOn": "#0284C7",
         "iconBackgroundColorOff": "rgba(2, 132, 199, 0.05)",
+        "iconColorOn": "#FFFFFF",
         "nameTextColor": "#0F172A",
         "statusTextColor": "#64748B",
         "valueTextColor": "#0284C7",

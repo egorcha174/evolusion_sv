@@ -1,9 +1,10 @@
+
 {
   "schemaVersion": 1,
   "manifest": {
     "id": "sunset-warm",
     "name": "Sunset Warm",
-    "version": "1.2.0",
+    "version": "1.2.1",
     "author": "Evolusion",
     "description": "Monochromatic warm tones. Orange accent on cream background.",
     "isCustom": false
@@ -13,7 +14,9 @@
     "dashboardBackgroundColor1": "#FFF3E0",
     "dashboardBackgroundColor2": "#FFE0B2",
     "dashboardGradientAngle": 45,
-    "bgPage": "#FFF3E0",
+    
+    "bgSidebar": "#FFF3E0",
+    "sidebarOpacity": 0.8,
     
     "cardOpacity": 0.9,
     "cardBorderRadius": 20,
@@ -29,7 +32,16 @@
     "bgPanel": "rgba(255, 255, 255, 0.9)",
     
     "bgInput": "#FFFFFF",
-    "bgHeader": "rgba(255, 255, 255, 0.8)",
+    "borderInput": "#ffe0b2",
+    "borderFocus": "#ff6d00",
+    "borderDivider": "rgba(0,0,0,0.06)",
+    "scrollbarThumb": "#ffcc80",
+    "scrollbarTrack": "transparent",
+    
+    "bgHeader": "#FFFFFF",
+    "headerOpacity": 0.8,
+    "bgChip": "#fff8e1",
+    "bgCardHover": "rgba(0,0,0,0.03)",
 
     "textPrimary": "#3E2723",
     "textSecondary": "#8D6E63",
@@ -42,6 +54,7 @@
     "iconBackgroundShape": "circle",
     "iconBackgroundColorOn": "#FF6D00",
     "iconBackgroundColorOff": "rgba(255, 109, 0, 0.1)",
+    "iconColorOn": "#FFFFFF",
     
     "nameTextColor": "#3E2723",
     "statusTextColor": "#8D6E63",
@@ -75,7 +88,9 @@
     "dashboardBackgroundColor1": "#212121",
     "dashboardBackgroundColor2": "#3E2723",
     "dashboardGradientAngle": 45,
-    "bgPage": "#212121",
+    
+    "bgSidebar": "#212121",
+    "sidebarOpacity": 0.8,
     
     "cardOpacity": 0.85,
     "cardBorderRadius": 20,
@@ -91,7 +106,16 @@
     "bgPanel": "rgba(62, 39, 35, 0.8)",
     
     "bgInput": "#212121",
-    "bgHeader": "rgba(62, 39, 35, 0.8)",
+    "borderInput": "#3e2723",
+    "borderFocus": "#ffab40",
+    "borderDivider": "rgba(255,255,255,0.1)",
+    "scrollbarThumb": "#4e342e",
+    "scrollbarTrack": "transparent",
+    
+    "bgHeader": "#3E2723",
+    "headerOpacity": 0.8,
+    "bgChip": "#424242",
+    "bgCardHover": "rgba(255,255,255,0.05)",
 
     "textPrimary": "#FFF3E0",
     "textSecondary": "#BCAAA4",
@@ -104,6 +128,7 @@
     "iconBackgroundShape": "circle",
     "iconBackgroundColorOn": "#FFAB40",
     "iconBackgroundColorOff": "rgba(255, 171, 64, 0.1)",
+    "iconColorOn": "#FFFFFF",
     
     "nameTextColor": "#FFF3E0",
     "statusTextColor": "#BCAAA4",
