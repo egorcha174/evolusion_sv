@@ -122,7 +122,7 @@
         <!-- Pinned Actions -->
         <div class="actions">
           <input type="file" hidden id="import-file" accept=".json" onchange={handleImport} />
-          <div class="row">
+          <div class="row-grid">
              <button class="btn secondary" onclick={() => document.getElementById('import-file')?.click()}>
                <iconify-icon icon="mdi:upload"></iconify-icon> {$t('themeGenerator.btnImport')}
              </button>
@@ -149,7 +149,7 @@
 
       <!-- Preview -->
       <div class="preview-pane">
-        <!-- Floating Segmented Control -->
+        <!-- Toolbar moved out of canvas for guaranteed contrast -->
         <div class="preview-toolbar">
            <div class="segmented-control">
               <button 
@@ -157,6 +157,7 @@
                 class:active={previewMode === 'light'} 
                 onclick={() => previewMode = 'light'}
               >
+                <iconify-icon icon="mdi:white-balance-sunny" width="16"></iconify-icon>
                 {$t('themeGenerator.previewLight')}
               </button>
               <button 
@@ -164,32 +165,56 @@
                 class:active={previewMode === 'dark'} 
                 onclick={() => previewMode = 'dark'}
               >
+                <iconify-icon icon="mdi:weather-night" width="16"></iconify-icon>
                 {$t('themeGenerator.previewDark')}
               </button>
            </div>
         </div>
 
-        <!-- Live Preview Canvas applied via inline styles -->
+        <!-- Live Preview Canvas -->
         <div 
           class="preview-canvas" 
           style:background={previewScheme.dashboardBackgroundType === 'gradient' 
              ? `linear-gradient(${previewScheme.dashboardGradientAngle}deg, ${previewScheme.dashboardBackgroundColor1}, ${previewScheme.dashboardBackgroundColor2})`
              : previewScheme.dashboardBackgroundColor1}
         >
-           <div class="preview-card" style:background-color={previewScheme.cardBackground} style:border-radius="{previewScheme.cardBorderRadius}px" style:border="1px solid {previewScheme.cardBorderColor}">
-              <div class="p-header" style:color={previewScheme.nameTextColor}>
-                 <iconify-icon icon="mdi:home" style:color={previewScheme.iconBackgroundColorOn}></iconify-icon>
-                 <span>Living Room</span>
+           <!-- Card 1: Idle -->
+           <div 
+             class="preview-card" 
+             style:background-color={previewScheme.cardBackground} 
+             style:border-radius="{previewScheme.cardBorderRadius}px" 
+             style:border="{previewScheme.cardBorderWidth}px solid {previewScheme.cardBorderColor}"
+             style:box-shadow={previewScheme.shadowCard}
+           >
+              <div class="p-header">
+                 <div class="p-icon" style:color={previewScheme.statusTextColor} style:background-color={previewScheme.iconBackgroundColorOff}>
+                    <iconify-icon icon="mdi:sofa" width="24"></iconify-icon>
+                 </div>
+                 <div class="p-name" style:color={previewScheme.nameTextColor}>Living Room</div>
               </div>
-              <div class="p-state" style:color={previewScheme.valueTextColor}>On</div>
+              <div class="p-body">
+                 <div class="p-state" style:color={previewScheme.valueTextColor}>Off</div>
+              </div>
            </div>
 
-           <div class="preview-card active" style:background-color={previewScheme.cardBackgroundOn} style:border-radius="{previewScheme.cardBorderRadius}px" style:border="1px solid {previewScheme.cardBorderColorOn}">
-              <div class="p-header" style:color={previewScheme.nameTextColorOn}>
-                 <iconify-icon icon="mdi:lightbulb" style:color={previewScheme.iconColorOn}></iconify-icon>
-                 <span>Ceiling Light</span>
+           <!-- Card 2: Active -->
+           <div 
+             class="preview-card active" 
+             style:background-color={previewScheme.cardBackgroundOn} 
+             style:border-radius="{previewScheme.cardBorderRadius}px" 
+             style:border="{previewScheme.cardBorderWidth}px solid {previewScheme.cardBorderColorOn}"
+             style:box-shadow={previewScheme.shadowCard}
+           >
+              <div class="p-header">
+                 <div class="p-icon active" style:color={previewScheme.iconColorOn} style:background-color={previewScheme.iconBackgroundColorOn}>
+                    <iconify-icon icon="mdi:lightbulb" width="24"></iconify-icon>
+                 </div>
+                 <div class="p-name" style:color={previewScheme.nameTextColorOn}>Ceiling Light</div>
               </div>
-              <div class="p-state" style:color={previewScheme.valueTextColorOn}>100%</div>
+              <div class="p-body">
+                 <div class="p-state" style:color={previewScheme.valueTextColorOn}>100%</div>
+                 <div class="p-sub" style:color={previewScheme.unitTextColorOn}>Brightness</div>
+              </div>
            </div>
         </div>
       </div>
@@ -214,13 +239,14 @@
     flex-shrink: 0;
   }
   .gen-header h2 { margin: 0; font-size: 1.25rem; color: var(--text-primary); }
-  .close-btn { background: transparent; border: none; cursor: pointer; color: var(--text-secondary); display: flex; }
+  .close-btn { background: transparent; border: none; cursor: pointer; color: var(--text-secondary); display: flex; padding: 4px; border-radius: 50%; }
+  .close-btn:hover { background: var(--bg-card-hover); color: var(--text-primary); }
   
   .gen-body { flex: 1; display: flex; overflow: hidden; }
   
-  /* Sidebar Layout fixed */
+  /* Sidebar Layout */
   .controls-pane { 
-    width: 320px; 
+    width: 340px; 
     background: var(--bg-secondary); 
     display: flex; 
     flex-direction: column; 
@@ -237,96 +263,122 @@
     gap: 2rem;
   }
 
-  .section h3 { margin: 0 0 1rem 0; font-size: 0.9rem; text-transform: uppercase; color: var(--text-secondary); }
+  .section h3 { margin: 0 0 1rem 0; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; color: var(--text-secondary); letter-spacing: 0.5px; }
   
   .control-group { margin-bottom: 1rem; display: flex; flex-direction: column; gap: 0.5rem; }
   .control-group label { font-size: 0.9rem; font-weight: 500; color: var(--text-primary); }
-  select { width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid var(--border-input); background: var(--bg-input); color: var(--text-primary); }
+  select { width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid var(--border-input); background: var(--bg-input); color: var(--text-primary); cursor: pointer; }
   
   .actions { 
     padding: 1.5rem;
-    background: var(--bg-panel); /* Contrast against secondary */
+    background: var(--bg-panel);
     border-top: 1px solid var(--border-divider);
-    display: flex; flex-direction: column; gap: 0.75rem; 
+    display: flex; flex-direction: column; gap: 1rem; 
     flex-shrink: 0;
   }
-  .actions .row { display: flex; gap: 0.5rem; }
+  .row-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
   
-  .btn { padding: 0.75rem; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; flex: 1; white-space: nowrap; font-size: 0.9rem; }
-  .btn.primary { background: var(--accent-primary); color: white; }
-  .btn.secondary { background: var(--bg-card); border: 1px solid var(--border-primary); color: var(--text-primary); }
+  .btn { padding: 0.75rem; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; white-space: nowrap; font-size: 0.9rem; transition: all 0.2s; }
+  .btn.primary { background: var(--accent-primary); color: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+  .btn.primary:hover { filter: brightness(1.1); transform: translateY(-1px); }
+  
+  .btn.secondary { background: var(--bg-input); border: 1px solid var(--border-input); color: var(--text-secondary); font-size: 0.85rem; flex-direction: column; padding: 0.6rem; gap: 4px; }
+  .btn.secondary:hover { background: var(--bg-card-hover); border-color: var(--border-focus); color: var(--text-primary); }
+  
   .full { width: 100%; }
   
   .validation-errors { background: rgba(255, 0, 0, 0.1); padding: 0.75rem; border-radius: 8px; }
   .err { color: var(--accent-error); font-size: 0.8rem; }
 
-  /* Preview */
+  /* Preview Pane */
   .preview-pane { 
     flex: 1; 
     display: flex; 
     flex-direction: column; 
     position: relative;
+    background: var(--bg-page); /* Fallback */
   }
   
-  /* Segmented Control Styling */
+  /* Toolbar - Now distinct at top */
   .preview-toolbar {
-    position: absolute;
-    top: 1.5rem;
-    left: 0; right: 0;
+    padding: 1rem;
     display: flex;
     justify-content: center;
-    z-index: 10;
-    pointer-events: none; /* Let clicks pass through outside the control */
+    background: var(--bg-panel);
+    border-bottom: 1px solid var(--border-divider);
+    flex-shrink: 0;
   }
   
   .segmented-control {
-    background: rgba(0,0,0,0.1); /* Neutral semi-transparent */
-    backdrop-filter: blur(8px);
+    background: var(--bg-input);
     padding: 4px;
     border-radius: 10px;
     display: flex;
-    pointer-events: auto;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
   }
   
-  /* In dark mode generator, make the backing lighter */
-  :global([data-theme="dark"]) .segmented-control {
-     background: rgba(255,255,255,0.1);
-  }
-
   .segment {
-    padding: 6px 20px;
+    padding: 6px 16px;
     border: none;
     background: transparent;
-    color: var(--text-primary); /* Uses generator's own theme vars for text */
+    color: var(--text-secondary);
     font-size: 0.9rem;
     font-weight: 500;
     cursor: pointer;
-    border-radius: 8px;
+    border-radius: 7px;
     transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+    display: flex; align-items: center; gap: 6px;
   }
   
-  .segment:hover {
-    background: rgba(255,255,255,0.1);
-  }
+  .segment:hover { color: var(--text-primary); }
   
   .segment.active {
     background: var(--bg-card);
     color: var(--text-primary);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     font-weight: 600;
   }
 
   .preview-canvas {
-    flex: 1; padding: 2rem; display: flex; gap: 2rem; align-items: center; justify-content: center;
+    flex: 1; 
+    padding: 2rem; 
+    display: flex; 
+    gap: 2rem; 
+    align-items: center; 
+    justify-content: center;
     position: relative;
+    overflow: hidden;
   }
   
+  /* Preview Cards - Polished */
   .preview-card {
-    width: 200px; height: 120px; padding: 1.5rem;
-    display: flex; flex-direction: column; justify-content: space-between;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    width: 160px; 
+    height: 140px; 
+    padding: 1.25rem;
+    display: flex; 
+    flex-direction: column; 
+    gap: 1rem;
+    transition: all 0.3s ease;
   }
-  .p-header { display: flex; align-items: center; gap: 0.5rem; font-weight: 600; font-size: 0.9rem; }
-  .p-state { font-size: 1.5rem; font-weight: 500; }
+  
+  .p-header { display: flex; align-items: center; gap: 0.75rem; }
+  
+  .p-icon {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem;
+  }
+  
+  .p-name { 
+    font-weight: 600; 
+    font-size: 0.9rem; 
+    line-height: 1.2;
+    overflow: hidden; text-overflow: ellipsis; 
+  }
+  
+  .p-body { margin-top: auto; }
+  
+  .p-state { font-size: 1.1rem; font-weight: 500; }
+  .p-sub { font-size: 0.8rem; margin-top: 2px; opacity: 0.8; }
 </style>
