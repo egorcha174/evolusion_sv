@@ -1,4 +1,3 @@
-
 {
   "common": {
     "ok": "ОК",
@@ -97,6 +96,18 @@
   },
   "settings": {
     "title": "Настройки",
+    "widgets": {
+      "title": "Виджеты",
+      "description": "Настройки часов и погоды",
+      "clock": "Часы",
+      "showDate": "Показывать дату",
+      "showSeconds": "Показывать секунды",
+      "weatherStyle": "Стиль погоды",
+      "iconSizeCurrent": "Размер иконки (Текущая)",
+      "tempSizeCurrent": "Размер температуры (Текущая)",
+      "iconSizeForecast": "Размер иконки (Прогноз)",
+      "tempSizeForecast": "Размер температуры (Прогноз)"
+    },
     "appearance": "Внешний вид",
     "appearanceDesc": "Настройки темы и языка",
     "language": "Язык",

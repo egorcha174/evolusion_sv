@@ -1,4 +1,3 @@
-
 {
   "common": {
     "ok": "OK",
@@ -97,6 +96,18 @@
   },
   "settings": {
     "title": "Settings",
+    "widgets": {
+      "title": "Widgets",
+      "description": "Weather and Clock settings",
+      "clock": "Clock",
+      "showDate": "Show Date",
+      "showSeconds": "Show Seconds",
+      "weatherStyle": "Weather Style",
+      "iconSizeCurrent": "Icon Size (Current)",
+      "tempSizeCurrent": "Temp Size (Current)",
+      "iconSizeForecast": "Icon Size (Forecast)",
+      "tempSizeForecast": "Temp Size (Forecast)"
+    },
     "appearance": "Appearance",
     "appearanceDesc": "Theme and language settings",
     "language": "Language",

@@ -19,12 +19,12 @@
   }
 </script>
 
-<Section title="Widgets" description="Weather and Clock settings" initiallyOpen={true}>
+<Section title={$t('settings.widgets.title')} description={$t('settings.widgets.description')} initiallyOpen={true}>
   
   <!-- CLOCK SUBSECTION -->
-  <div class="subsection-title">Clock</div>
-  <Switch label="Show Date" bind:checked={$clockSettings.showDate} />
-  <Switch label="Show Seconds" bind:checked={$clockSettings.showSeconds} />
+  <div class="subsection-title">{$t('settings.widgets.clock')}</div>
+  <Switch label={$t('settings.widgets.showDate')} bind:checked={$clockSettings.showDate} />
+  <Switch label={$t('settings.widgets.showSeconds')} bind:checked={$clockSettings.showSeconds} />
 
   <div class="divider"></div>
 
@@ -66,17 +66,17 @@
   {/if}
   
   <div class="divider"></div>
-  <div class="subsection-title">Weather Style</div>
+  <div class="subsection-title">{$t('settings.widgets.weatherStyle')}</div>
   
   <!-- Visuals: Use the `on:change` equivalent for Svelte 5 via the custom component or effect -->
   <!-- Assuming RangeInput updates the store immediately -->
   <div oninput={updateWeatherVisuals}>
-    <RangeInput label="Icon Size (Current)" bind:value={$weatherSettings.currentIconSize} min={24} max={128} step={4} unit="px" />
-    <RangeInput label="Temp Size (Current)" bind:value={$weatherSettings.currentTempSize} min={16} max={96} step={2} unit="px" />
+    <RangeInput label={$t('settings.widgets.iconSizeCurrent')} bind:value={$weatherSettings.currentIconSize} min={24} max={128} step={4} unit="px" />
+    <RangeInput label={$t('settings.widgets.tempSizeCurrent')} bind:value={$weatherSettings.currentTempSize} min={16} max={96} step={2} unit="px" />
     
     {#if $weatherSettings.showForecast}
-      <RangeInput label="Icon Size (Forecast)" bind:value={$weatherSettings.forecastIconSize} min={12} max={64} step={2} unit="px" />
-      <RangeInput label="Temp Size (Forecast)" bind:value={$weatherSettings.forecastTempSize} min={10} max={32} step={1} unit="px" />
+      <RangeInput label={$t('settings.widgets.iconSizeForecast')} bind:value={$weatherSettings.forecastIconSize} min={12} max={64} step={2} unit="px" />
+      <RangeInput label={$t('settings.widgets.tempSizeForecast')} bind:value={$weatherSettings.forecastTempSize} min={10} max={32} step={1} unit="px" />
     {/if}
   </div>
 
