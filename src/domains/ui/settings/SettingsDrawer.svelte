@@ -195,6 +195,7 @@
   let wForecastIconSize = $state($weatherSettings.forecastIconSize);
   let wForecastTempSize = $state($weatherSettings.forecastTempSize);
 
+  // Sync from Store to Local State on open
   $effect(() => {
     if ($isSettingsOpen) {
       wProvider = $weatherSettings.provider;
@@ -212,23 +213,30 @@
     }
   });
 
+  // Live Sync from Local State to Store (Visuals Only)
+  $effect(() => {
+    weatherSettings.update(s => ({
+      ...s,
+      iconPack: wIconPack,
+      currentIconSize: wIconSize,
+      currentTempSize: wTempSize,
+      forecastIconSize: wForecastIconSize,
+      forecastTempSize: wForecastTempSize,
+      // Update derived visuals immediately
+      currentDescSize: Math.max(10, Math.round(wTempSize * 0.4)),
+      forecastDaySize: Math.max(10, Math.round(wForecastTempSize * 0.9))
+    }));
+  });
+
   function saveWeather() {
+     // Only save/fetch Data properties (visuals are handled by live effect)
      weatherSettings.update(s => ({
        ...s,
        provider: wProvider,
        apiKey: wApiKey,
        useCustomLocation: wUseCustom,
        customLocation: { lat: wLat, lon: wLon },
-       forecastDays: wDays,
-       iconPack: wIconPack,
-       // Save visuals
-       currentIconSize: wIconSize,
-       currentTempSize: wTempSize,
-       forecastIconSize: wForecastIconSize,
-       forecastTempSize: wForecastTempSize,
-       // Derived defaults for others to keep simplified UI
-       currentDescSize: Math.max(10, Math.round(wTempSize * 0.4)),
-       forecastDaySize: Math.max(10, Math.round(wForecastTempSize * 0.9))
+       forecastDays: wDays
      }));
      refreshWeatherConfig();
   }

@@ -52,8 +52,15 @@ export async function initWeather() {
     console.error('Failed to load weather settings', e);
   }
 
-  // Subscribe to settings changes to persist and re-trigger fetch if needed
-  weatherSettings.subscribe(saveSettings);
+  // Subscribe to settings changes to persist (with debounce)
+  let saveTimer: ReturnType<typeof setTimeout>;
+  weatherSettings.subscribe((settings) => {
+    if (!browser) return;
+    if (saveTimer) clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => {
+      saveSettings(settings);
+    }, 500); // Debounce 500ms
+  });
 
   // Initial Fetch
   await updateWeather();
