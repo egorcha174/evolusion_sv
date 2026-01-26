@@ -1,12 +1,11 @@
-
 {
   "schemaVersion": 1,
   "manifest": {
     "id": "dark-minimal",
     "name": "Dark Minimal",
-    "version": "1.0.0",
+    "version": "1.1.0",
     "author": "Evolusion",
-    "description": "Pure black and high contrast for OLED screens.",
+    "description": "Monochrome high contrast. Pure black and white only.",
     "isCustom": false
   },
   "light": {
@@ -33,6 +32,14 @@
     "textPrimary": "#000000",
     "textSecondary": "#333333",
     "textMuted": "#666666",
+
+    "tabTextColor": "#666666",
+    "activeTabTextColor": "#000000",
+    "tabIndicatorColor": "#000000",
+
+    "iconBackgroundShape": "square",
+    "iconBackgroundColorOn": "#000000",
+    "iconBackgroundColorOff": "#EEEEEE",
     
     "nameTextColor": "#000000",
     "statusTextColor": "#666666",
@@ -43,6 +50,16 @@
     "statusTextColorOn": "#CCCCCC",
     "valueTextColorOn": "#FFFFFF",
     "unitTextColorOn": "#FFFFFF",
+
+    "thermostatHandleColor": "#000000",
+    "thermostatDialTextColor": "#000000",
+    "thermostatDialLabelColor": "#666666",
+    "thermostatHeatingColor": "#000000",
+    "thermostatCoolingColor": "#000000",
+
+    "clockTextColor": "#000000",
+    "weatherPrimaryColor": "#000000",
+    "weatherSecondaryColor": "#666666",
     
     "accentPrimary": "#000000",
     "accentError": "#000000",
@@ -75,6 +92,14 @@
     "textPrimary": "#FFFFFF",
     "textSecondary": "#CCCCCC",
     "textMuted": "#999999",
+
+    "tabTextColor": "#999999",
+    "activeTabTextColor": "#FFFFFF",
+    "tabIndicatorColor": "#FFFFFF",
+
+    "iconBackgroundShape": "square",
+    "iconBackgroundColorOn": "#FFFFFF",
+    "iconBackgroundColorOff": "#222222",
     
     "nameTextColor": "#FFFFFF",
     "statusTextColor": "#999999",
@@ -85,6 +110,16 @@
     "statusTextColorOn": "#333333",
     "valueTextColorOn": "#000000",
     "unitTextColorOn": "#000000",
+
+    "thermostatHandleColor": "#FFFFFF",
+    "thermostatDialTextColor": "#FFFFFF",
+    "thermostatDialLabelColor": "#999999",
+    "thermostatHeatingColor": "#FFFFFF",
+    "thermostatCoolingColor": "#FFFFFF",
+
+    "clockTextColor": "#FFFFFF",
+    "weatherPrimaryColor": "#FFFFFF",
+    "weatherSecondaryColor": "#999999",
     
     "accentPrimary": "#FFFFFF",
     "accentError": "#FFFFFF",
