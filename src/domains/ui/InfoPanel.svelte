@@ -1,4 +1,5 @@
 
+
 <script lang="ts">
   import { onMount } from 'svelte';
   import { t } from 'svelte-i18n';
@@ -163,13 +164,13 @@
     font-size: 4rem;
     font-weight: 200;
     text-align: center;
-    color: inherit;
+    color: var(--clock-text-color, inherit); /* Updated */
     line-height: 1.2;
     font-variant-numeric: tabular-nums;
   }
   
   @media (prefers-color-scheme: dark) {
-    .clock { color: rgba(255, 255, 255, 0.9); }
+    .clock { color: var(--clock-text-color, rgba(255, 255, 255, 0.9)); }
   }
 
   .card {

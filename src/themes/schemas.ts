@@ -46,6 +46,10 @@ export const ColorSchemeSchema = z.object({
   // Clock
   clockTextColor: ColorSchema,
 
+  // Weather (Colors)
+  weatherPrimaryColor: ColorSchema.optional().default('#000000'), // Making optional for backward compat in validation, but default ensures it exists
+  weatherSecondaryColor: ColorSchema.optional().default('#888888'),
+
   // Widget Text
   nameTextColor: ColorSchema,
   statusTextColor: ColorSchema,
@@ -56,7 +60,7 @@ export const ColorSchemeSchema = z.object({
   valueTextColorOn: ColorSchema,
   unitTextColorOn: ColorSchema,
 
-  // Weather
+  // Weather Sizes
   weatherIconSize: z.number().optional(),
   weatherForecastIconSize: z.number().optional(),
   weatherCurrentTempFontSize: z.number().optional(),

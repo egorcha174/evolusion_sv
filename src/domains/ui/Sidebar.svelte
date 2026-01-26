@@ -1,4 +1,5 @@
 
+
 <script lang="ts">
   import { onMount } from 'svelte';
   import { t, locale } from 'svelte-i18n';
@@ -190,7 +191,7 @@
     font-size: 3.5rem;
     font-weight: 200;
     line-height: 1;
-    color: var(--text-primary);
+    color: var(--clock-text-color, var(--text-primary)); /* Updated with fallback */
     font-variant-numeric: tabular-nums;
     margin-bottom: 0.25rem;
     white-space: nowrap;

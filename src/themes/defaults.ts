@@ -1,4 +1,5 @@
 
+
 import type { ThemeFile } from './types';
 
 // Default Light / Dark (Minimalist)
@@ -43,6 +44,8 @@ export const defaultTheme: ThemeFile = {
         valueTextColorOn: "#2196f3",
         unitTextColorOn: "#2196f3",
         clockTextColor: "#050505",
+        weatherPrimaryColor: "#050505",
+        weatherSecondaryColor: "#65676b",
         thermostatHandleColor: "#ffffff",
         thermostatDialTextColor: "#050505",
         thermostatDialLabelColor: "#65676b",
@@ -76,6 +79,8 @@ export const defaultTheme: ThemeFile = {
         valueTextColorOn: "#2d88ff",
         unitTextColorOn: "#2d88ff",
         clockTextColor: "#e4e6eb",
+        weatherPrimaryColor: "#e4e6eb",
+        weatherSecondaryColor: "#b0b3b8",
         thermostatHandleColor: "#e4e6eb",
         thermostatDialTextColor: "#e4e6eb",
         thermostatDialLabelColor: "#b0b3b8",
@@ -127,6 +132,8 @@ export const tronTheme: ThemeFile = {
         thermostatHeatingColor: "#EA580C",
         thermostatCoolingColor: "#06B6D4",
         clockTextColor: "#0891B2",
+        weatherPrimaryColor: "#0891B2",
+        weatherSecondaryColor: "#64748B",
         weatherIconSize: 96,
         weatherForecastIconSize: 48,
         weatherCurrentTempFontSize: 36,
@@ -170,6 +177,8 @@ export const tronTheme: ThemeFile = {
         thermostatHeatingColor: "#F97316",
         thermostatCoolingColor: "#22D3EE",
         clockTextColor: "#22D3EE",
+        weatherPrimaryColor: "#22D3EE",
+        weatherSecondaryColor: "#64748B",
         weatherIconSize: 96,
         weatherForecastIconSize: 48,
         weatherCurrentTempFontSize: 36,
@@ -229,6 +238,8 @@ export const deepSpaceTheme: ThemeFile = {
         thermostatHeatingColor: "#DD6B20",
         thermostatCoolingColor: "#3182CE",
         clockTextColor: "#1A202C",
+        weatherPrimaryColor: "#1A202C",
+        weatherSecondaryColor: "#718096",
         nameTextColor: "#2D3748",
         statusTextColor: "#718096",
         valueTextColor: "#1A202C",
@@ -262,6 +273,8 @@ export const deepSpaceTheme: ThemeFile = {
         thermostatHeatingColor: "#F6AD55",
         thermostatCoolingColor: "#63B3ED",
         clockTextColor: "#EAF0F6",
+        weatherPrimaryColor: "#EAF0F6",
+        weatherSecondaryColor: "#A0AEC0",
         nameTextColor: "#CBD5E0",
         statusTextColor: "#A0AEC0",
         valueTextColor: "#EAF0F6",

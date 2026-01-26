@@ -1,4 +1,5 @@
 
+
 <script lang="ts">
   import { t } from 'svelte-i18n';
   import { slide } from 'svelte/transition';
@@ -250,11 +251,23 @@
           <ColorPicker label="Tab Text" value={currentScheme.tabTextColor} onChange={(v) => updateField('tabTextColor', v)} />
           <ColorPicker label="Active Tab" value={currentScheme.activeTabTextColor} onChange={(v) => updateField('activeTabTextColor', v)} />
           <ColorPicker label="Tab Indicator" value={currentScheme.tabIndicatorColor} onChange={(v) => updateField('tabIndicatorColor', v)} />
-          <ColorPicker label="Clock Color" value={currentScheme.clockTextColor} onChange={(v) => updateField('clockTextColor', v)} />
         </div>
 
       {:else if activeSection === 'widgets'}
         <div class="group" transition:slide|local={{ axis: 'x' }}>
+          <!-- Clock -->
+          {@render sectionTitle($t('settings.widgets.clock'))}
+          <ColorPicker label="Text Color" value={currentScheme.clockTextColor} onChange={(v) => updateField('clockTextColor', v)} />
+
+          <div class="divider"></div>
+
+          <!-- Weather -->
+          {@render sectionTitle($t('settings.weather'))}
+          <ColorPicker label="Primary Color (Temp/Icon)" value={currentScheme.weatherPrimaryColor} onChange={(v) => updateField('weatherPrimaryColor', v)} />
+          <ColorPicker label="Secondary Color (Desc/Min)" value={currentScheme.weatherSecondaryColor} onChange={(v) => updateField('weatherSecondaryColor', v)} />
+
+          <div class="divider"></div>
+
           <!-- Thermostat -->
           {@render sectionTitle('Thermostat')}
           <ColorPicker label="Knob" value={currentScheme.thermostatHandleColor} onChange={(v) => updateField('thermostatHandleColor', v)} />

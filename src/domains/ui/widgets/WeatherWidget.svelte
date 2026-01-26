@@ -1,4 +1,5 @@
 
+
 <script lang="ts">
   import { t, locale } from 'svelte-i18n';
   import { weatherStore, weatherSettings } from '../../../lib/weather/store';
@@ -108,7 +109,7 @@
   }
 
   .weather-icon { 
-    color: var(--accent-info);
+    color: var(--weather-primary-color, var(--accent-info)); /* Use primary weather color or fallback */
     font-size: var(--weather-icon-size, 48px);
     display: flex;
     align-items: center;
@@ -126,13 +127,13 @@
   .temp {
     font-size: var(--weather-current-temp-font-size, 2rem);
     font-weight: 600;
-    color: var(--text-primary);
+    color: var(--weather-primary-color, var(--text-primary)); /* Updated */
     line-height: 1;
   }
   
   .condition {
     font-size: var(--weather-current-desc-font-size, 0.85rem);
-    color: var(--text-muted);
+    color: var(--weather-secondary-color, var(--text-muted)); /* Updated */
     text-transform: capitalize;
     white-space: nowrap;
   }
@@ -161,13 +162,13 @@
   }
   
   .forecast-day {
-    color: var(--text-secondary);
+    color: var(--weather-secondary-color, var(--text-secondary)); /* Updated */
     width: 40px;
     font-size: var(--weather-forecast-day-font-size, 0.85rem);
   }
   
   .forecast-icon {
-    color: var(--text-primary);
+    color: var(--weather-primary-color, var(--text-primary)); /* Updated */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -190,11 +191,11 @@
   
   .forecast-temp-stack .max { 
     font-weight: 600; 
-    color: var(--text-primary);
+    color: var(--weather-primary-color, var(--text-primary)); /* Updated */
     font-size: var(--weather-forecast-max-temp-font-size, 0.9rem);
   }
   .forecast-temp-stack .min { 
-    color: var(--text-muted); 
+    color: var(--weather-secondary-color, var(--text-muted)); /* Updated */
     font-size: var(--weather-forecast-min-temp-font-size, 0.8rem);
   }
 

@@ -52,6 +52,10 @@ export interface ColorScheme {
   // Clock
   clockTextColor: string;
 
+  // Weather (Colors)
+  weatherPrimaryColor: string;
+  weatherSecondaryColor: string;
+
   // Widget Text
   nameTextColor: string;
   statusTextColor: string;
@@ -62,7 +66,7 @@ export interface ColorScheme {
   valueTextColorOn: string;
   unitTextColorOn: string;
 
-  // Weather (Optional)
+  // Weather (Layout/Size - Optional)
   weatherIconSize?: number;
   weatherForecastIconSize?: number;
   weatherCurrentTempFontSize?: number;
