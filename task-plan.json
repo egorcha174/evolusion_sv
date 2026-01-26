@@ -1,14 +1,17 @@
-
 {
-  "task_id": "feature-add-device-02",
-  "step_id": "fix-add-logic-and-ui",
-  "title": "Fix Add Logic in Edit Mode & Improve UI",
-  "goal": "Ensure adding devices works while in Edit Mode by updating editor drafts, and make filter pills larger with labels.",
+  "task_id": "refactor-phase-1",
+  "step_id": "decompose-settings",
+  "title": "Decompose SettingsDrawer & Implement Persisted Width",
+  "goal": "Refactor God Component SettingsDrawer into sub-components, remove state duplication, and implement reusable resize logic.",
   "files": [
-    "src/domains/ui/editor/store.ts",
-    "src/domains/ui/add-device/DeviceAddDrawer.svelte"
+    "src/domains/ui/composables/usePersistedWidth.svelte.ts",
+    "src/domains/ui/settings/sections/ConnectionSettings.svelte",
+    "src/domains/ui/settings/sections/ThemeSettings.svelte",
+    "src/domains/ui/settings/sections/WidgetSettings.svelte",
+    "src/domains/ui/settings/sections/DataManagement.svelte",
+    "src/domains/ui/settings/SettingsDrawer.svelte"
   ],
   "verification": "npm run check && npm run build",
-  "risk": "Low",
-  "rollback": "Revert changes"
+  "risk": "Medium (UI regression in settings)",
+  "rollback": "Revert to previous SettingsDrawer.svelte"
 }
