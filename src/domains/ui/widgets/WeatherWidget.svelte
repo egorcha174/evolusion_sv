@@ -94,6 +94,8 @@
     border: 1px solid var(--border-card);
     min-height: 80px;
     box-sizing: border-box;
+    /* Ensure overflow hidden so expanded children don't break radius */
+    overflow: hidden;
   }
   
   .current-weather {
@@ -200,19 +202,24 @@
   .forecast-list.horizontal {
     flex-direction: row;
     overflow-x: auto;
-    padding-bottom: 4px; /* Space for scrollbar */
+    
+    /* Expand to edges of the container */
+    width: calc(100% + 2rem);
+    margin-left: -1rem;
+    margin-right: -1rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    
+    padding-bottom: 4px;
     gap: 8px;
-    /* Hide scrollbar for webkit but allow scrolling */
-    scrollbar-width: thin;
+    
+    /* Hide scrollbar visually but keep functionality */
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none;  /* IE 10+ */
   }
   
   .forecast-list.horizontal::-webkit-scrollbar {
-    height: 4px;
-  }
-  
-  .forecast-list.horizontal::-webkit-scrollbar-thumb {
-    background: var(--text-muted);
-    border-radius: 2px;
+    display: none; /* Chrome/Safari/Webkit */
   }
 
   .forecast-list.horizontal .forecast-item {
