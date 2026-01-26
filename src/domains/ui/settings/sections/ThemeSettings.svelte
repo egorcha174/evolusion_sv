@@ -1,8 +1,9 @@
+
 <script lang="ts">
   import { t } from 'svelte-i18n';
   import { slide } from 'svelte/transition';
   import { themeStore } from '../../theme/store';
-  import { defaultTheme } from '../../../../themes';
+  import { defaultTheme, builtInThemes } from '../../../../themes';
   import { exportTheme, importTheme } from '../../theme/io';
   import { setLocale, availableLanguages, currentLang } from '../../../../lib/i18n';
   import type { ThemeMode, ThemeFile } from '../../../../themes/types';
@@ -15,12 +16,11 @@
   let themeDraft = $state<ThemeFile | null>(null);
   let themeFileInput: HTMLInputElement;
 
-  let allThemes = $derived(
-    $themeStore.themes.map(t => ({
-      ...t,
-      isBuiltIn: !t.theme.isCustom
-    }))
-  );
+  // Helper to check if a theme is a built-in (by ID)
+  // We use the imported builtInThemes source of truth
+  function isBuiltInID(id: string) {
+    return builtInThemes.some(b => b.theme.id === id);
+  }
 
   function handleThemeSelect(id: string) {
     if (isEditingTheme) {
@@ -44,8 +44,12 @@
     }
   }
 
-  function editCustomTheme(theme: ThemeFile) {
+  function editTheme(theme: ThemeFile) {
     themeDraft = JSON.parse(JSON.stringify(theme));
+    // If we edit a built-in, we mark it custom so it gets saved to storage
+    if (themeDraft && isBuiltInID(theme.theme.id)) {
+        themeDraft.theme.isCustom = true;
+    }
     isEditingTheme = true;
   }
 
@@ -57,7 +61,12 @@
   }
 
   function deleteTheme(id: string) {
-    if (confirm($t('templates.manager.confirmDelete'))) {
+    const isBuiltIn = isBuiltInID(id);
+    const msg = isBuiltIn 
+      ? "Reset this theme to factory defaults?" 
+      : $t('templates.manager.confirmDelete');
+
+    if (confirm(msg)) {
         themeStore.deleteTheme(id);
         if (isEditingTheme && themeDraft?.theme.id === id) {
             isEditingTheme = false;
@@ -133,7 +142,8 @@
      </div>
      
      <div class="theme-grid">
-       {#each allThemes as theme (theme.theme.id)}
+       {#each $themeStore.themes as theme (theme.theme.id)}
+         {@const isBuiltIn = isBuiltInID(theme.theme.id)}
          <!-- svelte-ignore a11y_click_events_have_key_events -->
          <!-- svelte-ignore a11y_no_static_element_interactions -->
          <div 
@@ -146,22 +156,28 @@
                <div class="mini-accent" style:background={theme.theme.scheme.light.accentPrimary}></div>
             </div>
             <div class="meta">
-               <span class="name">{theme.theme.name}</span>
+               <span class="name">
+                 {theme.theme.name}
+                 {#if isBuiltIn && theme.theme.isCustom}
+                   <span class="edited-badge">*</span>
+                 {/if}
+               </span>
                <div class="actions">
                   <button class="icon-btn small" onclick={(e) => { e.stopPropagation(); handleThemeExport(theme); }} title={$t('settings.exportTheme')}>
                      <iconify-icon icon="mdi:download"></iconify-icon>
                   </button>
 
-                  {#if theme.isBuiltIn}
-                     <button class="icon-btn small" onclick={(e) => { e.stopPropagation(); createThemeCopy(theme); }} title="Copy">
-                        <iconify-icon icon="mdi:content-copy"></iconify-icon>
-                     </button>
-                  {:else}
-                     <button class="icon-btn small" onclick={(e) => { e.stopPropagation(); editCustomTheme(theme); }} title="Edit">
-                        <iconify-icon icon="mdi:pencil"></iconify-icon>
-                     </button>
-                     <button class="icon-btn small danger" onclick={(e) => { e.stopPropagation(); deleteTheme(theme.theme.id); }} title="Delete">
-                        <iconify-icon icon="mdi:delete"></iconify-icon>
+                  <button class="icon-btn small" onclick={(e) => { e.stopPropagation(); editTheme(theme); }} title="Edit">
+                     <iconify-icon icon="mdi:pencil"></iconify-icon>
+                  </button>
+                  
+                  <button class="icon-btn small" onclick={(e) => { e.stopPropagation(); createThemeCopy(theme); }} title="Copy">
+                     <iconify-icon icon="mdi:content-copy"></iconify-icon>
+                  </button>
+
+                  {#if theme.theme.isCustom}
+                     <button class="icon-btn small danger" onclick={(e) => { e.stopPropagation(); deleteTheme(theme.theme.id); }} title={isBuiltIn ? "Reset" : "Delete"}>
+                        <iconify-icon icon={isBuiltIn ? "mdi:refresh" : "mdi:delete"}></iconify-icon>
                      </button>
                   {/if}
                </div>
@@ -236,6 +252,7 @@
   }
   
   .name { font-size: 0.8rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-primary); }
+  .edited-badge { color: var(--accent-primary); font-weight: bold; margin-left: 2px; }
   
   .actions { display: flex; gap: 4px; }
   

@@ -42,14 +42,13 @@ function createThemeStore() {
     init: () => {
       if (!browser) return;
 
-      // Load custom themes
+      // Load custom themes from storage
       let customThemes: ThemeFile[] = [];
       try {
         const stored = localStorage.getItem(STORAGE_KEY_CUSTOM);
         if (stored) {
           const parsed = JSON.parse(stored);
           if (Array.isArray(parsed)) {
-             // Validate basic structure
              customThemes = parsed.filter(t => t && t.theme && t.theme.id);
           }
         }
@@ -57,16 +56,25 @@ function createThemeStore() {
         console.error('Failed to load custom themes', e);
       }
 
-      // Load active theme ID
+      // Load active theme ID and mode
       const savedActiveId = localStorage.getItem(STORAGE_KEY_ACTIVE);
       const savedMode = localStorage.getItem(STORAGE_KEY_MODE) as ThemeMode | null;
 
       update(s => {
-        const allThemes = [...BUILTIN_THEMES, ...customThemes];
-        let activeId = savedActiveId || s.activeThemeId;
+        // MERGE LOGIC: Use a Map to overlay custom themes on top of built-ins
+        const themeMap = new Map<string, ThemeFile>();
         
-        // Ensure active theme exists
-        if (!allThemes.find(t => t.theme.id === activeId)) {
+        // 1. Add Built-ins
+        BUILTIN_THEMES.forEach(t => themeMap.set(t.theme.id, t));
+        
+        // 2. Add Customs (Shadowing built-ins if IDs match)
+        customThemes.forEach(t => themeMap.set(t.theme.id, t));
+
+        const allThemes = Array.from(themeMap.values());
+        
+        // Validate active ID
+        let activeId = savedActiveId || s.activeThemeId;
+        if (!themeMap.has(activeId)) {
           activeId = defaultTheme.theme.id;
         }
 
@@ -101,20 +109,55 @@ function createThemeStore() {
 
     saveTheme: (themeFile: ThemeFile) => {
       update(s => {
-        // If updating existing custom theme
-        const idx = s.themes.findIndex(t => t.theme.id === themeFile.theme.id);
-        let newThemes = [...s.themes];
+        // Update the list in memory
+        const themeMap = new Map(s.themes.map(t => [t.theme.id, t]));
+        themeMap.set(themeFile.theme.id, themeFile);
         
-        if (idx >= 0) {
-          if (!newThemes[idx].theme.isCustom) return s; // Cannot overwrite builtin
-          newThemes[idx] = themeFile;
-        } else {
-          newThemes.push(themeFile);
-        }
+        const newThemes = Array.from(themeMap.values());
 
-        // Persist custom themes only
-        const customs = newThemes.filter(t => t.theme.isCustom);
-        if (browser) localStorage.setItem(STORAGE_KEY_CUSTOM, JSON.stringify(customs));
+        // Persist: Filter out themes that are identical to built-ins to save space? 
+        // No, simpler to just save anything marked as "custom" OR any theme that shadows a built-in.
+        // Actually, we just save everything that is NOT a pristine built-in.
+        // To simplify: We save the user's edits.
+        // Identify which themes need to be persisted:
+        // 1. Completely new custom themes (not in BUILTIN)
+        // 2. Modified built-ins (ID exists in BUILTIN)
+        
+        // We will stick to the strategy: Store all "User Versions" in localStorage.
+        // If it matches a built-in ID, it shadows it.
+        
+        // Filter out strict built-ins that haven't been modified?
+        // Simpler implementation: We rely on the fact that `themeFile` passed here is the one we want to save.
+        // We need to persist the *Custom List*.
+        
+        // Reconstruct the "Custom List" for storage
+        const themesToStore: ThemeFile[] = [];
+        
+        newThemes.forEach(t => {
+           const isBuiltIn = BUILTIN_THEMES.some(b => b.theme.id === t.theme.id);
+           
+           // If it's explicitly marked custom OR it shadows a built-in (we assume if it's being saved, it's user intent)
+           // But wait, we don't want to save unmodified built-ins if they are just in the list.
+           // `saveTheme` is only called when the user explicitly saves changes.
+           // So we should find the "Overridden" ones.
+           
+           // The persisted list should contain: 
+           // 1. Themes where isCustom = true
+           // 2. OR Themes that share an ID with a built-in (Shadows)
+           
+           // Ideally, the editor should mark modified built-ins as `isCustom = true` internally or we just save them.
+           if (t.theme.isCustom) {
+             themesToStore.push(t);
+           } else if (isBuiltIn) {
+             // If we are saving a built-in, we are effectively forking it. 
+             // We should mark it custom to ensure it persists? 
+             // No, let's keep the ID but mark isCustom=true to indicate it's a user copy?
+             // Or just store it.
+             themesToStore.push(t);
+           }
+        });
+
+        if (browser) localStorage.setItem(STORAGE_KEY_CUSTOM, JSON.stringify(themesToStore));
 
         return { ...s, themes: newThemes };
       });
@@ -122,21 +165,35 @@ function createThemeStore() {
 
     deleteTheme: (id: string) => {
       update(s => {
-        const theme = s.themes.find(t => t.theme.id === id);
-        if (!theme || !theme.theme.isCustom) return s; // Cannot delete builtin
-
-        const newThemes = s.themes.filter(t => t.theme.id !== id);
+        const isBuiltIn = BUILTIN_THEMES.some(b => b.theme.id === id);
         
-        // Persist
-        const customs = newThemes.filter(t => t.theme.isCustom);
-        if (browser) localStorage.setItem(STORAGE_KEY_CUSTOM, JSON.stringify(customs));
+        let newThemes: ThemeFile[];
 
-        // If deleted active, reset to default
+        if (isBuiltIn) {
+          // Revert to original built-in
+          const original = BUILTIN_THEMES.find(b => b.theme.id === id)!;
+          // Replace current with original in memory
+          newThemes = s.themes.map(t => t.theme.id === id ? original : t);
+        } else {
+          // Completely remove custom theme
+          newThemes = s.themes.filter(t => t.theme.id !== id);
+        }
+        
+        // Update Storage: Remove this specific ID from the stored list
+        if (browser) {
+           const currentStored = JSON.parse(localStorage.getItem(STORAGE_KEY_CUSTOM) || '[]');
+           const newStored = currentStored.filter((t: ThemeFile) => t.theme.id !== id);
+           localStorage.setItem(STORAGE_KEY_CUSTOM, JSON.stringify(newStored));
+        }
+
+        // Handle Active Theme
         let newActive = s.activeThemeId;
-        if (s.activeThemeId === id) {
+        if (s.activeThemeId === id && !isBuiltIn) {
+          // If we deleted a purely custom theme that was active, reset to default
           newActive = defaultTheme.theme.id;
           if (browser) localStorage.setItem(STORAGE_KEY_ACTIVE, newActive);
         }
+        // If we reverted a built-in, the ID is still valid, so activeId remains same.
 
         return { ...s, themes: newThemes, activeThemeId: newActive };
       });
@@ -150,18 +207,14 @@ export const themeStore = createThemeStore();
 export const activeScheme = derived([themeStore, systemPrefersDark], ([$s, $sysDark]) => {
   const themeFile = $s.themes.find(t => t.theme.id === $s.activeThemeId) || defaultTheme;
   
-  // Safety check in case defaultTheme itself is somehow broken or store has invalid ref
   if (!themeFile || !themeFile.theme || !themeFile.theme.scheme) {
      return defaultTheme.theme.scheme.light;
   }
 
-  // Fix: Strictly check for 'dark' mode or 'auto' with system dark preference. 
-  // 'night' is not a valid ThemeMode type in strict usage.
   const isDark = $s.mode === 'dark' || ($s.mode === 'auto' && $sysDark);
   return isDark ? themeFile.theme.scheme.dark : themeFile.theme.scheme.light;
 });
 
-// Reactively apply CSS variables when scheme changes
 if (browser) {
   activeScheme.subscribe(scheme => {
     if (scheme) applyThemeCSS(scheme);

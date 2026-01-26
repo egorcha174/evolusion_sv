@@ -1,3 +1,4 @@
+
 <script lang="ts">
   import { fly } from 'svelte/transition';
   import { t } from 'svelte-i18n';
@@ -80,8 +81,13 @@
     max-width: 100vw;
     height: 100%;
     max-height: 100dvh;
-    background: var(--bg-page);
-    background-color: var(--bg-panel, #ffffff);
+    
+    /* FIX: Use bg-page for solid background, ensuring high contrast in all themes */
+    /* Fallback to white for safety */
+    background: var(--bg-page, #ffffff);
+    /* Enforce text color to match the background */
+    color: var(--text-primary);
+    
     box-shadow: -4px 0 24px rgba(0,0,0,0.15);
     z-index: 2001;
     display: flex;
@@ -115,7 +121,7 @@
     align-items: center;
     padding: 1rem 1.5rem;
     border-bottom: 1px solid var(--border-divider);
-    background: var(--bg-header);
+    background: var(--bg-header); /* Keep header slightly distinct if theme allows */
     flex-shrink: 0;
   }
 
