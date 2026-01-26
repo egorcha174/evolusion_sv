@@ -1,4 +1,3 @@
-
 export interface WeatherForecastDay {
   date: Date;
   minTemp: number;
@@ -47,7 +46,7 @@ export interface WeatherSettings {
   forecastDays: number; // 1-7
   iconPack: WeatherIconPack;
   forecastLayout: ForecastLayout;
-  
+
   // Visual Configuration (Global)
   currentIconSize: number;
   currentTempSize: number;

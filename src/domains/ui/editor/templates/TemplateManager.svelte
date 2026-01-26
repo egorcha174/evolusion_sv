@@ -1,4 +1,3 @@
-
 <script lang="ts">
   import { t } from 'svelte-i18n';
   import { dashboardStore } from '../../../app/dashboardStore';
@@ -9,7 +8,7 @@
   let { onClose } = $props<{ onClose: () => void }>();
 
   let templates = $derived(Object.values($dashboardStore.templates));
-  
+
   // Editor State
   let showEditor = $state(false);
   let editMode = $state<'create' | 'edit'>('create');
@@ -49,11 +48,14 @@
 
 <!-- If Editor is open, show it above the manager -->
 {#if showEditor}
-  <CardTemplateEditor 
+  <CardTemplateEditor
     mode={editMode}
     initialTemplate={selectedTemplate}
     onSave={handleSave}
-    onCancel={() => { showEditor = false; selectedTemplate = undefined; }}
+    onCancel={() => {
+      showEditor = false;
+      selectedTemplate = undefined;
+    }}
   />
 {/if}
 
@@ -80,10 +82,20 @@
                 <span class="id">{tpl.id.slice(0, 8)}...</span>
               </div>
               <div class="actions">
-                <button class="icon-btn" onclick={() => handleEdit(tpl)} title={$t('templates.editor.edit')} type="button">
+                <button
+                  class="icon-btn"
+                  onclick={() => handleEdit(tpl)}
+                  title={$t('templates.editor.edit')}
+                  type="button"
+                >
                   <iconify-icon icon="mdi:pencil"></iconify-icon>
                 </button>
-                <button class="icon-btn danger" onclick={() => handleDelete(tpl.id)} title={$t('common.delete')} type="button">
+                <button
+                  class="icon-btn danger"
+                  onclick={() => handleDelete(tpl.id)}
+                  title={$t('common.delete')}
+                  type="button"
+                >
                   <iconify-icon icon="mdi:delete"></iconify-icon>
                 </button>
               </div>
@@ -109,7 +121,7 @@
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: rgba(0,0,0,0.5);
+    background: rgba(0, 0, 0, 0.5);
     backdrop-filter: blur(4px);
     z-index: 3000;
     display: flex;
@@ -222,7 +234,7 @@
     background: rgba(244, 67, 54, 0.1);
     color: var(--accent-error);
   }
-  
+
   .icon-btn :global(iconify-icon) {
     pointer-events: none;
   }
@@ -245,7 +257,7 @@
     justify-content: center;
     gap: 0.5rem;
   }
-  
+
   .btn :global(iconify-icon) {
     pointer-events: none;
   }
@@ -254,7 +266,7 @@
     background: var(--accent-primary);
     color: white;
   }
-  
+
   .full {
     width: 100%;
   }

@@ -1,4 +1,3 @@
-
 import { writable } from 'svelte/store';
 import { browser } from '$app/environment';
 
@@ -11,7 +10,7 @@ const SETTINGS_KEY = 'evolusion_clock_settings';
 
 const defaultSettings: ClockSettings = {
   showDate: true,
-  showSeconds: false
+  showSeconds: false,
 };
 
 function createClockStore() {
@@ -42,7 +41,7 @@ function createClockStore() {
           localStorage.setItem(SETTINGS_KEY, JSON.stringify(val));
         }, 500);
       });
-    }
+    },
   };
 }
 

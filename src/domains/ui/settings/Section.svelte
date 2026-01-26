@@ -1,8 +1,13 @@
 <script lang="ts">
   import { slide } from 'svelte/transition';
   import { cubicInOut } from 'svelte/easing';
-  
-  let { title, description, initiallyOpen = false, children } = $props<{
+
+  let {
+    title,
+    description,
+    initiallyOpen = false,
+    children,
+  } = $props<{
     title: string;
     description?: string;
     initiallyOpen?: boolean;
@@ -46,15 +51,18 @@
     border: 1px solid var(--border-primary);
     border-radius: 12px;
     overflow: hidden;
-    transition: border-color 0.2s, box-shadow 0.2s;
+    transition:
+      border-color 0.2s,
+      box-shadow 0.2s;
   }
 
-  .settings-section:hover, .settings-section.open {
+  .settings-section:hover,
+  .settings-section.open {
     border-color: var(--border-focus);
   }
-  
+
   .settings-section.open {
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   }
 
   .section-header {
@@ -113,7 +121,7 @@
     border-top: 1px solid var(--border-divider);
     background: var(--bg-secondary); /* Slight contrast for content area */
   }
-  
+
   .body-inner {
     padding: 1.25rem;
   }

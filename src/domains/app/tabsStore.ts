@@ -1,4 +1,3 @@
-
 import { writable, derived, get } from 'svelte/store';
 import { dashboardStore } from './dashboardStore';
 import type { TabGridConfig } from '$lib/types';
@@ -13,15 +12,15 @@ export interface Tab {
 export const tabs = derived(dashboardStore, ($dashboard) => {
   const order = $dashboard.tabOrder || [];
   const tabConfigs = $dashboard.tabs || {};
-  
+
   // Return sorted tabs
   return order
-    .map(id => tabConfigs[id])
+    .map((id) => tabConfigs[id])
     .filter(Boolean)
-    .map(config => ({
+    .map((config) => ({
       id: config.id,
       title: config.title || config.id,
-      icon: config.icon
+      icon: config.icon,
     }));
 });
 
@@ -29,12 +28,12 @@ export const activeTabId = writable<string>('home');
 export const isEditMode = writable<boolean>(false);
 
 // Ensure active tab is valid
-dashboardStore.subscribe($d => {
+dashboardStore.subscribe(($d) => {
   const current = get(activeTabId);
   if ($d.tabOrder && $d.tabOrder.length > 0) {
-     if (!$d.tabOrder.includes(current)) {
-        activeTabId.set($d.tabOrder[0]);
-     }
+    if (!$d.tabOrder.includes(current)) {
+      activeTabId.set($d.tabOrder[0]);
+    }
   }
 });
 
@@ -43,5 +42,5 @@ export function setActiveTab(id: string) {
 }
 
 export function toggleEditMode() {
-  isEditMode.update(v => !v);
+  isEditMode.update((v) => !v);
 }

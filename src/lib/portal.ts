@@ -1,4 +1,3 @@
-
 /**
  * Usage: <div use:portal>...</div>
  * Moves the element to document.body
@@ -10,6 +9,6 @@ export function portal(node: HTMLElement) {
       if (node.parentNode) {
         node.parentNode.removeChild(node);
       }
-    }
+    },
   };
 }

@@ -1,4 +1,3 @@
-
 <script lang="ts">
   import { t } from 'svelte-i18n';
   import type { HAEntity } from '$lib/types';
@@ -15,23 +14,25 @@
   let domain = $derived(extractDomain(device.entity_id));
   let icon = $derived(getIcon(domain));
   let name = $derived(device.attributes.friendly_name || device.entity_id);
-  
+
   let stateLabel = $derived.by(() => {
-     if (device.state === 'on') return $t('common.on');
-     if (device.state === 'off') return $t('common.off');
-     return device.state;
+    if (device.state === 'on') return $t('common.on');
+    if (device.state === 'off') return $t('common.off');
+    return device.state;
   });
 
   // State color logic
-  let isOn = $derived(device.state === 'on' || device.state === 'open' || device.state === 'unlocked');
+  let isOn = $derived(
+    device.state === 'on' || device.state === 'open' || device.state === 'unlocked'
+  );
   let isUnavailable = $derived(device.state === 'unavailable' || device.state === 'unknown');
 </script>
 
 <div class="device-item" class:added={isAdded}>
   <div class="icon-wrapper" class:active={isOn} class:unavailable={isUnavailable}>
-    <iconify-icon icon={icon} width="24"></iconify-icon>
+    <iconify-icon {icon} width="24"></iconify-icon>
   </div>
-  
+
   <div class="info">
     <div class="name">{name}</div>
     <div class="meta">
@@ -41,8 +42,8 @@
     </div>
   </div>
 
-  <button 
-    class="add-btn" 
+  <button
+    class="add-btn"
     disabled={isAdded}
     onclick={() => onAdd(device)}
     aria-label={isAdded ? $t('addDevice.added') : $t('addDevice.add')}
@@ -68,7 +69,7 @@
   }
 
   .device-item:hover {
-    background: var(--bg-card-hover, rgba(0,0,0,0.04));
+    background: var(--bg-card-hover, rgba(0, 0, 0, 0.04));
   }
 
   .device-item.added {
@@ -79,7 +80,7 @@
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: var(--bg-chip, rgba(0,0,0,0.05));
+    background: var(--bg-chip, rgba(0, 0, 0, 0.05));
     color: var(--text-secondary);
     display: flex;
     align-items: center;
@@ -92,7 +93,7 @@
     background: var(--accent-primary);
     color: #fff;
   }
-  
+
   .icon-wrapper.unavailable {
     opacity: 0.5;
     background: transparent;
@@ -130,9 +131,11 @@
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  
-  .separator { opacity: 0.4; }
-  
+
+  .separator {
+    opacity: 0.4;
+  }
+
   .state {
     font-weight: 500;
     text-transform: capitalize;

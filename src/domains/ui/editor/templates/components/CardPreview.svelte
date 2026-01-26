@@ -1,4 +1,3 @@
-
 <script lang="ts">
   import type { CardTemplate } from '$lib/types';
   import { buildCardStyle } from '../style';
@@ -26,13 +25,17 @@
     justify-content: center;
     width: 100%;
     height: 100%;
-    background-image: 
-      linear-gradient(45deg, #f0f0f0 25%, transparent 25%), 
-      linear-gradient(-45deg, #f0f0f0 25%, transparent 25%), 
-      linear-gradient(45deg, transparent 75%, #f0f0f0 75%), 
+    background-image:
+      linear-gradient(45deg, #f0f0f0 25%, transparent 25%),
+      linear-gradient(-45deg, #f0f0f0 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, #f0f0f0 75%),
       linear-gradient(-45deg, transparent 75%, #f0f0f0 75%);
     background-size: 20px 20px;
-    background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+    background-position:
+      0 0,
+      0 10px,
+      10px -10px,
+      -10px 0px;
     border-radius: 12px;
     overflow: hidden;
     padding: 2rem;
@@ -45,7 +48,7 @@
     flex-direction: column;
     justify-content: space-between;
     transition: all 0.2s ease;
-    
+
     /* Inherit border styles from global theme vars to simulate real look */
     border-width: var(--card-border-width, 0px);
     border-style: solid;
@@ -63,7 +66,7 @@
   .preview-icon {
     width: 32px;
     height: 32px;
-    background: rgba(0,0,0,0.1);
+    background: rgba(0, 0, 0, 0.1);
     border-radius: 50%;
   }
 

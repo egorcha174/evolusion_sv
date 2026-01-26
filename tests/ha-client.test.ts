@@ -16,12 +16,12 @@ class MockWebSocket {
     setTimeout(() => {
       this.readyState = 1; // OPEN
       if (this.onopen) this.onopen({});
-      
+
       // Simulate HA Auth Flow
       // 1. Send auth_required
       if (this.onmessage) {
-        this.onmessage({ 
-          data: JSON.stringify({ type: 'auth_required', ha_version: '2023.1.1' }) 
+        this.onmessage({
+          data: JSON.stringify({ type: 'auth_required', ha_version: '2023.1.1' }),
         });
       }
     }, 10);
@@ -29,18 +29,18 @@ class MockWebSocket {
 
   send(data: string) {
     const msg = JSON.parse(data);
-    
+
     // 2. Client sends auth -> Respond with auth_ok
     if (msg.type === 'auth') {
       setTimeout(() => {
         if (this.onmessage) {
           this.onmessage({
-            data: JSON.stringify({ type: 'auth_ok', ha_version: '2023.1.1' })
+            data: JSON.stringify({ type: 'auth_ok', ha_version: '2023.1.1' }),
           });
         }
       }, 10);
     }
-    
+
     // 3. Handle commands
     if (msg.type === 'get_states') {
       setTimeout(() => {
@@ -50,17 +50,15 @@ class MockWebSocket {
               type: 'result',
               id: msg.id,
               success: true,
-              result: [
-                { entity_id: 'light.living_room', state: 'on', attributes: {} }
-              ]
-            })
+              result: [{ entity_id: 'light.living_room', state: 'on', attributes: {} }],
+            }),
           });
         }
       }, 10);
     }
 
     if (msg.type === 'subscribe_events') {
-       setTimeout(() => {
+      setTimeout(() => {
         if (this.onmessage) {
           // Confirm subscription
           this.onmessage({
@@ -68,8 +66,8 @@ class MockWebSocket {
               type: 'result',
               id: msg.id,
               success: true,
-              result: null // Subs return id implicitly via message id
-            })
+              result: null, // Subs return id implicitly via message id
+            }),
           });
 
           // Simulate an event arriving later
@@ -80,13 +78,13 @@ class MockWebSocket {
                   type: 'event',
                   id: msg.id,
                   event: {
-                     event_type: 'state_changed',
-                     data: { 
-                       entity_id: 'light.living_room', 
-                       new_state: { state: 'off' }
-                     }
-                  }
-                })
+                    event_type: 'state_changed',
+                    data: {
+                      entity_id: 'light.living_room',
+                      new_state: { state: 'off' },
+                    },
+                  },
+                }),
               });
             }
           }, 50);
@@ -128,16 +126,16 @@ test.describe('HAClient', () => {
   test('subscribe receives events via callback', async () => {
     await client.connect();
     let eventReceived: any = null;
-    
+
     client.onStateChange((evt) => {
       eventReceived = evt;
     });
 
     await client.subscribe('state_changed');
-    
+
     // Wait for event simulation
-    await new Promise(r => setTimeout(r, 200));
-    
+    await new Promise((r) => setTimeout(r, 200));
+
     expect(eventReceived).not.toBeNull();
     expect(eventReceived.data.entity_id).toBe('light.living_room');
     expect(eventReceived.data.new_state.state).toBe('off');

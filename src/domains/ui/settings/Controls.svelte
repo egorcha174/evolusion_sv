@@ -1,7 +1,7 @@
 <script lang="ts" module>
-  // This file exports snippets via the module pattern or just contains definitions 
+  // This file exports snippets via the module pattern or just contains definitions
   // to be imported. In Svelte 5, we can export snippets from a .svelte file
-  // but for now, we will assume this file is imported as a component or 
+  // but for now, we will assume this file is imported as a component or
   // we define them here to copy-paste.
   // Actually, to be clean, let's make this a component that exports specific
   // UI components in the future. For now, we will define them as small components

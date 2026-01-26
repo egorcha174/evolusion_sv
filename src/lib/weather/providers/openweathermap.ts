@@ -1,5 +1,10 @@
-
-import type { WeatherProvider, Coordinates, WeatherData, WeatherSettings, WeatherForecastDay } from '../types';
+import type {
+  WeatherProvider,
+  Coordinates,
+  WeatherData,
+  WeatherSettings,
+  WeatherForecastDay,
+} from '../types';
 import { getWeatherIcon, getWeatherDescription, mapOpenWeatherMapCode } from '../icons';
 
 export const openWeatherMapProvider: WeatherProvider = {
@@ -22,7 +27,7 @@ export const openWeatherMapProvider: WeatherProvider = {
     if (settings.showForecast) {
       const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${coords.lat}&lon=${coords.lon}&appid=${settings.apiKey}&units=metric`;
       const forecastRes = await fetch(forecastUrl);
-      
+
       if (forecastRes.ok) {
         const forecastData = await forecastRes.json();
         forecast = processForecast(forecastData.list, settings);
@@ -35,20 +40,23 @@ export const openWeatherMapProvider: WeatherProvider = {
       icon: getWeatherIcon(currentCode, settings.iconPack),
       location: currentData.name || coords.name,
       updatedAt: new Date(),
-      forecast
+      forecast,
     };
-  }
+  },
 };
 
 function processForecast(list: any[], settings: WeatherSettings): WeatherForecastDay[] {
-  const dailyMap = new Map<string, { mins: number[], maxs: number[], codes: number[], date: Date }>();
+  const dailyMap = new Map<
+    string,
+    { mins: number[]; maxs: number[]; codes: number[]; date: Date }
+  >();
 
   // Group by YYYY-MM-DD
   for (const item of list) {
     const date = new Date(item.dt * 1000);
     const key = date.toISOString().split('T')[0];
     const today = new Date().toISOString().split('T')[0];
-    
+
     // Skip today
     if (key === today) continue;
 
@@ -74,7 +82,7 @@ function processForecast(list: any[], settings: WeatherSettings): WeatherForecas
     const minTemp = Math.min(...data.mins);
     const maxTemp = Math.max(...data.maxs);
     // Prefer the first code (noon)
-    const codeId = data.codes[0] || 800; 
+    const codeId = data.codes[0] || 800;
     const wmoCode = mapOpenWeatherMapCode(codeId);
 
     result.push({
@@ -82,7 +90,7 @@ function processForecast(list: any[], settings: WeatherSettings): WeatherForecas
       minTemp: Math.round(minTemp),
       maxTemp: Math.round(maxTemp),
       condition: getWeatherDescription(wmoCode),
-      icon: getWeatherIcon(wmoCode, settings.iconPack)
+      icon: getWeatherIcon(wmoCode, settings.iconPack),
     });
   }
 

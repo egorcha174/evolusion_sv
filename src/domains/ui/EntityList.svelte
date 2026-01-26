@@ -1,22 +1,16 @@
-
 <script lang="ts">
   import type { HAEntity } from '$lib/types';
   import EntityRow from './EntityRow.svelte';
   import VirtualList from './VirtualList.svelte';
-  
+
   let { entities = [] }: { entities: HAEntity[] } = $props();
-  
+
   // Estimate height of EntityRow (padding + content + border)
-  const ITEM_HEIGHT = 72; 
+  const ITEM_HEIGHT = 72;
 </script>
 
 <div class="entity-list-container">
-  <VirtualList 
-    items={entities} 
-    itemHeight={ITEM_HEIGHT} 
-    height="100%"
-    keyField="entity_id"
-  >
+  <VirtualList items={entities} itemHeight={ITEM_HEIGHT} height="100%" keyField="entity_id">
     {#snippet children({ item })}
       <div class="row-wrapper">
         <EntityRow entity={item} />
@@ -35,7 +29,7 @@
     overflow: hidden;
     box-sizing: border-box;
   }
-  
+
   .row-wrapper {
     padding: 4px 8px; /* External padding for row spacing */
     height: 100%;

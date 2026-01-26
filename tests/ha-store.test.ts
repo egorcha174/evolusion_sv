@@ -1,5 +1,11 @@
 import { expect, test } from '@playwright/test';
-import { haStore, initializeHAConnection, disconnectHA, getEntity, updateEntity } from '../src/domains/ha/store';
+import {
+  haStore,
+  initializeHAConnection,
+  disconnectHA,
+  getEntity,
+  updateEntity,
+} from '../src/domains/ha/store';
 import { get } from 'svelte/store';
 
 // Mock WebSocket (similar to HAClient test, but we need it globally for HAClient to work)
@@ -26,23 +32,31 @@ class MockWebSocket {
       setTimeout(() => this._sendToClient({ type: 'auth_ok', ha_version: '2023.1.1' }), 5);
     }
     if (msg.type === 'get_states') {
-      setTimeout(() => this._sendToClient({
-        type: 'result',
-        id: msg.id,
-        success: true,
-        result: [
-          { entity_id: 'light.living_room', state: 'on', attributes: {} },
-          { entity_id: 'sensor.temp', state: '20', attributes: {} }
-        ]
-      }), 5);
+      setTimeout(
+        () =>
+          this._sendToClient({
+            type: 'result',
+            id: msg.id,
+            success: true,
+            result: [
+              { entity_id: 'light.living_room', state: 'on', attributes: {} },
+              { entity_id: 'sensor.temp', state: '20', attributes: {} },
+            ],
+          }),
+        5
+      );
     }
     if (msg.type === 'subscribe_events') {
-      setTimeout(() => this._sendToClient({
-        type: 'result',
-        id: msg.id,
-        success: true,
-        result: null
-      }), 5);
+      setTimeout(
+        () =>
+          this._sendToClient({
+            type: 'result',
+            id: msg.id,
+            success: true,
+            result: null,
+          }),
+        5
+      );
     }
   }
 
@@ -76,10 +90,10 @@ test.describe('HA Store', () => {
 
     // Start connection
     const promise = initializeHAConnection(URL, TOKEN);
-    
+
     // Should be loading initially
     expect(get(haStore).isLoading).toBe(true);
-    
+
     await promise;
 
     // After completion
@@ -98,15 +112,15 @@ test.describe('HA Store', () => {
 
   test('updateEntity updates the store', async () => {
     await initializeHAConnection(URL, TOKEN);
-    
+
     const newEntity = {
       entity_id: 'light.living_room',
       state: 'off',
-      attributes: { brightness: 100 }
+      attributes: { brightness: 100 },
     };
-    
+
     updateEntity('light.living_room', newEntity);
-    
+
     const state = get(haStore);
     expect(state.entities.get('light.living_room')?.state).toBe('off');
     expect(state.entities.get('light.living_room')?.attributes.brightness).toBe(100);
@@ -122,9 +136,9 @@ test.describe('HA Store', () => {
   test('disconnectHA clears state', async () => {
     await initializeHAConnection(URL, TOKEN);
     expect(get(haStore).isConnected).toBe(true);
-    
+
     await disconnectHA();
-    
+
     const state = get(haStore);
     expect(state.isConnected).toBe(false);
     expect(state.entities.size).toBe(0);
@@ -134,19 +148,19 @@ test.describe('HA Store', () => {
     // Override MockWebSocket to fail
     const OriginalMock = (globalThis as any).WebSocket;
     (globalThis as any).WebSocket = class FailSocket extends MockWebSocket {
-       constructor(url: string) {
-           super(url);
-           setTimeout(() => {
-               if(this.onerror) this.onerror(new Event('error'));
-               if(this.onclose) this.onclose({ code: 1006, reason: 'Abnormal' } as CloseEvent);
-           }, 10);
-       }
+      constructor(url: string) {
+        super(url);
+        setTimeout(() => {
+          if (this.onerror) this.onerror(new Event('error'));
+          if (this.onclose) this.onclose({ code: 1006, reason: 'Abnormal' } as CloseEvent);
+        }, 10);
+      }
     };
 
     try {
-        await initializeHAConnection(URL, TOKEN);
+      await initializeHAConnection(URL, TOKEN);
     } catch (e) {
-        // initializeHAConnection catches internal errors but logs them
+      // initializeHAConnection catches internal errors but logs them
     }
 
     const state = get(haStore);

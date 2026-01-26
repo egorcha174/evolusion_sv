@@ -1,5 +1,12 @@
 import { browser } from '$app/environment';
-import { register, init, getLocaleFromNavigator, locale, addMessages, dictionary } from 'svelte-i18n';
+import {
+  register,
+  init,
+  getLocaleFromNavigator,
+  locale,
+  addMessages,
+  dictionary,
+} from 'svelte-i18n';
 import { writable, get } from 'svelte/store';
 import ru from './locales/ru.json';
 
@@ -49,8 +56,8 @@ register('en', () => import('./locales/en.json'));
 register('ar', () => import('./locales/ar.json'));
 
 // Fallbacks for others
-['zh', 'es', 'de', 'fr', 'pt', 'ja', 'ko'].forEach(code => {
-    register(code, () => import('./locales/en.json')); 
+['zh', 'es', 'de', 'fr', 'pt', 'ja', 'ko'].forEach((code) => {
+  register(code, () => import('./locales/en.json'));
 });
 
 // 3. Initialize immediately with default locale
@@ -70,7 +77,7 @@ export async function initClientI18n() {
 
   // 2. Determine preferred locale
   let preferredLocale = 'ru';
-  
+
   // Try storage
   const stored = localStorage.getItem(STORAGE_KEY_LOCALE);
   if (stored) {
@@ -80,8 +87,8 @@ export async function initClientI18n() {
     const navLocale = getLocaleFromNavigator(); // e.g., "en-US"
     if (navLocale) {
       // Find exact match or language code match
-      const found = get(availableLanguages).find(l => 
-        l.code === navLocale || l.code === navLocale.split('-')[0]
+      const found = get(availableLanguages).find(
+        (l) => l.code === navLocale || l.code === navLocale.split('-')[0]
       );
       if (found) preferredLocale = found.code;
     }
@@ -95,15 +102,15 @@ export async function setLocale(code: string) {
   // Set internal svelte-i18n store
   locale.set(code);
   currentLang.set(code);
-  
+
   if (browser) {
     localStorage.setItem(STORAGE_KEY_LOCALE, code);
 
     // Handle Direction
-    const meta = get(availableLanguages).find(l => l.code === code);
+    const meta = get(availableLanguages).find((l) => l.code === code);
     const dir = meta?.dir || 'ltr';
     currentDir.set(dir);
-    
+
     // Apply to document
     document.documentElement.dir = dir;
     document.documentElement.lang = code;
@@ -120,7 +127,7 @@ export async function setLocale(code: string) {
 export function importCustomLanguage(jsonContent: string): boolean {
   try {
     const data = JSON.parse(jsonContent) as CustomLanguage;
-    
+
     // Basic Validation
     if (!data.locale || !data.name || !data.translations) {
       throw new Error('Invalid JSON format');
@@ -128,21 +135,24 @@ export function importCustomLanguage(jsonContent: string): boolean {
 
     // Add to svelte-i18n
     addMessages(data.locale, data.translations);
-    
+
     // Update available languages
-    availableLanguages.update(list => {
+    availableLanguages.update((list) => {
       // Remove existing if update
-      const filtered = list.filter(l => l.code !== data.locale);
-      return [...filtered, { 
-        code: data.locale, 
-        name: data.name, 
-        dir: data.direction || 'ltr' 
-      }];
+      const filtered = list.filter((l) => l.code !== data.locale);
+      return [
+        ...filtered,
+        {
+          code: data.locale,
+          name: data.name,
+          dir: data.direction || 'ltr',
+        },
+      ];
     });
 
     // Save to Storage
     saveCustomLanguage(data);
-    
+
     return true;
   } catch (e) {
     console.error('Failed to import language', e);
@@ -155,15 +165,15 @@ export function getLanguageExportData(code: string): string | null {
   const messages = dict[code];
   if (!messages) return null;
 
-  const meta = get(availableLanguages).find(l => l.code === code);
-  
+  const meta = get(availableLanguages).find((l) => l.code === code);
+
   const exportData: CustomLanguage = {
     locale: code,
     name: meta?.name || code,
     direction: meta?.dir || 'ltr',
-    translations: messages as Record<string, any>
+    translations: messages as Record<string, any>,
   };
-  
+
   return JSON.stringify(exportData, null, 2);
 }
 
@@ -179,18 +189,21 @@ function loadCustomLanguages() {
   try {
     const stored = JSON.parse(localStorage.getItem(STORAGE_KEY_CUSTOM_LANGS) || '{}');
     Object.values(stored).forEach((data: any) => {
-        // Register translation
-        addMessages(data.locale, data.translations);
-        
-        // Add to list
-        availableLanguages.update(list => {
-          if (list.some(l => l.code === data.locale)) return list;
-          return [...list, { 
-            code: data.locale, 
-            name: data.name, 
-            dir: data.direction || 'ltr' 
-          }];
-        });
+      // Register translation
+      addMessages(data.locale, data.translations);
+
+      // Add to list
+      availableLanguages.update((list) => {
+        if (list.some((l) => l.code === data.locale)) return list;
+        return [
+          ...list,
+          {
+            code: data.locale,
+            name: data.name,
+            dir: data.direction || 'ltr',
+          },
+        ];
+      });
     });
   } catch (e) {
     console.error('Failed to load custom languages', e);

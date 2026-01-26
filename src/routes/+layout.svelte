@@ -1,4 +1,3 @@
-
 <script lang="ts">
   import { onMount } from 'svelte';
   import { appState, loadLayout, loadServerConfig, loadSavedServers } from '../domains/app/store';
@@ -6,9 +5,9 @@
   import { initializeHAConnection, disconnectHA } from '../domains/ha/store';
   import { themeStore } from '../domains/ui/theme/store';
   import { editorStore } from '../domains/ui/editor/store'; // Import Editor Store
-  import { initClientI18n } from '../lib/i18n'; 
+  import { initClientI18n } from '../lib/i18n';
   import { initWeather, destroyWeather } from '../lib/weather/store';
-  import { isLoading } from 'svelte-i18n'; 
+  import { isLoading } from 'svelte-i18n';
   import BackgroundRenderer from '../domains/theme/BackgroundRenderer.svelte';
   import Sidebar from '../domains/ui/Sidebar.svelte';
   import DashboardHeader from '../domains/ui/DashboardHeader.svelte';
@@ -17,23 +16,23 @@
   import DeviceAddDrawer from '../domains/ui/add-device/DeviceAddDrawer.svelte'; // New Add Device Drawer
   import 'iconify-icon';
   import '../app.css';
-  
+
   let { children } = $props();
 
   onMount(async () => {
     // 1. Setup Client I18n (SSR init handled in module)
     await initClientI18n();
-    
+
     // 2. Load other configs
     await loadServerConfig();
     await loadSavedServers(); // Load server list
     await loadLayout();
     await themeStore.init();
     await dashboardStore.init(); // Initialize 2D grid store
-    
+
     // 3. Init services
     await initWeather();
-    
+
     return () => {
       destroyWeather();
     };
@@ -59,11 +58,11 @@
   <div class="layout-container">
     <!-- Left Nav & Info -->
     <Sidebar />
-    
+
     <!-- Right Side: Main Application Content -->
     <div class="main-content">
       <DashboardHeader />
-      
+
       <main>
         {@render children()}
       </main>
@@ -83,15 +82,17 @@
   :global(body) {
     margin: 0;
     padding: 0;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    font-family:
+      -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans',
+      'Helvetica Neue', sans-serif;
     /* Basic fallback, real colors set by themeStore via CSS vars */
-    background: transparent; 
+    background: transparent;
     color: var(--text-primary, #333);
     height: 100vh;
     overflow: hidden;
     transition: color 0.2s ease;
   }
-  
+
   /* RTL Support Hook */
   :global(body.rtl) {
     direction: rtl;
@@ -114,7 +115,7 @@
     position: relative;
     height: 100%;
     /* STRICT: Prevent global scrollbar */
-    overflow: hidden; 
+    overflow: hidden;
   }
 
   main {
@@ -126,7 +127,7 @@
     overflow: hidden;
     min-height: 0; /* Allow shrinking */
   }
-  
+
   .loading-screen {
     width: 100vw;
     height: 100vh;

@@ -1,4 +1,3 @@
-
 import type { GridRect, GridUnit, ResizeHandle } from './types';
 
 export const GRID_STEP = 0.5;
@@ -8,12 +7,7 @@ export function snapUnit(v: number): GridUnit {
 }
 
 export function rectWithinBounds(rect: GridRect, cols: number, rows: number): boolean {
-  return (
-    rect.col >= 0 &&
-    rect.row >= 0 &&
-    rect.col + rect.w <= cols &&
-    rect.row + rect.h <= rows
-  );
+  return rect.col >= 0 && rect.row >= 0 && rect.col + rect.w <= cols && rect.row + rect.h <= rows;
 }
 
 export function rectCollides(rect: GridRect, others: GridRect[]): boolean {
@@ -22,7 +16,7 @@ export function rectCollides(rect: GridRect, others: GridRect[]): boolean {
     x1: rect.col * 2,
     y1: rect.row * 2,
     x2: (rect.col + rect.w) * 2,
-    y2: (rect.row + rect.h) * 2
+    y2: (rect.row + rect.h) * 2,
   };
 
   for (const other of others) {
@@ -30,15 +24,10 @@ export function rectCollides(rect: GridRect, others: GridRect[]): boolean {
       x1: other.col * 2,
       y1: other.row * 2,
       x2: (other.col + other.w) * 2,
-      y2: (other.row + other.h) * 2
+      y2: (other.row + other.h) * 2,
     };
 
-    if (
-      r1.x1 < r2.x2 &&
-      r1.x2 > r2.x1 &&
-      r1.y1 < r2.y2 &&
-      r1.y2 > r2.y1
-    ) {
+    if (r1.x1 < r2.x2 && r1.x2 > r2.x1 && r1.y1 < r2.y2 && r1.y2 > r2.y1) {
       return true;
     }
   }
@@ -50,7 +39,7 @@ export function applyMove(start: GridRect, dCol: number, dRow: number): GridRect
   return {
     ...start,
     col: snapUnit(start.col + dCol),
-    row: snapUnit(start.row + dRow)
+    row: snapUnit(start.row + dRow),
   };
 }
 
@@ -62,7 +51,7 @@ export function applyResize(
   constraints: { maxCols: number; maxRows: number }
 ): GridRect {
   const r = { ...start };
-  
+
   // Calculate raw deltas
   const dx = snapUnit(dCol);
   const dy = snapUnit(dRow);

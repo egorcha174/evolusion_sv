@@ -1,8 +1,8 @@
-
-
 import { z } from 'zod';
 
-export const ColorSchema = z.string().regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$|^rgba?\(.+\)$/, "Invalid color format");
+export const ColorSchema = z
+  .string()
+  .regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$|^rgba?\(.+\)$/, 'Invalid color format');
 
 export const ColorSchemeSchema = z.object({
   // Dashboard

@@ -1,6 +1,9 @@
-
 <script lang="ts">
-  let { label, checked = $bindable(), disabled = false } = $props<{
+  let {
+    label,
+    checked = $bindable(),
+    disabled = false,
+  } = $props<{
     label: string;
     checked: boolean;
     disabled?: boolean;
@@ -13,15 +16,15 @@
   <label class="label" for={id}>
     {label}
   </label>
-  
-  <button 
-    class="switch" 
-    class:checked 
+
+  <button
+    class="switch"
+    class:checked
     {disabled}
     onclick={() => !disabled && (checked = !checked)}
     role="switch"
     aria-checked={checked}
-    id={id}
+    {id}
   >
     <div class="thumb"></div>
   </button>
@@ -35,7 +38,7 @@
     margin-bottom: 1rem;
     cursor: pointer;
   }
-  
+
   .label {
     font-size: 0.95rem;
     font-weight: 500;
@@ -55,10 +58,10 @@
     padding: 2px;
     flex-shrink: 0;
   }
-  
+
   /* Dark mode fallback adjustment if vars aren't set perfectly */
-  :global([data-theme="dark"]) .switch {
-     background: #4a4a4a;
+  :global([data-theme='dark']) .switch {
+    background: #4a4a4a;
   }
 
   .switch.checked {
@@ -75,8 +78,8 @@
     height: 20px;
     background: white;
     border-radius: 50%;
-    transition: transform 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
-    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
   }
 
   .switch.checked .thumb {

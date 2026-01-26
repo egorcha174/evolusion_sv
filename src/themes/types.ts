@@ -1,5 +1,3 @@
-
-
 export interface ThemeManifest {
   name: string;
   version: string;
