@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "manifest": {
     "name": "Cyberpunk",
-    "version": "2.1.0",
+    "version": "2.2.0",
     "author": "Evolusion",
     "description": "High contrast yellow and black. Strict monochrome + accent.",
     "generatedAt": "2023-01-01T00:00:00.000Z"
@@ -34,9 +34,9 @@
         "iconBackgroundColorOn": "#FCEE0A",
         "iconBackgroundColorOff": "#1a1a1a",
         "nameTextColor": "#FCEE0A",
-        "statusTextColor": "#FFFFFF",
+        "statusTextColor": "#AAAAAA",
         "valueTextColor": "#FCEE0A",
-        "unitTextColor": "#FFFFFF",
+        "unitTextColor": "#AAAAAA",
         "nameTextColorOn": "#FCEE0A",
         "statusTextColorOn": "#FFFFFF",
         "valueTextColorOn": "#FCEE0A",
@@ -51,23 +51,23 @@
         "thermostatCoolingColor": "#FCEE0A",
         "accentPrimary": "#FCEE0A",
         "accentSecondary": "#00F0FF",
-        "accentError": "#FF003C",
-        "accentSuccess": "#FCEE0A",
-        "accentWarning": "#FCEE0A",
+        "accentError": "#FF453A",
+        "accentSuccess": "#30D158",
+        "accentWarning": "#FF9F0A",
         "accentInfo": "#00F0FF",
-        "widgetSwitchOn": "#FCEE0A"
+        "widgetSwitchOn": "#30D158"
       },
       "light": {
         "dashboardBackgroundType": "color",
         "dashboardBackgroundColor1": "#FFFFFF",
         "cardOpacity": 1,
         "cardBorderRadius": 0,
-        "cardBorderWidth": 2,
-        "cardBorderColor": "#000000",
+        "cardBorderWidth": 1,
+        "cardBorderColor": "#DDDDDD",
         "cardBorderColorOn": "#FCEE0A",
-        "cardBackground": "#F2F2F2",
+        "cardBackground": "#FFFFFF",
         "cardBackgroundOn": "#FFFFFF",
-        "shadowCard": "4px 4px 0px #000000",
+        "shadowCard": "none",
         "panelOpacity": 1,
         "bgPanel": "#FFFFFF",
         "bgInput": "#F2F2F2",
@@ -96,11 +96,11 @@
         "thermostatCoolingColor": "#00F0FF",
         "accentPrimary": "#FCEE0A",
         "accentSecondary": "#00F0FF",
-        "accentError": "#FF003C",
-        "accentSuccess": "#000000",
-        "accentWarning": "#FCEE0A",
+        "accentError": "#FF3B30",
+        "accentSuccess": "#34C759",
+        "accentWarning": "#FF9500",
         "accentInfo": "#00F0FF",
-        "widgetSwitchOn": "#FCEE0A"
+        "widgetSwitchOn": "#34C759"
       }
     }
   }

@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "manifest": {
     "name": "Fusion",
-    "version": "1.1.0",
+    "version": "1.2.0",
     "author": "Evolusion",
-    "description": "Vibrant purple gradient with glassmorphism. Strict palette.",
+    "description": "Vibrant purple gradient with balanced glassmorphism.",
     "generatedAt": "2023-01-01T00:00:00.000Z"
   },
   "theme": {
@@ -17,13 +17,13 @@
         "dashboardBackgroundColor1": "#4338ca",
         "dashboardBackgroundColor2": "#db2777",
         "dashboardGradientAngle": 135,
-        "cardOpacity": 0.2,
+        "cardOpacity": 0.4,
         "cardBorderRadius": 24,
         "cardBorderWidth": 1,
         "cardBorderColor": "rgba(255, 255, 255, 0.1)",
         "cardBorderColorOn": "rgba(255, 255, 255, 0.5)",
-        "cardBackground": "rgba(255, 255, 255, 0.1)",
-        "cardBackgroundOn": "rgba(255, 255, 255, 0.2)",
+        "cardBackground": "rgba(40, 40, 60, 0.4)",
+        "cardBackgroundOn": "rgba(50, 50, 70, 0.6)",
         "shadowCard": "0 8px 32px rgba(0, 0, 0, 0.2)",
         "panelOpacity": 0.3,
         "bgPanel": "rgba(0, 0, 0, 0.3)",
@@ -52,11 +52,11 @@
         "thermostatHeatingColor": "#FFFFFF",
         "thermostatCoolingColor": "#FFFFFF",
         "accentPrimary": "#FFFFFF",
-        "accentError": "#FDA4AF",
-        "accentSuccess": "#FFFFFF",
-        "accentWarning": "#FFFFFF",
+        "accentError": "#FF453A",
+        "accentSuccess": "#30D158",
+        "accentWarning": "#FF9F0A",
         "accentInfo": "#FFFFFF",
-        "widgetSwitchOn": "#FFFFFF"
+        "widgetSwitchOn": "#30D158"
       },
       "light": {
         "dashboardBackgroundType": "gradient",
@@ -99,10 +99,10 @@
         "thermostatCoolingColor": "#3B82F6",
         "accentPrimary": "#8B5CF6",
         "accentError": "#EF4444",
-        "accentSuccess": "#8B5CF6",
+        "accentSuccess": "#34C759",
         "accentWarning": "#F59E0B",
         "accentInfo": "#3B82F6",
-        "widgetSwitchOn": "#8B5CF6"
+        "widgetSwitchOn": "#34C759"
       }
     }
   }

@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "manifest": {
     "name": "Beach",
-    "version": "1.1.0",
+    "version": "1.2.0",
     "author": "Evolusion",
     "description": "Relaxing sandy tones with a strict Aqua accent.",
     "generatedAt": "2023-01-01T00:00:00.000Z"
@@ -53,11 +53,11 @@
         "thermostatCoolingColor": "#26C6DA",
         "accentPrimary": "#00BCD4",
         "accentSecondary": "#00838F",
-        "accentError": "#FF7043",
-        "accentSuccess": "#00BCD4",
-        "accentWarning": "#FFCA28",
+        "accentError": "#FF3B30",
+        "accentSuccess": "#34C759",
+        "accentWarning": "#FF9500",
         "accentInfo": "#29B6F6",
-        "widgetSwitchOn": "#00BCD4"
+        "widgetSwitchOn": "#34C759"
       },
       "dark": {
         "dashboardBackgroundType": "gradient",
@@ -100,11 +100,11 @@
         "thermostatCoolingColor": "#4DD0E1",
         "accentPrimary": "#4DD0E1",
         "accentSecondary": "#80DEEA",
-        "accentError": "#EF9A9A",
-        "accentSuccess": "#4DD0E1",
-        "accentWarning": "#FFE082",
+        "accentError": "#FF453A",
+        "accentSuccess": "#30D158",
+        "accentWarning": "#FF9F0A",
         "accentInfo": "#81D4FA",
-        "widgetSwitchOn": "#4DD0E1"
+        "widgetSwitchOn": "#30D158"
       }
     }
   }

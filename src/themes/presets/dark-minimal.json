@@ -3,14 +3,14 @@
   "manifest": {
     "id": "dark-minimal",
     "name": "Dark Minimal",
-    "version": "1.1.0",
+    "version": "1.2.0",
     "author": "Evolusion",
-    "description": "Monochrome high contrast. Pure black and white only.",
+    "description": "Monochrome high contrast with semantic states.",
     "isCustom": false
   },
   "light": {
     "dashboardBackgroundType": "color",
-    "dashboardBackgroundColor": "#FFFFFF",
+    "dashboardBackgroundColor1": "#FFFFFF",
     "bgPage": "#FFFFFF",
     
     "cardOpacity": 1,
@@ -19,7 +19,7 @@
     "cardBorderColor": "#000000",
     "cardBorderColorOn": "#000000",
     "cardBackground": "#FFFFFF",
-    "cardBackgroundOn": "#000000",
+    "cardBackgroundOn": "#2C2C2E",
     "shadowCard": "none",
     "shadowDropdown": "0 4px 8px rgba(0, 0, 0, 0.1)",
     
@@ -38,7 +38,7 @@
     "tabIndicatorColor": "#000000",
 
     "iconBackgroundShape": "square",
-    "iconBackgroundColorOn": "#000000",
+    "iconBackgroundColorOn": "#FFFFFF",
     "iconBackgroundColorOff": "#EEEEEE",
     
     "nameTextColor": "#000000",
@@ -62,15 +62,15 @@
     "weatherSecondaryColor": "#666666",
     
     "accentPrimary": "#000000",
-    "accentError": "#000000",
-    "accentSuccess": "#000000",
-    "accentWarning": "#000000",
-    "accentInfo": "#000000",
-    "widgetSwitchOn": "#000000"
+    "accentError": "#FF3B30",
+    "accentSuccess": "#34C759",
+    "accentWarning": "#FF9500",
+    "accentInfo": "#007AFF",
+    "widgetSwitchOn": "#34C759"
   },
   "dark": {
     "dashboardBackgroundType": "color",
-    "dashboardBackgroundColor": "#000000",
+    "dashboardBackgroundColor1": "#000000",
     "bgPage": "#000000",
     
     "cardOpacity": 1,
@@ -79,7 +79,7 @@
     "cardBorderColor": "#333333",
     "cardBorderColorOn": "#FFFFFF",
     "cardBackground": "#000000",
-    "cardBackgroundOn": "#FFFFFF",
+    "cardBackgroundOn": "#EAEAEA",
     "shadowCard": "none",
     "shadowDropdown": "0 4px 8px rgba(255, 255, 255, 0.1)",
     
@@ -98,7 +98,7 @@
     "tabIndicatorColor": "#FFFFFF",
 
     "iconBackgroundShape": "square",
-    "iconBackgroundColorOn": "#FFFFFF",
+    "iconBackgroundColorOn": "#000000",
     "iconBackgroundColorOff": "#222222",
     
     "nameTextColor": "#FFFFFF",
@@ -122,10 +122,10 @@
     "weatherSecondaryColor": "#999999",
     
     "accentPrimary": "#FFFFFF",
-    "accentError": "#FFFFFF",
-    "accentSuccess": "#FFFFFF",
-    "accentWarning": "#FFFFFF",
-    "accentInfo": "#FFFFFF",
-    "widgetSwitchOn": "#FFFFFF"
+    "accentError": "#FF453A",
+    "accentSuccess": "#30D158",
+    "accentWarning": "#FF9F0A",
+    "accentInfo": "#0A84FF",
+    "widgetSwitchOn": "#30D158"
   }
 }

@@ -3,14 +3,14 @@
   "manifest": {
     "id": "light-modern",
     "name": "Light Modern",
-    "version": "1.1.0",
+    "version": "1.2.0",
     "author": "Evolusion",
     "description": "Soft shadows and rounded corners with a singular Royal Blue accent.",
     "isCustom": false
   },
   "light": {
     "dashboardBackgroundType": "color",
-    "dashboardBackgroundColor": "#F0F2F5",
+    "dashboardBackgroundColor1": "#F0F2F5",
     "bgPage": "#F0F2F5",
     
     "cardOpacity": 1,
@@ -63,14 +63,14 @@
     
     "accentPrimary": "#1877F2",
     "accentError": "#FA383E",
-    "accentSuccess": "#1877F2",
+    "accentSuccess": "#42b72a",
     "accentWarning": "#F7B928",
     "accentInfo": "#1877F2",
-    "widgetSwitchOn": "#1877F2"
+    "widgetSwitchOn": "#42b72a"
   },
   "dark": {
     "dashboardBackgroundType": "color",
-    "dashboardBackgroundColor": "#18191A",
+    "dashboardBackgroundColor1": "#18191A",
     "bgPage": "#18191A",
     
     "cardOpacity": 1,
@@ -123,9 +123,9 @@
     
     "accentPrimary": "#2D88FF",
     "accentError": "#F02849",
-    "accentSuccess": "#2D88FF",
+    "accentSuccess": "#31A24C",
     "accentWarning": "#F7B928",
     "accentInfo": "#2D88FF",
-    "widgetSwitchOn": "#2D88FF"
+    "widgetSwitchOn": "#31A24C"
   }
 }

@@ -3,7 +3,7 @@
   "manifest": {
     "id": "apple-graphite",
     "name": "Apple Graphite",
-    "version": "1.1.0",
+    "version": "1.2.0",
     "author": "Evolusion",
     "description": "High contrast graphite with strict blue accents.",
     "isCustom": false
@@ -69,14 +69,14 @@
 
     "accentPrimary": "#0071e3",
     "accentError": "#ff3b30",
-    "accentSuccess": "#0071e3",
+    "accentSuccess": "#34C759",
     "accentWarning": "#ff9500",
     "accentInfo": "#0071e3",
-    "widgetSwitchOn": "#0071e3"
+    "widgetSwitchOn": "#34C759"
   },
   "dark": {
     "dashboardBackgroundType": "color",
-    "dashboardBackgroundColor": "#000000",
+    "dashboardBackgroundColor1": "#000000",
     
     "bgPage": "#000000",
     
@@ -130,9 +130,9 @@
 
     "accentPrimary": "#0a84ff",
     "accentError": "#ff453a",
-    "accentSuccess": "#0a84ff",
+    "accentSuccess": "#30d158",
     "accentWarning": "#ff9f0a",
     "accentInfo": "#0a84ff",
-    "widgetSwitchOn": "#0a84ff"
+    "widgetSwitchOn": "#30d158"
   }
 }

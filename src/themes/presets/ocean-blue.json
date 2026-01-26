@@ -3,20 +3,16 @@
   "manifest": {
     "id": "ocean-blue",
     "name": "Ocean Blue",
-    "version": "1.1.0",
+    "version": "1.2.0",
     "author": "Evolusion",
-    "description": "Monochromatic teal palette. No clashing colors.",
+    "description": "Monochromatic teal palette with improved readability.",
     "isCustom": false
   },
   "light": {
     "dashboardBackgroundType": "gradient",
-    "dashboardGradient": {
-      "angle": 180,
-      "stops": [
-        { "color": "#E0F7FA", "position": 0 },
-        { "color": "#B2EBF2", "position": 100 }
-      ]
-    },
+    "dashboardBackgroundColor1": "#E0F7FA",
+    "dashboardBackgroundColor2": "#B2EBF2",
+    "dashboardGradientAngle": 180,
     "bgPage": "#E0F7FA",
     
     "cardOpacity": 0.9,
@@ -68,21 +64,17 @@
     "weatherSecondaryColor": "#546E7A",
     
     "accentPrimary": "#00BCD4",
-    "accentError": "#006064",
-    "accentSuccess": "#00BCD4",
-    "accentWarning": "#26C6DA",
+    "accentError": "#FF3B30",
+    "accentSuccess": "#34C759",
+    "accentWarning": "#FF9500",
     "accentInfo": "#29B6F6",
-    "widgetSwitchOn": "#00BCD4"
+    "widgetSwitchOn": "#34C759"
   },
   "dark": {
     "dashboardBackgroundType": "gradient",
-    "dashboardGradient": {
-      "angle": 180,
-      "stops": [
-        { "color": "#01579B", "position": 0 },
-        { "color": "#002F6C", "position": 100 }
-      ]
-    },
+    "dashboardBackgroundColor1": "#01579B",
+    "dashboardBackgroundColor2": "#002F6C",
+    "dashboardGradientAngle": 180,
     "bgPage": "#01579B",
     
     "cardOpacity": 0.85,
@@ -101,7 +93,7 @@
     "bgInput": "#01579B",
     "bgHeader": "rgba(2, 119, 189, 0.8)",
 
-    "textPrimary": "#E1F5FE",
+    "textPrimary": "#FFFFFF",
     "textSecondary": "#B3E5FC",
     "textMuted": "#81D4FA",
 
@@ -134,10 +126,10 @@
     "weatherSecondaryColor": "#B3E5FC",
     
     "accentPrimary": "#4DD0E1",
-    "accentError": "#FFAB91",
-    "accentSuccess": "#4DD0E1",
-    "accentWarning": "#80DEEA",
+    "accentError": "#FF8A80",
+    "accentSuccess": "#30D158",
+    "accentWarning": "#FF9F0A",
     "accentInfo": "#81D4FA",
-    "widgetSwitchOn": "#4DD0E1"
+    "widgetSwitchOn": "#30D158"
   }
 }

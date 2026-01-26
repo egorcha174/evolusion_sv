@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "manifest": {
     "name": "Deep Space",
-    "version": "1.1.0",
+    "version": "1.2.0",
     "author": "Evolusion",
     "description": "Futuristic HUD style. Dark blue with single Cyan accent.",
     "generatedAt": "2023-01-01T00:00:00.000Z"
@@ -52,11 +52,11 @@
         "thermostatHeatingColor": "#00F2FF",
         "thermostatCoolingColor": "#00F2FF",
         "accentPrimary": "#00F2FF",
-        "accentError": "#38BDF8",
-        "accentSuccess": "#00F2FF",
-        "accentWarning": "#38BDF8",
+        "accentError": "#FF453A",
+        "accentSuccess": "#30D158",
+        "accentWarning": "#FF9F0A",
         "accentInfo": "#38BDF8",
-        "widgetSwitchOn": "#00F2FF"
+        "widgetSwitchOn": "#30D158"
       },
       "light": {
         "dashboardBackgroundType": "color",
@@ -96,11 +96,11 @@
         "thermostatHeatingColor": "#0284C7",
         "thermostatCoolingColor": "#0284C7",
         "accentPrimary": "#0284C7",
-        "accentError": "#0EA5E9",
-        "accentSuccess": "#0284C7",
-        "accentWarning": "#0369A1",
+        "accentError": "#FF3B30",
+        "accentSuccess": "#34C759",
+        "accentWarning": "#FF9500",
         "accentInfo": "#0284C7",
-        "widgetSwitchOn": "#0284C7"
+        "widgetSwitchOn": "#34C759"
       }
     }
   }

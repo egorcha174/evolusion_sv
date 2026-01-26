@@ -3,20 +3,16 @@
   "manifest": {
     "id": "sunset-warm",
     "name": "Sunset Warm",
-    "version": "1.1.0",
+    "version": "1.2.0",
     "author": "Evolusion",
     "description": "Monochromatic warm tones. Orange accent on cream background.",
     "isCustom": false
   },
   "light": {
     "dashboardBackgroundType": "gradient",
-    "dashboardGradient": {
-      "angle": 45,
-      "stops": [
-        { "color": "#FFF3E0", "position": 0 },
-        { "color": "#FFE0B2", "position": 100 }
-      ]
-    },
+    "dashboardBackgroundColor1": "#FFF3E0",
+    "dashboardBackgroundColor2": "#FFE0B2",
+    "dashboardGradientAngle": 45,
     "bgPage": "#FFF3E0",
     
     "cardOpacity": 0.9,
@@ -68,21 +64,17 @@
     "weatherSecondaryColor": "#8D6E63",
     
     "accentPrimary": "#FF6D00",
-    "accentError": "#BF360C",
-    "accentSuccess": "#FF6D00",
-    "accentWarning": "#F9A825",
+    "accentError": "#FF3B30",
+    "accentSuccess": "#34C759",
+    "accentWarning": "#FF9500",
     "accentInfo": "#FF9800",
-    "widgetSwitchOn": "#FF6D00"
+    "widgetSwitchOn": "#34C759"
   },
   "dark": {
     "dashboardBackgroundType": "gradient",
-    "dashboardGradient": {
-      "angle": 45,
-      "stops": [
-        { "color": "#212121", "position": 0 },
-        { "color": "#3E2723", "position": 100 }
-      ]
-    },
+    "dashboardBackgroundColor1": "#212121",
+    "dashboardBackgroundColor2": "#3E2723",
+    "dashboardGradientAngle": 45,
     "bgPage": "#212121",
     
     "cardOpacity": 0.85,
@@ -118,10 +110,10 @@
     "valueTextColor": "#FFAB40",
     "unitTextColor": "#BCAAA4",
     
-    "nameTextColorOn": "#FFE0B2",
-    "statusTextColorOn": "#FFCC80",
-    "valueTextColorOn": "#FFE0B2",
-    "unitTextColorOn": "#FFCC80",
+    "nameTextColorOn": "#FFAB40",
+    "statusTextColorOn": "#BCAAA4",
+    "valueTextColorOn": "#FFAB40",
+    "unitTextColorOn": "#BCAAA4",
 
     "thermostatHandleColor": "#FFAB40",
     "thermostatDialTextColor": "#FFE0B2",
@@ -134,10 +126,10 @@
     "weatherSecondaryColor": "#BCAAA4",
     
     "accentPrimary": "#FFAB40",
-    "accentError": "#FF7043",
-    "accentSuccess": "#FFAB40",
-    "accentWarning": "#FFEE58",
+    "accentError": "#FF453A",
+    "accentSuccess": "#30D158",
+    "accentWarning": "#FF9F0A",
     "accentInfo": "#FFCC80",
-    "widgetSwitchOn": "#FFAB40"
+    "widgetSwitchOn": "#30D158"
   }
 }

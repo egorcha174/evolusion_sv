@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "manifest": {
     "name": "Default",
-    "version": "2.1.0",
+    "version": "2.2.0",
     "author": "Evolusion",
     "description": "Clean, neutral style with a single System Blue accent.",
     "generatedAt": "2023-01-01T00:00:00.000Z"
@@ -50,10 +50,10 @@
         "accentPrimary": "#007AFF",
         "accentSecondary": "#8E8E93",
         "accentError": "#FF3B30",
-        "accentSuccess": "#007AFF",
-        "accentWarning": "#FFCC00",
+        "accentSuccess": "#34C759",
+        "accentWarning": "#FF9500",
         "accentInfo": "#007AFF",
-        "widgetSwitchOn": "#007AFF"
+        "widgetSwitchOn": "#34C759"
       },
       "dark": {
         "dashboardBackgroundType": "color",
@@ -93,10 +93,10 @@
         "accentPrimary": "#0A84FF",
         "accentSecondary": "#8E8E93",
         "accentError": "#FF453A",
-        "accentSuccess": "#0A84FF",
+        "accentSuccess": "#30D158",
         "accentWarning": "#FFD60A",
         "accentInfo": "#0A84FF",
-        "widgetSwitchOn": "#0A84FF"
+        "widgetSwitchOn": "#30D158"
       }
     }
   }
