@@ -1,5 +1,12 @@
 <script lang="ts">
-  let { label, value = $bindable(), min = 0, max = 100, step = 1, unit = '' } = $props<{
+  let {
+    label,
+    value = $bindable(),
+    min = 0,
+    max = 100,
+    step = 1,
+    unit = '',
+  } = $props<{
     label: string;
     value: number;
     min?: number;
@@ -16,15 +23,7 @@
     <label for={id}>{label}</label>
     <span class="value">{value}{unit}</span>
   </div>
-  <input 
-    {id}
-    type="range" 
-    bind:value 
-    {min} 
-    {max} 
-    {step}
-    class="range"
-  />
+  <input {id} type="range" bind:value {min} {max} {step} class="range" />
 </div>
 
 <style>

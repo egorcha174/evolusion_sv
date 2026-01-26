@@ -1,23 +1,22 @@
-
 <script lang="ts">
   import { t } from 'svelte-i18n';
   import { haStore } from '../../domains/ha/store';
   import { uiDashboardState, selectFilteredEntities, toggleSettings } from '../../domains/ui/store';
   import EntityList from '../../domains/ui/EntityList.svelte';
   import 'iconify-icon';
-  
+
   // Binding variables to update store
   let searchQuery = $state($uiDashboardState.filters.search || '');
   let selectedDomain = $state($uiDashboardState.filters.domain || '');
-  
+
   function updateFilters() {
-    uiDashboardState.update(s => ({
+    uiDashboardState.update((s) => ({
       ...s,
       filters: {
         ...s.filters,
         search: searchQuery,
-        domain: selectedDomain === '' ? undefined : selectedDomain
-      }
+        domain: selectedDomain === '' ? undefined : selectedDomain,
+      },
     }));
   }
 </script>
@@ -26,11 +25,11 @@
   <div class="page-header">
     <h1>{$t('entities.title')}</h1>
   </div>
-  
+
   {#if $haStore.isLoading}
     <div class="state-container">
-       <div class="spinner"></div>
-       <p>{$t('entities.loading')}</p>
+      <div class="spinner"></div>
+      <p>{$t('entities.loading')}</p>
     </div>
   {:else if $haStore.error}
     <div class="state-container error">
@@ -54,17 +53,17 @@
     </div>
   {:else if $selectFilteredEntities.length === 0 && !$uiDashboardState.filters.search && !$uiDashboardState.filters.domain}
     <div class="state-container empty">
-       <div class="icon-wrapper">
-         <iconify-icon icon="mdi:package-variant-closed" width="64"></iconify-icon>
-       </div>
-       <p>{$t('entities.noEntities')}</p>
+      <div class="icon-wrapper">
+        <iconify-icon icon="mdi:package-variant-closed" width="64"></iconify-icon>
+      </div>
+      <p>{$t('entities.noEntities')}</p>
     </div>
   {:else}
     <div class="controls">
       <div class="filters">
-        <input 
-          type="text" 
-          placeholder={$t('entities.search')} 
+        <input
+          type="text"
+          placeholder={$t('entities.search')}
           bind:value={searchQuery}
           oninput={updateFilters}
           class="search-input"
@@ -82,7 +81,7 @@
           <option value="automation">Automations</option>
         </select>
       </div>
-      
+
       <div class="results-count">
         {$t('entities.showing', { count: $selectFilteredEntities.length })}
       </div>
@@ -102,14 +101,14 @@
     height: 100%;
     display: flex;
     flex-direction: column;
-    overflow: hidden; 
+    overflow: hidden;
   }
 
   .page-header {
     margin-bottom: 1.5rem;
     flex-shrink: 0;
   }
-  
+
   .controls {
     margin-bottom: 1rem;
     background: var(--bg-card);
@@ -118,20 +117,20 @@
     border: 1px solid var(--border-primary);
     flex-shrink: 0;
   }
-  
+
   .list-wrapper {
     flex: 1;
     min-height: 0; /* Crucial for nested scroll */
     overflow: hidden;
   }
-  
+
   .filters {
     display: flex;
     gap: 1rem;
     margin-bottom: 0.5rem;
     flex-wrap: wrap;
   }
-  
+
   .search-input {
     flex: 1;
     min-width: 200px;
@@ -140,13 +139,13 @@
   .domain-select {
     min-width: 150px;
   }
-  
+
   .results-count {
     color: var(--text-secondary);
     font-size: 0.9rem;
     text-align: right;
   }
-  
+
   /* State Containers */
   .state-container {
     flex: 1;
@@ -160,14 +159,14 @@
     min-height: 300px;
     padding: 2rem;
   }
-  
+
   .state-container h3 {
     margin: 0;
     font-weight: 600;
     font-size: 1.5rem;
     color: var(--text-primary);
   }
-  
+
   .message {
     max-width: 400px;
     margin: 0;
@@ -175,9 +174,13 @@
   }
 
   /* Error State Styles */
-  .state-container.error .icon-wrapper { color: var(--accent-error); }
-  .state-container.error h3 { color: var(--text-primary); }
-  
+  .state-container.error .icon-wrapper {
+    color: var(--accent-error);
+  }
+  .state-container.error h3 {
+    color: var(--text-primary);
+  }
+
   .message-box {
     max-width: 450px;
     background: var(--bg-secondary);
@@ -189,12 +192,17 @@
     font-size: 0.9rem;
     word-break: break-word;
     text-align: left;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   }
-  
-  .state-container.warning .icon-wrapper { color: var(--text-muted); }
-  .state-container.empty .icon-wrapper { color: var(--text-muted); opacity: 0.5; }
-  
+
+  .state-container.warning .icon-wrapper {
+    color: var(--text-muted);
+  }
+  .state-container.empty .icon-wrapper {
+    color: var(--text-muted);
+    opacity: 0.5;
+  }
+
   .spinner {
     width: 40px;
     height: 40px;
@@ -205,8 +213,12 @@
   }
 
   @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
   }
 
   .btn {
@@ -218,6 +230,11 @@
     font-size: 1rem;
     transition: opacity 0.2s;
   }
-  .btn:hover { opacity: 0.9; }
-  .btn.primary { background: var(--accent-primary); color: white; }
+  .btn:hover {
+    opacity: 0.9;
+  }
+  .btn.primary {
+    background: var(--accent-primary);
+    color: white;
+  }
 </style>

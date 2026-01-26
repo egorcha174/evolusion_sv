@@ -11,8 +11,8 @@ const defaultLight: ThemePalette = {
   bgCard: '#ffffff',
   bgCardHover: '#fbfbfb',
   bgHeader: '#ffffff',
-  bgSidebar: '#ffffff', /* Changed to light */
-  bgSidebarActiveItem: '#f0f2f5', /* Changed to light grey */
+  bgSidebar: '#ffffff' /* Changed to light */,
+  bgSidebarActiveItem: '#f0f2f5' /* Changed to light grey */,
   bgInput: '#ffffff',
   bgChip: '#e4e6eb',
   bgChipActive: '#e7f3ff',
@@ -76,7 +76,7 @@ const defaultLight: ThemePalette = {
   scrollbarTrack: 'transparent',
 
   tooltipBg: '#1a1d21',
-  tooltipText: '#ffffff'
+  tooltipText: '#ffffff',
 };
 
 const defaultDark: ThemePalette = {
@@ -151,7 +151,7 @@ const defaultDark: ThemePalette = {
   scrollbarTrack: 'transparent',
 
   tooltipBg: '#e4e6eb',
-  tooltipText: '#1a1d21'
+  tooltipText: '#1a1d21',
 };
 
 // --- APPLE THEME ---
@@ -195,7 +195,7 @@ const materialLight: ThemePalette = {
   stateOn: '#6200ee',
   shadowCard: '0 1px 3px rgba(0,0,0,0.2), 0 2px 2px rgba(0,0,0,0.14), 0 0 2px rgba(0,0,0,0.12)',
   borderCard: 'transparent',
-  widgetSwitchOn: '#6200ee'
+  widgetSwitchOn: '#6200ee',
 };
 
 const materialDark: ThemePalette = {
@@ -207,7 +207,7 @@ const materialDark: ThemePalette = {
   stateOn: '#bb86fc',
   shadowCard: '0 1px 3px rgba(0,0,0,0.3)',
   borderCard: 'rgba(255,255,255,0.08)',
-  widgetSwitchOn: '#bb86fc'
+  widgetSwitchOn: '#bb86fc',
 };
 
 export const BUILTIN_THEMES: ThemeDefinition[] = [
@@ -217,7 +217,7 @@ export const BUILTIN_THEMES: ThemeDefinition[] = [
     description: 'Standard Evolusion theme',
     isBuiltIn: true,
     light: defaultLight,
-    dark: defaultDark
+    dark: defaultDark,
   },
   {
     id: 'apple',
@@ -225,7 +225,7 @@ export const BUILTIN_THEMES: ThemeDefinition[] = [
     description: 'Clean, high contrast, translucent feel',
     isBuiltIn: true,
     light: appleLight,
-    dark: appleDark
+    dark: appleDark,
   },
   {
     id: 'material',
@@ -233,8 +233,8 @@ export const BUILTIN_THEMES: ThemeDefinition[] = [
     description: 'High saturation, deep shadows',
     isBuiltIn: true,
     light: materialLight,
-    dark: materialDark
-  }
+    dark: materialDark,
+  },
 ];
 
 export const DEFAULT_THEME = BUILTIN_THEMES[0];

@@ -1,11 +1,10 @@
-
 // Storage Keys (Must match what is used in stores)
 const KEYS = {
   server: 'app_server_config_encrypted',
   theme: 'evolusion-theme-settings', // Updated from underscore to dash to match src/domains/theme/store.ts
   dashboard: 'evolusion_dashboard_v2_encrypted',
   weather: 'evolusion_weather_settings',
-  ui: 'evolusion.sidebar.width'
+  ui: 'evolusion.sidebar.width',
 };
 
 export async function exportAllSettings() {
@@ -16,21 +15,21 @@ export async function exportAllSettings() {
 
   const zip = new JSZip();
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-  
+
   // Collect data
   const data = {
     meta: {
       version: 1,
       exportedAt: new Date().toISOString(),
-      app: 'evolusion'
+      app: 'evolusion',
     },
     settings: {
       server: localStorage.getItem(KEYS.server),
       theme: localStorage.getItem(KEYS.theme),
       dashboard: localStorage.getItem(KEYS.dashboard),
       weather: localStorage.getItem(KEYS.weather),
-      ui: localStorage.getItem(KEYS.ui)
-    }
+      ui: localStorage.getItem(KEYS.ui),
+    },
   };
 
   zip.file('evolusion-settings.json', JSON.stringify(data, null, 2));
@@ -47,7 +46,7 @@ export async function importAllSettings(file: File): Promise<boolean> {
 
     const zip = await JSZip.loadAsync(file);
     const configFile = zip.file('evolusion-settings.json');
-    
+
     if (!configFile) {
       throw new Error('Invalid backup archive: missing configuration file');
     }
@@ -70,7 +69,7 @@ export async function importAllSettings(file: File): Promise<boolean> {
 
     // Force reload to apply changes (simplest way to re-init all stores)
     window.location.reload();
-    
+
     return true;
   } catch (e) {
     console.error('Import failed', e);
@@ -79,6 +78,6 @@ export async function importAllSettings(file: File): Promise<boolean> {
 }
 
 export function clearAllData() {
-  Object.values(KEYS).forEach(key => localStorage.removeItem(key));
+  Object.values(KEYS).forEach((key) => localStorage.removeItem(key));
   window.location.reload();
 }

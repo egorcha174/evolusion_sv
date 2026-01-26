@@ -1,4 +1,3 @@
-
 import { get } from 'svelte/store';
 import { haStore } from '../../domains/ha/store';
 import type { Coordinates, WeatherData, WeatherProviderType, WeatherSettings } from './types';
@@ -9,14 +8,16 @@ import { weatherApiProvider } from './providers/weatherapi';
 const CHELYABINSK: Coordinates = {
   lat: 55.1644,
   lon: 61.4368,
-  name: 'Chelyabinsk (Fallback)'
+  name: 'Chelyabinsk (Fallback)',
 };
 
 // Factory
 function getProvider(type: WeatherProviderType) {
   switch (type) {
-    case 'openweathermap': return openWeatherMapProvider;
-    case 'weatherapi': return weatherApiProvider;
+    case 'openweathermap':
+      return openWeatherMapProvider;
+    case 'weatherapi':
+      return weatherApiProvider;
     case 'openmeteo':
     default:
       return openMeteoProvider;
@@ -30,7 +31,7 @@ export function resolveCoordinates(settings: WeatherSettings): Coordinates {
     return {
       lat: settings.customLocation.lat,
       lon: settings.customLocation.lon,
-      name: settings.customLocation.name || 'Custom Location'
+      name: settings.customLocation.name || 'Custom Location',
     };
   }
 
@@ -42,7 +43,7 @@ export function resolveCoordinates(settings: WeatherSettings): Coordinates {
     return {
       lat: homeZone.attributes.latitude,
       lon: homeZone.attributes.longitude,
-      name: homeZone.attributes.friendly_name || 'Home'
+      name: homeZone.attributes.friendly_name || 'Home',
     };
   }
 

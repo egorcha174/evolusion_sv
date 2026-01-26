@@ -1,4 +1,3 @@
-
 {
   "schemaVersion": 1,
   "manifest": {
@@ -19,7 +18,7 @@
       ]
     },
     "bgPage": "#FFF3E0",
-    
+
     "cardOpacity": 0.9,
     "cardBorderRadius": 20,
     "cardBorderWidth": 0,
@@ -29,27 +28,27 @@
     "cardBackgroundOn": "#FFF8E1",
     "shadowCard": "0 2px 6px rgba(0,0,0,0.1)",
     "shadowDropdown": "0 4px 12px rgba(0,0,0,0.15)",
-    
+
     "panelOpacity": 0.7,
     "bgPanel": "rgba(255, 255, 255, 0.9)",
-    
+
     "bgInput": "#FFFFFF",
     "bgHeader": "rgba(255, 255, 255, 0.8)",
 
     "textPrimary": "#3E2723",
     "textSecondary": "#8D6E63",
     "textMuted": "#D7CCC8",
-    
+
     "nameTextColor": "#3E2723",
     "statusTextColor": "#8D6E63",
     "valueTextColor": "#E65100",
     "unitTextColor": "#8D6E63",
-    
+
     "nameTextColorOn": "#BF360C",
     "statusTextColorOn": "#E65100",
     "valueTextColorOn": "#BF360C",
     "unitTextColorOn": "#E65100",
-    
+
     "accentPrimary": "#FF6D00",
     "accentError": "#D84315",
     "accentSuccess": "#558B2F",
@@ -67,7 +66,7 @@
       ]
     },
     "bgPage": "#212121",
-    
+
     "cardOpacity": 0.85,
     "cardBorderRadius": 20,
     "cardBorderWidth": 0,
@@ -77,27 +76,27 @@
     "cardBackgroundOn": "#4E342E",
     "shadowCard": "0 2px 6px rgba(0,0,0,0.2)",
     "shadowDropdown": "0 4px 12px rgba(0,0,0,0.3)",
-    
+
     "panelOpacity": 0.8,
     "bgPanel": "rgba(62, 39, 35, 0.8)",
-    
+
     "bgInput": "#212121",
     "bgHeader": "rgba(62, 39, 35, 0.8)",
 
     "textPrimary": "#FFF3E0",
     "textSecondary": "#BCAAA4",
     "textMuted": "#8D6E63",
-    
+
     "nameTextColor": "#FFF3E0",
     "statusTextColor": "#BCAAA4",
     "valueTextColor": "#FFAB40",
     "unitTextColor": "#BCAAA4",
-    
+
     "nameTextColorOn": "#FFE0B2",
     "statusTextColorOn": "#FFCC80",
     "valueTextColorOn": "#FFE0B2",
     "unitTextColorOn": "#FFCC80",
-    
+
     "accentPrimary": "#FFAB40",
     "accentError": "#FF7043",
     "accentSuccess": "#9CCC65",

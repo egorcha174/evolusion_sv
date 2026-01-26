@@ -139,7 +139,7 @@
     "weatherKeyPlaceholder": "Paste API key here",
     "weatherShowForecast": "Show Forecast",
     "forecast": {
-       "daysLabel": "Forecast days"
+      "daysLabel": "Forecast days"
     },
     "weatherLayout": "Forecast Layout",
     "layoutVertical": "Vertical",
@@ -266,23 +266,23 @@
   },
   "weather": {
     "status": {
-       "clear": "Clear",
-       "fewClouds": "Few clouds",
-       "partlyCloudy": "Partly cloudy",
-       "overcast": "Overcast",
-       "fog": "Fog",
-       "drizzle": "Drizzle",
-       "freezingDrizzle": "Freezing Drizzle",
-       "rain": "Rain",
-       "heavyRain": "Heavy Rain",
-       "freezingRain": "Freezing Rain",
-       "snow": "Snow",
-       "heavySnow": "Heavy Snow",
-       "showers": "Showers",
-       "snowShowers": "Snow Showers",
-       "thunderstorm": "Thunderstorm",
-       "thunderstormHail": "Thunderstorm w/ Hail",
-       "unknown": "Unknown"
+      "clear": "Clear",
+      "fewClouds": "Few clouds",
+      "partlyCloudy": "Partly cloudy",
+      "overcast": "Overcast",
+      "fog": "Fog",
+      "drizzle": "Drizzle",
+      "freezingDrizzle": "Freezing Drizzle",
+      "rain": "Rain",
+      "heavyRain": "Heavy Rain",
+      "freezingRain": "Freezing Rain",
+      "snow": "Snow",
+      "heavySnow": "Heavy Snow",
+      "showers": "Showers",
+      "snowShowers": "Snow Showers",
+      "thunderstorm": "Thunderstorm",
+      "thunderstormHail": "Thunderstorm w/ Hail",
+      "unknown": "Unknown"
     }
   }
 }

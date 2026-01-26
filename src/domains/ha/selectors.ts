@@ -1,4 +1,3 @@
-
 import { derived, type Readable } from 'svelte/store';
 import { haStore } from './store';
 import type { HAEntity, HAStoreState } from '$lib/types';
@@ -12,7 +11,7 @@ export function selectEntitiesByDomain(domain: string): Readable<HAEntity[]> {
   if (!entitiesByDomainSelectors.has(domain)) {
     const selector = derived(haStore, ($store: HAStoreState) => {
       // Optimization: Iterate once, filtering is O(N) but we only do it when store updates.
-      // A more advanced approach would be to maintain domain indexes in the store, 
+      // A more advanced approach would be to maintain domain indexes in the store,
       // but this is sufficient for typical HA instance sizes.
       const result: HAEntity[] = [];
       for (const entity of $store.entities.values()) {

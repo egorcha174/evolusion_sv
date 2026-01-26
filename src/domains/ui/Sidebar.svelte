@@ -1,4 +1,3 @@
-
 <script lang="ts">
   import { onMount } from 'svelte';
   import { t, locale } from 'svelte-i18n';
@@ -7,16 +6,16 @@
   import { time } from '../app/time';
   import { clockSettings } from './widgets/clockStore';
   import WeatherWidget from './widgets/WeatherWidget.svelte';
-  
+
   // Resizing state
   let width = $state(280);
   let isResizing = $state(false);
 
   onMount(() => {
     loadUIState();
-    
+
     // Subscribe to store updates
-    const unsub = sidebarWidth.subscribe(w => width = w);
+    const unsub = sidebarWidth.subscribe((w) => (width = w));
     return () => {
       unsub();
     };
@@ -33,18 +32,18 @@
 
   function handleMouseMove(e: MouseEvent) {
     if (!isResizing) return;
-    
+
     let newWidth;
     if (document.dir === 'rtl') {
-       newWidth = window.innerWidth - e.clientX;
+      newWidth = window.innerWidth - e.clientX;
     } else {
-       newWidth = e.clientX;
+      newWidth = e.clientX;
     }
 
     // Constraints
     if (newWidth < 240) newWidth = 240;
     if (newWidth > 480) newWidth = 480;
-    
+
     width = newWidth;
   }
 
@@ -67,27 +66,27 @@
   }
 
   // Clock Derived State
-  let timeStr = $derived($time.toLocaleTimeString('ru-RU', { 
-      hour: '2-digit', 
+  let timeStr = $derived(
+    $time.toLocaleTimeString('ru-RU', {
+      hour: '2-digit',
       minute: '2-digit',
-      second: $clockSettings.showSeconds ? '2-digit' : undefined
-  }));
-  
-  let dateStr = $derived($time.toLocaleDateString($locale || 'en', { 
-      weekday: 'long', 
-      month: 'short', 
-      day: 'numeric' 
-  }));
+      second: $clockSettings.showSeconds ? '2-digit' : undefined,
+    })
+  );
+
+  let dateStr = $derived(
+    $time.toLocaleDateString($locale || 'en', {
+      weekday: 'long',
+      month: 'short',
+      day: 'numeric',
+    })
+  );
 </script>
 
 <aside class="sidebar" style="width: {width}px">
   <!-- Resize Handle -->
   <!-- svelte-ignore a11y_no_static_element_interactions -->
-  <div 
-    class="resize-handle" 
-    class:active={isResizing}
-    onmousedown={startResize}
-  ></div>
+  <div class="resize-handle" class:active={isResizing} onmousedown={startResize}></div>
 
   <!-- Widget: Clock -->
   <div class="widget clock-widget">
@@ -111,21 +110,21 @@
   <!-- Status Info (Bottom) -->
   <div class="status-info">
     <div class="status-row">
-       {#if $haStore.isConnected}
-          <div class="status-dot connected"></div>
-          <span class="status-text">{$t('sidebar.connected')}</span>
-          {#if $haStore.latency !== undefined}
-            <span class="latency" style="color: {getLatencyColor($haStore.latency)}">
-              ({$haStore.latency}ms)
-            </span>
-          {/if}
-       {:else if $haStore.isLoading}
-          <div class="status-dot loading"></div>
-          <span class="status-text">{$t('sidebar.connecting')}</span>
-       {:else}
-          <div class="status-dot disconnected"></div>
-          <span class="status-text">{$t('sidebar.offline')}</span>
-       {/if}
+      {#if $haStore.isConnected}
+        <div class="status-dot connected"></div>
+        <span class="status-text">{$t('sidebar.connected')}</span>
+        {#if $haStore.latency !== undefined}
+          <span class="latency" style="color: {getLatencyColor($haStore.latency)}">
+            ({$haStore.latency}ms)
+          </span>
+        {/if}
+      {:else if $haStore.isLoading}
+        <div class="status-dot loading"></div>
+        <span class="status-text">{$t('sidebar.connecting')}</span>
+      {:else}
+        <div class="status-dot disconnected"></div>
+        <span class="status-text">{$t('sidebar.offline')}</span>
+      {/if}
     </div>
   </div>
 </aside>
@@ -143,12 +142,12 @@
     overflow-y: auto;
     z-index: 50;
     color: var(--text-secondary);
-    box-shadow: 2px 0 10px rgba(0,0,0,0.02);
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.02);
     flex-shrink: 0;
     transition: width 0.05s linear;
     overflow-x: hidden;
   }
-  
+
   :global(body.rtl) .sidebar {
     border-right: none;
     border-left: 1px solid var(--border-primary);
@@ -165,15 +164,22 @@
     background: transparent;
     transition: background 0.2s;
   }
-  
+
   :global(body.rtl) .resize-handle {
     right: auto;
     left: -6px;
   }
-  
+
   /* Show line on hover/active to guide user */
-  .resize-handle:hover, .resize-handle.active {
-    background: linear-gradient(to right, transparent 45%, var(--accent-primary) 45%, var(--accent-primary) 55%, transparent 55%);
+  .resize-handle:hover,
+  .resize-handle.active {
+    background: linear-gradient(
+      to right,
+      transparent 45%,
+      var(--accent-primary) 45%,
+      var(--accent-primary) 55%,
+      transparent 55%
+    );
   }
 
   /* Widgets General */
@@ -185,7 +191,9 @@
   }
 
   /* Clock */
-  .clock-widget { text-align: center; }
+  .clock-widget {
+    text-align: center;
+  }
   .time {
     font-size: 3.5rem;
     font-weight: 200;
@@ -221,11 +229,14 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    color: rgba(255,255,255,0.5);
+    color: rgba(255, 255, 255, 0.5);
     background: linear-gradient(45deg, #1a1a1a, #2a2a2a);
     gap: 0.5rem;
   }
-  .camera-placeholder span { font-size: 0.8rem; font-weight: 500; }
+  .camera-placeholder span {
+    font-size: 0.8rem;
+    font-weight: 500;
+  }
 
   /* Status */
   .status-info {
@@ -248,24 +259,53 @@
     border-radius: 8px;
     white-space: nowrap;
   }
-  .status-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-  .status-dot.connected { background-color: var(--accent-success); }
-  .status-dot.loading { background-color: var(--accent-warning); animation: blink 0.5s infinite; }
-  .status-dot.disconnected { background-color: var(--accent-error); }
-  .status-text { font-weight: 500; color: var(--text-primary); }
-  
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .status-dot.connected {
+    background-color: var(--accent-success);
+  }
+  .status-dot.loading {
+    background-color: var(--accent-warning);
+    animation: blink 0.5s infinite;
+  }
+  .status-dot.disconnected {
+    background-color: var(--accent-error);
+  }
+  .status-text {
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+
   .latency {
     font-size: 0.75rem;
     font-weight: 600;
     margin-left: 4px;
   }
-  
+
   :global(body.rtl) .latency {
-     margin-left: 0;
-     margin-right: 4px;
+    margin-left: 0;
+    margin-right: 4px;
   }
 
-  @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+  @keyframes blink {
+    0% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.4;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
 
-  @media (max-width: 768px) { .sidebar { display: none; } }
+  @media (max-width: 768px) {
+    .sidebar {
+      display: none;
+    }
+  }
 </style>

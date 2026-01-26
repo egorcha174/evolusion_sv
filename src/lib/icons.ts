@@ -9,7 +9,7 @@ export const iconMap: Record<string, string> = {
   lock: 'mdi:lock',
   weather: 'mdi:weather-partly-cloudy',
   script: 'mdi:script-text-outline',
-  input_boolean: 'mdi:toggle-switch'
+  input_boolean: 'mdi:toggle-switch',
 };
 
 export function getIcon(domain: string): string {

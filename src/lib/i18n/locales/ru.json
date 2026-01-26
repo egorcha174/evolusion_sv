@@ -139,7 +139,7 @@
     "weatherKeyPlaceholder": "Вставьте API ключ",
     "weatherShowForecast": "Показывать прогноз",
     "forecast": {
-       "daysLabel": "Количество дней прогноза"
+      "daysLabel": "Количество дней прогноза"
     },
     "weatherLayout": "Ориентация прогноза",
     "layoutVertical": "Вертикальная",
@@ -266,23 +266,23 @@
   },
   "weather": {
     "status": {
-       "clear": "Ясно",
-       "fewClouds": "Малооблачно",
-       "partlyCloudy": "Переменная облачность",
-       "overcast": "Пасмурно",
-       "fog": "Туман",
-       "drizzle": "Морось",
-       "freezingDrizzle": "Ледяная морось",
-       "rain": "Дождь",
-       "heavyRain": "Сильный дождь",
-       "freezingRain": "Ледяной дождь",
-       "snow": "Снег",
-       "heavySnow": "Сильный снег",
-       "showers": "Ливень",
-       "snowShowers": "Снегопад",
-       "thunderstorm": "Гроза",
-       "thunderstormHail": "Гроза с градом",
-       "unknown": "Неизвестно"
+      "clear": "Ясно",
+      "fewClouds": "Малооблачно",
+      "partlyCloudy": "Переменная облачность",
+      "overcast": "Пасмурно",
+      "fog": "Туман",
+      "drizzle": "Морось",
+      "freezingDrizzle": "Ледяная морось",
+      "rain": "Дождь",
+      "heavyRain": "Сильный дождь",
+      "freezingRain": "Ледяной дождь",
+      "snow": "Снег",
+      "heavySnow": "Сильный снег",
+      "showers": "Ливень",
+      "snowShowers": "Снегопад",
+      "thunderstorm": "Гроза",
+      "thunderstormHail": "Гроза с градом",
+      "unknown": "Неизвестно"
     }
   }
 }

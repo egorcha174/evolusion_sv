@@ -1,4 +1,3 @@
-
 import type { WeatherIconPack } from './types';
 
 // Core mapping of codes to semantic keys
@@ -36,53 +35,53 @@ const CODE_TO_KEY: Record<number, string> = {
 // Pack definitions
 const PACKS: Record<WeatherIconPack, Record<string, string>> = {
   default: {
-    'sunny': 'mdi:weather-sunny',
+    sunny: 'mdi:weather-sunny',
     'partly-cloudy': 'mdi:weather-partly-cloudy',
-    'cloudy': 'mdi:weather-cloudy',
-    'fog': 'mdi:weather-fog',
+    cloudy: 'mdi:weather-cloudy',
+    fog: 'mdi:weather-fog',
     'rain-light': 'mdi:weather-rainy',
-    'rain': 'mdi:weather-pouring',
+    rain: 'mdi:weather-pouring',
     'rain-heavy': 'mdi:weather-pouring',
     'rain-snow': 'mdi:weather-snowy-rainy',
     'snow-light': 'mdi:weather-snowy',
-    'snow': 'mdi:weather-snowy',
+    snow: 'mdi:weather-snowy',
     'snow-heavy': 'mdi:weather-snowy-heavy',
-    'lightning': 'mdi:weather-lightning',
+    lightning: 'mdi:weather-lightning',
     'lightning-rainy': 'mdi:weather-lightning-rainy',
-    'unknown': 'mdi:weather-cloudy'
+    unknown: 'mdi:weather-cloudy',
   },
   outline: {
-    'sunny': 'mdi:white-balance-sunny',
+    sunny: 'mdi:white-balance-sunny',
     'partly-cloudy': 'mdi:weather-partly-cloudy',
-    'cloudy': 'mdi:cloud-outline',
-    'fog': 'mdi:weather-fog',
+    cloudy: 'mdi:cloud-outline',
+    fog: 'mdi:weather-fog',
     'rain-light': 'mdi:weather-rainy',
-    'rain': 'mdi:weather-pouring',
+    rain: 'mdi:weather-pouring',
     'rain-heavy': 'mdi:weather-pouring',
     'rain-snow': 'mdi:weather-snowy-rainy',
     'snow-light': 'mdi:weather-snowy',
-    'snow': 'mdi:weather-snowy',
+    snow: 'mdi:weather-snowy',
     'snow-heavy': 'mdi:weather-snowy-heavy',
-    'lightning': 'mdi:weather-lightning',
+    lightning: 'mdi:weather-lightning',
     'lightning-rainy': 'mdi:weather-lightning-rainy',
-    'unknown': 'mdi:cloud-outline'
+    unknown: 'mdi:cloud-outline',
   },
   filled: {
-    'sunny': 'mdi:weather-sunny',
+    sunny: 'mdi:weather-sunny',
     'partly-cloudy': 'mdi:cloud',
-    'cloudy': 'mdi:cloud',
-    'fog': 'mdi:weather-fog',
+    cloudy: 'mdi:cloud',
+    fog: 'mdi:weather-fog',
     'rain-light': 'mdi:weather-rainy',
-    'rain': 'mdi:weather-pouring',
+    rain: 'mdi:weather-pouring',
     'rain-heavy': 'mdi:weather-pouring',
     'rain-snow': 'mdi:weather-snowy-rainy',
     'snow-light': 'mdi:weather-snowy',
-    'snow': 'mdi:weather-snowy',
+    snow: 'mdi:weather-snowy',
     'snow-heavy': 'mdi:weather-snowy-heavy',
-    'lightning': 'mdi:weather-lightning',
+    lightning: 'mdi:weather-lightning',
     'lightning-rainy': 'mdi:weather-lightning-rainy',
-    'unknown': 'mdi:cloud'
-  }
+    unknown: 'mdi:cloud',
+  },
 };
 
 export function getWeatherIcon(code: number, pack: WeatherIconPack = 'default'): string {

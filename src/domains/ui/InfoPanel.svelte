@@ -1,4 +1,3 @@
-
 <script lang="ts">
   import { onMount } from 'svelte';
   import { t } from 'svelte-i18n';
@@ -12,16 +11,16 @@
   onMount(() => {
     // Initialize state
     loadUIState();
-    
+
     // Subscribe to store updates
-    const unsub = infoPanelWidth.subscribe(w => width = w);
-    
+    const unsub = infoPanelWidth.subscribe((w) => (width = w));
+
     // Clock logic
     const updateTime = () => {
       // Hardcoded 24h format as per spec
-      timeStr = new Date().toLocaleTimeString('ru-RU', { 
-        hour: '2-digit', 
-        minute: '2-digit' 
+      timeStr = new Date().toLocaleTimeString('ru-RU', {
+        hour: '2-digit',
+        minute: '2-digit',
       });
     };
     updateTime();
@@ -43,15 +42,15 @@
 
   function handleMouseMove(e: MouseEvent) {
     if (!isResizing) return;
-    
+
     // Calculate new width: strictly pointer X coordinate
     // since panel is on the left edge.
     let newWidth = e.clientX;
-    
+
     // Constraints
     if (newWidth < 280) newWidth = 280;
     if (newWidth > 500) newWidth = 500;
-    
+
     width = newWidth;
   }
 
@@ -69,11 +68,8 @@
 <aside class="info-panel" style="width: {width}px">
   <!-- Resize Handle -->
   <!-- svelte-ignore a11y_no_static_element_interactions -->
-  <div 
-    class="resize-handle" 
-    onmousedown={startResize}
-  ></div>
-  
+  <div class="resize-handle" onmousedown={startResize}></div>
+
   <div class="panel-content">
     <!-- Clock Zone -->
     <div class="section clock-section">
@@ -100,14 +96,14 @@
     height: 100vh;
     flex-shrink: 0;
     display: none; /* Hidden on mobile */
-    
+
     /* Glassmorphism Light Mode */
     background: rgba(255, 255, 255, 0.25);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     border-right: 1px solid rgba(255, 255, 255, 0.18);
     box-shadow: 4px 0 24px rgba(0, 0, 0, 0.05);
-    
+
     /* Shape */
     border-top-right-radius: 24px;
     border-bottom-right-radius: 24px;
@@ -121,7 +117,7 @@
       flex-direction: column;
     }
   }
-  
+
   @media (prefers-color-scheme: dark) {
     .info-panel {
       background: rgba(15, 23, 42, 0.35);
@@ -140,8 +136,9 @@
     z-index: 60;
     transition: background 0.2s;
   }
-  
-  .resize-handle:hover, .info-panel:hover .resize-handle {
+
+  .resize-handle:hover,
+  .info-panel:hover .resize-handle {
     background: rgba(128, 128, 128, 0.1);
   }
 
@@ -167,9 +164,11 @@
     line-height: 1.2;
     font-variant-numeric: tabular-nums;
   }
-  
+
   @media (prefers-color-scheme: dark) {
-    .clock { color: rgba(255, 255, 255, 0.9); }
+    .clock {
+      color: rgba(255, 255, 255, 0.9);
+    }
   }
 
   .card {
@@ -182,9 +181,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
   }
-  
+
   @media (prefers-color-scheme: dark) {
     .card {
       background: rgba(0, 0, 0, 0.2);
@@ -195,7 +194,7 @@
 
   .camera-card {
     min-height: 240px;
-    background: rgba(0,0,0,0.05);
+    background: rgba(0, 0, 0, 0.05);
   }
 
   .placeholder-text {

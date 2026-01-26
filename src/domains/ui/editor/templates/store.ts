@@ -1,4 +1,3 @@
-
 import { writable } from 'svelte/store';
 import type { CardTemplate, CardElement } from '$lib/types';
 
@@ -21,12 +20,12 @@ function createTemplateEditorStore() {
     dragStartX: 0,
     dragStartY: 0,
     elementStartX: 0,
-    elementStartY: 0
+    elementStartY: 0,
   });
 
   return {
     subscribe,
-    
+
     reset() {
       set({
         isDirty: false,
@@ -35,23 +34,23 @@ function createTemplateEditorStore() {
         dragStartX: 0,
         dragStartY: 0,
         elementStartX: 0,
-        elementStartY: 0
+        elementStartY: 0,
       });
     },
 
     selectElement(id: string | null) {
-      update(s => ({ ...s, selectedElementId: id }));
+      update((s) => ({ ...s, selectedElementId: id }));
     },
 
     startDrag(id: string, clientX: number, clientY: number, currentX: number, currentY: number) {
-      update(s => ({
+      update((s) => ({
         ...s,
         draggingId: id,
         selectedElementId: id, // Auto select on drag
         dragStartX: clientX,
         dragStartY: clientY,
         elementStartX: currentX,
-        elementStartY: currentY
+        elementStartY: currentY,
       }));
     },
 
@@ -62,8 +61,8 @@ function createTemplateEditorStore() {
     },
 
     stopDrag() {
-      update(s => ({ ...s, draggingId: null }));
-    }
+      update((s) => ({ ...s, draggingId: null }));
+    },
   };
 }
 

@@ -1,8 +1,12 @@
-
 import type { GridRect, TabId, CardId } from './types';
 
-export type HistoryCmd =
-  | { type: 'transform'; tabId: TabId; cardId: CardId; from: GridRect; to: GridRect };
+export type HistoryCmd = {
+  type: 'transform';
+  tabId: TabId;
+  cardId: CardId;
+  from: GridRect;
+  to: GridRect;
+};
 
 export class EditorHistory {
   private undoStack: HistoryCmd[] = [];

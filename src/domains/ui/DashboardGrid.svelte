@@ -1,4 +1,3 @@
-
 <script lang="ts">
   import { onMount } from 'svelte';
   import { t } from 'svelte-i18n';
@@ -34,19 +33,19 @@
         if (entityId) {
           // Check for template overrides in editor first, then fall back to store
           const overrideTpl = $editorStore.templateOverrides.get(id);
-          const originalCard = gridConfig.cards.find(c => c.id === id);
-          
+          const originalCard = gridConfig.cards.find((c) => c.id === id);
+
           // Note: overrideTpl can be undefined (no change) or explicit set.
           // We need to know if it's in the map.
-          const finalTemplateId = $editorStore.templateOverrides.has(id) 
-             ? overrideTpl 
-             : originalCard?.templateId;
+          const finalTemplateId = $editorStore.templateOverrides.has(id)
+            ? overrideTpl
+            : originalCard?.templateId;
 
           list.push({
             id,
             entityId,
             position: { x: rect.col, y: rect.row, w: rect.w, h: rect.h },
-            templateId: finalTemplateId
+            templateId: finalTemplateId,
           });
         }
       });
@@ -92,7 +91,7 @@
     const maxMargin = 10;
     const gridMaxWidth = Math.max(0, contentWidth - 2 * maxMargin);
     const gridMaxHeight = Math.max(0, contentHeight - 2 * maxMargin);
-    
+
     // Safety check: Don't calculate if space is invalid
     if (gridMaxWidth <= 0 || gridMaxHeight <= 0) return;
 
@@ -107,7 +106,7 @@
 
     // Only update if changes are significant to prevent loops
     if (cellSize === size && Math.abs(containerWidth - contentWidth) < 1) {
-        // Only skip if gaps/margins are also stable, but usually size change is main trigger
+      // Only skip if gaps/margins are also stable, but usually size change is main trigger
     }
 
     cellSize = size;
@@ -152,7 +151,7 @@
     const _h = containerHeight;
     // Debounce simply by Svelte's batching, but we ensure calc only runs if inputs valid
     if (_w > 0 && _h > 0) {
-       calculateGeometry();
+      calculateGeometry();
     }
   });
 
@@ -160,16 +159,16 @@
     dashboardStore.init();
     dashboardStore.ensureTabConfig($activeTabId);
 
-    const observer = new ResizeObserver(entries => {
+    const observer = new ResizeObserver((entries) => {
       for (const entry of entries) {
         // Round values to prevent sub-pixel infinite loops
         const newW = Math.round(entry.contentRect.width);
         const newH = Math.round(entry.contentRect.height);
-        
+
         // Only update if changed significantly
         if (Math.abs(newW - containerWidth) >= 1 || Math.abs(newH - containerHeight) >= 1) {
-           containerWidth = newW;
-           containerHeight = newH;
+          containerWidth = newW;
+          containerHeight = newH;
         }
       }
     });
@@ -205,7 +204,7 @@
   function getEntity(id: string): HAEntity | undefined {
     return $haStore.entities.get(id);
   }
-  
+
   function getTemplate(id?: string): CardTemplate | undefined {
     return id ? $dashboardStore.templates[id] : undefined;
   }
@@ -271,10 +270,10 @@
     if (cmCardId) editorStore.moveCardToTab(cmCardId);
     cmOpen = false;
   }
-  
+
   function cmOpenSettings() {
     if (cmCardId) {
-      const card = cards.find(c => c.id === cmCardId);
+      const card = cards.find((c) => c.id === cmCardId);
       if (card) {
         activeSettingsCard = card;
         showCardSettings = true;
@@ -282,7 +281,6 @@
     }
     cmOpen = false;
   }
-
 </script>
 
 <svelte:window onclick={handleGlobalClick} />
@@ -312,24 +310,14 @@
       style:touch-action={$isEditMode ? 'none' : 'auto'}
     >
       {#if $isEditMode}
-        <GridOverlay
-          cols={columns}
-          rows={rows}
-          cellW={cellSize}
-          cellH={cellSize}
-          gapX={gapX}
-          gapY={gapY}
-        />
+        <GridOverlay cols={columns} {rows} cellW={cellSize} cellH={cellSize} {gapX} {gapY} />
       {/if}
 
       {#each cards as card (card.id)}
         {@const entity = getEntity(card.entityId)}
         {#if entity}
           <GridItem {card} oncontextmenu={handleCardContext}>
-            <DeviceCard 
-              {entity} 
-              template={getTemplate(card.templateId)}
-            />
+            <DeviceCard {entity} template={getTemplate(card.templateId)} />
           </GridItem>
         {/if}
       {/each}
@@ -339,15 +327,11 @@
   {#if $isEditMode}
     <EditToolbar />
     {#if $editorStore.showGridSettings}
-      <GridSettings tabId={$activeTabId} cols={columns} rows={rows} />
+      <GridSettings tabId={$activeTabId} cols={columns} {rows} />
     {/if}
-    
+
     <!-- Floating Action Button for Adding Devices -->
-    <button 
-      class="fab-add" 
-      onclick={toggleAddDevice} 
-      title={$t('dashboard.addWidget')}
-    >
+    <button class="fab-add" onclick={toggleAddDevice} title={$t('dashboard.addWidget')}>
       <iconify-icon icon="mdi:plus"></iconify-icon>
     </button>
   {/if}
@@ -365,9 +349,9 @@
       <iconify-icon icon="mdi:palette-swatch-outline"></iconify-icon>
       {$t('dashboard.menu.appearance')}
     </button>
-  
+
     <div class="divider"></div>
-  
+
     <button class="menu-item" onclick={cmDuplicate}>
       <iconify-icon icon="mdi:content-copy"></iconify-icon>
       {$t('dashboard.menu.duplicateCard')}
@@ -377,7 +361,8 @@
     {#each $tabs as tab}
       {#if tab.id !== $activeTabId}
         <button class="menu-item" onclick={() => cmMoveTo(tab.id)}>
-          <iconify-icon icon="mdi:arrow-right"></iconify-icon> {tab.title}
+          <iconify-icon icon="mdi:arrow-right"></iconify-icon>
+          {tab.title}
         </button>
       {/if}
     {/each}
@@ -396,7 +381,10 @@
   <CardSettingsDialog
     tabId={$activeTabId}
     card={activeSettingsCard}
-    onClose={() => { showCardSettings = false; activeSettingsCard = null; }}
+    onClose={() => {
+      showCardSettings = false;
+      activeSettingsCard = null;
+    }}
   />
 {/if}
 
@@ -435,7 +423,7 @@
     height: 100%;
     color: var(--text-muted);
   }
-  
+
   .empty-content {
     display: flex;
     flex-direction: column;
@@ -454,7 +442,7 @@
     background: var(--accent-primary);
     color: #ffffff;
     border: none;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -463,12 +451,12 @@
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 1500;
   }
-  
+
   .fab-add:hover {
     transform: scale(1.1);
-    box-shadow: 0 6px 16px rgba(0,0,0,0.35);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.35);
   }
-  
+
   .fab-add:active {
     transform: scale(0.95);
   }
@@ -501,7 +489,7 @@
       min-width: 100%;
       min-height: 50vh;
     }
-    
+
     .fab-add {
       bottom: 24px;
       right: 24px;
@@ -565,7 +553,7 @@
     font-weight: 600;
     text-transform: uppercase;
   }
-  
+
   .btn {
     padding: 0.7rem 1.2rem;
     border-radius: 8px;

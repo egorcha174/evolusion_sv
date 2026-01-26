@@ -1,4 +1,3 @@
-
 <script lang="ts" generics="T">
   import { onMount, type Snippet } from 'svelte';
 
@@ -8,9 +7,9 @@
     itemHeight: number;
     height?: string;
     keyField?: keyof T;
-    children: Snippet<[{ item: T, index: number }]>;
+    children: Snippet<[{ item: T; index: number }]>;
   }
-  
+
   let { items, itemHeight, height = '100%', keyField, children }: Props = $props();
 
   let container: HTMLDivElement;
@@ -21,18 +20,19 @@
   const buffer = 5;
 
   let totalHeight = $derived(items.length * itemHeight);
-  
-  let visibleStartIndex = $derived(Math.max(0, Math.floor(scrollTop / itemHeight) - buffer));
-  let visibleEndIndex = $derived(Math.min(
-    items.length, 
-    Math.ceil((scrollTop + availableHeight) / itemHeight) + buffer
-  ));
 
-  let visibleItems = $derived(items.slice(visibleStartIndex, visibleEndIndex).map((item, index) => ({
-    item,
-    index: visibleStartIndex + index,
-    offset: (visibleStartIndex + index) * itemHeight
-  })));
+  let visibleStartIndex = $derived(Math.max(0, Math.floor(scrollTop / itemHeight) - buffer));
+  let visibleEndIndex = $derived(
+    Math.min(items.length, Math.ceil((scrollTop + availableHeight) / itemHeight) + buffer)
+  );
+
+  let visibleItems = $derived(
+    items.slice(visibleStartIndex, visibleEndIndex).map((item, index) => ({
+      item,
+      index: visibleStartIndex + index,
+      offset: (visibleStartIndex + index) * itemHeight,
+    }))
+  );
 
   function handleScroll(e: UIEvent) {
     scrollTop = (e.target as HTMLElement).scrollTop;
@@ -42,9 +42,9 @@
     if (container) {
       availableHeight = container.clientHeight;
       // Resize observer to handle dynamic container resizing
-      const ro = new ResizeObserver(entries => {
+      const ro = new ResizeObserver((entries) => {
         for (const entry of entries) {
-           availableHeight = entry.contentRect.height;
+          availableHeight = entry.contentRect.height;
         }
       });
       ro.observe(container);
@@ -53,18 +53,15 @@
   });
 </script>
 
-<div 
-  class="virtual-container" 
+<div
+  class="virtual-container"
   style="height: {height}"
   onscroll={handleScroll}
   bind:this={container}
 >
   <div class="virtual-spacer" style="height: {totalHeight}px">
     {#each visibleItems as { item, index, offset } (keyField ? (item as any)[keyField] : index)}
-      <div 
-        class="virtual-item"
-        style="transform: translateY({offset}px); height: {itemHeight}px"
-      >
+      <div class="virtual-item" style="transform: translateY({offset}px); height: {itemHeight}px">
         {@render children({ item, index })}
       </div>
     {/each}
@@ -77,7 +74,7 @@
     position: relative;
     width: 100%;
     /* Ensure hardware acceleration for smoother scrolling */
-    will-change: transform; 
+    will-change: transform;
   }
 
   .virtual-spacer {

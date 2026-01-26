@@ -1,5 +1,10 @@
-
-import type { WeatherProvider, Coordinates, WeatherData, WeatherSettings, WeatherForecastDay } from '../types';
+import type {
+  WeatherProvider,
+  Coordinates,
+  WeatherData,
+  WeatherSettings,
+  WeatherForecastDay,
+} from '../types';
 import { getWeatherIcon, getWeatherDescription, mapWeatherApiCode } from '../icons';
 
 export const weatherApiProvider: WeatherProvider = {
@@ -13,9 +18,9 @@ export const weatherApiProvider: WeatherProvider = {
     // WeatherAPI handles forecast via 'days' parameter.
     // Days includes today, so we ask for forecastDays + 1
     const daysToRequest = settings.showForecast ? settings.forecastDays + 1 : 1;
-    
+
     const url = `https://api.weatherapi.com/v1/forecast.json?key=${settings.apiKey}&q=${coords.lat},${coords.lon}&days=${daysToRequest}`;
-    
+
     const res = await fetch(url);
     if (!res.ok) {
       if (res.status === 401 || res.status === 403) throw new Error('Invalid WeatherAPI Key');
@@ -30,7 +35,7 @@ export const weatherApiProvider: WeatherProvider = {
     if (data.forecast && data.forecast.forecastday) {
       // Skip today (index 0)
       const futureDays = data.forecast.forecastday.slice(1, settings.forecastDays + 1);
-      
+
       for (const day of futureDays) {
         const dayCode = mapWeatherApiCode(day.day.condition.code);
         forecast.push({
@@ -38,7 +43,7 @@ export const weatherApiProvider: WeatherProvider = {
           minTemp: Math.round(day.day.mintemp_c),
           maxTemp: Math.round(day.day.maxtemp_c),
           condition: getWeatherDescription(dayCode),
-          icon: getWeatherIcon(dayCode, settings.iconPack)
+          icon: getWeatherIcon(dayCode, settings.iconPack),
         });
       }
     }
@@ -49,7 +54,7 @@ export const weatherApiProvider: WeatherProvider = {
       icon: getWeatherIcon(currentCode, settings.iconPack),
       location: data.location.name || coords.name,
       updatedAt: new Date(),
-      forecast
+      forecast,
     };
-  }
+  },
 };

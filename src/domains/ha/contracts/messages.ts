@@ -1,14 +1,14 @@
-export type HAMessageType = 
-  | 'auth_required' 
-  | 'auth' 
-  | 'auth_ok' 
-  | 'auth_invalid' 
-  | 'result' 
-  | 'subscribe_events' 
-  | 'unsubscribe_events' 
-  | 'get_states' 
-  | 'event' 
-  | 'ping' 
+export type HAMessageType =
+  | 'auth_required'
+  | 'auth'
+  | 'auth_ok'
+  | 'auth_invalid'
+  | 'result'
+  | 'subscribe_events'
+  | 'unsubscribe_events'
+  | 'get_states'
+  | 'event'
+  | 'ping'
   | 'pong';
 
 export interface BaseMessage {
@@ -96,10 +96,10 @@ export interface EventMessage extends BaseMessage {
   event: StateChangedEvent | any;
 }
 
-export type HAMessage = 
-  | AuthRequiredMessage 
-  | AuthMessage 
-  | AuthOkMessage 
-  | AuthInvalidMessage 
-  | ResultMessage 
+export type HAMessage =
+  | AuthRequiredMessage
+  | AuthMessage
+  | AuthOkMessage
+  | AuthInvalidMessage
+  | ResultMessage
   | EventMessage;

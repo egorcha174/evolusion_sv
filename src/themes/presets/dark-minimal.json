@@ -1,4 +1,3 @@
-
 {
   "schemaVersion": 1,
   "manifest": {
@@ -13,7 +12,7 @@
     "dashboardBackgroundType": "color",
     "dashboardBackgroundColor": "#FFFFFF",
     "bgPage": "#FFFFFF",
-    
+
     "cardOpacity": 1,
     "cardBorderRadius": 4,
     "cardBorderWidth": 1,
@@ -23,27 +22,27 @@
     "cardBackgroundOn": "#000000",
     "shadowCard": "none",
     "shadowDropdown": "0 4px 8px rgba(0, 0, 0, 0.1)",
-    
+
     "panelOpacity": 1,
     "bgPanel": "#FFFFFF",
-    
+
     "bgInput": "#FFFFFF",
     "bgHeader": "#FFFFFF",
 
     "textPrimary": "#000000",
     "textSecondary": "#333333",
     "textMuted": "#666666",
-    
+
     "nameTextColor": "#000000",
     "statusTextColor": "#666666",
     "valueTextColor": "#000000",
     "unitTextColor": "#000000",
-    
+
     "nameTextColorOn": "#FFFFFF",
     "statusTextColorOn": "#CCCCCC",
     "valueTextColorOn": "#FFFFFF",
     "unitTextColorOn": "#FFFFFF",
-    
+
     "accentPrimary": "#000000",
     "accentError": "#000000",
     "accentSuccess": "#000000",
@@ -55,7 +54,7 @@
     "dashboardBackgroundType": "color",
     "dashboardBackgroundColor": "#000000",
     "bgPage": "#000000",
-    
+
     "cardOpacity": 1,
     "cardBorderRadius": 4,
     "cardBorderWidth": 1,
@@ -65,27 +64,27 @@
     "cardBackgroundOn": "#FFFFFF",
     "shadowCard": "none",
     "shadowDropdown": "0 4px 8px rgba(255, 255, 255, 0.1)",
-    
+
     "panelOpacity": 1,
     "bgPanel": "#000000",
-    
+
     "bgInput": "#111111",
     "bgHeader": "#000000",
 
     "textPrimary": "#FFFFFF",
     "textSecondary": "#CCCCCC",
     "textMuted": "#999999",
-    
+
     "nameTextColor": "#FFFFFF",
     "statusTextColor": "#999999",
     "valueTextColor": "#FFFFFF",
     "unitTextColor": "#FFFFFF",
-    
+
     "nameTextColorOn": "#000000",
     "statusTextColorOn": "#333333",
     "valueTextColorOn": "#000000",
     "unitTextColorOn": "#000000",
-    
+
     "accentPrimary": "#FFFFFF",
     "accentError": "#FFFFFF",
     "accentSuccess": "#FFFFFF",

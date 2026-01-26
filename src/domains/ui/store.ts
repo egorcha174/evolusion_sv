@@ -1,4 +1,3 @@
-
 import { browser } from '$app/environment';
 import { writable, derived, type Readable } from 'svelte/store';
 import { haStore } from '../ha/store';
@@ -42,11 +41,11 @@ export const isSettingsOpen = writable<boolean>(false);
 export const isAddDeviceOpen = writable<boolean>(false);
 
 export function toggleSettings() {
-  isSettingsOpen.update(v => !v);
+  isSettingsOpen.update((v) => !v);
 }
 
 export function toggleAddDevice() {
-  isAddDeviceOpen.update(v => !v);
+  isAddDeviceOpen.update((v) => !v);
 }
 
 // --- New UI Dashboard State ---
@@ -71,12 +70,12 @@ const initialDashboardState: UIDashboardState = {
   filters: {
     search: '',
     domain: undefined,
-    showOnlyProblem: false
+    showOnlyProblem: false,
   },
   sort: {
     key: 'name',
-    direction: 'asc'
-  }
+    direction: 'asc',
+  },
 };
 
 export const uiDashboardState = writable<UIDashboardState>(initialDashboardState);
@@ -85,29 +84,28 @@ export const uiDashboardState = writable<UIDashboardState>(initialDashboardState
 
 // Helper to filter/sort entities
 function processEntities(
-  entities: HAEntity[], 
-  filters: UIFilters, 
-  sort: UISortMode, 
+  entities: HAEntity[],
+  filters: UIFilters,
+  sort: UISortMode,
   problemEntitiesSet: Set<string>
 ): HAEntity[] {
   let result = entities;
 
   // 1. Filter: Problems
   if (filters.showOnlyProblem) {
-    result = result.filter(e => problemEntitiesSet.has(e.entity_id));
+    result = result.filter((e) => problemEntitiesSet.has(e.entity_id));
   }
 
   // 2. Filter: Domain
   if (filters.domain) {
-    result = result.filter(e => extractDomain(e.entity_id) === filters.domain);
+    result = result.filter((e) => extractDomain(e.entity_id) === filters.domain);
   }
 
   // 3. Filter: Search
   if (filters.search) {
     const term = filters.search.toLowerCase();
-    result = result.filter(e => 
-      e.entity_id.includes(term) || 
-      (e.attributes.friendly_name?.toLowerCase().includes(term))
+    result = result.filter(
+      (e) => e.entity_id.includes(term) || e.attributes.friendly_name?.toLowerCase().includes(term)
     );
   }
 
@@ -162,16 +160,27 @@ export type DashboardGridItem = HAEntity & { id: string };
 // Selector for DashboardGrid (Cards)
 export const selectVisibleDashboardCards = derived(
   [haStore, uiDashboardState, activeTabId, layoutConfig],
-  ([$haStore, $uiState, $activeTab, $layout]: [HAStoreState, UIDashboardState, string, LayoutConfig]) => {
+  ([$haStore, $uiState, $activeTab, $layout]: [
+    HAStoreState,
+    UIDashboardState,
+    string,
+    LayoutConfig,
+  ]) => {
     const allEntities: HAEntity[] = Array.from($haStore.entities.values());
-    
+
     // 1. Initial Domain Filter for Dashboard (Allowlist)
     const RELEVANT_DOMAINS = new Set([
-      'light', 'switch', 'climate', 'media_player', 
-      'cover', 'lock', 'script', 'input_boolean'
+      'light',
+      'switch',
+      'climate',
+      'media_player',
+      'cover',
+      'lock',
+      'script',
+      'input_boolean',
     ]);
 
-    let relevant: HAEntity[] = allEntities.filter(entity => {
+    let relevant: HAEntity[] = allEntities.filter((entity) => {
       const domain = extractDomain(entity.entity_id);
       return RELEVANT_DOMAINS.has(domain);
     });
@@ -179,12 +188,12 @@ export const selectVisibleDashboardCards = derived(
     // 2. Tab Filter (Fake Room Logic)
     if ($activeTab !== 'home') {
       const searchTerms = $activeTab.split('_');
-      const lowerTerms = searchTerms.map(t => t.toLowerCase());
-      
-      relevant = relevant.filter(e => {
+      const lowerTerms = searchTerms.map((t) => t.toLowerCase());
+
+      relevant = relevant.filter((e) => {
         const name = (e.attributes.friendly_name || '').toLowerCase();
         const id = e.entity_id.toLowerCase();
-        return lowerTerms.some(term => name.includes(term) || id.includes(term));
+        return lowerTerms.some((term) => name.includes(term) || id.includes(term));
       });
     }
 
@@ -192,18 +201,24 @@ export const selectVisibleDashboardCards = derived(
     // Note: We ignore 'showOnlyProblem' for the main dashboard usually, but can apply it if needed.
     // Here we apply strict dashboard logic first, then optional UI filters if user typed something.
     if ($uiState.filters.search || $uiState.filters.domain) {
-      relevant = processEntities(relevant, $uiState.filters, $uiState.sort, $haStore.problemEntities);
+      relevant = processEntities(
+        relevant,
+        $uiState.filters,
+        $uiState.sort,
+        $haStore.problemEntities
+      );
     }
 
     // 4. Custom Sort Order (Only for Home Tab & No Search active)
     let sorted: DashboardGridItem[] = [];
-    const isDefaultView = $activeTab === 'home' && !$uiState.filters.search && !$uiState.filters.domain;
+    const isDefaultView =
+      $activeTab === 'home' && !$uiState.filters.search && !$uiState.filters.domain;
 
     if (isDefaultView && $layout.cardOrder.length > 0) {
       // Cast array to specific tuple type to help Map constructor inference
-      const entries = relevant.map(e => [e.entity_id, e] as const);
+      const entries = relevant.map((e) => [e.entity_id, e] as const);
       const entityMap = new Map<string, HAEntity>(entries);
-      
+
       for (const id of $layout.cardOrder) {
         if (entityMap.has(id)) {
           const entity = entityMap.get(id)!;
@@ -217,9 +232,14 @@ export const selectVisibleDashboardCards = derived(
     } else {
       // If not custom sorting, use the UI Sort preference
       if (!isDefaultView) {
-        relevant = processEntities(relevant, { ...$uiState.filters, search: '', domain: undefined }, $uiState.sort, $haStore.problemEntities);
+        relevant = processEntities(
+          relevant,
+          { ...$uiState.filters, search: '', domain: undefined },
+          $uiState.sort,
+          $haStore.problemEntities
+        );
       }
-      sorted = relevant.map(e => ({ ...e, id: e.entity_id }));
+      sorted = relevant.map((e) => ({ ...e, id: e.entity_id }));
     }
 
     return sorted;

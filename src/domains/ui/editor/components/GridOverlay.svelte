@@ -1,14 +1,13 @@
-
 <script lang="ts">
-  let { cols, rows, cellW, cellH, gapX, gapY } = $props<{ 
-    cols: number, 
-    rows: number, 
-    cellW: number, 
-    cellH: number, 
-    gapX: number, 
-    gapY: number 
+  let { cols, rows, cellW, cellH, gapX, gapY } = $props<{
+    cols: number;
+    rows: number;
+    cellW: number;
+    cellH: number;
+    gapX: number;
+    gapY: number;
   }>();
-  
+
   let total = $derived(cols * rows);
   let style = $derived(`
     --cols: ${cols};
@@ -20,8 +19,8 @@
   `);
 </script>
 
-<div class="grid-overlay" style={style}>
-  {#each {length: total} as _}
+<div class="grid-overlay" {style}>
+  {#each { length: total } as _}
     <div class="cell"></div>
   {/each}
 </div>
@@ -33,20 +32,20 @@
     left: 0;
     width: 100%;
     height: 100%;
-    
+
     display: grid;
     grid-template-columns: repeat(var(--cols), var(--cell-w));
     grid-template-rows: repeat(var(--rows), var(--cell-h));
     column-gap: var(--gap-x);
     row-gap: var(--gap-y);
-    
+
     justify-content: center;
     align-content: center;
-    
+
     pointer-events: none;
     z-index: 0;
   }
-  
+
   .cell {
     width: 100%;
     height: 100%;

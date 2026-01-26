@@ -1,4 +1,3 @@
-
 <script lang="ts">
   let { color }: { color: string | undefined } = $props();
 </script>

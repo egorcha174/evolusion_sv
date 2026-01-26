@@ -1,21 +1,20 @@
-
 import { writable, derived, get, type Readable } from 'svelte/store';
 import { HAClient } from './api';
 import type { HAStoreState, HAEntity, StateChangedEvent, HAState } from '$lib/types';
 
 // Global HA Store
 export const haStore = writable<HAStoreState>({
-	isConnected: false,
-	isLoading: false,
-	error: null,
-	entities: new Map(),
-	problemEntities: new Set(),
-	latency: undefined
+  isConnected: false,
+  isLoading: false,
+  error: null,
+  entities: new Map(),
+  problemEntities: new Set(),
+  latency: undefined,
 });
 
 // Derived stores for UI
 export const entityList: Readable<HAEntity[]> = derived(haStore, ($store) => {
-	return Array.from($store.entities.values());
+  return Array.from($store.entities.values());
 });
 
 // Internal client instance and intervals
@@ -28,154 +27,155 @@ let updateBuffer = new Map<string, HAEntity>();
 let updateFrame: number | null = null;
 
 function flushUpdates() {
-	haStore.update((s) => {
-		// Clone collections
-		const newEntities = new Map(s.entities);
-		const newProblems = new Set(s.problemEntities);
+  haStore.update((s) => {
+    // Clone collections
+    const newEntities = new Map(s.entities);
+    const newProblems = new Set(s.problemEntities);
 
-		updateBuffer.forEach((state, id) => {
-			newEntities.set(id, state);
-			
-			// Update problem index
-			if (state.state === 'unavailable' || state.state === 'unknown') {
-				newProblems.add(id);
-			} else {
-				newProblems.delete(id);
-			}
-		});
+    updateBuffer.forEach((state, id) => {
+      newEntities.set(id, state);
 
-		return { 
-			...s, 
-			entities: newEntities,
-			problemEntities: newProblems
-		};
-	});
-	
-	updateBuffer.clear();
-	updateFrame = null;
+      // Update problem index
+      if (state.state === 'unavailable' || state.state === 'unknown') {
+        newProblems.add(id);
+      } else {
+        newProblems.delete(id);
+      }
+    });
+
+    return {
+      ...s,
+      entities: newEntities,
+      problemEntities: newProblems,
+    };
+  });
+
+  updateBuffer.clear();
+  updateFrame = null;
 }
 
 function scheduleUpdate(entityId: string, newState: HAEntity) {
-	updateBuffer.set(entityId, newState);
-	
-	if (!updateFrame) {
-		updateFrame = requestAnimationFrame(flushUpdates);
-	}
+  updateBuffer.set(entityId, newState);
+
+  if (!updateFrame) {
+    updateFrame = requestAnimationFrame(flushUpdates);
+  }
 }
 // --------------------------------
 
 export async function initializeHAConnection(url: string, token: string): Promise<void> {
-	if (client) {
-		await disconnectHA();
-	}
+  if (client) {
+    await disconnectHA();
+  }
 
-	haStore.update((s) => ({ ...s, isLoading: true, error: null }));
+  haStore.update((s) => ({ ...s, isLoading: true, error: null }));
 
-	try {
-		client = new HAClient(url, token);
-		await client.connect();
+  try {
+    client = new HAClient(url, token);
+    await client.connect();
 
-		// Initial data fetch
-		const states = await client.getStates();
-		
-		// Bulk initial update
-		haStore.update((s) => {
-			const newEntities = new Map<string, HAEntity>();
-			const newProblems = new Set<string>();
+    // Initial data fetch
+    const states = await client.getStates();
 
-			states.forEach((state) => {
-				const entity = mapStateToEntity(state);
-				newEntities.set(state.entity_id, entity);
-				if (entity.state === 'unavailable' || entity.state === 'unknown') {
-					newProblems.add(state.entity_id);
-				}
-			});
+    // Bulk initial update
+    haStore.update((s) => {
+      const newEntities = new Map<string, HAEntity>();
+      const newProblems = new Set<string>();
 
-			return {
-				...s,
-				isConnected: true,
-				entities: newEntities,
-				problemEntities: newProblems
-			};
-		});
+      states.forEach((state) => {
+        const entity = mapStateToEntity(state);
+        newEntities.set(state.entity_id, entity);
+        if (entity.state === 'unavailable' || entity.state === 'unknown') {
+          newProblems.add(state.entity_id);
+        }
+      });
 
-		// Setup subscriptions
-		await client.subscribe('state_changed');
-		client.onStateChange((event: StateChangedEvent) => {
-			if (event.data.new_state) {
-				updateEntity(event.data.entity_id, mapStateToEntity(event.data.new_state));
-			}
-		});
+      return {
+        ...s,
+        isConnected: true,
+        entities: newEntities,
+        problemEntities: newProblems,
+      };
+    });
 
-		// Start Heartbeat/Ping
-		startPingLoop();
+    // Setup subscriptions
+    await client.subscribe('state_changed');
+    client.onStateChange((event: StateChangedEvent) => {
+      if (event.data.new_state) {
+        updateEntity(event.data.entity_id, mapStateToEntity(event.data.new_state));
+      }
+    });
 
-	} catch (error: any) {
-		console.error('HA Connection failed:', error);
-		haStore.update((s) => ({
-			...s,
-			isConnected: false,
-			error: error.message || 'Connection failed'
-		}));
-		if (client) {
-			try {
-				await client.disconnect();
-			} catch (e) { /* ignore */ }
-			client = null;
-		}
-	} finally {
-		haStore.update((s) => ({ ...s, isLoading: false }));
-	}
+    // Start Heartbeat/Ping
+    startPingLoop();
+  } catch (error: any) {
+    console.error('HA Connection failed:', error);
+    haStore.update((s) => ({
+      ...s,
+      isConnected: false,
+      error: error.message || 'Connection failed',
+    }));
+    if (client) {
+      try {
+        await client.disconnect();
+      } catch (e) {
+        /* ignore */
+      }
+      client = null;
+    }
+  } finally {
+    haStore.update((s) => ({ ...s, isLoading: false }));
+  }
 }
 
 function startPingLoop() {
-	if (pingInterval) clearInterval(pingInterval);
-	
-	// Initial ping
-	measureLatency();
+  if (pingInterval) clearInterval(pingInterval);
 
-	// Ping every 30 seconds
-	pingInterval = setInterval(measureLatency, 30000);
+  // Initial ping
+  measureLatency();
+
+  // Ping every 30 seconds
+  pingInterval = setInterval(measureLatency, 30000);
 }
 
 async function measureLatency() {
-	if (!client || !client.isConnected()) return;
-	try {
-		const ms = await client.ping();
-		haStore.update(s => ({ ...s, latency: Math.round(ms) }));
-	} catch (e) {
-		console.warn('Ping failed', e);
-	}
+  if (!client || !client.isConnected()) return;
+  try {
+    const ms = await client.ping();
+    haStore.update((s) => ({ ...s, latency: Math.round(ms) }));
+  } catch (e) {
+    console.warn('Ping failed', e);
+  }
 }
 
 export async function disconnectHA(): Promise<void> {
-	if (pingInterval) {
-		clearInterval(pingInterval);
-		pingInterval = null;
-	}
+  if (pingInterval) {
+    clearInterval(pingInterval);
+    pingInterval = null;
+  }
 
-	if (client) {
-		await client.disconnect();
-		client = null;
-	}
-	haStore.update((s) => ({
-		...s,
-		isConnected: false,
-		entities: new Map(),
-		problemEntities: new Set(),
-		error: null,
-		latency: undefined
-	}));
+  if (client) {
+    await client.disconnect();
+    client = null;
+  }
+  haStore.update((s) => ({
+    ...s,
+    isConnected: false,
+    entities: new Map(),
+    problemEntities: new Set(),
+    error: null,
+    latency: undefined,
+  }));
 }
 
 export function updateEntity(entityId: string, newState: HAEntity): void {
-	// Use the batched scheduler instead of direct store update
-	scheduleUpdate(entityId, newState);
+  // Use the batched scheduler instead of direct store update
+  scheduleUpdate(entityId, newState);
 }
 
 export function getEntity(entityId: string): HAEntity | undefined {
-	const state = get(haStore);
-	return state.entities.get(entityId);
+  const state = get(haStore);
+  return state.entities.get(entityId);
 }
 
 // Action Functions
@@ -207,34 +207,34 @@ const toggleStrategies: Record<string, (client: HAClient, entity: HAEntity) => P
 };
 
 export async function toggleEntity(entityId: string): Promise<void> {
-	if (!client || !client.isConnected()) {
-		throw new Error('Not connected to Home Assistant');
-	}
+  if (!client || !client.isConnected()) {
+    throw new Error('Not connected to Home Assistant');
+  }
 
-	const state = get(haStore);
-	const entity = state.entities.get(entityId);
-	
-	if (!entity) {
-		throw new Error(`Entity ${entityId} not found`);
-	}
+  const state = get(haStore);
+  const entity = state.entities.get(entityId);
 
-	const domain = entityId.split('.')[0];
+  if (!entity) {
+    throw new Error(`Entity ${entityId} not found`);
+  }
+
+  const domain = entityId.split('.')[0];
   const handler = toggleStrategies[domain];
 
-	if (handler) {
-		await handler(client, entity);
-	} else {
-		throw new Error(`Cannot toggle entity with domain: ${domain}`);
-	}
+  if (handler) {
+    await handler(client, entity);
+  } else {
+    throw new Error(`Cannot toggle entity with domain: ${domain}`);
+  }
 }
 
 function mapStateToEntity(state: HAState): HAEntity {
-	return {
-		entity_id: state.entity_id,
-		state: state.state,
-		attributes: state.attributes,
-		last_changed: state.last_changed,
-		last_updated: state.last_updated,
-		context: state.context
-	};
+  return {
+    entity_id: state.entity_id,
+    state: state.state,
+    attributes: state.attributes,
+    last_changed: state.last_changed,
+    last_updated: state.last_updated,
+    context: state.context,
+  };
 }

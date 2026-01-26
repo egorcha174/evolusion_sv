@@ -1,4 +1,3 @@
-
 <script lang="ts">
   // Background logic is handled via CSS variables injected by the global theme store.
   // No imports needed here to avoid circular dependencies.
@@ -15,17 +14,18 @@
     height: 100vh;
     z-index: -1;
     pointer-events: none;
-    
+
     /* Background from theme */
     background: var(--dashboard-background);
-    
+
     /* Apply optional filters if variables are present (defaults to no-op) */
-    filter: 
-      blur(calc(var(--dashboard-background-image-blur, 0) * 1px)) 
+    filter: blur(calc(var(--dashboard-background-image-blur, 0) * 1px))
       brightness(calc(var(--dashboard-background-image-brightness, 100) * 1%));
-      
+
     background-size: cover;
     background-position: center;
-    transition: background 0.3s ease, filter 0.3s ease;
+    transition:
+      background 0.3s ease,
+      filter 0.3s ease;
   }
 </style>

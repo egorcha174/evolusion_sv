@@ -1,5 +1,12 @@
 <script lang="ts">
-  let { label, value = $bindable(), type = 'text', placeholder = '', hint = '', disabled = false } = $props<{
+  let {
+    label,
+    value = $bindable(),
+    type = 'text',
+    placeholder = '',
+    hint = '',
+    disabled = false,
+  } = $props<{
     label: string;
     value: string | number;
     type?: string;
@@ -16,14 +23,7 @@
   <label class="label" for={id}>
     {label}
   </label>
-  <input 
-    {id}
-    {type} 
-    bind:value 
-    {placeholder} 
-    {disabled}
-    class="input"
-  />
+  <input {id} {type} bind:value {placeholder} {disabled} class="input" />
   {#if hint}
     <span class="hint">{hint}</span>
   {/if}

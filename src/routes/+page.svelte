@@ -1,4 +1,3 @@
-
 <script lang="ts">
   import { haStore } from '../domains/ha/store';
   import DashboardGrid from '../domains/ui/DashboardGrid.svelte';
@@ -47,7 +46,7 @@
     text-align: center;
     background: white;
     border-radius: 16px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
     margin-top: 2rem;
     min-height: 300px;
     color: #666;
@@ -68,7 +67,7 @@
     background: #fff8e1;
     border: 1px solid #ffecb3;
   }
-  
+
   .status-message h3 {
     margin: 1rem 0 0.5rem 0;
   }
@@ -84,7 +83,7 @@
     font-weight: 600;
     transition: background 0.2s;
   }
-  
+
   .btn:hover {
     background-color: #1976d2;
   }
@@ -100,7 +99,11 @@
   }
 
   @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
   }
 </style>

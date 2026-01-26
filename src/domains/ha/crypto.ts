@@ -2,7 +2,7 @@
 export async function generateEncryptionKey(): Promise<CryptoKey> {
   const key = await window.crypto.subtle.generateKey(
     { name: 'AES-GCM', length: 256 },
-    true,  // extractable
+    true, // extractable
     ['encrypt', 'decrypt']
   );
   return key;
@@ -28,7 +28,7 @@ export async function importKey(keyStr: string): Promise<CryptoKey> {
   for (let i = 0; i < binary.length; i++) {
     bytes[i] = binary.charCodeAt(i);
   }
-  
+
   const key = await window.crypto.subtle.importKey(
     'raw',
     bytes,
@@ -41,26 +41,22 @@ export async function importKey(keyStr: string): Promise<CryptoKey> {
 
 // Encrypt data string
 export async function encrypt(data: string, key: CryptoKey): Promise<string> {
-  const iv = window.crypto.getRandomValues(new Uint8Array(12));  // 96-bit IV
-  
+  const iv = window.crypto.getRandomValues(new Uint8Array(12)); // 96-bit IV
+
   const encoded = new TextEncoder().encode(data);
-  const encrypted = await window.crypto.subtle.encrypt(
-    { name: 'AES-GCM', iv },
-    key,
-    encoded
-  );
-  
+  const encrypted = await window.crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, encoded);
+
   // Result: IV + Encrypted Data (base64)
   const combined = new Uint8Array(iv.length + encrypted.byteLength);
   combined.set(iv);
   combined.set(new Uint8Array(encrypted), iv.length);
-  
+
   let binary = '';
   const len = combined.byteLength;
   for (let i = 0; i < len; i++) {
     binary += String.fromCharCode(combined[i]);
   }
-  
+
   return btoa(binary);
 }
 
@@ -71,23 +67,19 @@ export async function decrypt(encryptedStr: string, key: CryptoKey): Promise<str
   for (let i = 0; i < binary.length; i++) {
     combined[i] = binary.charCodeAt(i);
   }
-  
+
   const iv = combined.slice(0, 12);
   const ciphertext = combined.slice(12);
-  
-  const decrypted = await window.crypto.subtle.decrypt(
-    { name: 'AES-GCM', iv },
-    key,
-    ciphertext
-  );
-  
+
+  const decrypted = await window.crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, ciphertext);
+
   return new TextDecoder().decode(decrypted);
 }
 
 // Helper to get or create the persistent key
 export async function getOrCreateEncryptionKey(): Promise<CryptoKey> {
   const keyStr = localStorage.getItem('encryption_key');
-  
+
   if (keyStr) {
     return importKey(keyStr);
   } else {

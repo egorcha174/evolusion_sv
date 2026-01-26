@@ -1,4 +1,3 @@
-
 <script lang="ts">
   import { t } from 'svelte-i18n';
   import type { HAEntity, CardTemplate, CardElement } from '$lib/types';
@@ -7,13 +6,13 @@
   import { getIcon } from '$lib/icons';
   import { lazyLoad } from '$lib/actions';
   import { getTemplateCssVariables } from './editor/templates/style';
-  
-  let { entity, template }: { entity: HAEntity, template?: CardTemplate } = $props();
-  
+
+  let { entity, template }: { entity: HAEntity; template?: CardTemplate } = $props();
+
   let isToggling = $state(false);
   let error = $state<string | null>(null);
   let isLoaded = $state(false);
-  
+
   async function handleToggle() {
     try {
       isToggling = true;
@@ -25,24 +24,28 @@
       isToggling = false;
     }
   }
-  
+
   function handleEnter() {
     isLoaded = true;
   }
-  
+
   let domain = $derived(extractDomain(entity.entity_id));
   let displayName = $derived(entity.attributes.friendly_name || entity.entity_id);
-  let isOn = $derived(entity.state === 'on' || entity.state === 'open' || entity.state === 'unlocked');
-  let isToggleable = $derived(['light', 'switch', 'cover', 'lock', 'input_boolean', 'script'].includes(domain));
-  
+  let isOn = $derived(
+    entity.state === 'on' || entity.state === 'open' || entity.state === 'unlocked'
+  );
+  let isToggleable = $derived(
+    ['light', 'switch', 'cover', 'lock', 'input_boolean', 'script'].includes(domain)
+  );
+
   let icon = $derived(getIcon(domain));
-  
+
   let translatedState = $derived.by(() => {
-     if (entity.state === 'on') return $t('common.on');
-     if (entity.state === 'off') return $t('common.off');
-     if (entity.state === 'unavailable') return $t('entities.status.unavailable');
-     if (entity.state === 'unknown') return $t('entities.status.unknown');
-     return entity.state;
+    if (entity.state === 'on') return $t('common.on');
+    if (entity.state === 'off') return $t('common.off');
+    if (entity.state === 'unavailable') return $t('entities.status.unavailable');
+    if (entity.state === 'unknown') return $t('entities.status.unknown');
+    return entity.state;
   });
 
   // Calculate overridden styles if template exists
@@ -50,7 +53,7 @@
 
   // Detect mode: Visual (Elements) or Legacy (Flex)
   let isVisualMode = $derived(template && template.elements && template.elements.length > 0);
-  
+
   // Helper for elements style
   function getElementStyle(el: CardElement): string {
     const s = el.style;
@@ -62,20 +65,20 @@
       `font-weight: ${s.fontWeight || 'inherit'}`,
       `text-align: ${s.textAlign || 'left'}`,
       `opacity: ${s.opacity ?? 1}`,
-      `z-index: ${s.zIndex ?? 1}`
+      `z-index: ${s.zIndex ?? 1}`,
     ];
-    
+
     if (el.w) parts.push(`width: ${el.w}%`);
     if (el.h) parts.push(`height: ${el.h}%`);
     if (s.backgroundColor) parts.push(`background-color: ${s.backgroundColor}`);
     if (s.borderRadius) parts.push(`border-radius: ${s.borderRadius}px`);
-    
+
     return parts.join(';');
   }
 </script>
 
-<div 
-  class="device-card" 
+<div
+  class="device-card"
   class:active={isOn}
   class:visual-mode={isVisualMode}
   data-domain={domain}
@@ -88,31 +91,31 @@
     <div class="skeleton"></div>
   {:else}
     {#if isVisualMode && template}
-       <!-- Visual Mode: Render Elements -->
-       {#each template.elements as el (el.id)}
-         <div class="card-element type-{el.type}" style={getElementStyle(el)}>
-            {#if el.type === 'icon'}
-               <iconify-icon icon={icon} width="100%" height="100%"></iconify-icon>
-            {:else if el.type === 'name'}
-               {displayName}
-            {:else if el.type === 'state'}
-               {translatedState}
-            {:else if el.type === 'label'}
-               {el.label || 'Text'}
-            {:else if el.type === 'shape'}
-               <!-- Shape is just a div with background, handled by style -->
-            {/if}
-         </div>
-       {/each}
+      <!-- Visual Mode: Render Elements -->
+      {#each template.elements as el (el.id)}
+        <div class="card-element type-{el.type}" style={getElementStyle(el)}>
+          {#if el.type === 'icon'}
+            <iconify-icon {icon} width="100%" height="100%"></iconify-icon>
+          {:else if el.type === 'name'}
+            {displayName}
+          {:else if el.type === 'state'}
+            {translatedState}
+          {:else if el.type === 'label'}
+            {el.label || 'Text'}
+          {:else if el.type === 'shape'}
+            <!-- Shape is just a div with background, handled by style -->
+          {/if}
+        </div>
+      {/each}
     {:else}
-       <!-- Legacy Mode: Fixed Flex Layout -->
-       <div class="card-header">
+      <!-- Legacy Mode: Fixed Flex Layout -->
+      <div class="card-header">
         <div class="icon">
-          <iconify-icon icon={icon} width="24" height="24"></iconify-icon>
+          <iconify-icon {icon} width="24" height="24"></iconify-icon>
         </div>
         <div class="device-name" title={displayName}>{displayName}</div>
       </div>
-      
+
       <div class="card-body">
         <div class="state-container">
           <span class="device-value">{translatedState}</span>
@@ -120,7 +123,7 @@
             <span class="device-unit">{entity.attributes.unit_of_measurement}</span>
           {/if}
         </div>
-        
+
         {#if entity.attributes.brightness !== undefined}
           <div class="attribute">
             {Math.round((entity.attributes.brightness / 255) * 100)}%
@@ -139,44 +142,44 @@
   .device-card {
     /* Background */
     background: var(--card-background, rgba(255, 255, 255, 0.8));
-    
+
     /* Border */
     border: var(--card-border-width, 0px) solid var(--card-border-color, transparent);
     border-radius: var(--card-border-radius, 16px);
-    
+
     /* REMOVED: Opacity. Opacity is now handled by RGBA background color */
     /* opacity: var(--card-opacity, 0.85); */
-    
+
     /* Padding override */
     padding: var(--card-padding, 16px);
-    
+
     /* Other Styles */
     cursor: pointer;
     transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
-    
+
     /* Shadow */
     box-shadow: var(--shadow-card, 0 2px 8px rgba(0, 0, 0, 0.1));
-    
+
     display: flex;
     flex-direction: column;
     gap: 12px;
     height: 100%;
     width: 100%;
-    
-    min-height: 0; 
+
+    min-height: 0;
     position: relative;
     overflow: hidden;
   }
-  
+
   .device-card:hover {
     transform: translateY(-2px);
     /* opacity: 1; */ /* No longer needed */
   }
-  
+
   /* Active State */
   .device-card.active {
     background: var(--card-background-on, rgba(255, 255, 255, 0.95));
-    border-color: var(--card-border-color-on, #0A84FF);
+    border-color: var(--card-border-color-on, #0a84ff);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   }
 
@@ -197,33 +200,33 @@
   }
 
   .card-element.type-icon {
-     /* Icons usually center */
-     justify-content: center;
-     color: var(--status-text-color);
+    /* Icons usually center */
+    justify-content: center;
+    color: var(--status-text-color);
   }
-  
+
   .device-card.active .card-element.type-icon {
-     color: var(--accent-primary);
+    color: var(--accent-primary);
   }
 
   .card-element.type-name {
-     font-weight: 600;
-     color: var(--name-text-color);
+    font-weight: 600;
+    color: var(--name-text-color);
   }
-  
+
   .card-element.type-state {
-     color: var(--value-text-color);
+    color: var(--value-text-color);
   }
 
   /* --- Legacy Mode Styles --- */
-  
+
   .card-header {
     display: flex;
     gap: 12px;
     align-items: center;
     min-width: 0; /* Enable flex item shrinking */
   }
-  
+
   .icon {
     width: 36px;
     height: 36px;
@@ -231,11 +234,11 @@
     align-items: center;
     justify-content: center;
     color: var(--status-text-color);
-    
+
     /* THEME HOOKS */
-    background: var(--icon-background-color-off, rgba(0,0,0,0.05));
+    background: var(--icon-background-color-off, rgba(0, 0, 0, 0.05));
     border-radius: var(--icon-border-radius, 50%);
-    
+
     transition: all 0.3s;
     flex-shrink: 0;
   }
@@ -244,9 +247,9 @@
     background: var(--icon-background-color-on, var(--accent-primary));
     color: #fff;
   }
-  
+
   .device-name {
-    color: var(--name-text-color, #1D1D1F);
+    color: var(--name-text-color, #1d1d1f);
     font-weight: 600;
     font-size: 0.95rem;
     overflow: hidden;
@@ -254,11 +257,11 @@
     white-space: nowrap;
     flex: 1;
   }
-  
+
   .device-card.active .device-name {
-    color: var(--name-text-color-on, #1D1D1F);
+    color: var(--name-text-color-on, #1d1d1f);
   }
-  
+
   .card-body {
     display: flex;
     align-items: center;
@@ -266,41 +269,41 @@
     flex: 1;
     min-height: 0; /* Allow shrinking */
   }
-  
+
   .state-container {
-     display: flex;
-     align-items: baseline;
-     gap: 2px;
+    display: flex;
+    align-items: baseline;
+    gap: 2px;
   }
-  
+
   .device-value {
-    color: var(--value-text-color, #1D1D1F);
+    color: var(--value-text-color, #1d1d1f);
     font-size: 1.1rem;
     font-weight: 500;
     text-transform: capitalize;
   }
-  
+
   .device-card.active .device-value {
-    color: var(--value-text-color-on, #1D1D1F);
+    color: var(--value-text-color-on, #1d1d1f);
   }
-  
+
   .device-unit {
-    color: var(--unit-text-color, #1D1D1F);
+    color: var(--unit-text-color, #1d1d1f);
     font-size: 0.85rem;
   }
-  
+
   .device-card.active .device-unit {
-    color: var(--unit-text-color-on, #1D1D1F);
+    color: var(--unit-text-color-on, #1d1d1f);
   }
-  
+
   .attribute {
     font-size: 0.8rem;
     color: var(--text-muted);
-    background: rgba(0,0,0,0.05);
+    background: rgba(0, 0, 0, 0.05);
     padding: 2px 6px;
     border-radius: 4px;
   }
-  
+
   .error {
     color: var(--accent-error);
     font-size: 0.75rem;
@@ -310,47 +313,56 @@
   .skeleton {
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, rgba(0,0,0,0.05) 25%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.05) 75%);
+    background: linear-gradient(
+      90deg,
+      rgba(0, 0, 0, 0.05) 25%,
+      rgba(0, 0, 0, 0.1) 50%,
+      rgba(0, 0, 0, 0.05) 75%
+    );
     background-size: 200% 100%;
     animation: shimmer 1.5s infinite;
     border-radius: 12px;
   }
 
   @keyframes shimmer {
-    0% { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
+    0% {
+      background-position: 200% 0;
+    }
+    100% {
+      background-position: -200% 0;
+    }
   }
 
   /* --- Compact Mode via Container Queries (Legacy Only) --- */
-  
+
   @container (height < 90px) {
     .device-card:not(.visual-mode) {
-      flex-direction: row; 
+      flex-direction: row;
       align-items: center;
-      padding-left: 16px; 
+      padding-left: 16px;
       padding-right: 16px;
       gap: 12px;
     }
-    
+
     .device-card:not(.visual-mode) .card-header {
-      flex: 1; 
+      flex: 1;
       margin-bottom: 0;
     }
-    
+
     .device-card:not(.visual-mode) .card-body {
-      flex: 0 0 auto; 
+      flex: 0 0 auto;
       justify-content: flex-end;
     }
-    
+
     .device-card:not(.visual-mode) .icon {
       width: 32px;
       height: 32px;
     }
-    
+
     .device-card:not(.visual-mode) .device-value {
       font-size: 1rem;
     }
-    
+
     .device-card:not(.visual-mode) .attribute {
       display: none;
     }

@@ -1,18 +1,17 @@
-
 <script lang="ts">
   import { t } from 'svelte-i18n';
   import type { CardTemplateStyle } from '$lib/types';
 
-  let { value, onChange } = $props<{ 
-    value: CardTemplateStyle, 
-    onChange: (s: CardTemplateStyle) => void 
+  let { value, onChange } = $props<{
+    value: CardTemplateStyle;
+    onChange: (s: CardTemplateStyle) => void;
   }>();
 
   // Helper to update a single field
   function update(field: keyof CardTemplateStyle, val: any) {
     onChange({
       ...value,
-      [field]: val
+      [field]: val,
     });
   }
 </script>
@@ -21,11 +20,11 @@
   <!-- Background -->
   <div class="section">
     <h3>{$t('templates.style.background')}</h3>
-    
+
     <div class="control-row">
       <label>{$t('templates.style.type')}</label>
-      <select 
-        value={value.backgroundType} 
+      <select
+        value={value.backgroundType}
         onchange={(e) => update('backgroundType', e.currentTarget.value)}
       >
         <option value="color">{$t('templates.style.solid')}</option>
@@ -37,9 +36,9 @@
       <div class="control-row">
         <label>{$t('templates.style.color')}</label>
         <div class="color-input-wrapper">
-          <input 
-            type="color" 
-            value={value.backgroundColor} 
+          <input
+            type="color"
+            value={value.backgroundColor}
             oninput={(e) => update('backgroundColor', e.currentTarget.value)}
           />
           <span class="color-value">{value.backgroundColor}</span>
@@ -49,9 +48,11 @@
 
     <div class="control-row">
       <label>{$t('templates.style.opacity')} ({value.opacity})</label>
-      <input 
-        type="range" 
-        min="0" max="1" step="0.05" 
+      <input
+        type="range"
+        min="0"
+        max="1"
+        step="0.05"
         value={value.opacity}
         oninput={(e) => update('opacity', parseFloat(e.currentTarget.value))}
       />
@@ -63,13 +64,10 @@
   <!-- Spacing & Effects -->
   <div class="section">
     <h3>{$t('templates.style.effects')}</h3>
-    
+
     <div class="control-row">
       <label>{$t('templates.style.shadow')}</label>
-      <select 
-        value={value.shadow} 
-        onchange={(e) => update('shadow', e.currentTarget.value)}
-      >
+      <select value={value.shadow} onchange={(e) => update('shadow', e.currentTarget.value)}>
         <option value="none">{$t('templates.style.shadowNone')}</option>
         <option value="sm">{$t('templates.style.shadowSm')}</option>
         <option value="md">{$t('templates.style.shadowMd')}</option>
@@ -79,15 +77,17 @@
 
     <div class="control-row">
       <label>{$t('templates.style.padding')} ({value.padding}px)</label>
-      <input 
-        type="range" 
-        min="0" max="40" step="4" 
+      <input
+        type="range"
+        min="0"
+        max="40"
+        step="4"
         value={value.padding}
         oninput={(e) => update('padding', parseInt(e.currentTarget.value))}
       />
     </div>
   </div>
-  
+
   <div class="info-note">
     <iconify-icon icon="mdi:information-outline"></iconify-icon>
     <p>{$t('templates.style.themeNote')}</p>
@@ -123,7 +123,7 @@
     color: var(--text-primary);
   }
 
-  input[type="range"] {
+  input[type='range'] {
     flex: 1;
     max-width: 120px;
   }
@@ -142,7 +142,7 @@
     gap: 0.5rem;
   }
 
-  input[type="color"] {
+  input[type='color'] {
     border: none;
     width: 24px;
     height: 24px;
@@ -162,7 +162,7 @@
     background: var(--border-divider);
     width: 100%;
   }
-  
+
   .info-note {
     display: flex;
     gap: 0.5rem;
@@ -173,7 +173,7 @@
     color: var(--text-secondary);
     align-items: flex-start;
   }
-  
+
   .info-note p {
     margin: 0;
   }

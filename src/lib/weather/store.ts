@@ -1,4 +1,3 @@
-
 import { writable, get } from 'svelte/store';
 import { browser } from '$app/environment';
 import { haStore } from '../../domains/ha/store';
@@ -15,20 +14,20 @@ const defaultSettings: WeatherSettings = {
   forecastDays: 3,
   iconPack: 'default',
   forecastLayout: 'vertical',
-  
+
   // Visual Defaults
   currentIconSize: 48,
   currentTempSize: 32, // px
   currentDescSize: 14, // px
   forecastIconSize: 24,
   forecastDaySize: 13,
-  forecastTempSize: 14
+  forecastTempSize: 14,
 };
 
 const initialState: WeatherState = {
   current: null,
   isLoading: false,
-  error: null
+  error: null,
 };
 
 // --- Stores ---
@@ -66,18 +65,18 @@ export async function initWeather() {
 
   // Watch for HA Connection to refresh location-based weather
   let wasConnected = get(haStore).isConnected;
-  
-  haUnsub = haStore.subscribe(state => {
+
+  haUnsub = haStore.subscribe((state) => {
     // If we transition from disconnected to connected
     if (state.isConnected && !wasConnected) {
-       wasConnected = true;
-       const settings = get(weatherSettings);
-       // Only force update if we rely on HA location
-       if (!settings.useCustomLocation) {
-          updateWeather();
-       }
+      wasConnected = true;
+      const settings = get(weatherSettings);
+      // Only force update if we rely on HA location
+      if (!settings.useCustomLocation) {
+        updateWeather();
+      }
     } else if (!state.isConnected) {
-       wasConnected = false;
+      wasConnected = false;
     }
   });
 
@@ -89,21 +88,21 @@ export async function initWeather() {
 export function startPolling() {
   if (pollInterval) clearInterval(pollInterval);
   const settings = get(weatherSettings);
-  
+
   const minutes = Math.max(1, settings.refreshIntervalMinutes);
   pollInterval = setInterval(updateWeather, minutes * 60 * 1000);
 }
 
 export async function updateWeather() {
   const settings = get(weatherSettings);
-  
+
   // Don't show loading on background refresh unless we have no data
   const currentData = get(weatherStore).current;
-  
-  weatherStore.update(s => ({ 
-    ...s, 
-    isLoading: !currentData, 
-    error: null 
+
+  weatherStore.update((s) => ({
+    ...s,
+    isLoading: !currentData,
+    error: null,
   }));
 
   try {
@@ -111,14 +110,14 @@ export async function updateWeather() {
     weatherStore.set({
       current: data,
       isLoading: false,
-      error: null
+      error: null,
     });
   } catch (e: any) {
     console.error('Weather update failed', e);
-    weatherStore.update(s => ({
+    weatherStore.update((s) => ({
       ...s,
       isLoading: false,
-      error: e.message || 'Failed to update weather'
+      error: e.message || 'Failed to update weather',
     }));
   }
 }

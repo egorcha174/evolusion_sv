@@ -1,7 +1,6 @@
-
 <script lang="ts">
   import type { AnimationConfig } from '../../../themes/types';
-  
+
   let { config }: { config: AnimationConfig | undefined } = $props();
 </script>
 
@@ -18,7 +17,7 @@
     top: 0;
     left: 0;
   }
-  
+
   .placeholder-gradient {
     width: 100%;
     height: 100%;
@@ -29,8 +28,14 @@
   }
 
   @keyframes gradient {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
   }
 </style>

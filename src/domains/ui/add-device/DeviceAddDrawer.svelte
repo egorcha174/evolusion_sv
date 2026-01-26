@@ -1,4 +1,3 @@
-
 <script lang="ts">
   import { onMount } from 'svelte';
   import { fly } from 'svelte/transition';
@@ -26,45 +25,45 @@
     { id: 'climate', icon: 'mdi:thermostat' },
     { id: 'cover', icon: 'mdi:window-shutter' },
     { id: 'media_player', icon: 'mdi:cast-connected' },
-    { id: 'script', icon: 'mdi:script-text' }
+    { id: 'script', icon: 'mdi:script-text' },
   ];
 
   // --- DERIVED ---
-  
+
   // Get list of IDs already on current tab (Handle both Edit Mode and View Mode)
   let existingIds = $derived.by(() => {
     if ($isEditMode && $editorStore.enabled) {
-       // In Edit Mode, use live entities from editor store
-       return new Set($editorStore.cardEntities.values());
+      // In Edit Mode, use live entities from editor store
+      return new Set($editorStore.cardEntities.values());
     } else {
-       // In View Mode, use persistent store
-       const tab = $dashboardStore.tabs[$activeTabId];
-       return new Set(tab?.cards.map(c => c.entityId) || []);
+      // In View Mode, use persistent store
+      const tab = $dashboardStore.tabs[$activeTabId];
+      return new Set(tab?.cards.map((c) => c.entityId) || []);
     }
   });
 
   // Filter entities
   let filteredDevices = $derived.by(() => {
     const all = Array.from($haStore.entities.values());
-    
+
     // Sort: Online first, then name
     const sorted = all.sort((a, b) => {
-       if (a.state === 'unavailable' && b.state !== 'unavailable') return 1;
-       if (a.state !== 'unavailable' && b.state === 'unavailable') return -1;
-       
-       const nameA = a.attributes.friendly_name || a.entity_id;
-       const nameB = b.attributes.friendly_name || b.entity_id;
-       return nameA.localeCompare(nameB);
+      if (a.state === 'unavailable' && b.state !== 'unavailable') return 1;
+      if (a.state !== 'unavailable' && b.state === 'unavailable') return -1;
+
+      const nameA = a.attributes.friendly_name || a.entity_id;
+      const nameB = b.attributes.friendly_name || b.entity_id;
+      return nameA.localeCompare(nameB);
     });
 
-    return sorted.filter(e => {
+    return sorted.filter((e) => {
       // Domain filter
       const d = extractDomain(e.entity_id);
       if (selectedDomain && d !== selectedDomain) return false;
-      
+
       // Allowlist logic (hide internal/system entities unless searching)
       if (!selectedDomain && !searchQuery) {
-         if (['zone', 'sun', 'person', 'update'].includes(d)) return false;
+        if (['zone', 'sun', 'person', 'update'].includes(d)) return false;
       }
 
       // Search filter
@@ -74,7 +73,7 @@
         const matchId = e.entity_id.toLowerCase().includes(q);
         return matchName || matchId;
       }
-      
+
       return true;
     });
   });
@@ -87,11 +86,11 @@
 
   function handleAdd(device: any) {
     if ($isEditMode && $editorStore.enabled) {
-       // If editing, add to drafts
-       editorStore.addCard(device.entity_id);
+      // If editing, add to drafts
+      editorStore.addCard(device.entity_id);
     } else {
-       // If viewing (fallback), persist immediately
-       dashboardStore.addCard($activeTabId, device.entity_id);
+      // If viewing (fallback), persist immediately
+      dashboardStore.addCard($activeTabId, device.entity_id);
     }
     // Optional: Toast logic here or visual feedback handled by 'existingIds' update
   }
@@ -111,10 +110,7 @@
 {#if $isAddDeviceOpen}
   <div class="backdrop" onclick={close}></div>
 
-  <aside 
-    class="add-drawer" 
-    transition:fly={{ x: 400, duration: 300, opacity: 1 }}
-  >
+  <aside class="add-drawer" transition:fly={{ x: 400, duration: 300, opacity: 1 }}>
     <!-- Header -->
     <header class="drawer-header">
       <h2>{$t('addDevice.title')}</h2>
@@ -127,30 +123,30 @@
     <div class="search-section">
       <div class="search-box">
         <iconify-icon icon="mdi:magnify"></iconify-icon>
-        <input 
+        <input
           bind:this={inputElement}
-          type="text" 
-          bind:value={searchQuery} 
+          type="text"
+          bind:value={searchQuery}
           placeholder={$t('addDevice.search')}
         />
         {#if searchQuery}
-          <button class="clear-btn" onclick={() => searchQuery = ''}>
+          <button class="clear-btn" onclick={() => (searchQuery = '')}>
             <iconify-icon icon="mdi:close-circle" width="16"></iconify-icon>
           </button>
         {/if}
       </div>
 
       <div class="filters">
-        <button 
-          class="pill" 
+        <button
+          class="pill"
           class:active={selectedDomain === null}
-          onclick={() => selectedDomain = null}
+          onclick={() => (selectedDomain = null)}
         >
           {$t('addDevice.all')}
         </button>
         {#each COMMON_DOMAINS as d}
-          <button 
-            class="pill" 
+          <button
+            class="pill"
             class:active={selectedDomain === d.id}
             onclick={() => toggleDomain(d.id)}
             title={d.id}
@@ -165,17 +161,13 @@
     <!-- List -->
     <div class="device-list">
       {#each filteredDevices as device (device.entity_id)}
-        <DeviceAddItem 
-          {device} 
-          isAdded={existingIds.has(device.entity_id)}
-          onAdd={handleAdd}
-        />
+        <DeviceAddItem {device} isAdded={existingIds.has(device.entity_id)} onAdd={handleAdd} />
       {/each}
-      
+
       {#if filteredDevices.length === 0}
         <div class="empty">
-           <iconify-icon icon="mdi:package-variant-closed" width="48"></iconify-icon>
-           <p>{$t('entities.noEntities')}</p>
+          <iconify-icon icon="mdi:package-variant-closed" width="48"></iconify-icon>
+          <p>{$t('entities.noEntities')}</p>
         </div>
       {/if}
     </div>
@@ -185,15 +177,18 @@
 <style>
   .backdrop {
     position: fixed;
-    top: 0; left: 0;
-    width: 100vw; height: 100vh;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
     background: transparent;
     z-index: 2500;
   }
 
   .add-drawer {
     position: fixed;
-    top: 0; right: 0;
+    top: 0;
+    right: 0;
     width: 420px;
     max-width: 100vw;
     height: 100%;
@@ -201,7 +196,7 @@
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     border-left: 1px solid var(--border-primary);
-    box-shadow: -10px 0 40px rgba(0,0,0,0.15);
+    box-shadow: -10px 0 40px rgba(0, 0, 0, 0.15);
     z-index: 2501;
     display: flex;
     flex-direction: column;
@@ -228,7 +223,9 @@
     color: var(--text-secondary);
     display: flex;
   }
-  .close-btn:hover { color: var(--text-primary); }
+  .close-btn:hover {
+    color: var(--text-primary);
+  }
 
   /* Search */
   .search-section {
@@ -243,7 +240,7 @@
   .search-box {
     display: flex;
     align-items: center;
-    background: var(--bg-input, rgba(0,0,0,0.05));
+    background: var(--bg-input, rgba(0, 0, 0, 0.05));
     border-radius: 12px;
     padding: 0.75rem 1rem;
     gap: 0.75rem;
@@ -256,7 +253,7 @@
     background: var(--bg-card);
     border-color: var(--accent-primary);
     color: var(--text-primary);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   }
 
   .search-box input {
@@ -276,7 +273,9 @@
     padding: 0;
     display: flex;
   }
-  .clear-btn:hover { color: var(--text-secondary); }
+  .clear-btn:hover {
+    color: var(--text-secondary);
+  }
 
   /* Filters */
   .filters {
@@ -286,7 +285,9 @@
     padding-bottom: 4px;
     scrollbar-width: none;
   }
-  .filters::-webkit-scrollbar { display: none; }
+  .filters::-webkit-scrollbar {
+    display: none;
+  }
 
   .pill {
     padding: 8px 14px; /* Default size pill */
@@ -314,7 +315,7 @@
     color: white;
     border-color: var(--accent-primary);
   }
-  
+
   .pill iconify-icon {
     font-size: 1.1rem;
   }

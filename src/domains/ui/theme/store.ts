@@ -1,4 +1,3 @@
-
 import { writable, derived } from 'svelte/store';
 import { browser } from '$app/environment';
 import type { ThemeFile, ThemeMode } from '../../../themes/types';
@@ -24,21 +23,21 @@ export const systemPrefersDark = writable(false);
 if (browser) {
   const mq = window.matchMedia('(prefers-color-scheme: dark)');
   systemPrefersDark.set(mq.matches);
-  mq.addEventListener('change', e => systemPrefersDark.set(e.matches));
+  mq.addEventListener('change', (e) => systemPrefersDark.set(e.matches));
 }
 
 function createThemeStore() {
   const initialState: ThemeStoreState = {
     themes: [...BUILTIN_THEMES],
     activeThemeId: defaultTheme.theme.id,
-    mode: 'auto'
+    mode: 'auto',
   };
 
   const { subscribe, set, update } = writable<ThemeStoreState>(initialState);
 
   return {
     subscribe,
-    
+
     init: () => {
       if (!browser) return;
 
@@ -57,12 +56,12 @@ function createThemeStore() {
       const savedActiveId = localStorage.getItem(STORAGE_KEY_ACTIVE);
       const savedMode = localStorage.getItem(STORAGE_KEY_MODE) as ThemeMode | null;
 
-      update(s => {
+      update((s) => {
         const allThemes = [...BUILTIN_THEMES, ...customThemes];
         let activeId = savedActiveId || s.activeThemeId;
-        
+
         // Ensure active theme exists
-        if (!allThemes.find(t => t.theme.id === activeId)) {
+        if (!allThemes.find((t) => t.theme.id === activeId)) {
           activeId = defaultTheme.theme.id;
         }
 
@@ -75,32 +74,32 @@ function createThemeStore() {
         return {
           themes: allThemes,
           activeThemeId: activeId,
-          mode
+          mode,
         };
       });
     },
 
     setActiveTheme: (id: string) => {
-      update(s => {
-        if (!s.themes.find(t => t.theme.id === id)) return s;
+      update((s) => {
+        if (!s.themes.find((t) => t.theme.id === id)) return s;
         if (browser) localStorage.setItem(STORAGE_KEY_ACTIVE, id);
         return { ...s, activeThemeId: id };
       });
     },
 
     setMode: (mode: ThemeMode) => {
-      update(s => {
+      update((s) => {
         if (browser) localStorage.setItem(STORAGE_KEY_MODE, mode);
         return { ...s, mode };
       });
     },
 
     saveTheme: (themeFile: ThemeFile) => {
-      update(s => {
+      update((s) => {
         // If updating existing custom theme
-        const idx = s.themes.findIndex(t => t.theme.id === themeFile.theme.id);
+        const idx = s.themes.findIndex((t) => t.theme.id === themeFile.theme.id);
         let newThemes = [...s.themes];
-        
+
         if (idx >= 0) {
           if (!newThemes[idx].theme.isCustom) return s; // Cannot overwrite builtin
           newThemes[idx] = themeFile;
@@ -109,7 +108,7 @@ function createThemeStore() {
         }
 
         // Persist custom themes only
-        const customs = newThemes.filter(t => t.theme.isCustom);
+        const customs = newThemes.filter((t) => t.theme.isCustom);
         if (browser) localStorage.setItem(STORAGE_KEY_CUSTOM, JSON.stringify(customs));
 
         return { ...s, themes: newThemes };
@@ -117,14 +116,14 @@ function createThemeStore() {
     },
 
     deleteTheme: (id: string) => {
-      update(s => {
-        const theme = s.themes.find(t => t.theme.id === id);
+      update((s) => {
+        const theme = s.themes.find((t) => t.theme.id === id);
         if (!theme || !theme.theme.isCustom) return s; // Cannot delete builtin
 
-        const newThemes = s.themes.filter(t => t.theme.id !== id);
-        
+        const newThemes = s.themes.filter((t) => t.theme.id !== id);
+
         // Persist
-        const customs = newThemes.filter(t => t.theme.isCustom);
+        const customs = newThemes.filter((t) => t.theme.isCustom);
         if (browser) localStorage.setItem(STORAGE_KEY_CUSTOM, JSON.stringify(customs));
 
         // If deleted active, reset to default
@@ -136,7 +135,7 @@ function createThemeStore() {
 
         return { ...s, themes: newThemes, activeThemeId: newActive };
       });
-    }
+    },
   };
 }
 
@@ -144,8 +143,8 @@ export const themeStore = createThemeStore();
 
 // Derived store for the active color scheme
 export const activeScheme = derived([themeStore, systemPrefersDark], ([$s, $sysDark]) => {
-  const themeFile = $s.themes.find(t => t.theme.id === $s.activeThemeId) || defaultTheme;
-  // Fix: Strictly check for 'dark' mode or 'auto' with system dark preference. 
+  const themeFile = $s.themes.find((t) => t.theme.id === $s.activeThemeId) || defaultTheme;
+  // Fix: Strictly check for 'dark' mode or 'auto' with system dark preference.
   // 'night' is not a valid ThemeMode type in strict usage.
   const isDark = $s.mode === 'dark' || ($s.mode === 'auto' && $sysDark);
   return isDark ? themeFile.theme.scheme.dark : themeFile.theme.scheme.light;
@@ -153,7 +152,7 @@ export const activeScheme = derived([themeStore, systemPrefersDark], ([$s, $sysD
 
 // Reactively apply CSS variables when scheme changes
 if (browser) {
-  activeScheme.subscribe(scheme => {
+  activeScheme.subscribe((scheme) => {
     applyThemeCSS(scheme);
   });
 }

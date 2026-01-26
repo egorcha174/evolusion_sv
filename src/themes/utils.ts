@@ -1,5 +1,3 @@
-
-
 import type { ColorScheme, Theme } from './types';
 import { ThemeFileSchema } from './schemas';
 
@@ -12,15 +10,18 @@ export function hexToRgba(hex: string, alpha: number): string {
   let c = hex.trim();
   // If already rgba, just return it (simplistic check)
   if (c.startsWith('rgb')) return c;
-  
+
   if (c.startsWith('#')) {
     c = c.substring(1);
   }
-  
+
   if (c.length === 3) {
-    c = c.split('').map(char => char + char).join('');
+    c = c
+      .split('')
+      .map((char) => char + char)
+      .join('');
   }
-  
+
   if (c.length !== 6) return hex; // Invalid hex fallback
 
   const r = parseInt(c.substring(0, 2), 16);
@@ -51,7 +52,7 @@ export function generateCSSVariables(scheme: ColorScheme): Record<string, string
   for (const [key, value] of Object.entries(scheme)) {
     if (value !== undefined && value !== null) {
       const varName = `--${camelToKebab(key)}`;
-      
+
       // Special handling for Card Backgrounds to support Opacity without affecting text
       if (key === 'cardBackground' || key === 'cardBackgroundOn') {
         const opacity = scheme.cardOpacity ?? 1;
@@ -85,10 +86,13 @@ export function generateCSSVariables(scheme: ColorScheme): Record<string, string
     vars['--dashboard-background'] = scheme.dashboardBackgroundColor1;
   } else if (scheme.dashboardBackgroundType === 'gradient') {
     const angle = scheme.dashboardGradientAngle ?? 135;
-    vars['--dashboard-background'] = `linear-gradient(${angle}deg, ${scheme.dashboardBackgroundColor1}, ${scheme.dashboardBackgroundColor2 || scheme.dashboardBackgroundColor1})`;
+    vars['--dashboard-background'] =
+      `linear-gradient(${angle}deg, ${scheme.dashboardBackgroundColor1}, ${scheme.dashboardBackgroundColor2 || scheme.dashboardBackgroundColor1})`;
   } else if (scheme.dashboardBackgroundType === 'image') {
     // Basic image implementation
-    const url = scheme.dashboardBackgroundImageUrl ? `url('${scheme.dashboardBackgroundImageUrl}')` : 'none';
+    const url = scheme.dashboardBackgroundImageUrl
+      ? `url('${scheme.dashboardBackgroundImageUrl}')`
+      : 'none';
     vars['--dashboard-background'] = url;
   }
 
@@ -97,7 +101,7 @@ export function generateCSSVariables(scheme: ColorScheme): Record<string, string
 
 export function applyThemeCSS(scheme: ColorScheme) {
   if (typeof document === 'undefined') return;
-  
+
   const vars = generateCSSVariables(scheme);
   const root = document.documentElement;
 

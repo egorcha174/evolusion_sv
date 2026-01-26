@@ -7,7 +7,9 @@ export function extractEntity(entityId: string): string {
 }
 
 export function isToggleable(domain: string): boolean {
-  return ['light', 'switch', 'cover', 'lock', 'input_boolean', 'automation', 'script'].includes(domain);
+  return ['light', 'switch', 'cover', 'lock', 'input_boolean', 'automation', 'script'].includes(
+    domain
+  );
 }
 
 export function getDomainColor(domain: string): string {
@@ -19,7 +21,7 @@ export function getDomainColor(domain: string): string {
     climate: '#ff9800',
     cover: '#9c27b0',
     media_player: '#3f51b5',
-    lock: '#e91e63'
+    lock: '#e91e63',
   };
   return colors[domain] || '#757575';
 }

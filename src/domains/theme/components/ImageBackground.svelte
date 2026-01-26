@@ -1,7 +1,6 @@
-
 <script lang="ts">
   import type { ImageConfig } from '../../../themes/types';
-  
+
   let { config }: { config: ImageConfig | undefined } = $props();
 </script>
 
