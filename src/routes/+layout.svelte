@@ -20,19 +20,37 @@
   
   let { children } = $props();
 
+  // Safety state to unblock UI if i18n hangs
+  let forcedReady = $state(false);
+
   onMount(async () => {
-    // 1. Setup Client I18n (SSR init handled in module)
-    await initClientI18n();
-    
-    // 2. Load other configs
-    await loadServerConfig();
-    await loadSavedServers(); // Load server list
-    await loadLayout();
-    await themeStore.init();
-    await dashboardStore.init(); // Initialize 2D grid store
-    
-    // 3. Init services
-    await initWeather();
+    // Safety timeout: force show app after 2s if i18n hangs
+    const timer = setTimeout(() => {
+        console.warn('I18n loading timed out, forcing UI render');
+        forcedReady = true;
+    }, 2000);
+
+    try {
+      // 0. Init Theme first so CSS vars are available for the loading screen
+      themeStore.init();
+
+      // 1. Setup Client I18n (SSR init handled in module)
+      await initClientI18n();
+      
+      // 2. Load other configs
+      await loadServerConfig();
+      await loadSavedServers(); // Load server list
+      await loadLayout();
+      await dashboardStore.init(); // Initialize 2D grid store
+      
+      // 3. Init services
+      await initWeather();
+    } catch (e) {
+      console.error('Initialization error:', e);
+    } finally {
+      // Clear timeout if everything loaded successfully
+      clearTimeout(timer);
+    }
     
     return () => {
       destroyWeather();
@@ -52,9 +70,12 @@
 
 <BackgroundRenderer />
 
-{#if $isLoading}
-  <!-- Simple splash screen while translations load -->
-  <div class="loading-screen"></div>
+{#if $isLoading && !forcedReady}
+  <!-- Splash screen with visual feedback -->
+  <div class="loading-screen">
+     <div class="spinner"></div>
+     <p>Loading Evolusion...</p>
+  </div>
 {:else}
   <div class="layout-container">
     <!-- Left Nav & Info -->
@@ -130,7 +151,31 @@
   .loading-screen {
     width: 100vw;
     height: 100vh;
-    background: var(--bg-page);
+    /* Fallback background if variables not loaded yet */
+    background: var(--bg-page, #f0f2f5);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    color: var(--text-secondary, #666);
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 9999;
+  }
+
+  .spinner {
+    width: 40px; 
+    height: 40px;
+    border: 3px solid rgba(0,0,0,0.1);
+    border-top-color: var(--accent-primary, #2196f3);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin { 
+    to { transform: rotate(360deg); } 
   }
 
   @media (max-width: 768px) {
