@@ -1,3 +1,4 @@
+
 <script lang="ts">
   import { onMount } from 'svelte';
   import { fade, fly, slide } from 'svelte/transition';
@@ -215,7 +216,7 @@
   async function handleBackupImport(e: Event) {
     const file = (e.target as HTMLInputElement).files?.[0];
     if (file) {
-      if (confirm('This will overwrite your current settings. Continue?')) {
+      if (confirm($t('settings.backupConfirm'))) {
         try {
           await importAllSettings(file);
         } catch (err: any) {
@@ -226,7 +227,7 @@
   }
 
   function handleReset() {
-    if (confirm('DANGER: This will wipe all data and reset the app. Are you sure?')) {
+    if (confirm($t('settings.resetConfirm'))) {
       clearAllData();
     }
   }
@@ -263,7 +264,7 @@
       <div class="scroll-inner">
         
         <!-- SECTION 1: Connection -->
-        <Section title={$t('settings.connection')} description="Manage your Home Assistant server">
+        <Section title={$t('settings.connection')} description={$t('settings.connectionDesc')}>
             {#if $haStore.isConnected}
                <div class="connected-state">
                   <div class="server-info">
@@ -286,19 +287,19 @@
                   <div class="status-icon error">
                       <iconify-icon icon="mdi:alert-circle" width="24"></iconify-icon>
                   </div>
-                  <span>Not Connected</span>
+                  <span>{$t('settings.notConnected')}</span>
                </div>
             {/if}
 
             <div class="connection-actions">
                <button class="btn secondary full" onclick={() => isServerManagerOpen = true}>
-                 <iconify-icon icon="mdi:server-network"></iconify-icon> Manage Servers
+                 <iconify-icon icon="mdi:server-network"></iconify-icon> {$t('settings.manageServers')}
                </button>
             </div>
         </Section>
 
         <!-- SECTION 2: Appearance & Themes -->
-        <Section title={$t('settings.appearance')} description="Theme and language settings" initiallyOpen={true}>
+        <Section title={$t('settings.appearance')} description={$t('settings.appearanceDesc')} initiallyOpen={true}>
           <div class="control-row">
             <label>
               {$t('settings.language')}

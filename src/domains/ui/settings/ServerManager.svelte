@@ -1,3 +1,4 @@
+
 <script lang="ts">
   import { t } from 'svelte-i18n';
   import { appState, saveSavedServers, saveServerConfig } from '../../app/store';
@@ -53,7 +54,9 @@
 
   function handleDelete() {
     if (!selectedServer) return;
-    if (!confirm('Delete ' + selectedServer.name + '?')) return;
+    // Replace hardcoded "Delete X?" with parameterized translation if possible, or just build string
+    const msg = $t('settings.serverManager.deleteConfirm', { name: selectedServer.name });
+    if (!confirm(msg)) return;
 
     const newServers = servers.filter(s => s.id !== selectedId);
     saveSavedServers(newServers);
@@ -69,7 +72,7 @@
   async function handleSave() {
     // Basic Validation
     if (!draft.url || !draft.token) {
-       alert('URL and Token are required');
+       alert($t('settings.serverManager.validationError'));
        return;
     }
 
@@ -122,7 +125,7 @@
     <!-- LEFT: List -->
     <div class="sidebar">
        <div class="sidebar-header">
-         <h4>Saved Servers</h4>
+         <h4>{$t('settings.serverManager.savedServers')}</h4>
        </div>
        
        <div class="server-list">
@@ -144,14 +147,14 @@
        </div>
 
        <div class="sidebar-footer">
-          <button class="icon-action" onclick={handleAdd} title="Add Server">
+          <button class="icon-action" onclick={handleAdd} title={$t('settings.serverManager.add')}>
              <iconify-icon icon="mdi:plus" width="20"></iconify-icon>
           </button>
           <div class="divider-v"></div>
-          <button class="icon-action" onclick={handleEdit} disabled={!selectedId} title="Edit">
+          <button class="icon-action" onclick={handleEdit} disabled={!selectedId} title={$t('settings.serverManager.edit')}>
              <iconify-icon icon="mdi:pencil" width="18"></iconify-icon>
           </button>
-          <button class="icon-action danger" onclick={handleDelete} disabled={!selectedId} title="Delete">
+          <button class="icon-action danger" onclick={handleDelete} disabled={!selectedId} title={$t('common.delete')}>
              <iconify-icon icon="mdi:delete" width="18"></iconify-icon>
           </button>
        </div>
@@ -164,8 +167,8 @@
              <div class="empty-icon">
                 <iconify-icon icon="mdi:server-network" width="64"></iconify-icon>
              </div>
-             <h3>Server Management</h3>
-             <p>Select a server from the list to connect, or add a new one.</p>
+             <h3>{$t('settings.serverManager.title')}</h3>
+             <p>{$t('settings.serverManager.description')}</p>
           </div>
        {:else if mode === 'view' && selectedServer}
           <div class="view-state">
@@ -176,7 +179,7 @@
              
              <!-- Read Only Preview -->
              <div class="info-block">
-                <label>Access Token</label>
+                <label>{$t('settings.serverManager.token')}</label>
                 <div class="token-preview">•••••••••••••••••••••••••</div>
              </div>
 
@@ -184,39 +187,39 @@
 
              <div class="actions-row">
                 <button class="btn primary full" onclick={handleConnect}>
-                   Connect
+                   {$t('settings.serverManager.connect')}
                 </button>
              </div>
           </div>
        {:else if (mode === 'create' || mode === 'edit') && draft}
           <div class="form-state">
-             <h3>{mode === 'create' ? 'Add New Server' : 'Edit Server'}</h3>
+             <h3>{mode === 'create' ? $t('settings.serverManager.add') : $t('settings.serverManager.edit')}</h3>
              
              <div class="form-group">
-                <label for="s-name">Name</label>
+                <label for="s-name">{$t('settings.serverManager.name')}</label>
                 <input id="s-name" type="text" bind:value={draft.name} placeholder="Home Assistant" />
              </div>
 
              <div class="form-group">
-                <label for="s-url">Server URL</label>
+                <label for="s-url">{$t('settings.serverManager.url')}</label>
                 <input id="s-url" type="text" bind:value={draft.url} placeholder="http://192.168.1.10:8123" />
              </div>
 
              <div class="form-group">
-                <label for="s-token">Long-Lived Access Token</label>
+                <label for="s-token">{$t('settings.serverManager.token')}</label>
                 <textarea id="s-token" bind:value={draft.token} rows="4" placeholder="eyJhbG..."></textarea>
              </div>
 
              <div class="spacer"></div>
 
              <div class="actions-row">
-                <button class="btn text" onclick={handleCancel}>Cancel</button>
-                <button class="btn primary" onclick={handleSave}>Save</button>
+                <button class="btn text" onclick={handleCancel}>{$t('common.cancel')}</button>
+                <button class="btn primary" onclick={handleSave}>{$t('common.save')}</button>
              </div>
           </div>
        {/if}
        
-       <button class="close-absolute" onclick={onClose}>
+       <button class="close-absolute" onclick={onClose} aria-label={$t('common.close')}>
           <iconify-icon icon="mdi:close" width="24"></iconify-icon>
        </button>
     </div>

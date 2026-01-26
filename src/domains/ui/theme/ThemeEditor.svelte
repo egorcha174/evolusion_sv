@@ -67,7 +67,7 @@
   <!-- 1. Header -->
   <header class="editor-header">
     <div class="title-block">
-      <h2>Theme Editor</h2>
+      <h2>{$t('settings.themeEditor.title')}</h2>
     </div>
     <div class="header-actions">
       <button class="icon-btn close" onclick={onCancel} title={$t('common.close')}>
@@ -84,7 +84,7 @@
           type="text" 
           class="modern-input" 
           bind:value={draft.theme.name} 
-          placeholder="Theme Name" 
+          placeholder={$t('settings.themeEditor.namePlaceholder')} 
         />
       </div>
 
@@ -113,16 +113,16 @@
     <div class="nav-container">
       <div class="segmented-nav">
         <button class="nav-item" class:active={activeSection === 'background'} onclick={() => activeSection = 'background'}>
-          Background
+          {$t('settings.themeEditor.nav.background')}
         </button>
         <button class="nav-item" class:active={activeSection === 'cards'} onclick={() => activeSection = 'cards'}>
-          Cards
+          {$t('settings.themeEditor.nav.cards')}
         </button>
         <button class="nav-item" class:active={activeSection === 'colors'} onclick={() => activeSection = 'colors'}>
-          Colors
+          {$t('settings.themeEditor.nav.colors')}
         </button>
         <button class="nav-item" class:active={activeSection === 'text'} onclick={() => activeSection = 'text'}>
-          Text
+          {$t('settings.themeEditor.nav.text')}
         </button>
         <!-- Animated Background Pill -->
         <div class="active-bg" style:transform="translateX({
@@ -138,26 +138,26 @@
       {#if activeSection === 'background'}
         <div class="section-group" transition:slide|local={{ duration: 200, axis: 'x' }}>
           <div class="control-stack">
-            <label class="label">Background Type</label>
+            <label class="label">{$t('settings.themeEditor.labels.bgType')}</label>
             <select 
               class="modern-select"
               value={currentScheme.dashboardBackgroundType}
               onchange={(e) => updateField('dashboardBackgroundType', e.currentTarget.value)}
             >
-              <option value="color">Solid Color</option>
-              <option value="gradient">Gradient</option>
-              <option value="image">Image URL</option>
+              <option value="color">{$t('settings.themeEditor.labels.solid')}</option>
+              <option value="gradient">{$t('settings.themeEditor.labels.gradient')}</option>
+              <option value="image">{$t('settings.themeEditor.labels.image')}</option>
             </select>
           </div>
 
           {#if currentScheme.dashboardBackgroundType === 'color'}
-            {@render colorRow('Background Color', 'dashboardBackgroundColor1')}
+            {@render colorRow($t('settings.themeEditor.labels.activeBg'), 'dashboardBackgroundColor1')}
           {:else if currentScheme.dashboardBackgroundType === 'gradient'}
-            {@render colorRow('Start Color', 'dashboardBackgroundColor1')}
-            {@render colorRow('End Color', 'dashboardBackgroundColor2')}
+            {@render colorRow($t('settings.themeEditor.labels.startColor'), 'dashboardBackgroundColor1')}
+            {@render colorRow($t('settings.themeEditor.labels.endColor'), 'dashboardBackgroundColor2')}
           {:else if currentScheme.dashboardBackgroundType === 'image'}
             <div class="input-group">
-              <label class="label">Image URL</label>
+              <label class="label">{$t('settings.themeEditor.labels.image')}</label>
               <input 
                 type="text" class="modern-input" 
                 value={currentScheme.dashboardBackgroundImageUrl || ''} 
@@ -165,31 +165,31 @@
                 placeholder="https://..."
               />
             </div>
-            {@render sliderRow('Blur', 'dashboardBackgroundImageBlur', 0, 20, 1, 'px')}
-            {@render sliderRow('Brightness', 'dashboardBackgroundImageBrightness', 0, 200, 5, '%')}
+            {@render sliderRow($t('settings.themeEditor.labels.blur'), 'dashboardBackgroundImageBlur', 0, 20, 1, 'px')}
+            {@render sliderRow($t('settings.themeEditor.labels.brightness'), 'dashboardBackgroundImageBrightness', 0, 200, 5, '%')}
           {/if}
 
-          <div class="section-divider">Panel & UI</div>
-          {@render sliderRow('Panel Opacity', 'panelOpacity', 0, 1, 0.05)}
-          {@render colorRow('Panel Background', 'bgPanel')}
+          <div class="section-divider">{$t('settings.themeEditor.labels.appearance')}</div>
+          {@render sliderRow($t('settings.themeEditor.labels.panelOpacity'), 'panelOpacity', 0, 1, 0.05)}
+          {@render colorRow($t('settings.themeEditor.labels.panelBg'), 'bgPanel')}
         </div>
 
       {:else if activeSection === 'cards'}
         <div class="section-group" transition:slide|local={{ duration: 200, axis: 'x' }}>
-          <div class="section-divider">Appearance</div>
-          {@render colorRow('Card Background', 'cardBackground')}
-          {@render colorRow('Active Background', 'cardBackgroundOn')}
-          {@render sliderRow('Opacity', 'cardOpacity', 0, 1, 0.05)}
+          <div class="section-divider">{$t('settings.themeEditor.labels.appearance')}</div>
+          {@render colorRow($t('settings.themeEditor.labels.cardBg'), 'cardBackground')}
+          {@render colorRow($t('settings.themeEditor.labels.activeBg'), 'cardBackgroundOn')}
+          {@render sliderRow($t('settings.themeEditor.labels.opacity'), 'cardOpacity', 0, 1, 0.05)}
           
-          <div class="section-divider">Borders</div>
-          {@render sliderRow('Corner Radius', 'cardBorderRadius', 0, 32, 1, 'px')}
-          {@render sliderRow('Border Width', 'cardBorderWidth', 0, 10, 1, 'px')}
-          {@render colorRow('Border Color', 'cardBorderColor')}
-          {@render colorRow('Active Border', 'cardBorderColorOn')}
+          <div class="section-divider">{$t('settings.themeEditor.labels.borders')}</div>
+          {@render sliderRow($t('settings.themeEditor.labels.radius'), 'cardBorderRadius', 0, 32, 1, 'px')}
+          {@render sliderRow($t('settings.themeEditor.labels.width'), 'cardBorderWidth', 0, 10, 1, 'px')}
+          {@render colorRow($t('settings.themeEditor.labels.color'), 'cardBorderColor')}
+          {@render colorRow($t('settings.themeEditor.labels.activeBorder'), 'cardBorderColorOn')}
           
-          <div class="section-divider">Shadow</div>
+          <div class="section-divider">{$t('settings.themeEditor.labels.shadow')}</div>
           <div class="control-stack">
-             <label class="label">Box Shadow CSS</label>
+             <label class="label">{$t('settings.themeEditor.labels.shadowCss')}</label>
              <input 
                type="text" class="modern-input" 
                value={currentScheme.shadowCard || 'none'} 
@@ -200,34 +200,34 @@
 
       {:else if activeSection === 'colors'}
         <div class="section-group" transition:slide|local={{ duration: 200, axis: 'x' }}>
-          <div class="section-divider">Brand Colors</div>
-          {@render colorRow('Primary Brand', 'accentPrimary')}
-          {@render colorRow('Secondary', 'accentSecondary')}
-          {@render colorRow('Info Blue', 'accentInfo')}
+          <div class="section-divider">{$t('settings.themeEditor.labels.brandColors')}</div>
+          {@render colorRow($t('settings.themeEditor.labels.primary'), 'accentPrimary')}
+          {@render colorRow($t('settings.themeEditor.labels.secondary'), 'accentSecondary')}
+          {@render colorRow($t('settings.themeEditor.labels.info'), 'accentInfo')}
           
-          <div class="section-divider">States</div>
-          {@render colorRow('State: On', 'stateOn')}
-          {@render colorRow('State: Off', 'stateOff')}
-          {@render colorRow('Success', 'accentSuccess')}
-          {@render colorRow('Warning', 'accentWarning')}
-          {@render colorRow('Error', 'accentError')}
+          <div class="section-divider">{$t('settings.themeEditor.labels.states')}</div>
+          {@render colorRow($t('settings.themeEditor.labels.on'), 'stateOn')}
+          {@render colorRow($t('settings.themeEditor.labels.off'), 'stateOff')}
+          {@render colorRow($t('settings.themeEditor.labels.success'), 'accentSuccess')}
+          {@render colorRow($t('settings.themeEditor.labels.warning'), 'accentWarning')}
+          {@render colorRow($t('settings.themeEditor.labels.error'), 'accentError')}
         </div>
 
       {:else if activeSection === 'text'}
         <div class="section-group" transition:slide|local={{ duration: 200, axis: 'x' }}>
-          <div class="section-divider">Global Typography</div>
-          {@render colorRow('Primary Text', 'textPrimary')}
-          {@render colorRow('Secondary Text', 'textSecondary')}
-          {@render colorRow('Muted Text', 'textMuted')}
+          <div class="section-divider">{$t('settings.themeEditor.labels.typography')}</div>
+          {@render colorRow($t('settings.themeEditor.labels.textPrimary'), 'textPrimary')}
+          {@render colorRow($t('settings.themeEditor.labels.textSecondary'), 'textSecondary')}
+          {@render colorRow($t('settings.themeEditor.labels.textMuted'), 'textMuted')}
           
-          <div class="section-divider">Card Text (Idle)</div>
-          {@render colorRow('Device Name', 'nameTextColor')}
-          {@render colorRow('State Value', 'valueTextColor')}
-          {@render colorRow('Secondary Info', 'statusTextColor')}
+          <div class="section-divider">{$t('settings.themeEditor.labels.cardTextIdle')}</div>
+          {@render colorRow($t('settings.themeEditor.labels.deviceName'), 'nameTextColor')}
+          {@render colorRow($t('settings.themeEditor.labels.stateValue'), 'valueTextColor')}
+          {@render colorRow($t('settings.themeEditor.labels.secondaryInfo'), 'statusTextColor')}
           
-          <div class="section-divider">Card Text (Active)</div>
-          {@render colorRow('Device Name', 'nameTextColorOn')}
-          {@render colorRow('State Value', 'valueTextColorOn')}
+          <div class="section-divider">{$t('settings.themeEditor.labels.cardTextActive')}</div>
+          {@render colorRow($t('settings.themeEditor.labels.deviceName'), 'nameTextColorOn')}
+          {@render colorRow($t('settings.themeEditor.labels.stateValue'), 'valueTextColorOn')}
         </div>
       {/if}
     </div>
