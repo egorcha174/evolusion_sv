@@ -1,0 +1,19 @@
+
+export type HarmonyRule =
+  | 'analogous'
+  | 'complementary'
+  | 'triadic'
+  | 'splitComplementary'
+  | 'monochromatic';
+
+export type RadiusPreset = 'soft' | 'standard' | 'sharp';
+
+export interface BaseThemeSettings {
+  themeId: string;      // required
+  themeName: string;    // required
+  primary: string;      // HEX #RRGGBB required
+  harmony: HarmonyRule; // required
+  radius: RadiusPreset; // required
+  cardOpacity: number;  // 0.20..0.70 step 0.05
+  panelOpacity: number; // 0.10..0.80 step 0.05
+}

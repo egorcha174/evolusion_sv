@@ -10,14 +10,15 @@
   
   import Section from '../Section.svelte';
   import ThemeEditor from '../../theme/ThemeEditor.svelte';
+  import ThemeAutoGenerator from '../../theme/ThemeAutoGenerator.svelte';
   import 'iconify-icon';
 
   let isEditingTheme = $state(false);
+  let isAutoGeneratorOpen = $state(false);
   let themeDraft = $state<ThemeFile | null>(null);
   let themeFileInput: HTMLInputElement;
 
   // Helper to check if a theme is a built-in (by ID)
-  // We use the imported builtInThemes source of truth
   function isBuiltInID(id: string) {
     return builtInThemes.some(b => b.theme.id === id);
   }
@@ -46,7 +47,6 @@
 
   function editTheme(theme: ThemeFile) {
     themeDraft = JSON.parse(JSON.stringify(theme));
-    // If we edit a built-in, we mark it custom so it gets saved to storage
     if (themeDraft && isBuiltInID(theme.theme.id)) {
         themeDraft.theme.isCustom = true;
     }
@@ -185,6 +185,12 @@
          </div>
        {/each}
        
+       <!-- Auto Generate Button -->
+       <button class="theme-card create-btn highlight" onclick={() => isAutoGeneratorOpen = true}>
+          <iconify-icon icon="mdi:magic-staff" width="32"></iconify-icon>
+          <span>Auto Generate</span>
+       </button>
+
        <button class="theme-card create-btn" onclick={() => createThemeCopy(defaultTheme)}>
           <iconify-icon icon="mdi:plus" width="32"></iconify-icon>
           <span>{$t('templates.manager.create')}</span>
@@ -207,6 +213,10 @@
      </div>
   {/if}
 </Section>
+
+{#if isAutoGeneratorOpen}
+  <ThemeAutoGenerator onClose={() => isAutoGeneratorOpen = false} />
+{/if}
 
 <style>
   .control-row { margin-bottom: 1rem; }
@@ -269,10 +279,14 @@
   .icon-btn.small.danger:hover { color: var(--accent-error); border-color: var(--accent-error); }
   
   .create-btn {
-    display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.5rem;
     min-height: 94px; background: var(--bg-secondary); border: 1px dashed var(--border-primary); color: var(--text-secondary);
   }
   .create-btn:hover { border-color: var(--accent-primary); color: var(--accent-primary); }
+  .create-btn span { font-size: 0.8rem; font-weight: 600; }
+  
+  .create-btn.highlight { border-style: solid; background: var(--bg-card); color: var(--accent-primary); border-color: var(--accent-primary); opacity: 0.8; }
+  .create-btn.highlight:hover { opacity: 1; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
   
   .editor-wrapper { margin-top: 1rem; border-top: 1px solid var(--border-divider); padding-top: 1rem; }
 

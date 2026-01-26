@@ -25,6 +25,8 @@ export interface ColorScheme {
   bgChip: string;
   bgCardHover: string;
   bgDropdown?: string; // Optional, falls back to panel
+  bgInput?: string;
+  bgHeader?: string;
   
   // Borders & Inputs (New)
   borderInput: string;

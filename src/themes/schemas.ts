@@ -19,6 +19,8 @@ export const ColorSchemeSchema = z.object({
   bgChip: ColorSchema.optional().default('#e4e6eb'),
   bgCardHover: ColorSchema.optional().default('rgba(0,0,0,0.05)'),
   bgDropdown: ColorSchema.optional(),
+  bgInput: ColorSchema.optional(),
+  bgHeader: ColorSchema.optional(),
   
   borderInput: ColorSchema.optional().default('#ccc'),
   borderFocus: ColorSchema.optional().default('#2196f3'),
