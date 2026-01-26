@@ -1,5 +1,7 @@
-/// <reference types="svelte" />
 import { browser } from '$app/environment';
+
+// Declare $state rune locally to satisfy TypeScript if global types are missing
+declare function $state<T>(value: T): T;
 
 export function usePersistedWidth(storageKey: string, defaultWidth: number, min: number = 300, max: number = 600) {
   let width = $state(defaultWidth);
