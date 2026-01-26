@@ -14,6 +14,22 @@ export const ColorSchemeSchema = z.object({
   dashboardBackgroundImageBlur: z.number().min(0).max(100).optional(),
   dashboardBackgroundImageBrightness: z.number().min(0).max(200).optional(),
 
+  // Global UI
+  bgSidebar: ColorSchema.optional().default('#f0f2f5'),
+  bgChip: ColorSchema.optional().default('#e4e6eb'),
+  bgCardHover: ColorSchema.optional().default('rgba(0,0,0,0.05)'),
+  bgDropdown: ColorSchema.optional(),
+  
+  borderInput: ColorSchema.optional().default('#ccc'),
+  borderFocus: ColorSchema.optional().default('#2196f3'),
+  borderDivider: ColorSchema.optional().default('rgba(0,0,0,0.1)'),
+
+  scrollbarThumb: ColorSchema.optional().default('#ccc'),
+  scrollbarTrack: ColorSchema.optional().default('transparent'),
+
+  gridCellBg: ColorSchema.optional(),
+  gridCellBorder: ColorSchema.optional(),
+
   // Card
   cardOpacity: z.number().min(0).max(1),
   cardBorderRadius: z.number().min(0),
@@ -26,6 +42,7 @@ export const ColorSchemeSchema = z.object({
 
   // Panel
   panelOpacity: z.number().min(0).max(1),
+  bgPanel: ColorSchema.optional(),
 
   // Tabs
   tabTextColor: ColorSchema,
@@ -36,6 +53,7 @@ export const ColorSchemeSchema = z.object({
   iconBackgroundShape: z.enum(['circle', 'rounded-square', 'square']),
   iconBackgroundColorOn: ColorSchema,
   iconBackgroundColorOff: ColorSchema,
+  iconColorOn: ColorSchema.optional().default('#ffffff'),
 
   // Thermostat
   thermostatHandleColor: ColorSchema,
@@ -48,7 +66,7 @@ export const ColorSchemeSchema = z.object({
   clockTextColor: ColorSchema,
 
   // Weather (Colors)
-  weatherPrimaryColor: ColorSchema.optional().default('#000000'), // Making optional for backward compat in validation, but default ensures it exists
+  weatherPrimaryColor: ColorSchema.optional().default('#000000'), 
   weatherSecondaryColor: ColorSchema.optional().default('#888888'),
 
   // Widget Text

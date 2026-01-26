@@ -15,10 +15,29 @@ export interface ColorScheme {
   dashboardBackgroundType: 'color' | 'gradient' | 'image';
   dashboardBackgroundColor1: string;
   dashboardBackgroundColor2?: string;
-  dashboardGradientAngle?: number; // Added
+  dashboardGradientAngle?: number; 
   dashboardBackgroundImageUrl?: string;
   dashboardBackgroundImageBlur?: number;
   dashboardBackgroundImageBrightness?: number;
+
+  // Global UI (New)
+  bgSidebar: string;
+  bgChip: string;
+  bgCardHover: string;
+  bgDropdown?: string; // Optional, falls back to panel
+  
+  // Borders & Inputs (New)
+  borderInput: string;
+  borderFocus: string;
+  borderDivider: string;
+
+  // Scrollbars (New)
+  scrollbarThumb: string;
+  scrollbarTrack: string;
+
+  // Grid Editor (New)
+  gridCellBg?: string;
+  gridCellBorder?: string;
 
   // Card
   cardOpacity: number;
@@ -32,6 +51,7 @@ export interface ColorScheme {
 
   // Panel
   panelOpacity: number;
+  bgPanel?: string; // Often derived, but explicit is better. Not strictly new but ensuring typing.
 
   // Tabs
   tabTextColor: string;
@@ -42,6 +62,7 @@ export interface ColorScheme {
   iconBackgroundShape: 'circle' | 'rounded-square' | 'square';
   iconBackgroundColorOn: string;
   iconBackgroundColorOff: string;
+  iconColorOn?: string; // New: To fix contrast issues (e.g. black icon on yellow bg)
 
   // Thermostat
   thermostatHandleColor: string;

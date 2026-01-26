@@ -1,4 +1,5 @@
 
+
 <script lang="ts">
   import { t } from 'svelte-i18n';
   import type { HAEntity, CardTemplate, CardElement } from '$lib/types';
@@ -242,7 +243,7 @@
 
   .device-card.active .icon {
     background: var(--icon-background-color-on, var(--accent-primary));
-    color: #fff;
+    color: var(--icon-color-on, #ffffff); /* Fallback to white if var not set */
   }
   
   .device-name {

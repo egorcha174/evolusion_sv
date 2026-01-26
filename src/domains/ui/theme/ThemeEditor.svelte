@@ -15,8 +15,7 @@
   }>();
 
   let activeTab = $state<'light' | 'dark'>('light');
-  // Updated navigation sections to match logical grouping of screenshots
-  let activeSection = $state<'main' | 'cards' | 'text' | 'widgets'>('main');
+  let activeSection = $state<'main' | 'global_ui' | 'cards' | 'text' | 'widgets'>('main');
   
   let currentScheme = $derived(draft.theme.scheme[activeTab]);
 
@@ -31,7 +30,6 @@
     
     // Ensure secondary color exists if switching to gradient
     if (type === 'gradient' && !draft.theme.scheme[activeTab].dashboardBackgroundColor2) {
-       // Default to a slight variation or same color
        updateField('dashboardBackgroundColor2', draft.theme.scheme[activeTab].dashboardBackgroundColor1);
     }
     // Ensure angle exists
@@ -125,11 +123,14 @@
       <button class="pill" class:active={activeSection === 'main'} onclick={() => activeSection = 'main'}>
         Main
       </button>
+      <button class="pill" class:active={activeSection === 'global_ui'} onclick={() => activeSection = 'global_ui'}>
+        Global UI
+      </button>
       <button class="pill" class:active={activeSection === 'cards'} onclick={() => activeSection = 'cards'}>
         Cards
       </button>
       <button class="pill" class:active={activeSection === 'text'} onclick={() => activeSection = 'text'}>
-        Text & UI
+        Text
       </button>
       <button class="pill" class:active={activeSection === 'widgets'} onclick={() => activeSection = 'widgets'}>
         Widgets
@@ -176,6 +177,27 @@
           <div class="divider"></div>
           {@render sectionTitle($t('settings.themeEditor.labels.panelOpacity'))}
           {@render sliderRow('Transparency', 'panelOpacity', 0, 1, 0.05)}
+          <ColorPicker label="Panel Background" value={currentScheme.bgPanel} onChange={(v) => updateField('bgPanel', v)} />
+        </div>
+
+      {:else if activeSection === 'global_ui'}
+        <div class="group" transition:slide|local={{ axis: 'x' }}>
+          {@render sectionTitle('Structure Colors')}
+          <ColorPicker label="Sidebar Background" value={currentScheme.bgSidebar} onChange={(v) => updateField('bgSidebar', v)} />
+          <ColorPicker label="Chips / Pills" value={currentScheme.bgChip} onChange={(v) => updateField('bgChip', v)} />
+          <ColorPicker label="Dropdowns" value={currentScheme.bgDropdown} onChange={(v) => updateField('bgDropdown', v)} />
+          <ColorPicker label="Hover Effect" value={currentScheme.bgCardHover} onChange={(v) => updateField('bgCardHover', v)} />
+
+          <div class="divider"></div>
+          {@render sectionTitle('Inputs & Borders')}
+          <ColorPicker label="Input Border" value={currentScheme.borderInput} onChange={(v) => updateField('borderInput', v)} />
+          <ColorPicker label="Focus Border" value={currentScheme.borderFocus} onChange={(v) => updateField('borderFocus', v)} />
+          <ColorPicker label="Dividers" value={currentScheme.borderDivider} onChange={(v) => updateField('borderDivider', v)} />
+
+          <div class="divider"></div>
+          {@render sectionTitle('Scrollbars')}
+          <ColorPicker label="Thumb" value={currentScheme.scrollbarThumb} onChange={(v) => updateField('scrollbarThumb', v)} />
+          <ColorPicker label="Track" value={currentScheme.scrollbarTrack} onChange={(v) => updateField('scrollbarTrack', v)} />
         </div>
 
       {:else if activeSection === 'cards'}
@@ -225,6 +247,11 @@
             label="Icon Bg (On)" 
             value={currentScheme.iconBackgroundColorOn} 
             onChange={(v) => updateField('iconBackgroundColorOn', v)} 
+          />
+          <ColorPicker 
+            label="Icon Symbol (On)" 
+            value={currentScheme.iconColorOn} 
+            onChange={(v) => updateField('iconColorOn', v)} 
           />
         </div>
 

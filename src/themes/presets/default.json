@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "manifest": {
     "name": "Default",
-    "version": "2.2.0",
+    "version": "2.3.0",
     "author": "Evolusion",
     "description": "Clean, neutral style with a single System Blue accent.",
     "generatedAt": "2023-01-01T00:00:00.000Z"
@@ -16,6 +16,22 @@
         "dashboardBackgroundType": "color",
         "dashboardBackgroundColor1": "#F2F2F7",
         "dashboardGradientAngle": 135,
+        
+        "bgSidebar": "#F2F2F7",
+        "bgChip": "#E5E5EA",
+        "bgCardHover": "rgba(0,0,0,0.05)",
+        "bgDropdown": "#FFFFFF",
+        
+        "borderInput": "#D1D1D6",
+        "borderFocus": "#007AFF",
+        "borderDivider": "#C7C7CC",
+        
+        "scrollbarThumb": "#C7C7CC",
+        "scrollbarTrack": "transparent",
+        
+        "gridCellBg": "rgba(0,0,0,0.02)",
+        "gridCellBorder": "rgba(0,0,0,0.05)",
+
         "cardOpacity": 1,
         "cardBorderRadius": 16,
         "cardBorderWidth": 0,
@@ -24,13 +40,19 @@
         "cardBackground": "#FFFFFF",
         "cardBackgroundOn": "#FFFFFF",
         "shadowCard": "0 2px 8px rgba(0,0,0,0.04)",
+        
         "panelOpacity": 0.95,
+        "bgPanel": "#FFFFFF",
+        
         "tabTextColor": "#8E8E93",
         "activeTabTextColor": "#007AFF",
         "tabIndicatorColor": "#007AFF",
+        
         "iconBackgroundShape": "circle",
         "iconBackgroundColorOn": "#007AFF",
         "iconBackgroundColorOff": "rgba(0, 0, 0, 0.05)",
+        "iconColorOn": "#FFFFFF",
+        
         "nameTextColor": "#1C1C1E",
         "statusTextColor": "#8E8E93",
         "valueTextColor": "#007AFF",
@@ -39,14 +61,17 @@
         "statusTextColorOn": "#007AFF",
         "valueTextColorOn": "#007AFF",
         "unitTextColorOn": "#007AFF",
+        
         "thermostatHandleColor": "#FFFFFF",
         "thermostatDialTextColor": "#1C1C1E",
         "thermostatDialLabelColor": "#8E8E93",
         "thermostatHeatingColor": "#007AFF",
         "thermostatCoolingColor": "#007AFF",
+        
         "clockTextColor": "#1C1C1E",
         "weatherPrimaryColor": "#1C1C1E",
         "weatherSecondaryColor": "#8E8E93",
+        
         "accentPrimary": "#007AFF",
         "accentSecondary": "#8E8E93",
         "accentError": "#FF3B30",
@@ -59,6 +84,22 @@
         "dashboardBackgroundType": "color",
         "dashboardBackgroundColor1": "#000000",
         "dashboardGradientAngle": 135,
+        
+        "bgSidebar": "#000000",
+        "bgChip": "#2C2C2E",
+        "bgCardHover": "rgba(255,255,255,0.1)",
+        "bgDropdown": "#1C1C1E",
+        
+        "borderInput": "#3A3A3C",
+        "borderFocus": "#0A84FF",
+        "borderDivider": "#38383A",
+        
+        "scrollbarThumb": "#48484A",
+        "scrollbarTrack": "transparent",
+        
+        "gridCellBg": "rgba(255,255,255,0.03)",
+        "gridCellBorder": "rgba(255,255,255,0.08)",
+
         "cardOpacity": 1,
         "cardBorderRadius": 16,
         "cardBorderWidth": 0,
@@ -67,13 +108,19 @@
         "cardBackground": "#1C1C1E",
         "cardBackgroundOn": "#1C1C1E",
         "shadowCard": "0 2px 8px rgba(0,0,0,0.2)",
+        
         "panelOpacity": 0.95,
+        "bgPanel": "#1C1C1E",
+        
         "tabTextColor": "#8E8E93",
         "activeTabTextColor": "#0A84FF",
         "tabIndicatorColor": "#0A84FF",
+        
         "iconBackgroundShape": "circle",
         "iconBackgroundColorOn": "#0A84FF",
         "iconBackgroundColorOff": "rgba(255, 255, 255, 0.1)",
+        "iconColorOn": "#FFFFFF",
+        
         "nameTextColor": "#FFFFFF",
         "statusTextColor": "#8E8E93",
         "valueTextColor": "#FFFFFF",
@@ -82,14 +129,17 @@
         "statusTextColorOn": "#0A84FF",
         "valueTextColorOn": "#FFFFFF",
         "unitTextColorOn": "#FFFFFF",
+        
         "thermostatHandleColor": "#FFFFFF",
         "thermostatDialTextColor": "#FFFFFF",
         "thermostatDialLabelColor": "#8E8E93",
         "thermostatHeatingColor": "#0A84FF",
         "thermostatCoolingColor": "#0A84FF",
+        
         "clockTextColor": "#FFFFFF",
         "weatherPrimaryColor": "#FFFFFF",
         "weatherSecondaryColor": "#8E8E93",
+        
         "accentPrimary": "#0A84FF",
         "accentSecondary": "#8E8E93",
         "accentError": "#FF453A",
