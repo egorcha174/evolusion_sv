@@ -20,7 +20,7 @@
     <!-- Current Weather -->
     <div class="current-weather">
       <div class="weather-icon">
-         <iconify-icon icon={$weatherStore.current.icon} width="48"></iconify-icon>
+         <iconify-icon icon={$weatherStore.current.icon}></iconify-icon>
       </div>
       <div class="weather-info">
         <div class="temp">
@@ -42,7 +42,7 @@
            <div class="forecast-item">
              <div class="forecast-day">{formatDay(day.date)}</div>
              <div class="forecast-icon">
-               <iconify-icon icon={day.icon} width="20"></iconify-icon>
+               <iconify-icon icon={day.icon}></iconify-icon>
              </div>
              <div class="forecast-temp-stack">
                <span class="max">{day.maxTemp}°</span>
@@ -57,7 +57,7 @@
      <!-- Fallback/Empty -->
      <div class="current-weather">
        <div class="weather-icon">
-         <iconify-icon icon="mdi:weather-partly-cloudy" width="48"></iconify-icon>
+         <iconify-icon icon="mdi:weather-partly-cloudy"></iconify-icon>
        </div>
        <div class="weather-info">
          <div class="temp">--°</div>
@@ -94,16 +94,31 @@
     width: 100%;
   }
 
-  .weather-icon { color: var(--accent-info); }
+  .weather-icon { 
+    color: var(--accent-info);
+    font-size: var(--weather-icon-size, 48px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  /* Ensure iconify fills the font-size container */
+  .weather-icon iconify-icon {
+    width: 1em;
+    height: 1em;
+  }
+
   .weather-info { display: flex; flex-direction: column; }
+  
   .temp {
-    font-size: 2rem;
+    font-size: var(--weather-current-temp-font-size, 2rem);
     font-weight: 600;
     color: var(--text-primary);
     line-height: 1;
   }
+  
   .condition {
-    font-size: 0.85rem;
+    font-size: var(--weather-current-desc-font-size, 0.85rem);
     color: var(--text-muted);
     text-transform: capitalize;
     white-space: nowrap;
@@ -135,6 +150,7 @@
   .forecast-day {
     color: var(--text-secondary);
     width: 40px;
+    font-size: var(--weather-forecast-day-font-size, 0.85rem);
   }
   
   .forecast-icon {
@@ -142,6 +158,12 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    font-size: var(--weather-forecast-icon-size, 20px);
+  }
+  
+  .forecast-icon iconify-icon {
+    width: 1em;
+    height: 1em;
   }
   
   .forecast-temp-stack {
@@ -156,11 +178,11 @@
   .forecast-temp-stack .max { 
     font-weight: 600; 
     color: var(--text-primary);
-    font-size: 0.9rem;
+    font-size: var(--weather-forecast-max-temp-font-size, 0.9rem);
   }
   .forecast-temp-stack .min { 
     color: var(--text-muted); 
-    font-size: 0.8rem;
+    font-size: var(--weather-forecast-min-temp-font-size, 0.8rem);
   }
 
   /* Forecast List - Horizontal Mode */
@@ -195,7 +217,6 @@
   
   .forecast-list.horizontal .forecast-day {
     width: auto;
-    font-size: 0.75rem;
   }
   
   .forecast-list.horizontal .forecast-temp-stack {

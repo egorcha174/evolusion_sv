@@ -13,6 +13,7 @@
   import { setLocale, availableLanguages, currentLang } from '../../../lib/i18n';
   import { exportTheme, importTheme } from '../theme/io'; // Import IO functions
   import type { ThemeMode, ThemeFile } from '../../../themes/types';
+  import type { WeatherIconPack } from '../../../lib/weather/types';
 
   // Components
   import Section from './Section.svelte';
@@ -186,6 +187,7 @@
   let wLat = $state($weatherSettings.customLocation?.lat ?? 0);
   let wLon = $state($weatherSettings.customLocation?.lon ?? 0);
   let wDays = $state($weatherSettings.forecastDays);
+  let wIconPack = $state($weatherSettings.iconPack);
 
   $effect(() => {
     if ($isSettingsOpen) {
@@ -195,6 +197,7 @@
       wLat = $weatherSettings.customLocation?.lat ?? 0;
       wLon = $weatherSettings.customLocation?.lon ?? 0;
       wDays = $weatherSettings.forecastDays;
+      wIconPack = $weatherSettings.iconPack;
     }
   });
 
@@ -205,7 +208,8 @@
        apiKey: wApiKey,
        useCustomLocation: wUseCustom,
        customLocation: { lat: wLat, lon: wLon },
-       forecastDays: wDays
+       forecastDays: wDays,
+       iconPack: wIconPack
      }));
      refreshWeatherConfig();
   }
@@ -415,6 +419,17 @@
           {#if wProvider !== 'openmeteo'}
             <LabeledInput label={$t('settings.weatherKey')} bind:value={wApiKey} type="password" />
           {/if}
+
+          <div class="control-row">
+            <label>
+              {$t('settings.weatherIconPack')}
+              <select bind:value={wIconPack}>
+                <option value="default">Default (Material)</option>
+                <option value="outline">Outline</option>
+                <option value="filled">Filled</option>
+              </select>
+            </label>
+          </div>
 
           <RangeInput label={$t('settings.forecast.daysLabel')} bind:value={wDays} min={1} max={7} />
 
