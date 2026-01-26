@@ -82,10 +82,43 @@
     height: 100%;
     max-height: 100dvh;
     
-    /* FIX: Use bg-page for solid background, ensuring high contrast in all themes */
-    /* Fallback to white for safety */
-    background: var(--bg-page, #ffffff);
-    /* Enforce text color to match the background */
+    /* --- FORCE NEUTRAL LIGHT THEME (ISOLATION) --- */
+    /* This ensures the settings panel is always legible regardless of the active global theme */
+    
+    /* Backgrounds */
+    --bg-page: #F2F2F7;
+    --bg-panel: #FFFFFF;
+    --bg-card: #FFFFFF;
+    --bg-card-hover: #F2F2F7;
+    --bg-secondary: #F9F9F9;
+    --bg-input: #FFFFFF;
+    --bg-header: #F9F9F9;
+    --bg-chip: #E5E5EA;
+    --bg-chip-active: #D1D1D6;
+    --bg-sidebar: #F2F2F7;
+    
+    /* Text */
+    --text-primary: #1C1C1E;
+    --text-secondary: #636366;
+    --text-muted: #AEAEB2;
+    --text-on-accent: #FFFFFF;
+    
+    /* Borders */
+    --border-primary: #E5E5EA;
+    --border-divider: #C7C7CC;
+    --border-input: #D1D1D6;
+    --border-focus: #007AFF;
+    
+    /* Accents (Neutral Blue Default) */
+    --accent-primary: #007AFF;
+    --accent-secondary: #5856D6;
+    --accent-success: #34C759;
+    --accent-warning: #FF9500;
+    --accent-error: #FF3B30;
+    --accent-info: #007AFF;
+    
+    /* Apply base styles */
+    background: var(--bg-page);
     color: var(--text-primary);
     
     box-shadow: -4px 0 24px rgba(0,0,0,0.15);
@@ -121,7 +154,7 @@
     align-items: center;
     padding: 1rem 1.5rem;
     border-bottom: 1px solid var(--border-divider);
-    background: var(--bg-header); /* Keep header slightly distinct if theme allows */
+    background: var(--bg-header); 
     flex-shrink: 0;
   }
 
