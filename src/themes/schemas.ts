@@ -22,6 +22,7 @@ export const ColorSchemeSchema = z.object({
   cardBorderColorOn: ColorSchema,
   cardBackground: ColorSchema,
   cardBackgroundOn: ColorSchema,
+  shadowCard: z.string().optional(),
 
   // Panel
   panelOpacity: z.number().min(0).max(1),
@@ -59,6 +60,17 @@ export const ColorSchemeSchema = z.object({
   statusTextColorOn: ColorSchema,
   valueTextColorOn: ColorSchema,
   unitTextColorOn: ColorSchema,
+
+  // Accents
+  accentPrimary: ColorSchema.optional(),
+  accentSecondary: ColorSchema.optional(),
+  accentError: ColorSchema.optional(),
+  accentSuccess: ColorSchema.optional(),
+  accentWarning: ColorSchema.optional(),
+  accentInfo: ColorSchema.optional(),
+
+  // Widgets
+  widgetSwitchOn: ColorSchema.optional(),
 
   // Weather Sizes
   weatherIconSize: z.number().optional(),

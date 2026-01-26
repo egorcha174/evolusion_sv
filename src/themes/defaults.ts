@@ -288,4 +288,126 @@ export const deepSpaceTheme: ThemeFile = {
   }
 };
 
-export const BUILTIN_THEMES: ThemeFile[] = [defaultTheme, tronTheme, deepSpaceTheme];
+export const appleRefinedTheme: ThemeFile = {
+  schemaVersion: 1,
+  manifest: {
+    name: "Apple Home Refined",
+    version: "1.0.0",
+    author: "Evolusion",
+    description: "Refined style with deep blur, soft gradients, and high contrast.",
+    generatedAt: new Date().toISOString()
+  },
+  theme: {
+    id: "apple-refined",
+    name: "Apple Home Refined",
+    isCustom: false,
+    scheme: {
+      light: {
+        dashboardBackgroundType: "gradient",
+        dashboardBackgroundColor1: "#E7EBF0",
+        dashboardBackgroundColor2: "#FDFDFE",
+        dashboardGradientAngle: 160,
+        
+        cardOpacity: 0.7,
+        cardBorderRadius: 16,
+        cardBorderWidth: 0,
+        cardBorderColor: "transparent",
+        cardBorderColorOn: "rgba(10, 132, 255, 0.3)",
+        cardBackground: "#ffffff",
+        cardBackgroundOn: "#ffffff",
+        shadowCard: "0 2px 10px rgba(0,0,0,0.05)",
+        
+        iconBackgroundShape: "circle",
+        iconBackgroundColorOn: "#ffffff",
+        iconBackgroundColorOff: "rgba(0, 0, 0, 0.05)",
+        
+        panelOpacity: 0.8,
+        
+        tabTextColor: "#8E8E93",
+        activeTabTextColor: "#1C1C1E",
+        tabIndicatorColor: "#0A84FF",
+        
+        thermostatHandleColor: "#FFFFFF",
+        thermostatDialTextColor: "#1C1C1E",
+        thermostatDialLabelColor: "#8E8E93",
+        thermostatHeatingColor: "#FF9F0A",
+        thermostatCoolingColor: "#0A84FF",
+        
+        clockTextColor: "#1C1C1E",
+        weatherPrimaryColor: "#1C1C1E",
+        weatherSecondaryColor: "#8E8E93",
+        
+        nameTextColor: "#1C1C1E",
+        statusTextColor: "#8E8E93",
+        valueTextColor: "#1C1C1E",
+        unitTextColor: "#8E8E93",
+        
+        nameTextColorOn: "#1C1C1E",
+        statusTextColorOn: "#0A84FF",
+        valueTextColorOn: "#1C1C1E",
+        unitTextColorOn: "#1C1C1E",
+        
+        accentPrimary: "#0A84FF",
+        accentError: "#FF3B30",
+        accentSuccess: "#30D158",
+        accentWarning: "#FF9F0A",
+        accentInfo: "#0A84FF",
+        widgetSwitchOn: "#30D158"
+      },
+      dark: {
+        dashboardBackgroundType: "gradient",
+        dashboardBackgroundColor1: "#2C2C2E",
+        dashboardBackgroundColor2: "#1C1C1E",
+        dashboardGradientAngle: 160,
+        
+        cardOpacity: 0.6,
+        cardBorderRadius: 16,
+        cardBorderWidth: 1,
+        cardBorderColor: "rgba(235, 235, 245, 0.2)",
+        cardBorderColorOn: "#0A84FF",
+        cardBackground: "#2C2C2E",
+        cardBackgroundOn: "#2C2C2E",
+        shadowCard: "0 8px 30px rgba(0,0,0,0.3)",
+        
+        iconBackgroundShape: "circle",
+        iconBackgroundColorOn: "#0A84FF",
+        iconBackgroundColorOff: "rgba(255, 255, 255, 0.1)",
+        
+        panelOpacity: 0.7,
+        
+        tabTextColor: "#8E8E93",
+        activeTabTextColor: "#FFFFFF",
+        tabIndicatorColor: "#0A84FF",
+        
+        thermostatHandleColor: "#FFFFFF",
+        thermostatDialTextColor: "#FFFFFF",
+        thermostatDialLabelColor: "#8E8E93",
+        thermostatHeatingColor: "#FFD60A",
+        thermostatCoolingColor: "#0A84FF",
+        
+        clockTextColor: "#FFFFFF",
+        weatherPrimaryColor: "#FFFFFF",
+        weatherSecondaryColor: "#8E8E93",
+        
+        nameTextColor: "#FFFFFF",
+        statusTextColor: "#8E8E93",
+        valueTextColor: "#FFFFFF",
+        unitTextColor: "#8E8E93",
+        
+        nameTextColorOn: "#FFFFFF",
+        statusTextColorOn: "#0A84FF",
+        valueTextColorOn: "#FFFFFF",
+        unitTextColorOn: "#FFFFFF",
+        
+        accentPrimary: "#0A84FF",
+        accentError: "#FF453A",
+        accentSuccess: "#30D158",
+        accentWarning: "#FFD60A",
+        accentInfo: "#0A84FF",
+        widgetSwitchOn: "#30D158"
+      }
+    }
+  }
+};
+
+export const BUILTIN_THEMES: ThemeFile[] = [defaultTheme, tronTheme, deepSpaceTheme, appleRefinedTheme];

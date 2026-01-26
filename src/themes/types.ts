@@ -28,6 +28,7 @@ export interface ColorScheme {
   cardBorderColorOn: string;
   cardBackground: string;
   cardBackgroundOn: string;
+  shadowCard?: string;
 
   // Panel
   panelOpacity: number;
@@ -65,6 +66,17 @@ export interface ColorScheme {
   statusTextColorOn: string;
   valueTextColorOn: string;
   unitTextColorOn: string;
+  
+  // Accents
+  accentPrimary?: string;
+  accentSecondary?: string;
+  accentError?: string;
+  accentSuccess?: string;
+  accentWarning?: string;
+  accentInfo?: string;
+
+  // Specific Widgets
+  widgetSwitchOn?: string;
 
   // Weather (Layout/Size - Optional)
   weatherIconSize?: number;
