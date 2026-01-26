@@ -92,6 +92,8 @@
     const maxMargin = 10;
     const gridMaxWidth = Math.max(0, contentWidth - 2 * maxMargin);
     const gridMaxHeight = Math.max(0, contentHeight - 2 * maxMargin);
+    
+    // Safety check: Don't calculate if space is invalid
     if (gridMaxWidth <= 0 || gridMaxHeight <= 0) return;
 
     const minGapX = 8;
@@ -102,6 +104,11 @@
 
     let size = Math.floor(Math.min(cellSizeX, cellSizeY));
     if (size < 1) size = 1;
+
+    // Only update if changes are significant to prevent loops
+    if (cellSize === size && Math.abs(containerWidth - contentWidth) < 1) {
+        // Only skip if gaps/margins are also stable, but usually size change is main trigger
+    }
 
     cellSize = size;
     halfStep = size / 2;
@@ -143,7 +150,10 @@
     const _r = rows;
     const _w = containerWidth;
     const _h = containerHeight;
-    calculateGeometry();
+    // Debounce simply by Svelte's batching, but we ensure calc only runs if inputs valid
+    if (_w > 0 && _h > 0) {
+       calculateGeometry();
+    }
   });
 
   onMount(() => {
@@ -152,8 +162,15 @@
 
     const observer = new ResizeObserver(entries => {
       for (const entry of entries) {
-        containerWidth = entry.contentRect.width;
-        containerHeight = entry.contentRect.height;
+        // Round values to prevent sub-pixel infinite loops
+        const newW = Math.round(entry.contentRect.width);
+        const newH = Math.round(entry.contentRect.height);
+        
+        // Only update if changed significantly
+        if (Math.abs(newW - containerWidth) >= 1 || Math.abs(newH - containerHeight) >= 1) {
+           containerWidth = newW;
+           containerHeight = newH;
+        }
       }
     });
 

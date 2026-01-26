@@ -46,15 +46,20 @@
 {#snippet selectRow(label, key, options)}
   <div class="control-row select-row">
     <span class="label">{label}</span>
-    <select 
-      class="modern-select"
-      value={currentScheme[key]}
-      onchange={(e) => updateField(key, e.currentTarget.value)}
-    >
-      {#each options as opt}
-        <option value={opt.value}>{opt.label}</option>
-      {/each}
-    </select>
+    <div class="select-wrapper">
+      <select 
+        class="modern-select"
+        value={currentScheme[key]}
+        onchange={(e) => updateField(key, e.currentTarget.value)}
+      >
+        {#each options as opt}
+          <option value={opt.value}>{opt.label}</option>
+        {/each}
+      </select>
+      <div class="select-chevron">
+        <iconify-icon icon="mdi:chevron-down"></iconify-icon>
+      </div>
+    </div>
   </div>
 {/snippet}
 
@@ -353,14 +358,40 @@
   .label { font-size: 0.9rem; font-weight: 500; color: var(--text-primary); }
   .value { font-family: monospace; font-size: 0.85rem; color: var(--text-muted); }
 
+  /* MODERN SELECT WITH WRAPPER */
+  .select-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
   .modern-select {
+    appearance: none;
+    -webkit-appearance: none;
     padding: 0.4rem 2rem 0.4rem 0.8rem;
     border-radius: 6px;
     border: 1px solid rgba(0,0,0,0.1);
     background: var(--bg-panel);
     color: var(--text-primary);
     font-size: 0.9rem;
-    text-align: right;
+    text-align: left;
+    cursor: pointer;
+    min-width: 120px;
+  }
+  
+  .modern-select:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+  }
+
+  .select-chevron {
+    position: absolute;
+    right: 0.5rem;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    color: var(--text-secondary);
+    font-size: 1rem;
   }
 
   .slider {
