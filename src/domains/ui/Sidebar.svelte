@@ -4,7 +4,8 @@
   import { t, locale } from 'svelte-i18n';
   import { haStore } from '../ha/store';
   import { sidebarWidth, loadUIState, saveUIState } from './store';
-  import { timeString } from '../app/time';
+  import { time } from '../app/time';
+  import { clockSettings } from './widgets/clockStore';
   import WeatherWidget from './widgets/WeatherWidget.svelte';
   
   // Resizing state
@@ -33,10 +34,11 @@
   function handleMouseMove(e: MouseEvent) {
     if (!isResizing) return;
     
-    let newWidth = e.clientX;
-    // Check RTL
+    let newWidth;
     if (document.dir === 'rtl') {
        newWidth = window.innerWidth - e.clientX;
+    } else {
+       newWidth = e.clientX;
     }
 
     // Constraints
@@ -63,6 +65,19 @@
     if (ms < 150) return 'var(--accent-warning)';
     return 'var(--accent-error)';
   }
+
+  // Clock Derived State
+  let timeStr = $derived($time.toLocaleTimeString('ru-RU', { 
+      hour: '2-digit', 
+      minute: '2-digit',
+      second: $clockSettings.showSeconds ? '2-digit' : undefined
+  }));
+  
+  let dateStr = $derived($time.toLocaleDateString($locale || 'en', { 
+      weekday: 'long', 
+      month: 'short', 
+      day: 'numeric' 
+  }));
 </script>
 
 <aside class="sidebar" style="width: {width}px">
@@ -76,8 +91,10 @@
 
   <!-- Widget: Clock -->
   <div class="widget clock-widget">
-    <div class="time">{$timeString}</div>
-    <div class="date">{new Date().toLocaleDateString($locale || 'en', { weekday: 'long', month: 'short', day: 'numeric' })}</div>
+    <div class="time">{timeStr}</div>
+    {#if $clockSettings.showDate}
+      <div class="date">{dateStr}</div>
+    {/if}
   </div>
 
   <!-- Widget: Weather -->

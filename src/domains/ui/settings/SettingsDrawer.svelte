@@ -9,16 +9,17 @@
   import { themeStore } from '../theme/store';
   import { defaultTheme } from '../../../themes/defaults';
   import { weatherSettings, refreshWeatherConfig } from '../../../lib/weather/store';
+  import { clockSettings } from '../widgets/clockStore';
   import { exportAllSettings, importAllSettings, clearAllData } from '../../app/backup';
   import { setLocale, availableLanguages, currentLang } from '../../../lib/i18n';
-  import { exportTheme, importTheme } from '../theme/io'; // Import IO functions
+  import { exportTheme, importTheme } from '../theme/io';
   import type { ThemeMode, ThemeFile } from '../../../themes/types';
-  import type { WeatherIconPack } from '../../../lib/weather/types';
 
   // Components
   import Section from './Section.svelte';
   import LabeledInput from './controls/LabeledInput.svelte';
   import RangeInput from './controls/RangeInput.svelte';
+  import Switch from './controls/Switch.svelte';
   import ServerManager from './ServerManager.svelte';
   import ThemeEditor from '../theme/ThemeEditor.svelte';
   import 'iconify-icon';
@@ -92,9 +93,8 @@
   // --- Theme State & Logic ---
   let isEditingTheme = $state(false);
   let themeDraft = $state<ThemeFile | null>(null);
-  let themeFileInput: HTMLInputElement; // Reference for file input
+  let themeFileInput: HTMLInputElement; 
   
-  // Flatten themes from store
   let allThemes = $derived(
     $themeStore.themes.map(t => ({
       ...t,
@@ -120,7 +120,6 @@
         themeDraft.theme.id = newId;
         themeDraft.theme.name = newName;
         themeDraft.theme.isCustom = true;
-        
         isEditingTheme = true;
     }
   }
@@ -150,11 +149,9 @@
   function cancelThemeEdit() {
     isEditingTheme = false;
     themeDraft = null;
-    // Re-trigger active theme to ensure CSS is consistent
     themeStore.setActiveTheme($themeStore.activeThemeId);
   }
 
-  // Theme Import/Export Handlers
   async function handleThemeImport(e: Event) {
     const file = (e.target as HTMLInputElement).files?.[0];
     if (!file) return;
@@ -167,7 +164,6 @@
     } catch (err: any) {
       alert(`Import failed: ${err.message}`);
     } finally {
-      // Reset input
       if (themeFileInput) themeFileInput.value = '';
     }
   }
@@ -188,16 +184,21 @@
   let wLon = $state($weatherSettings.customLocation?.lon ?? 0);
   let wDays = $state($weatherSettings.forecastDays);
   let wIconPack = $state($weatherSettings.iconPack);
+  let wShowForecast = $state($weatherSettings.showForecast);
   
-  // Weather Visuals
   let wIconSize = $state($weatherSettings.currentIconSize);
   let wTempSize = $state($weatherSettings.currentTempSize);
   let wForecastIconSize = $state($weatherSettings.forecastIconSize);
   let wForecastTempSize = $state($weatherSettings.forecastTempSize);
 
+  // --- Clock State ---
+  let cShowDate = $state($clockSettings.showDate);
+  let cShowSeconds = $state($clockSettings.showSeconds);
+
   // Sync from Store to Local State on open
   $effect(() => {
     if ($isSettingsOpen) {
+      // Weather
       wProvider = $weatherSettings.provider;
       wApiKey = $weatherSettings.apiKey || '';
       wUseCustom = $weatherSettings.useCustomLocation;
@@ -205,31 +206,43 @@
       wLon = $weatherSettings.customLocation?.lon ?? 0;
       wDays = $weatherSettings.forecastDays;
       wIconPack = $weatherSettings.iconPack;
+      wShowForecast = $weatherSettings.showForecast;
       
       wIconSize = $weatherSettings.currentIconSize;
       wTempSize = $weatherSettings.currentTempSize;
       wForecastIconSize = $weatherSettings.forecastIconSize;
       wForecastTempSize = $weatherSettings.forecastTempSize;
+
+      // Clock
+      cShowDate = $clockSettings.showDate;
+      cShowSeconds = $clockSettings.showSeconds;
     }
   });
 
-  // Live Sync from Local State to Store (Visuals Only)
+  // Live Sync: Visuals
   $effect(() => {
+    // Weather Visuals
     weatherSettings.update(s => ({
       ...s,
       iconPack: wIconPack,
+      showForecast: wShowForecast,
       currentIconSize: wIconSize,
       currentTempSize: wTempSize,
       forecastIconSize: wForecastIconSize,
       forecastTempSize: wForecastTempSize,
-      // Update derived visuals immediately
       currentDescSize: Math.max(10, Math.round(wTempSize * 0.4)),
       forecastDaySize: Math.max(10, Math.round(wForecastTempSize * 0.9))
     }));
+
+    // Clock Settings
+    clockSettings.set({
+      showDate: cShowDate,
+      showSeconds: cShowSeconds
+    });
   });
 
-  function saveWeather() {
-     // Only save/fetch Data properties (visuals are handled by live effect)
+  function saveWeatherConfig() {
+     // Save API/Location data (visuals are live)
      weatherSettings.update(s => ({
        ...s,
        provider: wProvider,
@@ -375,14 +388,12 @@
                     onclick={() => handleThemeSelect(theme.theme.id)}
                  >
                     <div class="preview" style:background={theme.theme.scheme.light.dashboardBackgroundColor1}>
-                       <!-- Mini representation of theme -->
                        <div class="mini-card" style:background={theme.theme.scheme.light.cardBackground}></div>
                        <div class="mini-accent" style:background={theme.theme.scheme.light.accentPrimary}></div>
                     </div>
                     <div class="meta">
                        <span class="name">{theme.theme.name}</span>
                        <div class="actions">
-                          <!-- Export Button (All Themes) -->
                           <button class="icon-btn small" onclick={(e) => { e.stopPropagation(); handleThemeExport(theme); }} title={$t('settings.exportTheme')}>
                              <iconify-icon icon="mdi:download"></iconify-icon>
                           </button>
@@ -404,13 +415,11 @@
                  </div>
                {/each}
                
-               <!-- Create New Button -->
                <button class="theme-card create-btn" onclick={() => createThemeCopy(defaultTheme)}>
                   <iconify-icon icon="mdi:plus" width="32"></iconify-icon>
                   <span>{$t('templates.manager.create')}</span>
                </button>
 
-               <!-- Import Button -->
                <button class="theme-card create-btn" onclick={() => themeFileInput.click()}>
                   <iconify-icon icon="mdi:upload" width="32"></iconify-icon>
                   <span>{$t('settings.importTheme')}</span>
@@ -418,7 +427,6 @@
              </div>
           </div>
           
-          <!-- Inline Editor -->
           {#if isEditingTheme && themeDraft}
              <div class="editor-wrapper" transition:slide>
                 <ThemeEditor 
@@ -430,8 +438,19 @@
           {/if}
         </Section>
 
-        <!-- SECTION 3: Weather -->
-        <Section title={$t('settings.weather')} description={$t('settings.weatherDesc')}>
+        <!-- SECTION 3: Widgets (Weather & Clock) -->
+        <Section title="Widgets" description="Weather and Clock settings" initiallyOpen={true}>
+          
+          <!-- CLOCK SUBSECTION -->
+          <div class="subsection-title">Clock</div>
+          <Switch label="Show Date" bind:checked={cShowDate} />
+          <Switch label="Show Seconds" bind:checked={cShowSeconds} />
+
+          <div class="divider"></div>
+
+          <!-- WEATHER SUBSECTION -->
+          <div class="subsection-title">{$t('settings.weather')}</div>
+          
           <div class="control-row">
             <label>
               {$t('settings.weatherProvider')}
@@ -458,18 +477,27 @@
             </label>
           </div>
 
-          <RangeInput label={$t('settings.forecast.daysLabel')} bind:value={wDays} min={1} max={7} />
+          <Switch label={$t('settings.weatherShowForecast')} bind:checked={wShowForecast} />
+
+          {#if wShowForecast}
+             <div transition:slide>
+                <RangeInput label={$t('settings.forecast.daysLabel')} bind:value={wDays} min={1} max={7} />
+             </div>
+          {/if}
           
           <div class="divider"></div>
-          <div class="subsection-title">{$t('settings.appearance')}</div>
+          <div class="subsection-title">Weather Style</div>
           
           <RangeInput label="Icon Size (Current)" bind:value={wIconSize} min={24} max={128} step={4} unit="px" />
           <RangeInput label="Temp Size (Current)" bind:value={wTempSize} min={16} max={96} step={2} unit="px" />
-          <RangeInput label="Icon Size (Forecast)" bind:value={wForecastIconSize} min={12} max={64} step={2} unit="px" />
-          <RangeInput label="Temp Size (Forecast)" bind:value={wForecastTempSize} min={10} max={32} step={1} unit="px" />
+          
+          {#if wShowForecast}
+            <RangeInput label="Icon Size (Forecast)" bind:value={wForecastIconSize} min={12} max={64} step={2} unit="px" />
+            <RangeInput label="Temp Size (Forecast)" bind:value={wForecastTempSize} min={10} max={32} step={1} unit="px" />
+          {/if}
 
           <div class="actions">
-            <button class="btn secondary small" onclick={saveWeather}>{$t('settings.updateWeather')}</button>
+            <button class="btn secondary small" onclick={saveWeatherConfig}>{$t('settings.updateWeather')}</button>
           </div>
         </Section>
 
