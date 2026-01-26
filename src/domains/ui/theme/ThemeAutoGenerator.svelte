@@ -229,7 +229,7 @@
     z-index: 4000; display: flex; align-items: center; justify-content: center;
   }
   .gen-window {
-    width: 960px; /* Increased overall width */
+    width: 1000px; /* Increased from 960 to accommodate sidebar */
     height: 700px; max-width: 95vw; max-height: 95vh;
     background: var(--bg-panel); border-radius: 16px; border: 1px solid var(--border-primary);
     display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.3);
@@ -247,7 +247,7 @@
   
   /* Sidebar Layout */
   .controls-pane { 
-    width: 400px; /* WIDENED for buttons */
+    width: 430px; /* Increased from 400 for better button fitting */
     background: var(--bg-secondary); 
     display: flex; 
     flex-direction: column; 
