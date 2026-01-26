@@ -24,33 +24,47 @@
     draft.theme.scheme[activeTab][key] = value;
     applyThemeCSS(draft.theme.scheme[activeTab]);
   }
+
+  function handleBackgroundTypeChange(type: string) {
+    updateField('dashboardBackgroundType', type);
+    
+    // Ensure secondary color exists if switching to gradient
+    if (type === 'gradient' && !draft.theme.scheme[activeTab].dashboardBackgroundColor2) {
+       // Default to a slight variation or same color
+       updateField('dashboardBackgroundColor2', draft.theme.scheme[activeTab].dashboardBackgroundColor1);
+    }
+    // Ensure angle exists
+    if (type === 'gradient' && draft.theme.scheme[activeTab].dashboardGradientAngle === undefined) {
+       updateField('dashboardGradientAngle', 135);
+    }
+  }
 </script>
 
 {#snippet sliderRow(label, key, min, max, step, unit = '')}
   <div class="control-row slider-row">
     <div class="slider-header">
       <span class="label">{label}</span>
-      <span class="value">{currentScheme[key]}{unit}</span>
+      <span class="value">{currentScheme[key] ?? min}{unit}</span>
     </div>
     <input 
       type="range" 
       class="slider"
       {min} {max} {step}
-      value={currentScheme[key] as number}
+      value={(currentScheme[key] as number) ?? min}
       oninput={(e) => updateField(key, parseFloat(e.currentTarget.value))}
-      style="background-size: {((currentScheme[key] as number - min) * 100) / (max - min)}% 100%"
+      style="background-size: {(((currentScheme[key] as number ?? min) - min) * 100) / (max - min)}% 100%"
     />
   </div>
 {/snippet}
 
-{#snippet selectRow(label, key, options)}
+{#snippet selectRow(label, key, options, onChange)}
   <div class="control-row select-row">
     <span class="label">{label}</span>
     <div class="select-wrapper">
       <select 
         class="modern-select"
         value={currentScheme[key]}
-        onchange={(e) => updateField(key, e.currentTarget.value)}
+        onchange={onChange ? onChange : (e) => updateField(key, e.currentTarget.value)}
       >
         {#each options as opt}
           <option value={opt.value}>{opt.label}</option>
@@ -130,13 +144,14 @@
             {value: 'color', label: $t('settings.themeEditor.labels.solid')},
             {value: 'gradient', label: $t('settings.themeEditor.labels.gradient')},
             {value: 'image', label: $t('settings.themeEditor.labels.image')}
-          ])}
+          ], (e) => handleBackgroundTypeChange(e.currentTarget.value))}
 
           {#if currentScheme.dashboardBackgroundType === 'color'}
              <ColorPicker label="Color" value={currentScheme.dashboardBackgroundColor1} />
           {:else if currentScheme.dashboardBackgroundType === 'gradient'}
              <ColorPicker label={$t('settings.themeEditor.labels.startColor')} value={currentScheme.dashboardBackgroundColor1} />
              <ColorPicker label={$t('settings.themeEditor.labels.endColor')} value={currentScheme.dashboardBackgroundColor2} />
+             {@render sliderRow('Angle', 'dashboardGradientAngle', 0, 360, 15, '°')}
           {:else}
              <div class="control-row">
                <input type="text" class="modern-input" placeholder="Image URL" value={currentScheme.dashboardBackgroundImageUrl || ''} oninput={(e) => updateField('dashboardBackgroundImageUrl', e.currentTarget.value)} />

@@ -144,8 +144,8 @@
     border: var(--card-border-width, 0px) solid var(--card-border-color, transparent);
     border-radius: var(--card-border-radius, 16px);
     
-    /* Opacity */
-    opacity: var(--card-opacity, 0.85);
+    /* REMOVED: Opacity. Opacity is now handled by RGBA background color */
+    /* opacity: var(--card-opacity, 0.85); */
     
     /* Padding override */
     padding: var(--card-padding, 16px);
@@ -170,7 +170,7 @@
   
   .device-card:hover {
     transform: translateY(-2px);
-    opacity: 1; /* Brighten on hover */
+    /* opacity: 1; */ /* No longer needed */
   }
   
   /* Active State */

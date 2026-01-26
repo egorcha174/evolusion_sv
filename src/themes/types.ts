@@ -14,6 +14,7 @@ export interface ColorScheme {
   dashboardBackgroundType: 'color' | 'gradient' | 'image';
   dashboardBackgroundColor1: string;
   dashboardBackgroundColor2?: string;
+  dashboardGradientAngle?: number; // Added
   dashboardBackgroundImageUrl?: string;
   dashboardBackgroundImageBlur?: number;
   dashboardBackgroundImageBrightness?: number;

@@ -6,6 +6,29 @@ export function camelToKebab(str: string): string {
   return str.replace(/([A-Z])/g, '-$1').toLowerCase();
 }
 
+// Helper to convert HEX to RGBA
+export function hexToRgba(hex: string, alpha: number): string {
+  let c = hex.trim();
+  // If already rgba, just return it (simplistic check)
+  if (c.startsWith('rgb')) return c;
+  
+  if (c.startsWith('#')) {
+    c = c.substring(1);
+  }
+  
+  if (c.length === 3) {
+    c = c.split('').map(char => char + char).join('');
+  }
+  
+  if (c.length !== 6) return hex; // Invalid hex fallback
+
+  const r = parseInt(c.substring(0, 2), 16);
+  const g = parseInt(c.substring(2, 4), 16);
+  const b = parseInt(c.substring(4, 6), 16);
+
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
 // List of properties that require 'px' units in CSS
 const PIXEL_PROPERTIES = new Set([
   'cardBorderRadius',
@@ -27,6 +50,17 @@ export function generateCSSVariables(scheme: ColorScheme): Record<string, string
   for (const [key, value] of Object.entries(scheme)) {
     if (value !== undefined && value !== null) {
       const varName = `--${camelToKebab(key)}`;
+      
+      // Special handling for Card Backgrounds to support Opacity without affecting text
+      if (key === 'cardBackground' || key === 'cardBackgroundOn') {
+        const opacity = scheme.cardOpacity ?? 1;
+        // Only convert if it's a color string
+        if (typeof value === 'string') {
+          vars[varName] = hexToRgba(value, opacity);
+          continue; // Skip default processing
+        }
+      }
+
       // Check if we need to append 'px'
       if (typeof value === 'number' && PIXEL_PROPERTIES.has(key)) {
         vars[varName] = `${value}px`;
@@ -40,7 +74,8 @@ export function generateCSSVariables(scheme: ColorScheme): Record<string, string
   if (scheme.dashboardBackgroundType === 'color') {
     vars['--dashboard-background'] = scheme.dashboardBackgroundColor1;
   } else if (scheme.dashboardBackgroundType === 'gradient') {
-    vars['--dashboard-background'] = `linear-gradient(135deg, ${scheme.dashboardBackgroundColor1}, ${scheme.dashboardBackgroundColor2 || scheme.dashboardBackgroundColor1})`;
+    const angle = scheme.dashboardGradientAngle ?? 135;
+    vars['--dashboard-background'] = `linear-gradient(${angle}deg, ${scheme.dashboardBackgroundColor1}, ${scheme.dashboardBackgroundColor2 || scheme.dashboardBackgroundColor1})`;
   } else if (scheme.dashboardBackgroundType === 'image') {
     // Basic image implementation
     const url = scheme.dashboardBackgroundImageUrl ? `url('${scheme.dashboardBackgroundImageUrl}')` : 'none';

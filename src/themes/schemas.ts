@@ -8,6 +8,7 @@ export const ColorSchemeSchema = z.object({
   dashboardBackgroundType: z.enum(['color', 'gradient', 'image']),
   dashboardBackgroundColor1: ColorSchema,
   dashboardBackgroundColor2: ColorSchema.optional(),
+  dashboardGradientAngle: z.number().min(0).max(360).optional(),
   dashboardBackgroundImageUrl: z.string().optional(),
   dashboardBackgroundImageBlur: z.number().min(0).max(100).optional(),
   dashboardBackgroundImageBrightness: z.number().min(0).max(200).optional(),
