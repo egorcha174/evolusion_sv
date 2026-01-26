@@ -2,7 +2,7 @@
   import { t } from 'svelte-i18n';
   import { slide } from 'svelte/transition';
   import { themeStore } from '../../theme/store';
-  import { defaultTheme } from '../../../../themes/defaults';
+  import { defaultTheme } from '../../../../themes';
   import { exportTheme, importTheme } from '../../theme/io';
   import { setLocale, availableLanguages, currentLang } from '../../../../lib/i18n';
   import type { ThemeMode, ThemeFile } from '../../../../themes/types';

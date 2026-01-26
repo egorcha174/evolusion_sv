@@ -2,7 +2,7 @@
 import { writable, derived } from 'svelte/store';
 import { browser } from '$app/environment';
 import type { ThemeFile, ThemeMode } from '../../../themes/types';
-import { BUILTIN_THEMES, defaultTheme } from '../../../themes/defaults';
+import { builtInThemes as BUILTIN_THEMES, defaultTheme } from '../../../themes';
 import { applyThemeCSS } from '../../../themes/utils';
 
 // Re-export utility for consumers
