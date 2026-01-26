@@ -188,7 +188,7 @@
        <!-- Auto Generate Button -->
        <button class="theme-card create-btn highlight" onclick={() => isAutoGeneratorOpen = true}>
           <iconify-icon icon="mdi:magic-staff" width="32"></iconify-icon>
-          <span>Auto Generate</span>
+          <span>{$t('themeGenerator.btnOpen')}</span>
        </button>
 
        <button class="theme-card create-btn" onclick={() => createThemeCopy(defaultTheme)}>

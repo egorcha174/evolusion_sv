@@ -1,12 +1,11 @@
 
 <script lang="ts">
   import { t } from 'svelte-i18n';
-  import { slide } from 'svelte/transition';
   import { themeStore } from './store';
   import { importTheme, exportTheme } from './io';
   import { generateThemePreset } from '../../../lib/themes/auto/generator';
   import { validateBaseThemeSettings } from '../../../lib/themes/auto/validate';
-  import type { BaseThemeSettings, HarmonyRule, RadiusPreset } from '../../../lib/themes/auto/types';
+  import type { BaseThemeSettings } from '../../../lib/themes/auto/types';
   import ColorPicker from '../settings/controls/ColorPicker.svelte';
   import RangeInput from '../settings/controls/RangeInput.svelte';
   import LabeledInput from '../settings/controls/LabeledInput.svelte';
@@ -50,15 +49,12 @@
     if (file) {
       try {
         const theme = await importTheme(file);
-        // Note: Importing a raw theme file doesn't map back to "settings" easily 
-        // without complex reverse engineering. 
-        // We just save it to the store as a standard custom theme.
         themeStore.saveTheme(theme);
         themeStore.setActiveTheme(theme.theme.id);
-        alert('Theme imported successfully!');
+        alert($t('settings.messages.importSuccess'));
         onClose();
       } catch (err: any) {
-        alert('Import failed: ' + err.message);
+        alert($t('settings.messages.importError') + ': ' + err.message);
       }
     }
   }
@@ -66,7 +62,7 @@
   function copyJson() {
     const preset = generateThemePreset(settings);
     navigator.clipboard.writeText(JSON.stringify(preset, null, 2));
-    alert('JSON copied to clipboard');
+    // Optional: Toast feedback
   }
 </script>
 
@@ -75,8 +71,8 @@
 <div class="auto-gen-overlay" onclick={(e) => e.target === e.currentTarget && onClose()}>
   <div class="gen-window">
     <header class="gen-header">
-      <h2>Auto Theme Generator</h2>
-      <button class="close-btn" onclick={onClose}>
+      <h2>{$t('themeGenerator.title')}</h2>
+      <button class="close-btn" onclick={onClose} aria-label={$t('common.close')}>
         <iconify-icon icon="mdi:close"></iconify-icon>
       </button>
     </header>
@@ -84,58 +80,61 @@
     <div class="gen-body">
       <!-- Controls -->
       <div class="controls-pane">
-        <div class="section">
-          <h3>Identity</h3>
-          <LabeledInput label="Theme ID" bind:value={settings.themeId} placeholder="unique_id" />
-          <LabeledInput label="Theme Name" bind:value={settings.themeName} placeholder="Display Name" />
-        </div>
-
-        <div class="section">
-          <h3>Core</h3>
-          <ColorPicker label="Primary Color" bind:value={settings.primary} />
-          
-          <div class="control-group">
-            <label>Harmony</label>
-            <select bind:value={settings.harmony}>
-              <option value="monochromatic">Monochromatic</option>
-              <option value="analogous">Analogous</option>
-              <option value="complementary">Complementary</option>
-              <option value="splitComplementary">Split Comp.</option>
-              <option value="triadic">Triadic</option>
-            </select>
+        <div class="inputs-scroll">
+          <div class="section">
+            <h3>{$t('themeGenerator.sectionIdentity')}</h3>
+            <LabeledInput label={$t('themeGenerator.lblThemeId')} bind:value={settings.themeId} placeholder="unique_id" />
+            <LabeledInput label={$t('themeGenerator.lblThemeName')} bind:value={settings.themeName} placeholder="Display Name" />
           </div>
 
-          <div class="control-group">
-            <label>Corner Radius</label>
-            <select bind:value={settings.radius}>
-              <option value="sharp">Sharp (4px)</option>
-              <option value="standard">Standard (12px)</option>
-              <option value="soft">Soft (24px)</option>
-            </select>
+          <div class="section">
+            <h3>{$t('themeGenerator.sectionCore')}</h3>
+            <ColorPicker label={$t('themeGenerator.lblPrimaryColor')} bind:value={settings.primary} />
+            
+            <div class="control-group">
+              <label>{$t('themeGenerator.lblHarmony')}</label>
+              <select bind:value={settings.harmony}>
+                <option value="monochromatic">{$t('themeGenerator.harmony.monochromatic')}</option>
+                <option value="analogous">{$t('themeGenerator.harmony.analogous')}</option>
+                <option value="complementary">{$t('themeGenerator.harmony.complementary')}</option>
+                <option value="splitComplementary">{$t('themeGenerator.harmony.splitComplementary')}</option>
+                <option value="triadic">{$t('themeGenerator.harmony.triadic')}</option>
+              </select>
+            </div>
+
+            <div class="control-group">
+              <label>{$t('themeGenerator.lblRadius')}</label>
+              <select bind:value={settings.radius}>
+                <option value="sharp">{$t('themeGenerator.radius.sharp')}</option>
+                <option value="standard">{$t('themeGenerator.radius.standard')}</option>
+                <option value="soft">{$t('themeGenerator.radius.soft')}</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="section">
+            <h3>{$t('themeGenerator.sectionSurfaces')}</h3>
+            <RangeInput label={$t('themeGenerator.lblCardOpacity')} bind:value={settings.cardOpacity} min={0} max={1} step={0.05} />
+            <RangeInput label={$t('themeGenerator.lblPanelOpacity')} bind:value={settings.panelOpacity} min={0} max={1} step={0.05} />
           </div>
         </div>
 
-        <div class="section">
-          <h3>Surfaces</h3>
-          <RangeInput label="Card Opacity" bind:value={settings.cardOpacity} min={0} max={1} step={0.05} />
-          <RangeInput label="Panel Opacity" bind:value={settings.panelOpacity} min={0} max={1} step={0.05} />
-        </div>
-
+        <!-- Pinned Actions -->
         <div class="actions">
           <input type="file" hidden id="import-file" accept=".json" onchange={handleImport} />
           <div class="row">
              <button class="btn secondary" onclick={() => document.getElementById('import-file')?.click()}>
-               <iconify-icon icon="mdi:upload"></iconify-icon> Import
+               <iconify-icon icon="mdi:upload"></iconify-icon> {$t('themeGenerator.btnImport')}
              </button>
              <button class="btn secondary" onclick={handleExport}>
-               <iconify-icon icon="mdi:download"></iconify-icon> Export
+               <iconify-icon icon="mdi:download"></iconify-icon> {$t('themeGenerator.btnExport')}
              </button>
              <button class="btn secondary" onclick={copyJson}>
-               <iconify-icon icon="mdi:code-json"></iconify-icon> Copy
+               <iconify-icon icon="mdi:code-json"></iconify-icon> {$t('themeGenerator.btnCopy')}
              </button>
           </div>
           <button class="btn primary full" disabled={!validation.ok} onclick={handleSave}>
-            Generate & Save
+            {$t('themeGenerator.btnGenerate')}
           </button>
           
           {#if validation.errors.length > 0}
@@ -150,9 +149,24 @@
 
       <!-- Preview -->
       <div class="preview-pane">
-        <div class="preview-tabs">
-          <button class="tab" class:active={previewMode === 'light'} onclick={() => previewMode = 'light'}>Light</button>
-          <button class="tab" class:active={previewMode === 'dark'} onclick={() => previewMode = 'dark'}>Dark</button>
+        <!-- Floating Segmented Control -->
+        <div class="preview-toolbar">
+           <div class="segmented-control">
+              <button 
+                class="segment" 
+                class:active={previewMode === 'light'} 
+                onclick={() => previewMode = 'light'}
+              >
+                {$t('themeGenerator.previewLight')}
+              </button>
+              <button 
+                class="segment" 
+                class:active={previewMode === 'dark'} 
+                onclick={() => previewMode = 'dark'}
+              >
+                {$t('themeGenerator.previewDark')}
+              </button>
+           </div>
         </div>
 
         <!-- Live Preview Canvas applied via inline styles -->
@@ -197,22 +211,48 @@
   .gen-header {
     display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.5rem;
     border-bottom: 1px solid var(--border-divider);
+    flex-shrink: 0;
   }
   .gen-header h2 { margin: 0; font-size: 1.25rem; color: var(--text-primary); }
-  .close-btn { background: transparent; border: none; cursor: pointer; color: var(--text-secondary); }
+  .close-btn { background: transparent; border: none; cursor: pointer; color: var(--text-secondary); display: flex; }
+  
   .gen-body { flex: 1; display: flex; overflow: hidden; }
   
-  .controls-pane { width: 320px; padding: 1.5rem; overflow-y: auto; background: var(--bg-secondary); display: flex; flex-direction: column; gap: 2rem; border-right: 1px solid var(--border-divider); }
+  /* Sidebar Layout fixed */
+  .controls-pane { 
+    width: 320px; 
+    background: var(--bg-secondary); 
+    display: flex; 
+    flex-direction: column; 
+    border-right: 1px solid var(--border-divider); 
+    flex-shrink: 0;
+  }
+  
+  .inputs-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
   .section h3 { margin: 0 0 1rem 0; font-size: 0.9rem; text-transform: uppercase; color: var(--text-secondary); }
   
   .control-group { margin-bottom: 1rem; display: flex; flex-direction: column; gap: 0.5rem; }
   .control-group label { font-size: 0.9rem; font-weight: 500; color: var(--text-primary); }
   select { width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid var(--border-input); background: var(--bg-input); color: var(--text-primary); }
   
-  .actions { margin-top: auto; display: flex; flex-direction: column; gap: 0.75rem; }
+  .actions { 
+    padding: 1.5rem;
+    background: var(--bg-panel); /* Contrast against secondary */
+    border-top: 1px solid var(--border-divider);
+    display: flex; flex-direction: column; gap: 0.75rem; 
+    flex-shrink: 0;
+  }
   .actions .row { display: flex; gap: 0.5rem; }
   
-  .btn { padding: 0.75rem; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; flex: 1; }
+  .btn { padding: 0.75rem; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; flex: 1; white-space: nowrap; font-size: 0.9rem; }
   .btn.primary { background: var(--accent-primary); color: white; }
   .btn.secondary { background: var(--bg-card); border: 1px solid var(--border-primary); color: var(--text-primary); }
   .full { width: 100%; }
@@ -221,15 +261,67 @@
   .err { color: var(--accent-error); font-size: 0.8rem; }
 
   /* Preview */
-  .preview-pane { flex: 1; display: flex; flex-direction: column; }
-  .preview-tabs { display: flex; border-bottom: 1px solid var(--border-divider); }
-  .tab { flex: 1; padding: 1rem; background: var(--bg-panel); border: none; cursor: pointer; color: var(--text-secondary); }
-  .tab.active { background: var(--bg-card); color: var(--accent-primary); font-weight: bold; border-bottom: 2px solid var(--accent-primary); }
+  .preview-pane { 
+    flex: 1; 
+    display: flex; 
+    flex-direction: column; 
+    position: relative;
+  }
   
+  /* Segmented Control Styling */
+  .preview-toolbar {
+    position: absolute;
+    top: 1.5rem;
+    left: 0; right: 0;
+    display: flex;
+    justify-content: center;
+    z-index: 10;
+    pointer-events: none; /* Let clicks pass through outside the control */
+  }
+  
+  .segmented-control {
+    background: rgba(0,0,0,0.1); /* Neutral semi-transparent */
+    backdrop-filter: blur(8px);
+    padding: 4px;
+    border-radius: 10px;
+    display: flex;
+    pointer-events: auto;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+  
+  /* In dark mode generator, make the backing lighter */
+  :global([data-theme="dark"]) .segmented-control {
+     background: rgba(255,255,255,0.1);
+  }
+
+  .segment {
+    padding: 6px 20px;
+    border: none;
+    background: transparent;
+    color: var(--text-primary); /* Uses generator's own theme vars for text */
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+  }
+  
+  .segment:hover {
+    background: rgba(255,255,255,0.1);
+  }
+  
+  .segment.active {
+    background: var(--bg-card);
+    color: var(--text-primary);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    font-weight: 600;
+  }
+
   .preview-canvas {
     flex: 1; padding: 2rem; display: flex; gap: 2rem; align-items: center; justify-content: center;
     position: relative;
   }
+  
   .preview-card {
     width: 200px; height: 120px; padding: 1.5rem;
     display: flex; flex-direction: column; justify-content: space-between;

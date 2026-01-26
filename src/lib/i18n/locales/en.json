@@ -1,3 +1,4 @@
+
 {
   "common": {
     "ok": "OK",
@@ -236,6 +237,38 @@
         "stateValue": "State Value",
         "secondaryInfo": "Secondary Info"
       }
+    }
+  },
+  "themeGenerator": {
+    "title": "Auto Theme Generator",
+    "btnOpen": "Auto Generate",
+    "sectionIdentity": "Identity",
+    "sectionCore": "Core",
+    "sectionSurfaces": "Surfaces",
+    "lblThemeId": "Theme ID",
+    "lblThemeName": "Theme Name",
+    "lblPrimaryColor": "Primary Color",
+    "lblHarmony": "Harmony Rule",
+    "lblRadius": "Corner Radius",
+    "lblCardOpacity": "Card Opacity",
+    "lblPanelOpacity": "Panel Opacity",
+    "btnImport": "Import",
+    "btnExport": "Export",
+    "btnCopy": "Copy JSON",
+    "btnGenerate": "Generate & Save",
+    "previewLight": "Light",
+    "previewDark": "Dark",
+    "harmony": {
+      "monochromatic": "Monochromatic",
+      "analogous": "Analogous",
+      "complementary": "Complementary",
+      "splitComplementary": "Split Comp.",
+      "triadic": "Triadic"
+    },
+    "radius": {
+      "sharp": "Sharp (4px)",
+      "standard": "Standard (12px)",
+      "soft": "Soft (24px)"
     }
   },
   "entities": {

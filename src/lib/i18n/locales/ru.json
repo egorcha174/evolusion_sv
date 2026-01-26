@@ -1,3 +1,4 @@
+
 {
   "common": {
     "ok": "ОК",
@@ -236,6 +237,38 @@
         "stateValue": "Значение",
         "secondaryInfo": "Доп. инфо"
       }
+    }
+  },
+  "themeGenerator": {
+    "title": "Авто-генератор тем",
+    "btnOpen": "Авто-генерация",
+    "sectionIdentity": "Идентификация",
+    "sectionCore": "Ядро стиля",
+    "sectionSurfaces": "Поверхности",
+    "lblThemeId": "ID темы",
+    "lblThemeName": "Название",
+    "lblPrimaryColor": "Основной цвет",
+    "lblHarmony": "Гармония",
+    "lblRadius": "Скругление",
+    "lblCardOpacity": "Прозрачность карточек",
+    "lblPanelOpacity": "Прозрачность панелей",
+    "btnImport": "Импорт",
+    "btnExport": "Экспорт",
+    "btnCopy": "JSON в буфер",
+    "btnGenerate": "Создать и сохранить",
+    "previewLight": "Светлая",
+    "previewDark": "Тёмная",
+    "harmony": {
+      "monochromatic": "Монохромная",
+      "analogous": "Аналоговая",
+      "complementary": "Комплементарная",
+      "splitComplementary": "Раздельная",
+      "triadic": "Триада"
+    },
+    "radius": {
+      "sharp": "Острые (4px)",
+      "standard": "Стандарт (12px)",
+      "soft": "Мягкие (24px)"
     }
   },
   "entities": {
