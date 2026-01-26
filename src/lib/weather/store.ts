@@ -1,6 +1,7 @@
 
 import { writable, get } from 'svelte/store';
 import { browser } from '$app/environment';
+import { haStore } from '../../domains/ha/store';
 import type { WeatherState, WeatherSettings } from './types';
 import { fetchWeather } from './service';
 
@@ -36,6 +37,7 @@ export const weatherSettings = writable<WeatherSettings>(defaultSettings);
 
 // --- Logic ---
 let pollInterval: ReturnType<typeof setInterval> | null = null;
+let haUnsub: (() => void) | null = null;
 
 export async function initWeather() {
   if (!browser) return;
@@ -60,6 +62,23 @@ export async function initWeather() {
     saveTimer = setTimeout(() => {
       saveSettings(settings);
     }, 500); // Debounce 500ms
+  });
+
+  // Watch for HA Connection to refresh location-based weather
+  let wasConnected = get(haStore).isConnected;
+  
+  haUnsub = haStore.subscribe(state => {
+    // If we transition from disconnected to connected
+    if (state.isConnected && !wasConnected) {
+       wasConnected = true;
+       const settings = get(weatherSettings);
+       // Only force update if we rely on HA location
+       if (!settings.useCustomLocation) {
+          updateWeather();
+       }
+    } else if (!state.isConnected) {
+       wasConnected = false;
+    }
   });
 
   // Initial Fetch
@@ -119,5 +138,9 @@ export function destroyWeather() {
   if (pollInterval) {
     clearInterval(pollInterval);
     pollInterval = null;
+  }
+  if (haUnsub) {
+    haUnsub();
+    haUnsub = null;
   }
 }
