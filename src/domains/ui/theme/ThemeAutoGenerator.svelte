@@ -229,7 +229,8 @@
     z-index: 4000; display: flex; align-items: center; justify-content: center;
   }
   .gen-window {
-    width: 900px; height: 700px; max-width: 95vw; max-height: 95vh;
+    width: 960px; /* Increased overall width */
+    height: 700px; max-width: 95vw; max-height: 95vh;
     background: var(--bg-panel); border-radius: 16px; border: 1px solid var(--border-primary);
     display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.3);
   }
@@ -246,7 +247,7 @@
   
   /* Sidebar Layout */
   .controls-pane { 
-    width: 340px; 
+    width: 400px; /* WIDENED for buttons */
     background: var(--bg-secondary); 
     display: flex; 
     flex-direction: column; 
@@ -353,11 +354,11 @@
   /* Preview Cards - Polished */
   .preview-card {
     width: 160px; 
-    height: 140px; 
+    height: 150px; /* Increased Height */
     padding: 1.25rem;
     display: flex; 
     flex-direction: column; 
-    gap: 1rem;
+    gap: 0.5rem;
     transition: all 0.3s ease;
   }
   
@@ -377,7 +378,12 @@
     overflow: hidden; text-overflow: ellipsis; 
   }
   
-  .p-body { margin-top: auto; }
+  .p-body { 
+    margin-top: auto; 
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
   
   .p-state { font-size: 1.1rem; font-weight: 500; }
   .p-sub { font-size: 0.8rem; margin-top: 2px; opacity: 0.8; }
