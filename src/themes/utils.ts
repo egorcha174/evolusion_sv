@@ -61,6 +61,15 @@ export function generateCSSVariables(scheme: ColorScheme): Record<string, string
         }
       }
 
+      // Logic for Icon Shape
+      if (key === 'iconBackgroundShape') {
+        const shape = value as string;
+        let radius = '50%';
+        if (shape === 'rounded-square') radius = '8px';
+        if (shape === 'square') radius = '0px';
+        vars['--icon-border-radius'] = radius;
+      }
+
       // Check if we need to append 'px'
       if (typeof value === 'number' && PIXEL_PROPERTIES.has(key)) {
         vars[varName] = `${value}px`;

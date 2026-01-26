@@ -231,14 +231,17 @@
     align-items: center;
     justify-content: center;
     color: var(--status-text-color);
-    background: rgba(0,0,0,0.05);
-    border-radius: 50%;
+    
+    /* THEME HOOKS */
+    background: var(--icon-background-color-off, rgba(0,0,0,0.05));
+    border-radius: var(--icon-border-radius, 50%);
+    
     transition: all 0.3s;
     flex-shrink: 0;
   }
 
   .device-card.active .icon {
-    background: var(--accent-primary);
+    background: var(--icon-background-color-on, var(--accent-primary));
     color: #fff;
   }
   
