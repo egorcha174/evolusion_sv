@@ -1,13 +1,9 @@
-
 {
   "task_id": "feature-add-device-02",
   "step_id": "fix-add-logic-and-ui",
   "title": "Fix Add Logic in Edit Mode & Improve UI",
   "goal": "Ensure adding devices works while in Edit Mode by updating editor drafts, and make filter pills larger with labels.",
-  "files": [
-    "src/domains/ui/editor/store.ts",
-    "src/domains/ui/add-device/DeviceAddDrawer.svelte"
-  ],
+  "files": ["src/domains/ui/editor/store.ts", "src/domains/ui/add-device/DeviceAddDrawer.svelte"],
   "verification": "npm run check && npm run build",
   "risk": "Low",
   "rollback": "Revert changes"
