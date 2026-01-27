@@ -1,4 +1,3 @@
-
 <script lang="ts">
   import { t } from 'svelte-i18n';
   import { slide } from 'svelte/transition';
@@ -80,13 +79,23 @@
 {/snippet}
 
 <div class="theme-editor-container">
-  <!-- Header -->
+  <!-- Header with Name Input -->
   <header class="editor-header">
     <div class="header-left">
       <button class="icon-btn close" onclick={onCancel}>
         <iconify-icon icon="mdi:close"></iconify-icon>
       </button>
-      <h2>{$t('settings.themeEditor.title')}</h2>
+      
+      <!-- Name Input moved to header -->
+      <div class="name-container">
+        <span class="name-label">{$t('settings.themeEditor.namePlaceholder')}</span>
+        <input 
+          type="text" 
+          class="header-name-input" 
+          bind:value={draft.theme.name} 
+          placeholder={$t('settings.themeEditor.namePlaceholder')}
+        />
+      </div>
     </div>
     <div class="header-right">
       <button class="btn primary small" onclick={() => onSave(draft)}>
@@ -96,17 +105,9 @@
   </header>
 
   <div class="editor-body">
-    <!-- Meta & Mode -->
+    <!-- Meta (Mode Only) -->
     <div class="meta-section">
-      <div class="input-group">
-        <label>{$t('settings.themeEditor.namePlaceholder')}</label>
-        <input 
-          type="text" 
-          class="modern-input" 
-          bind:value={draft.theme.name} 
-        />
-      </div>
-
+      <!-- Name input moved up to header, only mode tabs here -->
       <div class="mode-tabs">
         <button class="mode-tab" class:active={activeTab === 'light'} onclick={() => activeTab = 'light'}>
           {$t('settings.themeModeDay')}
@@ -141,7 +142,7 @@
       {#if activeSection === 'main'}
         <div class="group" transition:slide|local={{ axis: 'x' }}>
           {@render sectionTitle($t('settings.themeEditor.labels.bgType'))}
-          {@render selectRow('Type', 'dashboardBackgroundType', [
+          {@render selectRow($t('settings.themeEditor.labels.type'), 'dashboardBackgroundType', [
             {value: 'color', label: $t('settings.themeEditor.labels.solid')},
             {value: 'gradient', label: $t('settings.themeEditor.labels.gradient')},
             {value: 'image', label: $t('settings.themeEditor.labels.image')}
@@ -149,7 +150,7 @@
 
           {#if currentScheme.dashboardBackgroundType === 'color'}
              <ColorPicker 
-               label="Color" 
+               label={$t('settings.themeEditor.labels.color')} 
                value={currentScheme.dashboardBackgroundColor1} 
                onChange={(v) => updateField('dashboardBackgroundColor1', v)} 
              />
@@ -164,7 +165,7 @@
                value={currentScheme.dashboardBackgroundColor2 || currentScheme.dashboardBackgroundColor1} 
                onChange={(v) => updateField('dashboardBackgroundColor2', v)} 
              />
-             {@render sliderRow('Angle', 'dashboardGradientAngle', 0, 360, 15, '°')}
+             {@render sliderRow($t('settings.themeEditor.labels.angle'), 'dashboardGradientAngle', 0, 360, 15, '°')}
           {:else}
              <div class="control-row">
                <input type="text" class="modern-input" placeholder="Image URL" value={currentScheme.dashboardBackgroundImageUrl || ''} oninput={(e) => updateField('dashboardBackgroundImageUrl', e.currentTarget.value)} />
@@ -336,8 +337,37 @@
     padding: 1rem 1.5rem;
     border-bottom: 1px solid rgba(0,0,0,0.06);
   }
-  .header-left { display: flex; align-items: center; gap: 1rem; }
-  .editor-header h2 { margin: 0; font-size: 1.1rem; font-weight: 700; }
+  .header-left { display: flex; align-items: center; gap: 1rem; width: 60%; }
+  
+  /* Name Input in Header */
+  .name-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+  
+  .name-label {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    font-weight: 600;
+    margin-bottom: 2px;
+  }
+  
+  .header-name-input {
+    background: transparent;
+    border: none;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    width: 100%;
+    padding: 2px 0;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.2s;
+  }
+  .header-name-input:focus {
+    outline: none;
+    border-bottom-color: var(--accent-primary, #007bff);
+  }
 
   .icon-btn {
     background: transparent; border: none; cursor: pointer; color: var(--text-secondary);
@@ -363,16 +393,14 @@
   }
 
   .meta-section {
-    padding: 1.5rem 1.5rem 1rem 1.5rem;
+    padding: 1rem 1.5rem 0.5rem 1.5rem;
     background: var(--bg-panel);
     display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
-    gap: 1.5rem;
+    justify-content: flex-end; /* Align tabs to right or center */
+    align-items: center;
   }
 
-  .input-group { flex: 1; display: flex; flex-direction: column; gap: 0.5rem; }
-  .input-group label { font-size: 0.8rem; font-weight: 500; color: var(--text-secondary); }
+  /* Modern Input - Used inside content now if needed */
   .modern-input {
     width: 100%; padding: 0.6rem; border-radius: 8px; border: 1px solid rgba(0,0,0,0.1);
     background: var(--bg-input, #f5f5f7); color: var(--text-primary); font-size: 1rem;

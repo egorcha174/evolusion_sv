@@ -1,4 +1,3 @@
-
 {
   "common": {
     "ok": "OK",
@@ -203,6 +202,8 @@
         "image": "Image URL",
         "startColor": "Start Color",
         "endColor": "End Color",
+        "type": "Type",
+        "angle": "Angle",
         "blur": "Blur",
         "brightness": "Brightness",
         "panelOpacity": "Panel Transparency",
@@ -214,7 +215,7 @@
         "borders": "Borders",
         "radius": "Corner Radius",
         "width": "Border Width",
-        "color": "Border Color",
+        "color": "Color",
         "activeBorder": "Active Border",
         "shadow": "Shadow",
         "shadowCss": "Box Shadow CSS",
