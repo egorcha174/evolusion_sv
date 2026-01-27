@@ -1,7 +1,9 @@
+
 import { browser } from '$app/environment';
-import { writable } from 'svelte/store';
+import { writable, get } from 'svelte/store';
 import { type AppState, type ServerConfig, type LayoutConfig, generateId } from '$lib/types';
-import { getOrCreateEncryptionKey, encrypt, decrypt } from '../ha/crypto';
+import { encrypt, decrypt } from '../ha/crypto';
+import { session } from './session';
 
 // Global app state using Svelte Store
 export const appState = writable<AppState>({
@@ -19,6 +21,14 @@ const SERVER_STORAGE_KEY = 'app_server_config_encrypted';
 const SERVERS_LIST_KEY = 'app_servers_list_encrypted';
 const LAYOUT_STORAGE_KEY = 'dashboard_layout_encrypted';
 
+function getSessionKey(): CryptoKey {
+    const s = get(session);
+    if (!s.key) {
+        throw new Error('Session is locked. Key not available.');
+    }
+    return s.key;
+}
+
 // --- Server Config Persistence ---
 
 export async function loadServerConfig(): Promise<void> {
@@ -26,7 +36,7 @@ export async function loadServerConfig(): Promise<void> {
 	try {
 		const encrypted = localStorage.getItem(SERVER_STORAGE_KEY);
 		if (encrypted) {
-			const key = await getOrCreateEncryptionKey();
+			const key = getSessionKey();
 			const configStr = await decrypt(encrypted, key);
 			const config = JSON.parse(configStr);
 			
@@ -38,8 +48,9 @@ export async function loadServerConfig(): Promise<void> {
 			}
 		}
 	} catch (e) {
-		console.error('Failed to load server config', e);
-		localStorage.removeItem(SERVER_STORAGE_KEY);
+		console.error('Failed to load server config (decryption failed or locked)', e);
+        // Do NOT clear storage here automatically on error, user might have just typed wrong PIN (though PIN check happens earlier).
+        // But if PIN is correct and this fails, data might be corrupted or from old incompatible version.
 	}
 }
 
@@ -50,26 +61,9 @@ export async function loadSavedServers(): Promise<void> {
 		const listEncrypted = localStorage.getItem(SERVERS_LIST_KEY);
 		
 		if (listEncrypted) {
-			const key = await getOrCreateEncryptionKey();
+			const key = getSessionKey();
 			const json = await decrypt(listEncrypted, key);
 			list = JSON.parse(json);
-		}
-
-		// Migration: If we have an active server but empty list, add it
-		const activeEncrypted = localStorage.getItem(SERVER_STORAGE_KEY);
-		if (activeEncrypted && list.length === 0) {
-			const key = await getOrCreateEncryptionKey();
-			const json = await decrypt(activeEncrypted, key);
-			const active = JSON.parse(json);
-			
-			if (!active.id) active.id = generateId();
-			
-			// Ensure name exists
-			if (!active.name) active.name = 'Home Assistant';
-			
-			list.push(active);
-			// Persist the migrated list
-			await saveSavedServers(list);
 		}
 
 		appState.update(s => ({ ...s, savedServers: list }));
@@ -81,7 +75,7 @@ export async function loadSavedServers(): Promise<void> {
 export async function saveSavedServers(servers: ServerConfig[]): Promise<void> {
 	if (!browser) return;
 	try {
-		const key = await getOrCreateEncryptionKey();
+		const key = getSessionKey();
 		const json = JSON.stringify(servers);
 		const encrypted = await encrypt(json, key);
 		localStorage.setItem(SERVERS_LIST_KEY, encrypted);
@@ -94,7 +88,7 @@ export async function saveSavedServers(servers: ServerConfig[]): Promise<void> {
 export async function saveServerConfig(config: ServerConfig): Promise<void> {
 	if (!browser) return;
 	try {
-		const key = await getOrCreateEncryptionKey();
+		const key = getSessionKey();
 		const configStr = JSON.stringify(config);
 		const encrypted = await encrypt(configStr, key);
 		
@@ -124,7 +118,7 @@ export async function loadLayout(): Promise<void> {
 	try {
 		const encrypted = localStorage.getItem(LAYOUT_STORAGE_KEY);
 		if (encrypted) {
-			const key = await getOrCreateEncryptionKey();
+			const key = getSessionKey();
 			const layoutStr = await decrypt(encrypted, key);
 			const layout = JSON.parse(layoutStr) as LayoutConfig;
 			layoutConfig.set(layout);
@@ -143,7 +137,7 @@ export async function saveLayout(cardOrder: string[]): Promise<void> {
 	};
 	
 	try {
-		const key = await getOrCreateEncryptionKey();
+		const key = getSessionKey();
 		const layoutStr = JSON.stringify(layout);
 		const encrypted = await encrypt(layoutStr, key);
 		localStorage.setItem(LAYOUT_STORAGE_KEY, encrypted);

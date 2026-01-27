@@ -1,99 +1,105 @@
-// Generate a new key (one time setup)
-export async function generateEncryptionKey(): Promise<CryptoKey> {
-  const key = await window.crypto.subtle.generateKey(
-    { name: 'AES-GCM', length: 256 },
-    true,  // extractable
-    ['encrypt', 'decrypt']
-  );
-  return key;
+
+// Security constants
+const PBKDF2_ITERATIONS = 100000;
+const SALT_SIZE = 16;
+const KEY_LENGTH = 256;
+
+// Convert string to Uint8Array
+function strToBuf(str: string): Uint8Array {
+  return new TextEncoder().encode(str);
 }
 
-// Export key to string for storage
-export async function exportKey(key: CryptoKey): Promise<string> {
-  const exported = await window.crypto.subtle.exportKey('raw', key);
-  const bytes = new Uint8Array(exported);
-  // Convert to base64
+// Convert Uint8Array to Base64
+function bufToBase64(buf: Uint8Array): string {
   let binary = '';
-  const len = bytes.byteLength;
+  const len = buf.byteLength;
   for (let i = 0; i < len; i++) {
-    binary += String.fromCharCode(bytes[i]);
+    binary += String.fromCharCode(buf[i]);
   }
   return btoa(binary);
 }
 
-// Import key from string
-export async function importKey(keyStr: string): Promise<CryptoKey> {
-  const binary = atob(keyStr);
+// Convert Base64 to Uint8Array
+function base64ToBuf(str: string): Uint8Array {
+  const binary = atob(str);
   const bytes = new Uint8Array(binary.length);
   for (let i = 0; i < binary.length; i++) {
     bytes[i] = binary.charCodeAt(i);
   }
-  
-  const key = await window.crypto.subtle.importKey(
-    'raw',
-    bytes,
-    { name: 'AES-GCM', length: 256 },
-    true,
-    ['encrypt', 'decrypt']
-  );
-  return key;
+  return bytes;
 }
 
-// Encrypt data string
+export function generateSalt(): string {
+  const salt = window.crypto.getRandomValues(new Uint8Array(SALT_SIZE));
+  return bufToBase64(salt);
+}
+
+export async function deriveKey(pin: string, saltBase64: string): Promise<CryptoKey> {
+  const salt = base64ToBuf(saltBase64);
+  const keyMaterial = await window.crypto.subtle.importKey(
+    'raw',
+    strToBuf(pin),
+    { name: 'PBKDF2' },
+    false,
+    ['deriveKey']
+  );
+
+  return window.crypto.subtle.deriveKey(
+    {
+      name: 'PBKDF2',
+      salt: salt,
+      iterations: PBKDF2_ITERATIONS,
+      hash: 'SHA-256'
+    },
+    keyMaterial,
+    { name: 'AES-GCM', length: KEY_LENGTH },
+    false, // Key is non-extractable!
+    ['encrypt', 'decrypt']
+  );
+}
+
 export async function encrypt(data: string, key: CryptoKey): Promise<string> {
-  const iv = window.crypto.getRandomValues(new Uint8Array(12));  // 96-bit IV
+  const iv = window.crypto.getRandomValues(new Uint8Array(12));
+  const encoded = strToBuf(data);
   
-  const encoded = new TextEncoder().encode(data);
   const encrypted = await window.crypto.subtle.encrypt(
     { name: 'AES-GCM', iv },
     key,
     encoded
   );
-  
-  // Result: IV + Encrypted Data (base64)
+
   const combined = new Uint8Array(iv.length + encrypted.byteLength);
   combined.set(iv);
   combined.set(new Uint8Array(encrypted), iv.length);
-  
-  let binary = '';
-  const len = combined.byteLength;
-  for (let i = 0; i < len; i++) {
-    binary += String.fromCharCode(combined[i]);
-  }
-  
-  return btoa(binary);
+
+  return bufToBase64(combined);
 }
 
-// Decrypt data string
-export async function decrypt(encryptedStr: string, key: CryptoKey): Promise<string> {
-  const binary = atob(encryptedStr);
-  const combined = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i++) {
-    combined[i] = binary.charCodeAt(i);
-  }
-  
+export async function decrypt(encryptedBase64: string, key: CryptoKey): Promise<string> {
+  const combined = base64ToBuf(encryptedBase64);
   const iv = combined.slice(0, 12);
-  const ciphertext = combined.slice(12);
-  
+  const data = combined.slice(12);
+
   const decrypted = await window.crypto.subtle.decrypt(
     { name: 'AES-GCM', iv },
     key,
-    ciphertext
+    data
   );
-  
+
   return new TextDecoder().decode(decrypted);
 }
 
-// Helper to get or create the persistent key
-export async function getOrCreateEncryptionKey(): Promise<CryptoKey> {
-  const keyStr = localStorage.getItem('encryption_key');
-  
-  if (keyStr) {
-    return importKey(keyStr);
-  } else {
-    const newKey = await generateEncryptionKey();
-    const exported = await exportKey(newKey);
-    localStorage.setItem('encryption_key', exported);
-    return newKey;
+// Verifier mechanism to check PIN correctness without storing PIN
+export async function createVerifier(key: CryptoKey): Promise<string> {
+  // Encrypt a known constant
+  return encrypt('valid-pin-verifier', key);
+}
+
+export async function checkVerifier(verifierBase64: string, key: CryptoKey): Promise<boolean> {
+  try {
+    const result = await decrypt(verifierBase64, key);
+    return result === 'valid-pin-verifier';
+  } catch (e) {
+    return false;
   }
 }

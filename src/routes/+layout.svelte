@@ -3,9 +3,10 @@
   import { onMount } from 'svelte';
   import { appState, loadLayout, loadServerConfig, loadSavedServers } from '../domains/app/store';
   import { dashboardStore } from '../domains/app/dashboardStore';
+  import { session } from '../domains/app/session';
   import { initializeHAConnection, disconnectHA } from '../domains/ha/store';
   import { themeStore } from '../domains/ui/theme/store';
-  import { editorStore } from '../domains/ui/editor/store'; // Import Editor Store
+  import { editorStore } from '../domains/ui/editor/store'; 
   import { initClientI18n } from '../lib/i18n'; 
   import { initWeather, destroyWeather } from '../lib/weather/store';
   import { isLoading } from 'svelte-i18n'; 
@@ -13,54 +14,62 @@
   import Sidebar from '../domains/ui/Sidebar.svelte';
   import DashboardHeader from '../domains/ui/DashboardHeader.svelte';
   import TemplateManager from '../domains/ui/editor/templates/TemplateManager.svelte';
-  import SettingsDrawer from '../domains/ui/settings/SettingsDrawer.svelte'; // New Component
-  import DeviceAddDrawer from '../domains/ui/add-device/DeviceAddDrawer.svelte'; // New Add Device Drawer
+  import SettingsDrawer from '../domains/ui/settings/SettingsDrawer.svelte';
+  import DeviceAddDrawer from '../domains/ui/add-device/DeviceAddDrawer.svelte';
+  import PinScreen from '../domains/ui/lock/PinScreen.svelte';
   import 'iconify-icon';
   import '../app.css';
   
   let { children } = $props();
 
-  // Safety state to unblock UI if i18n hangs
   let forcedReady = $state(false);
 
+  // Session state derived
+  let isSessionActive = $derived($session.state === 'active');
+
   onMount(async () => {
-    // Safety timeout: force show app after 2s if i18n hangs
+    // 0. Init Theme first
+    themeStore.init();
+
+    // 1. Setup Client I18n
+    await initClientI18n();
+    
+    // Safety timeout
     const timer = setTimeout(() => {
-        console.warn('I18n loading timed out, forcing UI render');
         forcedReady = true;
     }, 2000);
 
-    try {
-      // 0. Init Theme first so CSS vars are available for the loading screen
-      themeStore.init();
+    // 2. Init Session (Check for lock)
+    await session.init();
 
-      // 1. Setup Client I18n (SSR init handled in module)
-      await initClientI18n();
-      
-      // 2. Load other configs
-      await loadServerConfig();
-      await loadSavedServers(); // Load server list
-      await loadLayout();
-      await dashboardStore.init(); // Initialize 2D grid store
-      
-      // 3. Init services
-      await initWeather();
-    } catch (e) {
-      console.error('Initialization error:', e);
-    } finally {
-      // Clear timeout if everything loaded successfully
-      clearTimeout(timer);
-    }
+    // If already active (unlikely on mount unless dev), load data. 
+    // Usually we wait for user to unlock.
+    
+    // Clear timeout if loaded
+    clearTimeout(timer);
     
     return () => {
       destroyWeather();
     };
   });
 
+  // React to Session Unlock
+  $effect(() => {
+    if (isSessionActive) {
+       // Only load sensitive data AFTER unlock
+       loadServerConfig();
+       loadSavedServers();
+       loadLayout();
+       dashboardStore.init(); 
+       initWeather();
+    }
+  });
+
   // Reactive connection management
   $effect(() => {
     const active = $appState.activeServer;
-    if (active?.url && active?.token) {
+    // Only connect if session is active AND we have credentials
+    if (isSessionActive && active?.url && active?.token) {
       initializeHAConnection(active.url, active.token);
     } else {
       disconnectHA();
@@ -71,127 +80,72 @@
 <BackgroundRenderer />
 
 {#if $isLoading && !forcedReady}
-  <!-- Splash screen with visual feedback -->
   <div class="loading-screen">
      <div class="spinner"></div>
      <p>Loading Evolusion...</p>
   </div>
+{:else if !isSessionActive}
+  <!-- Security Layer: Blocks everything else -->
+  <PinScreen />
 {:else}
+  <!-- Main App Layout -->
   <div class="layout-container">
-    <!-- Left Nav & Info -->
     <Sidebar />
-    
-    <!-- Right Side: Main Application Content -->
     <div class="main-content">
       <DashboardHeader />
-      
       <main>
         {@render children()}
       </main>
     </div>
   </div>
-{/if}
 
-<!-- Global Modals Layer -->
-<SettingsDrawer />
-<DeviceAddDrawer />
+  <!-- Global Modals Layer -->
+  <SettingsDrawer />
+  <DeviceAddDrawer />
 
-{#if $editorStore.isTemplateManagerOpen}
-  <TemplateManager onClose={() => editorStore.closeTemplateManager()} />
+  {#if $editorStore.isTemplateManagerOpen}
+    <TemplateManager onClose={() => editorStore.closeTemplateManager()} />
+  {/if}
 {/if}
 
 <style>
   :global(body) {
-    margin: 0;
-    padding: 0;
+    margin: 0; padding: 0;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-    
-    /* 
-      CRITICAL: Set background to transparent to allow BackgroundRenderer 
-      (which has z-index: -1) to show through.
-      Use !important to override src/app.css conflicts.
-    */
     background: transparent !important; 
-    
     color: var(--text-primary, #333);
-    height: 100vh;
-    overflow: hidden;
+    height: 100vh; overflow: hidden;
     transition: color 0.2s ease;
   }
   
-  /* Also ensure HTML doesn't block it */
-  :global(html) {
-    background: transparent !important;
-  }
-  
-  /* RTL Support Hook */
-  :global(body.rtl) {
-    direction: rtl;
-  }
+  :global(html) { background: transparent !important; }
+  :global(body.rtl) { direction: rtl; }
 
   .layout-container {
-    display: flex;
-    height: 100vh;
-    width: 100vw;
-    overflow: hidden;
-    position: relative;
-    z-index: 1;
+    display: flex; height: 100vh; width: 100vw; overflow: hidden; position: relative; z-index: 1;
   }
 
   .main-content {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-    position: relative;
-    height: 100%;
-    /* STRICT: Prevent global scrollbar */
-    overflow: hidden; 
+    flex: 1; display: flex; flex-direction: column; min-width: 0; position: relative; height: 100%; overflow: hidden; 
   }
 
   main {
-    flex: 1;
-    padding: 0;
-    /* STRICT: Ensure main is a flex container that clips content */
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    min-height: 0; /* Allow shrinking */
+    flex: 1; padding: 0; display: flex; flex-direction: column; overflow: hidden; min-height: 0;
   }
   
   .loading-screen {
-    width: 100vw;
-    height: 100vh;
-    /* Fallback background if variables not loaded yet */
-    background: var(--bg-page, #f0f2f5);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 1rem;
-    color: var(--text-secondary, #666);
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: 9999;
+    width: 100vw; height: 100vh; background: var(--bg-page, #f0f2f5);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1rem;
+    color: var(--text-secondary, #666); position: fixed; top: 0; left: 0; z-index: 9999;
   }
 
   .spinner {
-    width: 40px; 
-    height: 40px;
-    border: 3px solid rgba(0,0,0,0.1);
-    border-top-color: var(--accent-primary, #2196f3);
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
+    width: 40px; height: 40px;
+    border: 3px solid rgba(0,0,0,0.1); border-top-color: var(--accent-primary, #2196f3);
+    border-radius: 50%; animation: spin 1s linear infinite;
   }
   
-  @keyframes spin { 
-    to { transform: rotate(360deg); } 
-  }
+  @keyframes spin { to { transform: rotate(360deg); } }
 
-  @media (max-width: 768px) {
-    main {
-      padding: 0;
-    }
-  }
+  @media (max-width: 768px) { main { padding: 0; } }
 </style>

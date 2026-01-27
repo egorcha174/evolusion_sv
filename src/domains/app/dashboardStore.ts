@@ -2,12 +2,22 @@
 import { writable, get } from 'svelte/store';
 import { browser } from '$app/environment';
 import type { DashboardConfig, TabGridConfig, DashboardCardConfig, HAEntity, CardTemplate } from '$lib/types';
-import { getOrCreateEncryptionKey, encrypt, decrypt } from '../ha/crypto';
+import { encrypt, decrypt } from '../ha/crypto';
+import { session } from './session';
 
 const STORAGE_KEY = 'evolusion_dashboard_v2_encrypted';
 
 const DEFAULT_COLS = 8;
 const DEFAULT_ROWS = 6;
+
+// Helper to get session key
+function getSessionKey(): CryptoKey {
+    const s = get(session);
+    if (!s.key) {
+        throw new Error('Session is locked. Key not available.');
+    }
+    return s.key;
+}
 
 // Helper to create a default tab config
 function createDefaultTabConfig(id: string, title: string): TabGridConfig {
@@ -44,7 +54,7 @@ function createDashboardStore() {
       try {
         const encrypted = localStorage.getItem(STORAGE_KEY);
         if (encrypted) {
-          const key = await getOrCreateEncryptionKey();
+          const key = getSessionKey();
           const json = await decrypt(encrypted, key);
           const data = JSON.parse(json);
           
@@ -75,7 +85,7 @@ function createDashboardStore() {
       if (!browser) return;
       const state = get({ subscribe });
       try {
-        const key = await getOrCreateEncryptionKey();
+        const key = getSessionKey();
         const json = JSON.stringify(state);
         const encrypted = await encrypt(json, key);
         localStorage.setItem(STORAGE_KEY, encrypted);
