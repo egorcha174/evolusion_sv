@@ -1,14 +1,13 @@
 {
-  "task_id": "i18n-fix-01",
-  "step_id": "translate-widget-settings",
-  "title": "Translate Widget Settings",
-  "goal": "Add missing translations for Clock and Weather Style settings in the Settings drawer.",
+  "task_id": "refactor-storage-01",
+  "step_id": "create-storage-module",
+  "title": "Create Centralized Storage Module",
+  "goal": "Implement src/domains/ha/storage.ts to centralize and type-safe LocalStorage access.",
   "files": [
-    "src/lib/i18n/locales/ru.json",
-    "src/lib/i18n/locales/en.json",
-    "src/domains/ui/settings/sections/WidgetSettings.svelte"
+    "src/domains/ha/storage.ts",
+    "docs/PROJECT_LOG.md"
   ],
-  "verification": "npm run check && npm run build",
+  "verification": "npm run check",
   "risk": "Low",
-  "rollback": "Revert json changes"
+  "rollback": "Delete src/domains/ha/storage.ts"
 }
