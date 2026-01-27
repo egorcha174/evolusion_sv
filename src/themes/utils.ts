@@ -1,5 +1,4 @@
 
-
 import type { ColorScheme, Theme } from './types';
 import { ThemeFileSchema } from './schemas';
 
@@ -9,7 +8,9 @@ export function camelToKebab(str: string): string {
 
 // Helper to convert HEX to RGBA
 export function hexToRgba(hex: string, alpha: number): string {
+  if (!hex) return hex;
   let c = hex.trim();
+  
   // If already rgba, just return it (simplistic check)
   if (c.startsWith('rgb')) return c;
   
@@ -17,15 +18,20 @@ export function hexToRgba(hex: string, alpha: number): string {
     c = c.substring(1);
   }
   
+  // Handle 3-char hex (e.g. #ABC)
   if (c.length === 3) {
     c = c.split('').map(char => char + char).join('');
   }
   
-  if (c.length !== 6) return hex; // Invalid hex fallback
+  // Invalid hex length? Return original
+  if (c.length !== 6) return hex; 
 
   const r = parseInt(c.substring(0, 2), 16);
   const g = parseInt(c.substring(2, 4), 16);
   const b = parseInt(c.substring(4, 6), 16);
+  
+  // Sanity check for valid parsing
+  if (isNaN(r) || isNaN(g) || isNaN(b)) return hex;
 
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }

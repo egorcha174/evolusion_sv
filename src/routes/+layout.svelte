@@ -105,12 +105,23 @@
     margin: 0;
     padding: 0;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-    /* Basic fallback, real colors set by themeStore via CSS vars */
-    background: transparent; 
+    
+    /* 
+      CRITICAL: Set background to transparent to allow BackgroundRenderer 
+      (which has z-index: -1) to show through.
+      Use !important to override src/app.css conflicts.
+    */
+    background: transparent !important; 
+    
     color: var(--text-primary, #333);
     height: 100vh;
     overflow: hidden;
     transition: color 0.2s ease;
+  }
+  
+  /* Also ensure HTML doesn't block it */
+  :global(html) {
+    background: transparent !important;
   }
   
   /* RTL Support Hook */
