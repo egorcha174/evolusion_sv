@@ -1,9 +1,9 @@
 
 <script lang="ts">
   import { t } from 'svelte-i18n';
-  import { session } from '../../../../app/session';
-  import { appState, layoutConfig, saveServerConfig, saveSavedServers, saveLayout } from '../../../../app/store';
-  import { dashboardStore } from '../../../../app/dashboardStore';
+  import { session } from '../../../app/session';
+  import { appState, layoutConfig, saveServerConfig, saveSavedServers, saveLayout } from '../../../app/store';
+  import { dashboardStore } from '../../../app/dashboardStore';
   import Section from '../Section.svelte';
   import LabeledInput from '../controls/LabeledInput.svelte';
   import 'iconify-icon';
