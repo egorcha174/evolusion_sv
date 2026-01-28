@@ -7,6 +7,7 @@
   
   // Sections
   import ConnectionSettings from './sections/ConnectionSettings.svelte';
+  import SecuritySettings from './sections/SecuritySettings.svelte';
   import ThemeSettings from './sections/ThemeSettings.svelte';
   import WidgetSettings from './sections/WidgetSettings.svelte';
   import DataManagement from './sections/DataManagement.svelte';
@@ -53,6 +54,7 @@
     <div class="drawer-content">
       <div class="scroll-inner">
         <ConnectionSettings />
+        <SecuritySettings />
         <ThemeSettings />
         <WidgetSettings />
         <DataManagement />

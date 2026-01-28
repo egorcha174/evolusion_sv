@@ -1,3 +1,4 @@
+
 {
   "common": {
     "ok": "OK",
@@ -132,6 +133,16 @@
     "tokenPlaceholder": "Paste your long-lived access token",
     "testConnection": "Test Connection",
     "saveConfig": "Save Configuration",
+    "security": {
+      "title": "Security",
+      "description": "Manage session security and encryption",
+      "newPin": "New PIN",
+      "updatePin": "Update PIN",
+      "pinTooShort": "PIN must be at least 4 digits",
+      "confirmChange": "Are you sure you want to change your PIN? Data will be re-encrypted.",
+      "success": "PIN updated successfully",
+      "error": "Failed to update PIN"
+    },
     "weather": "Weather Widget",
     "weatherDesc": "Configure weather widget provider",
     "weatherProvider": "Data Provider",

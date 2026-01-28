@@ -89,6 +89,29 @@ function createSessionStore() {
         return false;
       }
     },
+
+    /**
+     * Changes the PIN and updates the active session key.
+     * WARNING: Calling this does NOT re-encrypt data automatically. 
+     * The caller must immediately re-save all encrypted data using the new key.
+     */
+    changePin: async (newPin: string): Promise<boolean> => {
+      try {
+        const salt = generateSalt();
+        const key = await deriveKey(newPin, salt);
+        const verifier = await createVerifier(key);
+
+        localStorage.setItem(SALT_KEY, salt);
+        localStorage.setItem(VERIFIER_KEY, verifier);
+        
+        update(s => ({ ...s, key, error: null }));
+        return true;
+      } catch (e) {
+        console.error(e);
+        update(s => ({ ...s, error: 'Change PIN failed' }));
+        return false;
+      }
+    },
     
     lock: () => {
         update(s => ({ ...s, state: 'locked', key: null }));
