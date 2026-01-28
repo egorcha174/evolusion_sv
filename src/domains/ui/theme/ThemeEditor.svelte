@@ -1,3 +1,4 @@
+
 <script lang="ts">
   import { t } from 'svelte-i18n';
   import { slide } from 'svelte/transition';
@@ -107,12 +108,13 @@
   <div class="editor-body">
     <!-- Meta (Mode Only) -->
     <div class="meta-section">
-      <!-- Name input moved up to header, only mode tabs here -->
-      <div class="mode-tabs">
-        <button class="mode-tab" class:active={activeTab === 'light'} onclick={() => activeTab = 'light'}>
+      <div class="segmented-control">
+        <button class="segment" class:active={activeTab === 'light'} onclick={() => activeTab = 'light'}>
+          <iconify-icon icon="mdi:white-balance-sunny" width="18"></iconify-icon>
           {$t('settings.themeModeDay')}
         </button>
-        <button class="mode-tab" class:active={activeTab === 'dark'} onclick={() => activeTab = 'dark'}>
+        <button class="segment" class:active={activeTab === 'dark'} onclick={() => activeTab = 'dark'}>
+          <iconify-icon icon="mdi:weather-night" width="18"></iconify-icon>
           {$t('settings.themeModeNight')}
         </button>
       </div>
@@ -396,7 +398,7 @@
     padding: 1rem 1.5rem 0.5rem 1.5rem;
     background: var(--bg-panel);
     display: flex;
-    justify-content: flex-end; /* Align tabs to right or center */
+    justify-content: center; /* Centered */
     align-items: center;
   }
 
@@ -407,18 +409,43 @@
   }
   .modern-input:focus { outline: none; border-color: var(--accent-primary); background: var(--bg-panel); }
 
-  .mode-tabs {
+  /* Segmented Control for Modes */
+  .segmented-control {
+    background: var(--bg-input, #f0f0f0);
+    padding: 4px;
+    border-radius: 12px;
     display: flex;
-    background: rgba(0,0,0,0.05);
-    padding: 3px;
-    border-radius: 10px;
+    gap: 4px;
+    min-width: 240px;
   }
-  .mode-tab {
-    padding: 6px 16px; border: none; background: transparent; cursor: pointer;
-    border-radius: 7px; font-size: 0.85rem; font-weight: 600; color: var(--text-secondary);
-    transition: all 0.2s;
+
+  .segment {
+    flex: 1;
+    padding: 8px 16px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
   }
-  .mode-tab.active { background: var(--bg-panel); color: var(--text-primary); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+
+  .segment:hover {
+    color: var(--text-primary);
+  }
+
+  .segment.active {
+    background: var(--bg-panel, #ffffff);
+    color: var(--text-primary);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    font-weight: 600;
+  }
 
   /* NAV PILLS */
   .nav-pills {
