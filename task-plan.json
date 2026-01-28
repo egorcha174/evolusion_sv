@@ -1,13 +1,13 @@
 {
-  "task_id": "refactor-storage-01",
-  "step_id": "create-storage-module",
-  "title": "Create Centralized Storage Module",
-  "goal": "Implement src/domains/ha/storage.ts to centralize and type-safe LocalStorage access.",
+  "task_id": "fix-weather-settings-01",
+  "step_id": "restore-layout-option",
+  "title": "Restore Forecast Layout Setting",
+  "goal": "Add the missing Vertical/Horizontal layout selector to WidgetSettings.",
   "files": [
-    "src/domains/ha/storage.ts",
+    "src/domains/ui/settings/sections/WidgetSettings.svelte",
     "docs/PROJECT_LOG.md"
   ],
   "verification": "npm run check",
   "risk": "Low",
-  "rollback": "Delete src/domains/ha/storage.ts"
+  "rollback": "Revert changes"
 }

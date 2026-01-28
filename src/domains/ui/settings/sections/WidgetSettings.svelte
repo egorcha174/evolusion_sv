@@ -62,6 +62,16 @@
   {#if $weatherSettings.showForecast}
      <div transition:slide>
         <RangeInput label={$t('settings.forecast.daysLabel')} bind:value={$weatherSettings.forecastDays} min={1} max={7} />
+        
+        <div class="control-row">
+          <label>
+            {$t('settings.weatherLayout')}
+            <select bind:value={$weatherSettings.forecastLayout}>
+              <option value="vertical">{$t('settings.layoutVertical')}</option>
+              <option value="horizontal">{$t('settings.layoutHorizontal')}</option>
+            </select>
+          </label>
+        </div>
      </div>
   {/if}
   
