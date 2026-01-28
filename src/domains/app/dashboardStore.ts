@@ -34,9 +34,17 @@ function createDefaultTabConfig(id: string, title: string): TabGridConfig {
 
 const initialState: DashboardConfig = {
   version: 3,
-  tabOrder: ['home'],
+  tabOrder: ['welcome'],
   tabs: {
-    'home': createDefaultTabConfig('home', 'Home')
+    'welcome': {
+       id: 'welcome',
+       title: 'Welcome',
+       icon: 'mdi:hand-wave',
+       gridColumns: DEFAULT_COLS,
+       gridRows: DEFAULT_ROWS,
+       cards: [],
+       provisioned: true // Prevent auto-fill so it stays empty with Welcome message
+    }
   },
   templates: {}
 };

@@ -182,10 +182,20 @@
 
   let isEditorEnabled = $derived($editorStore.enabled);
 
+  // Automatically manage Editor Session based on Edit Mode AND Active Tab
   $effect(() => {
     if ($isEditMode) {
-      if (!isEditorEnabled) editorStore.initSession($activeTabId);
+      // If we are in edit mode, ensure the editor session matches the ACTIVE tab.
+      // This handles both initial entry AND tab switching.
+      if (!isEditorEnabled || $editorStore.tabId !== $activeTabId) {
+         // If switching tabs in edit mode, commit previous work (Auto-Save)
+         if (isEditorEnabled && $editorStore.tabId) {
+            editorStore.commit();
+         }
+         editorStore.initSession($activeTabId);
+      }
     } else {
+      // Exit edit mode
       if (isEditorEnabled) editorStore.reset();
     }
   });
@@ -291,7 +301,15 @@
   {#if cards.length === 0}
     <div class="empty-state">
       <div class="empty-content">
-        <p>{$t('dashboard.noDevices')}</p>
+        {#if $activeTabId === 'welcome' || gridConfig.title === 'Welcome'}
+           <div class="welcome-msg">
+             <h1>Welcome!</h1>
+             <p>Your dashboard is ready.</p>
+           </div>
+        {:else}
+           <p>{$t('dashboard.noDevices')}</p>
+        {/if}
+        
         <button class="btn primary" onclick={toggleAddDevice}>
           <iconify-icon icon="mdi:plus"></iconify-icon>
           {$t('dashboard.addWidget')}
@@ -442,6 +460,19 @@
     align-items: center;
     gap: 1rem;
   }
+  
+  .welcome-msg h1 {
+    font-size: 3rem;
+    margin: 0 0 0.5rem 0;
+    color: var(--text-primary);
+    font-weight: 200;
+  }
+  
+  .welcome-msg p {
+    margin: 0;
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+  }
 
   /* FAB */
   .fab-add {
@@ -478,7 +509,6 @@
       height: auto;
       display: block;
       overflow-y: auto;
-      /* Reduced padding from 2rem to 0.5rem for more space */
       padding-bottom: 0.5rem;
     }
 
@@ -493,7 +523,6 @@
       height: auto !important;
       margin: 0 !important;
 
-      /* Reduced padding from 12px to 8px */
       padding: 8px;
     }
 
