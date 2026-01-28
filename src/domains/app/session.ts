@@ -47,15 +47,32 @@ function createSessionStore() {
              if (isValid) {
                update(s => ({ ...s, state: 'active', key, isAutoLogin: true }));
                return;
+             } else {
+               console.warn('Auto-login PIN invalid');
              }
            } catch (e) {
              console.error('Auto-login failed', e);
-             // Fail silently to lock screen
            }
         }
         update(s => ({ ...s, state: 'locked', isAutoLogin: !!autoPin }));
       } else {
         update(s => ({ ...s, state: 'setup', isAutoLogin: false }));
+      }
+    },
+
+    verifyPin: async (pin: string): Promise<boolean> => {
+      if (!browser) return false;
+      
+      const salt = localStorage.getItem(SALT_KEY);
+      const verifier = localStorage.getItem(VERIFIER_KEY);
+
+      if (!salt || !verifier) return false;
+
+      try {
+        const key = await deriveKey(pin, salt);
+        return await checkVerifier(verifier, key);
+      } catch (e) {
+        return false;
       }
     },
 

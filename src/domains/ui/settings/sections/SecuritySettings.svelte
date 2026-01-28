@@ -17,6 +17,7 @@
   // Auto Login State
   let confirmPin = $state('');
   let showConfirm = $state(false);
+  let confirmError = $state('');
 
   async function handleChangePin() {
     if (newPin.length < 4) {
@@ -60,28 +61,25 @@
       // Enable requires PIN confirmation
       showConfirm = true;
       confirmPin = '';
+      confirmError = '';
     }
   }
 
   async function confirmAutoLogin() {
-    // Validate PIN by trying to unlock (simulated) or just checking logic
-    // Since we are already unlocked, we can't easily verify the PIN against the salt without
-    // potentially invalidating the current key if we derive wrong.
-    // Instead, we trust the user knows what they are typing to "enable" this feature.
-    // Ideally we would verify, but for now we just save it.
-    
-    // Better: Try to derive key and check verifier to ensure we don't save a wrong PIN
-    // which would cause auto-login to fail on next boot.
-    
-    // We can't use session.unlock because it updates state.
-    // We assume if the user is here, they are authorized.
-    
     if (confirmPin.length < 4) return;
     
-    // Optimistic enable
-    session.enableAutoLogin(confirmPin);
-    showConfirm = false;
-    confirmPin = '';
+    // Validate PIN matches current session key before saving
+    // Using verifyPin to check against stored salt/verifier
+    const isValid = await session.verifyPin(confirmPin);
+    
+    if (isValid) {
+      session.enableAutoLogin(confirmPin);
+      showConfirm = false;
+      confirmPin = '';
+      confirmError = '';
+    } else {
+      confirmError = $t('settings.security.error') || 'Invalid PIN';
+    }
   }
 </script>
 
@@ -110,6 +108,9 @@
                 {$t('common.cancel')}
               </button>
             </div>
+            {#if confirmError}
+              <div class="error-inline">{confirmError}</div>
+            {/if}
          </div>
        {/if}
     </div>
@@ -214,4 +215,5 @@
     flex: 1; padding: 0.5rem; border: 1px solid var(--border-input); border-radius: 6px;
     font-size: 1rem;
   }
+  .error-inline { color: var(--accent-error); font-size: 0.85rem; margin-top: 0.5rem; }
 </style>

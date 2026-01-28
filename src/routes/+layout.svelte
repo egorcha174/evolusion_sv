@@ -26,6 +26,7 @@
 
   // Session state derived
   let isSessionActive = $derived($session.state === 'active');
+  let isSessionLoading = $derived($session.state === 'loading');
 
   onMount(async () => {
     // 0. Init Theme first
@@ -79,7 +80,7 @@
 
 <BackgroundRenderer />
 
-{#if $isLoading && !forcedReady}
+{#if ($isLoading && !forcedReady) || isSessionLoading}
   <div class="loading-screen">
      <div class="spinner"></div>
      <p>Loading Evolusion...</p>
