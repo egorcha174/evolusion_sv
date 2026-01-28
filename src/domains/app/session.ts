@@ -48,13 +48,18 @@ function createSessionStore() {
                update(s => ({ ...s, state: 'active', key, isAutoLogin: true }));
                return;
              } else {
-               console.warn('Auto-login PIN invalid');
+               console.warn('Auto-login PIN invalid, removing.');
+               localStorage.removeItem(AUTO_LOGIN_KEY); // Clear invalid key
              }
            } catch (e) {
              console.error('Auto-login failed', e);
+             localStorage.removeItem(AUTO_LOGIN_KEY); // Clear invalid key
            }
         }
-        update(s => ({ ...s, state: 'locked', isAutoLogin: !!autoPin }));
+        
+        // Check storage again in case we deleted it above
+        const hasAutoPin = !!localStorage.getItem(AUTO_LOGIN_KEY);
+        update(s => ({ ...s, state: 'locked', isAutoLogin: hasAutoPin }));
       } else {
         update(s => ({ ...s, state: 'setup', isAutoLogin: false }));
       }
@@ -72,6 +77,7 @@ function createSessionStore() {
         const key = await deriveKey(pin, salt);
         return await checkVerifier(verifier, key);
       } catch (e) {
+        console.error('Verify PIN failed', e);
         return false;
       }
     },
@@ -92,7 +98,9 @@ function createSessionStore() {
         const isValid = await checkVerifier(verifier, key);
 
         if (isValid) {
-          update(s => ({ ...s, state: 'active', key }));
+          // Sync auto-login state from storage to be sure
+          const isAuto = !!localStorage.getItem(AUTO_LOGIN_KEY);
+          update(s => ({ ...s, state: 'active', key, isAutoLogin: isAuto }));
           return true;
         } else {
           update(s => ({ ...s, error: 'Invalid PIN' }));

@@ -1,12 +1,19 @@
 
 <script lang="ts">
-  let { label, checked = $bindable(), disabled = false } = $props<{
+  let { label, checked = $bindable(), disabled = false, onchange } = $props<{
     label: string;
     checked: boolean;
     disabled?: boolean;
+    onchange?: (checked: boolean) => void;
   }>();
 
   const id = 'switch-' + Math.random().toString(36).substr(2, 9);
+
+  function handleClick() {
+    if (disabled) return;
+    checked = !checked;
+    if (onchange) onchange(checked);
+  }
 </script>
 
 <div class="control-group">
@@ -18,7 +25,7 @@
     class="switch" 
     class:checked 
     {disabled}
-    onclick={() => !disabled && (checked = !checked)}
+    onclick={handleClick}
     role="switch"
     aria-checked={checked}
     id={id}

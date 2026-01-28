@@ -53,15 +53,21 @@
     }
   }
 
-  async function toggleAutoLogin() {
-    if ($session.isAutoLogin) {
-      // Disable immediately
+  // Handle Switch Toggle
+  function handleAutoLoginChange(newChecked: boolean) {
+    if (newChecked) {
+      // User is turning ON
+      // 1. Immediately disable in store (revert visual state) until confirmed
       session.disableAutoLogin();
-    } else {
-      // Enable requires PIN confirmation
+      
+      // 2. Show confirmation dialog
       showConfirm = true;
       confirmPin = '';
       confirmError = '';
+    } else {
+      // User is turning OFF
+      session.disableAutoLogin();
+      showConfirm = false;
     }
   }
 
@@ -69,10 +75,10 @@
     if (confirmPin.length < 4) return;
     
     // Validate PIN matches current session key before saving
-    // Using verifyPin to check against stored salt/verifier
     const isValid = await session.verifyPin(confirmPin);
     
     if (isValid) {
+      // Now actually enable it (writes to localStorage)
       session.enableAutoLogin(confirmPin);
       showConfirm = false;
       confirmPin = '';
@@ -91,7 +97,7 @@
        <Switch 
          label={$t('settings.security.autoLogin')} 
          checked={$session.isAutoLogin} 
-         on:change={toggleAutoLogin}
+         onchange={handleAutoLoginChange}
          disabled={showConfirm}
        />
        <p class="hint">{$t('settings.security.autoLoginDesc')}</p>
