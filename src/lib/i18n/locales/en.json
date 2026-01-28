@@ -141,7 +141,10 @@
       "pinTooShort": "PIN must be at least 4 digits",
       "confirmChange": "Are you sure you want to change your PIN? Data will be re-encrypted.",
       "success": "PIN updated successfully",
-      "error": "Failed to update PIN"
+      "error": "Failed to update PIN",
+      "autoLogin": "Auto-login (Insecure)",
+      "autoLoginDesc": "Saves PIN locally to skip the lock screen. Not recommended for shared devices.",
+      "confirmPin": "Confirm PIN to enable auto-login:"
     },
     "weather": "Weather Widget",
     "weatherDesc": "Configure weather widget provider",

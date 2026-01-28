@@ -9,16 +9,19 @@ export interface Session {
   state: SessionState;
   key: CryptoKey | null;
   error: string | null;
+  isAutoLogin: boolean;
 }
 
 const SALT_KEY = 'auth_salt';
 const VERIFIER_KEY = 'auth_verifier';
+const AUTO_LOGIN_KEY = 'auth_auto_pin';
 
 function createSessionStore() {
   const { subscribe, set, update } = writable<Session>({
     state: 'loading',
     key: null,
-    error: null
+    error: null,
+    isAutoLogin: false
   });
 
   return {
@@ -29,11 +32,30 @@ function createSessionStore() {
       
       const salt = localStorage.getItem(SALT_KEY);
       const verifier = localStorage.getItem(VERIFIER_KEY);
+      const autoPin = localStorage.getItem(AUTO_LOGIN_KEY);
 
       if (salt && verifier) {
-        update(s => ({ ...s, state: 'locked' }));
+        // Check for auto-login
+        if (autoPin) {
+           // Try to unlock immediately
+           try {
+             // Decode simple base64 obfuscation
+             const pin = atob(autoPin);
+             const key = await deriveKey(pin, salt);
+             const isValid = await checkVerifier(verifier, key);
+             
+             if (isValid) {
+               update(s => ({ ...s, state: 'active', key, isAutoLogin: true }));
+               return;
+             }
+           } catch (e) {
+             console.error('Auto-login failed', e);
+             // Fail silently to lock screen
+           }
+        }
+        update(s => ({ ...s, state: 'locked', isAutoLogin: !!autoPin }));
       } else {
-        update(s => ({ ...s, state: 'setup' }));
+        update(s => ({ ...s, state: 'setup', isAutoLogin: false }));
       }
     },
 
@@ -44,7 +66,6 @@ function createSessionStore() {
       const verifier = localStorage.getItem(VERIFIER_KEY);
 
       if (!salt || !verifier) {
-        // Should happen only if storage cleared while app open
         update(s => ({ ...s, state: 'setup' }));
         return false;
       }
@@ -75,13 +96,11 @@ function createSessionStore() {
 
         localStorage.setItem(SALT_KEY, salt);
         localStorage.setItem(VERIFIER_KEY, verifier);
+        localStorage.removeItem(AUTO_LOGIN_KEY); // Clear any old auto-login
 
-        // Clear potentially invalid old data (security best practice for "nuke and pave")
-        // In a real migration scenario, we would re-encrypt here. 
-        // For now, we assume fresh start or data loss is acceptable for security upgrade.
         localStorage.removeItem('app_server_config_encrypted');
         
-        update(s => ({ ...s, state: 'active', key, error: null }));
+        update(s => ({ ...s, state: 'active', key, error: null, isAutoLogin: false }));
         return true;
       } catch (e) {
         console.error(e);
@@ -90,11 +109,6 @@ function createSessionStore() {
       }
     },
 
-    /**
-     * Changes the PIN and updates the active session key.
-     * WARNING: Calling this does NOT re-encrypt data automatically. 
-     * The caller must immediately re-save all encrypted data using the new key.
-     */
     changePin: async (newPin: string): Promise<boolean> => {
       try {
         const salt = generateSalt();
@@ -103,6 +117,11 @@ function createSessionStore() {
 
         localStorage.setItem(SALT_KEY, salt);
         localStorage.setItem(VERIFIER_KEY, verifier);
+        
+        // If auto-login was enabled, update the stored PIN
+        if (localStorage.getItem(AUTO_LOGIN_KEY)) {
+           localStorage.setItem(AUTO_LOGIN_KEY, btoa(newPin));
+        }
         
         update(s => ({ ...s, key, error: null }));
         return true;
@@ -115,6 +134,19 @@ function createSessionStore() {
     
     lock: () => {
         update(s => ({ ...s, state: 'locked', key: null }));
+    },
+
+    enableAutoLogin: (pin: string) => {
+        if (!browser) return;
+        // Simple obfuscation (Base64) just to not store plain text visually
+        localStorage.setItem(AUTO_LOGIN_KEY, btoa(pin));
+        update(s => ({ ...s, isAutoLogin: true }));
+    },
+
+    disableAutoLogin: () => {
+        if (!browser) return;
+        localStorage.removeItem(AUTO_LOGIN_KEY);
+        update(s => ({ ...s, isAutoLogin: false }));
     }
   };
 }
