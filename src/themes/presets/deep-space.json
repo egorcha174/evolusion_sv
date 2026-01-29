@@ -1,12 +1,11 @@
-
 {
   "schemaVersion": 1,
   "manifest": {
     "name": "Deep Space",
-    "version": "1.2.1",
+    "version": "1.3.0",
     "author": "Evolusion",
     "description": "Futuristic HUD style. Dark blue with single Cyan accent.",
-    "generatedAt": "2023-01-01T00:00:00.000Z"
+    "generatedAt": "2026-01-28T23:25:00.000Z"
   },
   "theme": {
     "id": "deep-space",
@@ -18,10 +17,24 @@
         "dashboardBackgroundColor1": "#020408",
         "dashboardBackgroundColor2": "#0A101F",
         "dashboardGradientAngle": 160,
-        
         "bgSidebar": "#020408",
         "sidebarOpacity": 0.8,
-        
+        "bgHeader": "#0B1120",
+        "headerOpacity": 0.8,
+        "bgChip": "rgba(11, 17, 32, 0.8)",
+        "bgCardHover": "rgba(56, 189, 248, 0.05)",
+        "bgDropdown": "#020408",
+        "bgInput": "rgba(11, 17, 32, 0.8)",
+        "bgPanel": "rgba(11, 17, 32, 0.9)",
+        "textPrimary": "#E2E8F0",
+        "textSecondary": "#94A3B8",
+        "textMuted": "#64748B",
+        "borderInput": "rgba(56, 189, 248, 0.2)",
+        "borderFocus": "#00F2FF",
+        "borderDivider": "rgba(56, 189, 248, 0.1)",
+        "borderPrimary": "rgba(56, 189, 248, 0.2)",
+        "scrollbarThumb": "rgba(56, 189, 248, 0.3)",
+        "scrollbarTrack": "transparent",
         "cardOpacity": 0.7,
         "cardBorderRadius": 4,
         "cardBorderWidth": 1,
@@ -30,22 +43,7 @@
         "cardBackground": "rgba(11, 17, 32, 0.8)",
         "cardBackgroundOn": "rgba(11, 17, 32, 0.9)",
         "shadowCard": "0 0 15px rgba(0, 242, 255, 0.05)",
-        
         "panelOpacity": 0.8,
-        "bgPanel": "rgba(11, 17, 32, 0.9)",
-        
-        "bgInput": "rgba(11, 17, 32, 0.8)",
-        "borderInput": "rgba(56, 189, 248, 0.2)",
-        "borderFocus": "#00F2FF",
-        "borderDivider": "rgba(56, 189, 248, 0.1)",
-        "scrollbarThumb": "rgba(56, 189, 248, 0.3)",
-        "scrollbarTrack": "transparent",
-        
-        "bgHeader": "#0B1120",
-        "headerOpacity": 0.8,
-        "bgChip": "rgba(11, 17, 32, 0.8)",
-        "bgCardHover": "rgba(56, 189, 248, 0.05)",
-        
         "tabTextColor": "#64748B",
         "activeTabTextColor": "#38BDF8",
         "tabIndicatorColor": "#38BDF8",
@@ -67,7 +65,7 @@
         "thermostatHandleColor": "#0F172A",
         "thermostatDialTextColor": "#38BDF8",
         "thermostatDialLabelColor": "#64748B",
-        "thermostatHeatingColor": "#00F2FF",
+        "thermostatHeatingColor": "#FF9F0A",
         "thermostatCoolingColor": "#00F2FF",
         "accentPrimary": "#00F2FF",
         "accentError": "#FF453A",
@@ -79,10 +77,24 @@
       "light": {
         "dashboardBackgroundType": "color",
         "dashboardBackgroundColor1": "#F0F9FF",
-        
         "bgSidebar": "#F0F9FF",
         "sidebarOpacity": 0.9,
-        
+        "bgHeader": "#FFFFFF",
+        "headerOpacity": 0.9,
+        "bgChip": "#E0F2FE",
+        "bgCardHover": "rgba(2, 132, 199, 0.05)",
+        "bgDropdown": "#FFFFFF",
+        "bgInput": "#F0F9FF",
+        "bgPanel": "#FFFFFF",
+        "textPrimary": "#0F172A",
+        "textSecondary": "#64748B",
+        "textMuted": "#94A3B8",
+        "borderInput": "#BAE6FD",
+        "borderFocus": "#0284C7",
+        "borderDivider": "#BAE6FD",
+        "borderPrimary": "#BAE6FD",
+        "scrollbarThumb": "#7dd3fc",
+        "scrollbarTrack": "transparent",
         "cardOpacity": 0.9,
         "cardBorderRadius": 4,
         "cardBorderWidth": 1,
@@ -91,22 +103,7 @@
         "cardBackground": "#FFFFFF",
         "cardBackgroundOn": "#E0F2FE",
         "shadowCard": "0 2px 4px rgba(0,0,0,0.05)",
-        
         "panelOpacity": 0.9,
-        "bgPanel": "#FFFFFF",
-        
-        "bgInput": "#F0F9FF",
-        "borderInput": "#BAE6FD",
-        "borderFocus": "#0284C7",
-        "borderDivider": "#BAE6FD",
-        "scrollbarThumb": "#7dd3fc",
-        "scrollbarTrack": "transparent",
-        
-        "bgHeader": "#FFFFFF",
-        "headerOpacity": 0.9,
-        "bgChip": "#E0F2FE",
-        "bgCardHover": "rgba(2, 132, 199, 0.05)",
-        
         "tabTextColor": "#64748B",
         "activeTabTextColor": "#0284C7",
         "tabIndicatorColor": "#0284C7",
@@ -128,7 +125,7 @@
         "thermostatHandleColor": "#FFFFFF",
         "thermostatDialTextColor": "#0284C7",
         "thermostatDialLabelColor": "#64748B",
-        "thermostatHeatingColor": "#0284C7",
+        "thermostatHeatingColor": "#FF9500",
         "thermostatCoolingColor": "#0284C7",
         "accentPrimary": "#0284C7",
         "accentError": "#FF3B30",
@@ -138,5 +135,6 @@
         "widgetSwitchOn": "#34C759"
       }
     }
-  }
+  },
+  "isBuiltIn": true
 }

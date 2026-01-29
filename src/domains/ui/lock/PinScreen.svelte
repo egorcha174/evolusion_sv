@@ -34,9 +34,6 @@
     }
   }
 
-  function handleKeydown(e: KeyboardEvent) {
-    if (e.key === 'Enter') handleSubmit();
-  }
 </script>
 
 <div class="pin-screen">
@@ -52,26 +49,27 @@
         : 'Enter your PIN to unlock Evolusion.'}
     </p>
 
-    <div class="input-wrapper">
-      <input 
-        type="password" 
-        inputmode="numeric" 
-        pattern="[0-9]*" 
-        bind:value={pin} 
-        placeholder="Enter PIN"
-        onkeydown={handleKeydown}
-        disabled={isLoading}
-        autofocus
-      />
-    </div>
+    <form onsubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
+      <div class="input-wrapper">
+        <input 
+          type="password" 
+          inputmode="numeric" 
+          pattern="[0-9]*" 
+          bind:value={pin} 
+          placeholder="Enter PIN"
+          disabled={isLoading}
+          autofocus
+        />
+      </div>
 
-    {#if error}
-      <div class="error-msg">{error}</div>
-    {/if}
+      {#if error}
+        <div class="error-msg">{error}</div>
+      {/if}
 
-    <button class="btn-unlock" onclick={handleSubmit} disabled={isLoading || pin.length < 4}>
-      {isLoading ? 'Processing...' : (mode === 'create' ? 'Set PIN' : 'Unlock')}
-    </button>
+      <button type="submit" class="btn-unlock" disabled={isLoading || pin.length < 4}>
+        {isLoading ? 'Processing...' : (mode === 'create' ? 'Set PIN' : 'Unlock')}
+      </button>
+    </form>
   </div>
 </div>
 

@@ -65,30 +65,36 @@ init({
 export async function initClientI18n() {
   if (!browser) return;
 
-  // 1. Load Custom Languages from Storage
-  loadCustomLanguages();
+  try {
+    // 1. Load Custom Languages from Storage
+    loadCustomLanguages();
 
-  // 2. Determine preferred locale
-  let preferredLocale = 'ru';
-  
-  // Try storage
-  const stored = localStorage.getItem(STORAGE_KEY_LOCALE);
-  if (stored) {
-    preferredLocale = stored;
-  } else {
-    // Try browser navigator
-    const navLocale = getLocaleFromNavigator(); // e.g., "en-US"
-    if (navLocale) {
-      // Find exact match or language code match
-      const found = get(availableLanguages).find(l => 
-        l.code === navLocale || l.code === navLocale.split('-')[0]
-      );
-      if (found) preferredLocale = found.code;
+    // 2. Determine preferred locale
+    let preferredLocale = 'ru';
+    
+    // Try storage
+    const stored = localStorage.getItem(STORAGE_KEY_LOCALE);
+    if (stored) {
+      preferredLocale = stored;
+    } else {
+      // Try browser navigator
+      const navLocale = getLocaleFromNavigator(); // e.g., "en-US"
+      if (navLocale) {
+        // Find exact match or language code match
+        const found = get(availableLanguages).find(l => 
+          l.code === navLocale || l.code === navLocale.split('-')[0]
+        );
+        if (found) preferredLocale = found.code;
+      }
     }
-  }
 
-  // 3. Apply Locale
-  await setLocale(preferredLocale);
+    // 3. Apply Locale
+    await setLocale(preferredLocale);
+  } catch (error) {
+    console.error('Error initializing i18n, falling back to default locale.', error);
+    // Force fallback to a known, synchronously loaded locale
+    await setLocale('ru');
+  }
 }
 
 export async function setLocale(code: string) {

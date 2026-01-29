@@ -1,11 +1,10 @@
-
-
 /* Reset & Base */
 * {
   box-sizing: border-box;
 }
 
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
   overflow-x: hidden;
@@ -35,7 +34,7 @@ html, body {
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--text-muted); 
+  background: var(--text-muted);
 }
 
 /* Selection */
@@ -50,13 +49,112 @@ a {
 }
 
 /* Form Defaults */
-input, select, textarea {
+input,
+select,
+textarea {
   background: var(--bg-input);
   color: var(--text-primary);
   border: 1px solid var(--border-input, #ccc);
 }
 
-input:focus, select:focus, textarea:focus {
+select option {
+  background-color: var(--bg-dropdown, var(--bg-input));
+  color: var(--text-primary);
+}
+
+input:focus,
+select:focus,
+textarea:focus {
   outline: none;
   border-color: var(--border-focus, #007AFF);
+}
+
+/* --- GLASSMORPHISM SYSTEM (Phase 1) --- */
+:root {
+  /* Glass Primitives */
+  --glass-surface: rgba(255, 255, 255, 0.05);
+  /* Very subtle fill */
+  --glass-surface-hover: rgba(255, 255, 255, 0.1);
+  --glass-surface-active: rgba(255, 255, 255, 0.15);
+
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-border-light: rgba(255, 255, 255, 0.15);
+
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  --glass-shadow-sm: 0 4px 16px 0 rgba(0, 0, 0, 0.15);
+
+  --glass-blur: blur(16px);
+  --glass-blur-sm: blur(8px);
+  --glass-blur-lg: blur(24px);
+
+  /* Depth */
+  --z-base: 0;
+  --z-card: 1;
+  --z-overlay: 100;
+  --z-modal: 1000;
+
+  /* Animations */
+  --spring-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Light Mode Overrides (if needed manually, though themes mostly handle this) */
+@media (prefers-color-scheme: light) {
+  :root {
+    --glass-surface: rgba(255, 255, 255, 0.4);
+    --glass-border: rgba(255, 255, 255, 0.3);
+    --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
+  }
+}
+
+/* --- ANIMATIONS --- */
+@keyframes float {
+  0% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-6px);
+  }
+
+  100% {
+    transform: translateY(0px);
+  }
+}
+
+@keyframes pulse-glow {
+  0% {
+    box-shadow: 0 0 0 0 rgba(var(--accent-rgb), 0.4);
+  }
+
+  70% {
+    box-shadow: 0 0 0 10px rgba(var(--accent-rgb), 0);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(var(--accent-rgb), 0);
+  }
+}
+
+@keyframes aurora-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Utility Class for Glass */
+.glass-panel {
+  background: var(--glass-surface);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
 }
