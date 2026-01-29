@@ -158,8 +158,8 @@ export class HAClient {
     return performance.now() - start;
   }
 
-  async signPath(path: string): Promise<{ signed_path: string }> {
-    return this._sendCommand<{ signed_path: string }>({
+  async signPath(path: string): Promise<{ path: string }> {
+    return this._sendCommand<{ path: string }>({
       type: 'auth/sign_path',
       path: path,
       expires: 300

@@ -233,7 +233,7 @@ export async function getSignedPath(path: string): Promise<string> {
     throw new Error('Home Assistant client not connected');
   }
   const result = await client.signPath(path);
-  return result.signed_path;
+  return result.path;
 }
 
 function mapStateToEntity(state: HAState): HAEntity {
