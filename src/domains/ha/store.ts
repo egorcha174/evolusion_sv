@@ -228,6 +228,14 @@ export async function toggleEntity(entityId: string): Promise<void> {
 	}
 }
 
+export async function getSignedPath(path: string): Promise<string> {
+  if (!client || !client.isConnected()) {
+    throw new Error('Home Assistant client not connected');
+  }
+  const result = await client.signPath(path);
+  return result.signed_path;
+}
+
 function mapStateToEntity(state: HAState): HAEntity {
 	return {
 		entity_id: state.entity_id,

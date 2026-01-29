@@ -28,40 +28,45 @@ function createSessionStore() {
     subscribe,
     
     init: async () => {
-      if (!browser) return;
+      if (!browser) {
+        // On server, we can't be locked, so default to setup
+        update(s => ({ ...s, state: 'setup' }));
+        return;
+      }
       
-      const salt = localStorage.getItem(SALT_KEY);
-      const verifier = localStorage.getItem(VERIFIER_KEY);
-      const autoPin = localStorage.getItem(AUTO_LOGIN_KEY);
+      try {
+        const salt = localStorage.getItem(SALT_KEY);
+        const verifier = localStorage.getItem(VERIFIER_KEY);
+        const autoPin = localStorage.getItem(AUTO_LOGIN_KEY);
 
-      if (salt && verifier) {
-        // Check for auto-login
-        if (autoPin) {
-           // Try to unlock immediately
-           try {
-             // Decode simple base64 obfuscation
-             const pin = atob(autoPin);
-             const key = await deriveKey(pin, salt);
-             const isValid = await checkVerifier(verifier, key);
-             
-             if (isValid) {
-               update(s => ({ ...s, state: 'active', key, isAutoLogin: true }));
-               return;
-             } else {
-               console.warn('Auto-login PIN invalid, removing.');
-               localStorage.removeItem(AUTO_LOGIN_KEY); // Clear invalid key
-             }
-           } catch (e) {
-             console.error('Auto-login failed', e);
-             localStorage.removeItem(AUTO_LOGIN_KEY); // Clear invalid key
-           }
+        if (salt && verifier) {
+          if (autoPin) {
+            try {
+              const pin = atob(autoPin);
+              const key = await deriveKey(pin, salt);
+              const isValid = await checkVerifier(verifier, key);
+              
+              if (isValid) {
+                update(s => ({ ...s, state: 'active', key, isAutoLogin: true }));
+                return; // Exit early on success
+              } else {
+                console.warn('Auto-login PIN invalid, removing.');
+                localStorage.removeItem(AUTO_LOGIN_KEY);
+              }
+            } catch (e) {
+              console.error('Auto-login failed', e);
+              localStorage.removeItem(AUTO_LOGIN_KEY);
+            }
+          }
+          
+          const hasAutoPin = !!localStorage.getItem(AUTO_LOGIN_KEY);
+          update(s => ({ ...s, state: 'locked', isAutoLogin: hasAutoPin }));
+        } else {
+          update(s => ({ ...s, state: 'setup', isAutoLogin: false }));
         }
-        
-        // Check storage again in case we deleted it above
-        const hasAutoPin = !!localStorage.getItem(AUTO_LOGIN_KEY);
-        update(s => ({ ...s, state: 'locked', isAutoLogin: hasAutoPin }));
-      } else {
-        update(s => ({ ...s, state: 'setup', isAutoLogin: false }));
+      } catch (error) {
+        console.error("Critical error during session init:", error);
+        update(s => ({ ...s, state: 'setup', error: 'Initialization failed' }));
       }
     },
 

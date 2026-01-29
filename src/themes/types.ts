@@ -15,7 +15,7 @@ export interface ColorScheme {
   dashboardBackgroundType: 'color' | 'gradient' | 'image';
   dashboardBackgroundColor1: string;
   dashboardBackgroundColor2?: string;
-  dashboardGradientAngle?: number; 
+  dashboardGradientAngle?: number;
   dashboardBackgroundImageUrl?: string;
   dashboardBackgroundImageBlur?: number;
   dashboardBackgroundImageBrightness?: number;
@@ -23,19 +23,25 @@ export interface ColorScheme {
   // Global UI (New)
   bgSidebar: string;
   sidebarOpacity?: number; // New
-  
+
   bgChip: string;
   bgCardHover: string;
   bgDropdown?: string; // Optional, falls back to panel
   bgInput?: string;
-  
+
   bgHeader?: string;
   headerOpacity?: number; // New
-  
+
   // Borders & Inputs (New)
   borderInput: string;
   borderFocus: string;
   borderDivider: string;
+  borderPrimary?: string;
+
+  // Text Global (New)
+  textPrimary?: string;
+  textSecondary?: string;
+  textMuted?: string;
 
   // Scrollbars (New)
   scrollbarThumb: string;
@@ -93,7 +99,7 @@ export interface ColorScheme {
   statusTextColorOn: string;
   valueTextColorOn: string;
   unitTextColorOn: string;
-  
+
   // Accents
   accentPrimary?: string;
   accentSecondary?: string;

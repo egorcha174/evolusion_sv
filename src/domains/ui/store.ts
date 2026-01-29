@@ -40,6 +40,7 @@ export function saveUIState(width: number): void {
 // --- Global UI State ---
 export const isSettingsOpen = writable<boolean>(false);
 export const isAddDeviceOpen = writable<boolean>(false);
+export const isThemeGeneratorOpen = writable<boolean>(false);
 
 export function toggleSettings() {
   isSettingsOpen.update(v => !v);
@@ -85,9 +86,9 @@ export const uiDashboardState = writable<UIDashboardState>(initialDashboardState
 
 // Helper to filter/sort entities
 function processEntities(
-  entities: HAEntity[], 
-  filters: UIFilters, 
-  sort: UISortMode, 
+  entities: HAEntity[],
+  filters: UIFilters,
+  sort: UISortMode,
   problemEntitiesSet: Set<string>
 ): HAEntity[] {
   let result = entities;
@@ -105,8 +106,8 @@ function processEntities(
   // 3. Filter: Search
   if (filters.search) {
     const term = filters.search.toLowerCase();
-    result = result.filter(e => 
-      e.entity_id.includes(term) || 
+    result = result.filter(e =>
+      e.entity_id.includes(term) ||
       (e.attributes.friendly_name?.toLowerCase().includes(term))
     );
   }
@@ -164,10 +165,10 @@ export const selectVisibleDashboardCards = derived(
   [haStore, uiDashboardState, activeTabId, layoutConfig],
   ([$haStore, $uiState, $activeTab, $layout]: [HAStoreState, UIDashboardState, string, LayoutConfig]) => {
     const allEntities: HAEntity[] = Array.from($haStore.entities.values());
-    
+
     // 1. Initial Domain Filter for Dashboard (Allowlist)
     const RELEVANT_DOMAINS = new Set([
-      'light', 'switch', 'climate', 'media_player', 
+      'light', 'switch', 'climate', 'media_player',
       'cover', 'lock', 'script', 'input_boolean'
     ]);
 
@@ -180,7 +181,7 @@ export const selectVisibleDashboardCards = derived(
     if ($activeTab !== 'home') {
       const searchTerms = $activeTab.split('_');
       const lowerTerms = searchTerms.map(t => t.toLowerCase());
-      
+
       relevant = relevant.filter(e => {
         const name = (e.attributes.friendly_name || '').toLowerCase();
         const id = e.entity_id.toLowerCase();
@@ -203,7 +204,7 @@ export const selectVisibleDashboardCards = derived(
       // Cast array to specific tuple type to help Map constructor inference
       const entries = relevant.map(e => [e.entity_id, e] as const);
       const entityMap = new Map<string, HAEntity>(entries);
-      
+
       for (const id of $layout.cardOrder) {
         if (entityMap.has(id)) {
           const entity = entityMap.get(id)!;

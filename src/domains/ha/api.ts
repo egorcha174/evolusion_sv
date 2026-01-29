@@ -158,6 +158,14 @@ export class HAClient {
     return performance.now() - start;
   }
 
+  async signPath(path: string): Promise<{ signed_path: string }> {
+    return this._sendCommand<{ signed_path: string }>({
+      type: 'auth/sign_path',
+      path: path,
+      expires: 300
+    });
+  }
+
   onStateChange(callback: (event: StateChangedEvent) => void): void {
     this.stateChangeCallbacks.add(callback);
   }

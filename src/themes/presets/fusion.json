@@ -1,12 +1,11 @@
-
 {
   "schemaVersion": 1,
   "manifest": {
     "name": "Fusion",
-    "version": "1.2.1",
+    "version": "1.3.0",
     "author": "Evolusion",
     "description": "Vibrant purple gradient with balanced glassmorphism.",
-    "generatedAt": "2023-01-01T00:00:00.000Z"
+    "generatedAt": "2026-01-28T23:26:00.000Z"
   },
   "theme": {
     "id": "fusion",
@@ -18,10 +17,24 @@
         "dashboardBackgroundColor1": "#4338ca",
         "dashboardBackgroundColor2": "#db2777",
         "dashboardGradientAngle": 135,
-        
         "bgSidebar": "#000000",
         "sidebarOpacity": 0.2,
-        
+        "bgHeader": "#000000",
+        "headerOpacity": 0.2,
+        "bgChip": "rgba(255,255,255,0.1)",
+        "bgCardHover": "rgba(255,255,255,0.05)",
+        "bgDropdown": "#28283C",
+        "bgInput": "rgba(255, 255, 255, 0.1)",
+        "bgPanel": "rgba(0, 0, 0, 0.3)",
+        "textPrimary": "#FFFFFF",
+        "textSecondary": "rgba(255, 255, 255, 0.7)",
+        "textMuted": "rgba(255, 255, 255, 0.5)",
+        "borderInput": "rgba(255,255,255,0.1)",
+        "borderFocus": "#ffffff",
+        "borderDivider": "rgba(255,255,255,0.1)",
+        "borderPrimary": "rgba(255,255,255,0.1)",
+        "scrollbarThumb": "rgba(255,255,255,0.2)",
+        "scrollbarTrack": "transparent",
         "cardOpacity": 0.4,
         "cardBorderRadius": 24,
         "cardBorderWidth": 1,
@@ -31,19 +44,6 @@
         "cardBackgroundOn": "rgba(50, 50, 70, 0.6)",
         "shadowCard": "0 8px 32px rgba(0, 0, 0, 0.2)",
         "panelOpacity": 0.3,
-        "bgPanel": "rgba(0, 0, 0, 0.3)",
-        "bgInput": "rgba(255, 255, 255, 0.1)",
-        "borderInput": "rgba(255,255,255,0.1)",
-        "borderFocus": "#ffffff",
-        "borderDivider": "rgba(255,255,255,0.1)",
-        "scrollbarThumb": "rgba(255,255,255,0.2)",
-        "scrollbarTrack": "transparent",
-        
-        "bgHeader": "#000000",
-        "headerOpacity": 0.2,
-        "bgChip": "rgba(255,255,255,0.1)",
-        "bgCardHover": "rgba(255,255,255,0.05)",
-        
         "tabTextColor": "rgba(255, 255, 255, 0.6)",
         "activeTabTextColor": "#FFFFFF",
         "tabIndicatorColor": "#FFFFFF",
@@ -79,10 +79,24 @@
         "dashboardBackgroundColor1": "#E0E7FF",
         "dashboardBackgroundColor2": "#FAE8FF",
         "dashboardGradientAngle": 135,
-        
         "bgSidebar": "#FFFFFF",
         "sidebarOpacity": 0.6,
-        
+        "bgHeader": "#FFFFFF",
+        "headerOpacity": 0.6,
+        "bgChip": "rgba(139, 92, 246, 0.1)",
+        "bgCardHover": "rgba(0,0,0,0.03)",
+        "bgDropdown": "#FFFFFF",
+        "bgInput": "rgba(255, 255, 255, 0.5)",
+        "bgPanel": "rgba(255, 255, 255, 0.6)",
+        "textPrimary": "#374151",
+        "textSecondary": "#6B7280",
+        "textMuted": "#9CA3AF",
+        "borderInput": "rgba(0,0,0,0.1)",
+        "borderFocus": "#8B5CF6",
+        "borderDivider": "rgba(0,0,0,0.05)",
+        "borderPrimary": "rgba(139, 92, 246, 0.1)",
+        "scrollbarThumb": "rgba(0,0,0,0.1)",
+        "scrollbarTrack": "transparent",
         "cardOpacity": 0.5,
         "cardBorderRadius": 24,
         "cardBorderWidth": 0,
@@ -92,19 +106,6 @@
         "cardBackgroundOn": "#FFFFFF",
         "shadowCard": "0 4px 16px rgba(139, 92, 246, 0.1)",
         "panelOpacity": 0.6,
-        "bgPanel": "rgba(255, 255, 255, 0.6)",
-        "bgInput": "rgba(255, 255, 255, 0.5)",
-        "borderInput": "rgba(0,0,0,0.1)",
-        "borderFocus": "#8B5CF6",
-        "borderDivider": "rgba(0,0,0,0.05)",
-        "scrollbarThumb": "rgba(0,0,0,0.1)",
-        "scrollbarTrack": "transparent",
-        
-        "bgHeader": "#FFFFFF",
-        "headerOpacity": 0.6,
-        "bgChip": "rgba(139, 92, 246, 0.1)",
-        "bgCardHover": "rgba(0,0,0,0.03)",
-        
         "tabTextColor": "#6B7280",
         "activeTabTextColor": "#4F46E5",
         "tabIndicatorColor": "#4F46E5",
@@ -136,5 +137,6 @@
         "widgetSwitchOn": "#34C759"
       }
     }
-  }
+  },
+  "isBuiltIn": true
 }

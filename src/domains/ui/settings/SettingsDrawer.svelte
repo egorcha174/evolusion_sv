@@ -1,23 +1,38 @@
+<script module>
+  // Helper for cubic-bezier in transition
+  function cubicUtil(a: number, b: number, c: number, d: number) {
+    return (t: number) => {
+      // Simple approximations for standard svelte ease,
+      // but for now we just return t since Svelte 'easing' prop expects a function
+      // If we want real spring bounce we need a custom ease function or stick to svelte/easing
+      return t;
+    };
+  }
+</script>
 
 <script lang="ts">
-  import { fly } from 'svelte/transition';
-  import { t } from 'svelte-i18n';
-  import { isSettingsOpen } from '../store';
-  import { usePersistedWidth } from '../composables/usePersistedWidth.svelte';
-  
-  // Sections
-  import ConnectionSettings from './sections/ConnectionSettings.svelte';
-  import SecuritySettings from './sections/SecuritySettings.svelte';
-  import ThemeSettings from './sections/ThemeSettings.svelte';
-  import WidgetSettings from './sections/WidgetSettings.svelte';
-  import DataManagement from './sections/DataManagement.svelte';
-  
-  import 'iconify-icon';
+  import { fly, scale } from "svelte/transition";
+  import { t } from "svelte-i18n";
+  import { isSettingsOpen } from "../store";
+  import { usePersistedWidth } from "../composables/usePersistedWidth.svelte";
 
-  const STORAGE_KEY_WIDTH = 'evolusion_settings_width';
-  
+  // Sections
+  import ConnectionSettings from "./sections/ConnectionSettings.svelte";
+  import SecuritySettings from "./sections/SecuritySettings.svelte";
+  import ThemeSettings from "./sections/ThemeSettings.svelte";
+  import WidgetSettings from "./sections/WidgetSettings.svelte";
+  import DataManagement from "./sections/DataManagement.svelte";
+
+  import "iconify-icon";
+
+  $effect(() => {
+    console.log('SettingsDrawer: $isSettingsOpen changed to:', $isSettingsOpen);
+  });
+
+  const STORAGE_KEY_WIDTH = "evolusion_settings_width";
+
   // Use composable for resizing logic
-  const resizer = usePersistedWidth(STORAGE_KEY_WIDTH, 420);
+  const resizer = usePersistedWidth(STORAGE_KEY_WIDTH, 500); // Default wider for centered modal
 
   function close() {
     isSettingsOpen.set(false);
@@ -28,40 +43,48 @@
   <!-- Backdrop -->
   <!-- svelte-ignore a11y_click_events_have_key_events -->
   <!-- svelte-ignore a11y_no_static_element_interactions -->
-  <div class="backdrop" onclick={close}></div>
+  <div
+    class="backdrop"
+    onclick={close}
+    transition:fly={{ duration: 300, opacity: 0 }}
+  ></div>
 
-  <!-- Drawer -->
-  <aside 
-    class="settings-drawer" 
+  <!-- Immersive Floating Panel -->
+  <aside
+    class="settings-panel glass-panel"
     style="width: {resizer.width}px"
-    transition:fly={{ x: 400, duration: 300, opacity: 1 }}
+    transition:scale={{
+      start: 0.95,
+      duration: 300,
+      opacity: 0,
+      easing: cubicUtil(0.34, 1.56, 0.64, 1),
+    }}
   >
-    <!-- Resize Handle -->
+    <!-- Resize Handle (Right Side) -->
     <!-- svelte-ignore a11y_no_static_element_interactions -->
-    <div 
-      class="resize-handle" 
+    <div
+      class="resize-handle"
       class:active={resizer.isResizing}
       onmousedown={resizer.startResize}
     ></div>
 
-    <header class="drawer-header">
-      <h2>{$t('settings.title')}</h2>
+    <header class="panel-header">
+      <div class="header-content">
+        <h2>{$t("settings.title")}</h2>
+        <span class="version-badge">v0.0.1</span>
+      </div>
       <button class="close-btn" onclick={close} aria-label="Close settings">
         <iconify-icon icon="mdi:close" width="24"></iconify-icon>
       </button>
     </header>
 
-    <div class="drawer-content">
+    <div class="panel-content custom-scrollbar">
       <div class="scroll-inner">
         <ConnectionSettings />
         <SecuritySettings />
         <ThemeSettings />
         <WidgetSettings />
         <DataManagement />
-
-        <div class="footer-info">
-          Evolusion v0.0.1
-        </div>
       </div>
     </div>
   </aside>
@@ -70,115 +93,161 @@
 <style>
   .backdrop {
     position: fixed;
-    top: 0; left: 0;
-    width: 100vw; height: 100vh;
-    background: transparent;
-    z-index: 2000;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
+    z-index: var(--z-modal);
   }
 
-  .settings-drawer {
+  .settings-panel {
     position: fixed;
-    top: 0;
-    right: 0;
-    max-width: 100vw;
-    height: 100%;
-    max-height: 100dvh;
-    
-    /* --- FORCE NEUTRAL LIGHT THEME (ISOLATION) --- */
-    /* This ensures the settings panel is always legible regardless of the active global theme */
-    
-    /* Backgrounds */
-    --bg-page: #F2F2F7;
-    --bg-panel: #FFFFFF;
-    --bg-card: #FFFFFF;
-    --bg-card-hover: #F2F2F7;
-    --bg-secondary: #F9F9F9;
-    --bg-input: #FFFFFF;
-    --bg-header: #F9F9F9;
-    --bg-chip: #E5E5EA;
-    --bg-chip-active: #D1D1D6;
-    --bg-sidebar: #F2F2F7;
-    
-    /* Text */
-    --text-primary: #1C1C1E;
-    --text-secondary: #636366;
-    --text-muted: #AEAEB2;
-    --text-on-accent: #FFFFFF;
-    
-    /* Borders */
-    --border-primary: #E5E5EA;
-    --border-divider: #C7C7CC;
-    --border-input: #D1D1D6;
-    --border-focus: #007AFF;
-    
-    /* Accents (Neutral Blue Default) */
-    --accent-primary: #007AFF;
-    --accent-secondary: #5856D6;
-    --accent-success: #34C759;
-    --accent-warning: #FF9500;
-    --accent-error: #FF3B30;
-    --accent-info: #007AFF;
-    
-    /* Apply base styles */
-    background: var(--bg-page);
-    color: var(--text-primary);
-    
-    box-shadow: -4px 0 24px rgba(0,0,0,0.15);
-    z-index: 2001;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    height: 85vh;
+    max-height: 800px;
+    max-width: 95vw;
+
+    /* Variable Override only for this panel if needed, but inheriting is better */
+    /* We use the glass-panel class from app.css for the main background */
+
+    /* Extra Glass Override for "Heavy" panel */
+    background: var(--bg-panel, rgba(255, 255, 255, 0.85));
+
+    /* If dark mode is active in the app, let it flow. 
+       We removed the forced white theme variables here. */
+
+    border-radius: 24px;
     display: flex;
     flex-direction: column;
-    border-left: 1px solid var(--border-primary);
-    transition: width 0.05s linear;
+    z-index: calc(var(--z-modal) + 1);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    border: 1px solid var(--border-primary, rgba(255, 255, 255, 0.1));
+    overflow: hidden;
   }
-  
+
+  /* Ensure readability on top of glass */
+  :global(.settings-panel) {
+    /* Re-establish some baselines if the parent theme is transparent */
+    --bg-card: rgba(255, 255, 255, 0.05);
+    --bg-input: rgba(0, 0, 0, 0.05);
+  }
+
   .resize-handle {
     position: absolute;
     top: 0;
-    left: -6px;
-    width: 12px;
+    right: 0;
+    width: 16px;
     height: 100%;
     cursor: col-resize;
     z-index: 2005;
     background: transparent;
-    transition: background 0.2s;
   }
-  
-  .resize-handle:hover, .resize-handle.active {
-    background: linear-gradient(to right, transparent 40%, var(--accent-primary) 40%, var(--accent-primary) 60%, transparent 60%);
-  }
-  
-  :global(body.rtl) .resize-handle { left: auto; right: -6px; }
-  :global(body.rtl) .settings-drawer { right: auto; left: 0; border-left: none; border-right: 1px solid var(--border-primary); box-shadow: 4px 0 24px rgba(0,0,0,0.15); }
 
-  .drawer-header {
+  .resize-handle:hover,
+  .resize-handle.active {
+    background: linear-gradient(
+      to right,
+      transparent 0%,
+      rgba(255, 255, 255, 0.1) 50%,
+      transparent 100%
+    );
+  }
+
+  .panel-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1rem 1.5rem;
-    border-bottom: 1px solid var(--border-divider);
-    background: var(--bg-header); 
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid var(--border-divider, rgba(255, 255, 255, 0.1));
     flex-shrink: 0;
+
+    /* Header Glass Effect */
+    background: rgba(255, 255, 255, 0.02);
   }
 
-  .drawer-header h2 { margin: 0; font-size: 1.25rem; font-weight: 600; color: var(--text-primary); }
-  .close-btn { background: transparent; border: none; cursor: pointer; color: var(--text-secondary); padding: 8px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-  .close-btn:hover { background: var(--bg-chip); color: var(--text-primary); }
+  .header-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
 
-  .drawer-content {
+  .panel-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    color: var(--text-primary);
+  }
+
+  .version-badge {
+    font-size: 0.75rem;
+    padding: 2px 8px;
+    background: var(--bg-chip, rgba(0, 0, 0, 0.1));
+    border-radius: 12px;
+    color: var(--text-secondary);
+    font-family: monospace;
+  }
+
+  .close-btn {
+    background: rgba(0, 0, 0, 0.05);
+    border: none;
+    cursor: pointer;
+    color: var(--text-secondary);
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+  .close-btn:hover {
+    background: var(--accent-error);
+    color: white;
+    transform: rotate(90deg);
+  }
+
+  .panel-content {
     flex: 1 1 auto;
     overflow-y: auto;
     overflow-x: hidden;
-    height: 0;
-    scrollbar-width: thin;
-    scrollbar-color: var(--border-input) transparent;
+    height: 100%; /* Important for centering content if little */
   }
-  
-  .scroll-inner { padding: 1.5rem; display: flex; flex-direction: column; gap: 1.5rem; min-height: min-content; }
 
-  .footer-info { text-align: center; color: var(--text-muted); font-size: 0.75rem; margin-top: auto; padding-top: 1rem; }
+  /* Custom scrollbar for the panel */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+  }
 
-  @media (max-width: 480px) {
-    .settings-drawer { width: 100vw; max-width: 100vw; }
-    .resize-handle { display: none; }
+  .scroll-inner {
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  @media (max-width: 600px) {
+    .settings-panel {
+      width: 100vw !important;
+      height: 100vh;
+      max-height: none;
+      max-width: none;
+      border-radius: 0;
+    }
+    .resize-handle {
+      display: none;
+    }
   }
 </style>

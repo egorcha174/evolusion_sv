@@ -4,14 +4,17 @@
   import { onMount } from 'svelte';
   import { t, locale } from 'svelte-i18n';
   import { haStore } from '../ha/store';
-  import { sidebarWidth, loadUIState, saveUIState } from './store';
+  import { sidebarWidth, loadUIState, saveUIState, isSettingsOpen } from './store';
   import { time } from '../app/time';
   import { clockSettings } from './widgets/clockStore';
+  import { cameraSettings } from './widgets/cameraStore';
   import WeatherWidget from './widgets/WeatherWidget.svelte';
+  import CameraWidget from './widgets/CameraWidget.svelte';
   
   // Resizing state
   let width = $state(280);
   let isResizing = $state(false);
+  let isCollapsed = $state(false);
 
   onMount(() => {
     loadUIState();
@@ -79,9 +82,16 @@
       month: 'short', 
       day: 'numeric' 
   }));
+
+  // Find the selected camera entity from the main store
+  let selectedCamera = $derived(
+    $cameraSettings.selectedEntityId
+      ? $haStore.entities.get($cameraSettings.selectedEntityId)
+      : undefined,
+  );
 </script>
 
-<aside class="sidebar" style="width: {width}px">
+<aside class="sidebar" style="width: {width}px" class:collapsed={isCollapsed}>
   <!-- Resize Handle -->
   <!-- svelte-ignore a11y_no_static_element_interactions -->
   <div 
@@ -90,43 +100,67 @@
     onmousedown={startResize}
   ></div>
 
-  <!-- Widget: Clock -->
-  <div class="widget clock-widget">
-    <div class="time">{timeStr}</div>
-    {#if $clockSettings.showDate}
-      <div class="date">{dateStr}</div>
-    {/if}
-  </div>
-
-  <!-- Widget: Weather -->
-  <WeatherWidget />
-
-  <!-- Widget: Camera (Placeholder) -->
-  <div class="widget camera-widget">
-    <div class="camera-placeholder">
-      <iconify-icon icon="mdi:cctv" width="32"></iconify-icon>
-      <span>{$t('sidebar.cameraPlaceholder')}</span>
+  <div class="sidebar-content">
+    <!-- Widget: Clock -->
+    <div class="widget clock-widget">
+      <div class="time">{timeStr}</div>
+      {#if $clockSettings.showDate}
+        <div class="date">{dateStr}</div>
+      {/if}
     </div>
-  </div>
 
-  <!-- Status Info (Bottom) -->
-  <div class="status-info">
-    <div class="status-row">
-       {#if $haStore.isConnected}
-          <div class="status-dot connected"></div>
-          <span class="status-text">{$t('sidebar.connected')}</span>
-          {#if $haStore.latency !== undefined}
-            <span class="latency" style="color: {getLatencyColor($haStore.latency)}">
-              ({$haStore.latency}ms)
-            </span>
-          {/if}
-       {:else if $haStore.isLoading}
-          <div class="status-dot loading"></div>
-          <span class="status-text">{$t('sidebar.connecting')}</span>
-       {:else}
-          <div class="status-dot disconnected"></div>
-          <span class="status-text">{$t('sidebar.offline')}</span>
-       {/if}
+    <!-- Widget: Weather -->
+    <WeatherWidget />
+
+    <!-- Widget: Camera -->
+    <div class="widget camera-widget">
+      <CameraWidget entity={selectedCamera} />
+    </div>
+
+    <!-- Status Info (Bottom) -->
+    <div class="status-info">
+      <div class="status-row">
+        {#if $haStore.isConnected}
+            <div class="status-dot connected"></div>
+            <span class="status-text">{$t('sidebar.connected')}</span>
+            {#if $haStore.latency !== undefined}
+              <span class="latency" style="color: {getLatencyColor($haStore.latency)}">
+                ({$haStore.latency}ms)
+              </span>
+            {/if}
+        {:else if $haStore.isLoading}
+            <div class="status-dot loading"></div>
+            <span class="status-text">{$t('sidebar.connecting')}</span>
+        {:else}
+            <div class="status-dot disconnected"></div>
+            <span class="status-text">{$t('sidebar.offline')}</span>
+        {/if}
+      </div>
+    </div>
+      <!-- Footer -->
+    <div class="sidebar-footer">
+      <button
+        class="footer-btn"
+        onclick={() => {
+          console.log('Sidebar: Settings button clicked!');
+          isSettingsOpen.set(true);
+        }}
+        title={$t("settings.title")}
+      >
+        <iconify-icon icon="mdi:cog"></iconify-icon>
+      </button>
+      <div class="divider"></div>
+      <button class="footer-btn" title="Evolusion">
+        <iconify-icon icon="mdi:information-outline"></iconify-icon>
+      </button>
+      <button
+        class="footer-btn"
+        id="collapse-btn"
+        onclick={() => (isCollapsed = !isCollapsed)}
+        title="Collapse"
+      >
+        <iconify-icon icon="mdi:chevron-left"></iconify-icon>
+      </button>
     </div>
   </div>
 </aside>
@@ -153,6 +187,26 @@
   :global(body.rtl) .sidebar {
     border-right: none;
     border-left: 1px solid var(--border-primary);
+  }
+
+  .sidebar.collapsed {
+    width: 0 !important;
+    padding: 0;
+    overflow: hidden;
+    border-right-color: transparent;
+  }
+
+  .sidebar.collapsed #collapse-btn iconify-icon {
+    transform: rotate(180deg);
+  }
+
+  .sidebar-content {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    min-width: calc(240px - 3rem); /* 240px is min width, 3rem is padding */
   }
 
   .resize-handle {
@@ -215,18 +269,6 @@
     position: relative;
     border: 1px solid var(--border-primary);
   }
-  .camera-placeholder {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    color: rgba(255,255,255,0.5);
-    background: linear-gradient(45deg, #1a1a1a, #2a2a2a);
-    gap: 0.5rem;
-  }
-  .camera-placeholder span { font-size: 0.8rem; font-weight: 500; }
 
   /* Status */
   .status-info {
@@ -236,7 +278,8 @@
     font-size: 0.85rem;
     color: var(--text-muted);
     border-top: 1px solid var(--border-divider);
-    padding-top: 1.5rem;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
     width: 100%;
   }
   .status-row {
@@ -267,6 +310,42 @@
   }
 
   @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+
+  /* Footer */
+  .sidebar-footer {
+    padding-top: 12px;
+    border-top: 1px solid var(--border-divider);
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  .footer-btn {
+    flex: 1;
+    background: var(--bg-chip);
+    border: none;
+    border-radius: 8px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .footer-btn:hover {
+    background: var(--bg-chip-active);
+    color: var(--text-primary);
+  }
+  #collapse-btn {
+    flex: 0 0 40px;
+  }
+  .divider {
+    width: 1px;
+    background: var(--border-divider);
+    margin: 8px 0;
+    flex: 0;
+  }
 
   @media (max-width: 768px) { .sidebar { display: none; } }
 </style>

@@ -3,6 +3,8 @@
   import { slide } from 'svelte/transition';
   import { weatherSettings, refreshWeatherConfig } from '../../../../lib/weather/store';
   import { clockSettings } from '../../widgets/clockStore';
+  import { cameraSettings } from '../../widgets/cameraStore';
+  import { haStore } from '../../../ha/store';
   
   import Section from '../Section.svelte';
   import LabeledInput from '../controls/LabeledInput.svelte';
@@ -17,10 +19,31 @@
       forecastDaySize: Math.max(10, Math.round(s.forecastTempSize * 0.9))
     }));
   }
+
+  let cameraEntities = $derived(Array.from($haStore.entities.values()).filter(e => e.entity_id.startsWith('camera.')));
 </script>
 
 <Section title={$t('settings.widgets.title')} description={$t('settings.widgets.description')} initiallyOpen={true}>
   
+  <!-- CAMERA SUBSECTION -->
+  <div class="subsection-title">{$t('settings.widgets.camera')}</div>
+  <div class="control-row">
+    <label>
+      {$t('settings.widgets.cameraSelect')}
+      <select bind:value={$cameraSettings.selectedEntityId}>
+        <option value={null}>-- {$t('settings.widgets.cameraNone')} --</option>
+        {#each cameraEntities as entity (entity.entity_id)}
+          <option value={entity.entity_id}>{entity.attributes.friendly_name || entity.entity_id}</option>
+        {/each}
+      </select>
+    </label>
+  </div>
+  {#if cameraEntities.length === 0}
+    <p class="note">{$t('settings.widgets.noCameras')}</p>
+  {/if}
+
+  <div class="divider"></div>
+
   <!-- CLOCK SUBSECTION -->
   <div class="subsection-title">{$t('settings.widgets.clock')}</div>
   <Switch label={$t('settings.widgets.showDate')} bind:checked={$clockSettings.showDate} />
@@ -126,4 +149,13 @@
   .btn.secondary { background: var(--bg-chip); color: var(--text-primary); }
   .btn.secondary:hover { background: var(--bg-chip-active); }
   .btn.small { padding: 0.4rem 0.8rem; font-size: 0.85rem; min-height: 36px; }
+
+  .note {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    padding: 0.5rem 1rem;
+    background: var(--bg-secondary);
+    border-radius: 6px;
+    margin-top: -0.5rem;
+  }
 </style>
