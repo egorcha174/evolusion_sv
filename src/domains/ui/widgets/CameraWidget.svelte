@@ -11,76 +11,116 @@
 
   let videoElement: HTMLVideoElement;
   let imgElement: HTMLImageElement;
-  let hls: Hls | null = null;
+  let hlsInstance: Hls | null = null; // Renamed to avoid clash with local 'hls'
+
   let streamUrl = $state<string | null>(null);
   let streamType = $state<'hls' | 'mjpeg' | null>(null);
   let error = $state<string | null>(null);
   let showUrl = $state(false);
 
-  async function initializePlayer() {
+  // --- Effect 1: Determine streamUrl and streamType ---
+  // This runs whenever 'entity' or 'appState.activeServer' changes
+  $effect(async () => {
     if (!entity) {
       streamUrl = null;
       streamType = null;
+      error = null;
       return;
     }
     
-    error = null;
+    error = null; // Clear previous error
     const config = get(appState).activeServer;
     if (!config) {
       error = 'No active server config.';
       return;
     }
 
-    // Determine stream type and path/url
+    let newStreamUrl: string | null = null;
+    let newStreamType: 'hls' | 'mjpeg' | null = null;
+
     if (entity.attributes.stream_source) {
-      streamType = 'hls';
-      streamUrl = entity.attributes.stream_source;
+      newStreamType = 'hls';
+      newStreamUrl = entity.attributes.stream_source;
     } else {
-      streamType = 'mjpeg';
+      newStreamType = 'mjpeg';
       const relativePath = `/api/camera_proxy_stream/${entity.entity_id}`;
       try {
         const signedPath = await getSignedPath(relativePath);
         const baseUrl = new URL(config.url);
-        streamUrl = `${baseUrl.origin}${signedPath}`;
+        newStreamUrl = `${baseUrl.origin}${signedPath}`;
       } catch (e: any) {
         console.error("Failed to get signed path for camera", e);
         error = `Auth Error: ${e.message}`;
-        streamUrl = null;
+        newStreamUrl = null;
       }
     }
+    streamUrl = newStreamUrl;
+    streamType = newStreamType;
 
-    if (!streamUrl) return;
+    if (!streamUrl && !error) { // Only set error if no streamUrl and no auth error
+      error = 'Could not determine stream URL.';
+    } else if (streamUrl) {
+      error = null; // Clear error if streamUrl is valid
+    }
+  });
 
-    // Attach player after state update
-    if (streamType === 'hls' && videoElement) {
+  // --- Effect 2: Initialize HLS player ---
+  // This runs when HLS streamType, videoElement, or streamUrl become available/change
+  $effect(() => {
+    if (streamType === 'hls' && videoElement && streamUrl) {
+      if (hlsInstance) { // Destroy old instance if any
+        hlsInstance.destroy();
+        hlsInstance = null;
+      }
+
       if (Hls.isSupported()) {
-        hls = new Hls();
-        hls.loadSource(streamUrl);
-        hls.attachMedia(videoElement);
-        hls.on(Hls.Events.ERROR, (event, data) => {
+        hlsInstance = new Hls();
+        hlsInstance.loadSource(streamUrl);
+        hlsInstance.attachMedia(videoElement);
+        hlsInstance.on(Hls.Events.ERROR, (event, data) => {
           if (data.fatal) {
             console.error('HLS Error:', data);
             error = `HLS Error: ${data.details}`;
-            hls?.destroy();
+            hlsInstance?.destroy();
           }
         });
       } else if (videoElement.canPlayType('application/vnd.apple.mpegurl')) {
+        // Native HLS support (Safari)
         videoElement.src = streamUrl;
       } else {
         error = 'HLS is not supported in this browser.';
       }
+    } else { // Clean up if no longer HLS or elements/URL missing
+      if (hlsInstance) { // Clean up if streamType changes or no longer HLS
+        hlsInstance.destroy();
+        hlsInstance = null;
+      }
+      if (videoElement) {
+        videoElement.src = ''; // Clear video src
+      }
     }
-  }
-
-  $effect(() => {
-    // Re-initialize when the entity changes
-    if (hls) {
-      hls.destroy();
-      hls = null;
-    }
-    initializePlayer();
   });
 
+  // --- Effect 3: Initialize MJPEG player ---
+  // This runs when MJPEG streamType, imgElement, or streamUrl become available/change
+  $effect(() => {
+    if (streamType === 'mjpeg' && imgElement && streamUrl) {
+      imgElement.src = streamUrl;
+    } else { // Clean up if no longer MJPEG or elements/URL missing
+      if (imgElement) {
+        imgElement.src = ''; // Clear image src
+      }
+    }
+  });
+
+  // --- Lifecycle Cleanup ---
+  onDestroy(() => {
+    if (hlsInstance) {
+      hlsInstance.destroy();
+    }
+  });
+
+  // --- Event Handlers (for HTML attributes) ---
   function handleImageError() {
     error = 'MJPEG stream failed to load. Check camera status in HA.';
   }
@@ -94,19 +134,19 @@
   {#if entity && streamUrl}
     <div class="stream-wrapper">
       {#if streamType === 'hls'}
-        <video 
-          bind:this={videoElement} 
-          autoplay 
-          muted 
+        <video
+          bind:this={videoElement}
+          autoplay
+          muted
           playsinline
           controls={false}
           class="video-player"
         ></video>
       {:else if streamType === 'mjpeg'}
-        <img 
+        <img
           bind:this={imgElement}
-          src={streamUrl} 
-          alt="{entity.attributes.friendly_name || 'Camera Stream'}" 
+          src={streamUrl}
+          alt="{entity.attributes.friendly_name || 'Camera Stream'}"
           class="mjpeg-player"
           onerror={handleImageError}
           onload={handleImageLoad}
@@ -195,7 +235,7 @@
   .error-state {
     color: var(--accent-error);
   }
-  
+
   .url-debug {
     position: absolute;
     top: 0;
