@@ -3,6 +3,15 @@
 		"src/routes/+layout.ts",
 		"src/routes/+layout.ts"
 	],
+	"/api/cameras": [
+		"src/routes/api/cameras/+server.ts"
+	],
+	"/api/streams": [
+		"src/routes/api/streams/+server.ts"
+	],
+	"/cameras": [
+		"src/routes/+layout.ts"
+	],
 	"/entities": [
 		"src/routes/+layout.ts"
 	],

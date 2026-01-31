@@ -1,4 +1,3 @@
-
 {
   "common": {
     "ok": "ОК",
@@ -99,7 +98,20 @@
     "title": "Настройки",
     "widgets": {
       "title": "Виджеты",
-      "description": "Настройки часов и погоды",
+      "description": "Настройки погоды, часов и камер",
+      "camera": "Камера",
+      "cameraSelect": "Выберите камеру",
+      "cameraNone": "Нет камеры",
+      "noCameras": "Камеры не найдены в Home Assistant",
+      "cameraStreamType": "Тип потока",
+      "cameraManualUrl": "Пользовательский URL потока (опционально)",
+      "cameraUrlPlaceholder": "http://camera-ip/stream или rtsp://...",
+      "cameraError": "Ошибка камеры",
+      "cameraRetry": "Повторить подключение",
+      "cameraLoading": "Загрузка видеопотока...",
+      "cameraNoSelection": "Камера не выбрана",
+      "cameraStreamFailed": "Не удалось загрузить видеопоток",
+      "cameraCheckHA": "Проверьте статус камеры в Home Assistant",
       "clock": "Часы",
       "showDate": "Показывать дату",
       "showSeconds": "Показывать секунды",
@@ -153,7 +165,7 @@
     "weatherKeyPlaceholder": "Вставьте API ключ",
     "weatherShowForecast": "Показывать прогноз",
     "forecast": {
-       "daysLabel": "Количество дней прогноза"
+      "daysLabel": "Количество дней прогноза"
     },
     "weatherLayout": "Ориентация прогноза",
     "layoutVertical": "Вертикальная",
@@ -355,23 +367,23 @@
   },
   "weather": {
     "status": {
-       "clear": "Ясно",
-       "fewClouds": "Малооблачно",
-       "partlyCloudy": "Переменная облачность",
-       "overcast": "Пасмурно",
-       "fog": "Туман",
-       "drizzle": "Морось",
-       "freezingDrizzle": "Ледяная морось",
-       "rain": "Дождь",
-       "heavyRain": "Сильный дождь",
-       "freezingRain": "Ледяной дождь",
-       "snow": "Снег",
-       "heavySnow": "Сильный снег",
-       "showers": "Ливень",
-       "snowShowers": "Снегопад",
-       "thunderstorm": "Гроза",
-       "thunderstormHail": "Гроза с градом",
-       "unknown": "Неизвестно"
+      "clear": "Ясно",
+      "fewClouds": "Малооблачно",
+      "partlyCloudy": "Переменная облачность",
+      "overcast": "Пасмурно",
+      "fog": "Туман",
+      "drizzle": "Морось",
+      "freezingDrizzle": "Ледяная морось",
+      "rain": "Дождь",
+      "heavyRain": "Сильный дождь",
+      "freezingRain": "Ледяной дождь",
+      "snow": "Снег",
+      "heavySnow": "Сильный снег",
+      "showers": "Ливень",
+      "snowShowers": "Снегопад",
+      "thunderstorm": "Гроза",
+      "thunderstormHail": "Гроза с градом",
+      "unknown": "Неизвестно"
     }
   }
 }

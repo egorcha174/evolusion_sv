@@ -21,12 +21,13 @@
   import SecuritySettings from "./sections/SecuritySettings.svelte";
   import ThemeSettings from "./sections/ThemeSettings.svelte";
   import WidgetSettings from "./sections/WidgetSettings.svelte";
+  import CameraSettings from "./sections/CameraSettings.svelte";
   import DataManagement from "./sections/DataManagement.svelte";
 
   import "iconify-icon";
 
   $effect(() => {
-    console.log('SettingsDrawer: $isSettingsOpen changed to:', $isSettingsOpen);
+    console.log("SettingsDrawer: $isSettingsOpen changed to:", $isSettingsOpen);
   });
 
   const STORAGE_KEY_WIDTH = "evolusion_settings_width";
@@ -84,6 +85,7 @@
         <SecuritySettings />
         <ThemeSettings />
         <WidgetSettings />
+        <CameraSettings />
         <DataManagement />
       </div>
     </div>

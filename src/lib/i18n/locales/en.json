@@ -1,4 +1,3 @@
-
 {
   "common": {
     "ok": "OK",
@@ -99,7 +98,20 @@
     "title": "Settings",
     "widgets": {
       "title": "Widgets",
-      "description": "Weather and Clock settings",
+      "description": "Weather, Clock, and Camera settings",
+      "camera": "Camera",
+      "cameraSelect": "Select Camera",
+      "cameraNone": "No Camera",
+      "noCameras": "No cameras found in Home Assistant",
+      "cameraStreamType": "Stream Type",
+      "cameraManualUrl": "Custom Stream URL (optional)",
+      "cameraUrlPlaceholder": "http://camera-ip/stream or rtsp://...",
+      "cameraError": "Camera Error",
+      "cameraRetry": "Retry Connection",
+      "cameraLoading": "Loading camera stream...",
+      "cameraNoSelection": "No camera selected",
+      "cameraStreamFailed": "Failed to load camera stream",
+      "cameraCheckHA": "Please check camera status in Home Assistant",
       "clock": "Clock",
       "showDate": "Show Date",
       "showSeconds": "Show Seconds",
@@ -153,7 +165,7 @@
     "weatherKeyPlaceholder": "Paste API key here",
     "weatherShowForecast": "Show Forecast",
     "forecast": {
-       "daysLabel": "Forecast days"
+      "daysLabel": "Forecast days"
     },
     "weatherLayout": "Forecast Layout",
     "layoutVertical": "Vertical",
@@ -355,23 +367,23 @@
   },
   "weather": {
     "status": {
-       "clear": "Clear",
-       "fewClouds": "Few clouds",
-       "partlyCloudy": "Partly cloudy",
-       "overcast": "Overcast",
-       "fog": "Fog",
-       "drizzle": "Drizzle",
-       "freezingDrizzle": "Freezing Drizzle",
-       "rain": "Rain",
-       "heavyRain": "Heavy Rain",
-       "freezingRain": "Freezing Rain",
-       "snow": "Snow",
-       "heavySnow": "Heavy Snow",
-       "showers": "Showers",
-       "snowShowers": "Snow Showers",
-       "thunderstorm": "Thunderstorm",
-       "thunderstormHail": "Thunderstorm w/ Hail",
-       "unknown": "Unknown"
+      "clear": "Clear",
+      "fewClouds": "Few clouds",
+      "partlyCloudy": "Partly cloudy",
+      "overcast": "Overcast",
+      "fog": "Fog",
+      "drizzle": "Drizzle",
+      "freezingDrizzle": "Freezing Drizzle",
+      "rain": "Rain",
+      "heavyRain": "Heavy Rain",
+      "freezingRain": "Freezing Rain",
+      "snow": "Snow",
+      "heavySnow": "Heavy Snow",
+      "showers": "Showers",
+      "snowShowers": "Snow Showers",
+      "thunderstorm": "Thunderstorm",
+      "thunderstormHail": "Thunderstorm w/ Hail",
+      "unknown": "Unknown"
     }
   }
 }
