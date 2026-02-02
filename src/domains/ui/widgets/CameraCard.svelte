@@ -28,8 +28,7 @@
         showControls = true,
     }: Props = $props();
 
-    // Video element reference
-    let videoRef: HTMLVideoElement | null = $state(null);
+    // Note: videoRef no longer needed - using Svelte Action for srcObject binding
 
     // Build signaling URL based on camera source
     const signalUrl = $derived(() => {
@@ -43,16 +42,32 @@
         return "";
     });
 
-    // WebRTC connection
-    const webrtc = useWebRTC(signalUrl());
+    // WebRTC connection - pass the getter function, not its result
+    const webrtc = useWebRTC(signalUrl);
 
-    // Bind video stream to element
-    $effect(() => {
-        if (videoRef && webrtc.stream) {
-            videoRef.srcObject = webrtc.stream;
-            console.log(`[CameraCard] Stream bound to video: ${camera.name}`);
+    // Svelte Action for srcObject binding (avoids black screen issue)
+    function srcObjectAction(
+        node: HTMLVideoElement,
+        stream: MediaStream | null,
+    ) {
+        if (stream) {
+            node.srcObject = stream;
+            node.play().catch(() => {});
         }
-    });
+        return {
+            update(newStream: MediaStream | null) {
+                if (node.srcObject !== newStream) {
+                    node.srcObject = newStream;
+                    if (newStream) {
+                        node.play().catch(() => {});
+                    }
+                }
+            },
+            destroy() {
+                node.srcObject = null;
+            },
+        };
+    }
 
     // Auto-connect on mount
     onMount(() => {
@@ -117,15 +132,16 @@
 <div class="camera-card">
     <!-- Video Container -->
     <div class="video-container">
-        {#if webrtc.status === "connected"}
-            <video
-                bind:this={videoRef}
-                autoplay
-                playsinline
-                muted
-                class="video-stream"
-            ></video>
-        {:else if webrtc.status === "connecting"}
+        <!-- Always render video element for srcObject binding -->
+        <video
+            autoplay
+            playsinline
+            muted
+            class="video-stream"
+            class:hidden={webrtc.status !== "connected"}
+            use:srcObjectAction={webrtc.stream}
+        ></video>
+        {#if webrtc.status === "connecting"}
             <div class="loading-overlay">
                 <div class="spinner"></div>
                 <span class="loading-text">{statusText()}</span>
@@ -147,7 +163,7 @@
                     {$_("camera.retry", { default: "Повторить" })}
                 </button>
             </div>
-        {:else}
+        {:else if webrtc.status === "idle"}
             <div class="idle-overlay">
                 <svg
                     class="camera-icon"
@@ -435,5 +451,10 @@
     .disconnect-btn:hover {
         background: var(--color-error, #ef4444);
         color: white;
+    }
+
+    .hidden {
+        visibility: hidden;
+        position: absolute;
     }
 </style>

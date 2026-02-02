@@ -1,14 +1,25 @@
 <script lang="ts">
-  let { label, value = $bindable(), min = 0, max = 100, step = 1, unit = '' } = $props<{
+  let {
+    id = Math.random().toString(36).substring(7),
+    label,
+    value = $bindable(0),
+    min = 0,
+    max = 100,
+    step = 1,
+    unit = "",
+    disabled = false,
+    ...rest
+  } = $props<{
+    id?: string;
     label: string;
     value: number;
     min?: number;
     max?: number;
     step?: number;
     unit?: string;
+    disabled?: boolean;
+    [key: string]: any;
   }>();
-
-  const id = 'range-' + Math.random().toString(36).substr(2, 9);
 </script>
 
 <div class="control-group">
@@ -16,13 +27,15 @@
     <label for={id}>{label}</label>
     <span class="value">{value}{unit}</span>
   </div>
-  <input 
+  <input
     {id}
-    type="range" 
-    bind:value 
-    {min} 
-    {max} 
+    type="range"
+    bind:value
+    {min}
+    {max}
     {step}
+    {disabled}
+    {...rest}
     class="range"
   />
 </div>

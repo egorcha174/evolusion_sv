@@ -38,7 +38,7 @@ export async function deriveKey(pin: string, saltBase64: string): Promise<Crypto
   const salt = base64ToBuf(saltBase64);
   const keyMaterial = await window.crypto.subtle.importKey(
     'raw',
-    strToBuf(pin),
+    strToBuf(pin) as any,
     { name: 'PBKDF2' },
     false,
     ['deriveKey']
@@ -47,7 +47,7 @@ export async function deriveKey(pin: string, saltBase64: string): Promise<Crypto
   return window.crypto.subtle.deriveKey(
     {
       name: 'PBKDF2',
-      salt: salt,
+      salt: salt as any,
       iterations: PBKDF2_ITERATIONS,
       hash: 'SHA-256'
     },
@@ -61,11 +61,11 @@ export async function deriveKey(pin: string, saltBase64: string): Promise<Crypto
 export async function encrypt(data: string, key: CryptoKey): Promise<string> {
   const iv = window.crypto.getRandomValues(new Uint8Array(12));
   const encoded = strToBuf(data);
-  
+
   const encrypted = await window.crypto.subtle.encrypt(
     { name: 'AES-GCM', iv },
     key,
-    encoded
+    encoded as any
   );
 
   const combined = new Uint8Array(iv.length + encrypted.byteLength);

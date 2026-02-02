@@ -15,8 +15,17 @@
   import { toggleSettings } from "./store"; // Import toggle function
   import "iconify-icon";
 
+  import InputModal from "$domains/ui/InputModal.svelte";
+  import ConfirmModal from "$domains/ui/ConfirmModal.svelte";
+
   let isMobileMenuOpen = $state(false);
   let isKebabMenuOpen = $state(false);
+
+  // Modal State
+  let showAddTabModal = $state(false);
+  let showRenameTabModal = $state(false);
+  let showClearTabModal = $state(false);
+  let showDeleteTabModal = $state(false);
 
   // Tab Context Menu State
   let contextMenuOpen = $state(false);
@@ -62,11 +71,13 @@
   // --- Tab Management ---
 
   function handleAddTab() {
-    const title = window.prompt("Enter tab name:", "New Tab");
-    if (title) {
-      const id = dashboardStore.addTab(title);
-      setActiveTab(id);
-    }
+    showAddTabModal = true;
+  }
+
+  function handleConfirmAddTab(title: string) {
+    const id = dashboardStore.addTab(title);
+    setActiveTab(id);
+    showAddTabModal = false;
   }
 
   function handleTabContext(e: MouseEvent, id: string) {
@@ -92,27 +103,33 @@
 
   function renameTab() {
     if (!contextTargetTabId) return;
-    const tab = $tabs.find((t) => t.id === contextTargetTabId);
-    const newTitle = window.prompt("Rename Tab", tab?.title || "");
-    if (newTitle) {
+    contextMenuOpen = false;
+    showRenameTabModal = true;
+  }
+
+  function handleConfirmRenameTab(newTitle: string) {
+    if (contextTargetTabId) {
       dashboardStore.renameTab(contextTargetTabId, newTitle);
     }
-    contextMenuOpen = false;
+    showRenameTabModal = false;
   }
 
   function clearTab() {
     if (!contextTargetTabId) return;
-    if (
-      window.confirm("Are you sure you want to clear all cards from this tab?")
-    ) {
-      // If we are editing THIS tab, use editor store to clear drafts
-      if (contextTargetTabId === $activeTabId) {
-        editorStore.clearAllCards();
-      } else {
-        dashboardStore.clearTab(contextTargetTabId);
-      }
-    }
     contextMenuOpen = false;
+    showClearTabModal = true;
+  }
+
+  function handleConfirmClearTab() {
+    if (!contextTargetTabId) return;
+
+    // If we are editing THIS tab, use editor store to clear drafts
+    if (contextTargetTabId === $activeTabId) {
+      editorStore.clearAllCards();
+    } else {
+      dashboardStore.clearTab(contextTargetTabId);
+    }
+    showClearTabModal = false;
   }
 
   function deleteTab() {
@@ -121,12 +138,62 @@
       alert("Cannot delete the last tab.");
       return;
     }
-    if (window.confirm("Delete this tab? This action cannot be undone.")) {
+    contextMenuOpen = false;
+    showDeleteTabModal = true;
+  }
+
+  function handleConfirmDeleteTab() {
+    if (contextTargetTabId) {
       dashboardStore.deleteTab(contextTargetTabId);
     }
-    contextMenuOpen = false;
+    showDeleteTabModal = false;
   }
 </script>
+
+{#if showAddTabModal}
+  <InputModal
+    title={$t("dashboard.menu.addTab")}
+    label="Tab Name"
+    value="New Tab"
+    confirmLabel="Add"
+    onConfirm={handleConfirmAddTab}
+    onCancel={() => (showAddTabModal = false)}
+  />
+{/if}
+
+{#if showRenameTabModal}
+  {@const currentTab = $tabs.find((t) => t.id === contextTargetTabId)}
+  <InputModal
+    title={$t("dashboard.menu.renameTab")}
+    label="Tab Name"
+    value={currentTab?.title || ""}
+    confirmLabel="Rename"
+    onConfirm={handleConfirmRenameTab}
+    onCancel={() => (showRenameTabModal = false)}
+  />
+{/if}
+
+{#if showClearTabModal}
+  <ConfirmModal
+    title={$t("dashboard.menu.clearTab")}
+    message="Are you sure you want to clear all cards from this tab? This action cannot be undone."
+    confirmLabel="Clear Cards"
+    isDestructive={true}
+    onConfirm={handleConfirmClearTab}
+    onCancel={() => (showClearTabModal = false)}
+  />
+{/if}
+
+{#if showDeleteTabModal}
+  <ConfirmModal
+    title={$t("dashboard.menu.deleteTab")}
+    message="Are you sure you want to delete this tab? All cards within it will be lost."
+    confirmLabel="Delete Tab"
+    isDestructive={true}
+    onConfirm={handleConfirmDeleteTab}
+    onCancel={() => (showDeleteTabModal = false)}
+  />
+{/if}
 
 <svelte:window onclick={handleContentClick} />
 

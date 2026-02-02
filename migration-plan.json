@@ -1,0 +1,30 @@
+{
+    "task_id": "agent-task-20260202-0002",
+    "title": "Implement Camera Card",
+    "description": "Implement CameraCard components strictly according to antigravity_prompt.md",
+    "files": [
+        {
+            "path": "src/lib/types/camera.ts",
+            "operation": "create"
+        },
+        {
+            "path": "src/lib/components/CameraCard.svelte",
+            "operation": "create"
+        },
+        {
+            "path": "src/lib/components/CameraCardPreview.svelte",
+            "operation": "create"
+        },
+        {
+            "path": "src/lib/components/CameraCardLive.svelte",
+            "operation": "create"
+        }
+    ],
+    "patches": [],
+    "commits": [
+        {
+            "branch": "agent/camera-card-20260202",
+            "message": "feat: implement CameraCard components"
+        }
+    ]
+}

@@ -24,55 +24,57 @@
   const MAX_RETRIES = 3;
 
   // --- Effect 1: Determine stream URL and type ---
-  $effect(async () => {
-    if (!entity) {
-      streamUrl = null;
-      streamType = null;
-      error = null;
-      isLoading = false;
-      return;
-    }
-
-    isLoading = true;
-    error = null;
-    const config = get(appState).activeServer;
-    if (!config) {
-      error = "No active server config.";
-      isLoading = false;
-      return;
-    }
-
-    let newStreamUrl: string | null = null;
-    let newStreamType: "hls" | "mjpeg" | null = null;
-
-    // Check for HLS stream source (e.g., from RTSP to WebRTC integration)
-    if (entity.attributes?.stream_source) {
-      newStreamType = "hls";
-      newStreamUrl = entity.attributes.stream_source;
-    } else {
-      // Fallback to MJPEG stream via Home Assistant API
-      newStreamType = "mjpeg";
-      const relativePath = `/api/camera_proxy_stream/${entity.entity_id}`;
-      try {
-        const signedPath = await getSignedPath(relativePath);
-        const baseUrl = new URL(config.url);
-        newStreamUrl = `${baseUrl.origin}${signedPath}`;
-      } catch (e: any) {
-        console.error("Failed to get signed path for camera", e);
-        error = `Auth Error: ${e.message}`;
-        newStreamUrl = null;
+  $effect(() => {
+    (async () => {
+      if (!entity) {
+        streamUrl = null;
+        streamType = null;
+        error = null;
+        isLoading = false;
+        return;
       }
-    }
 
-    streamUrl = newStreamUrl;
-    streamType = newStreamType;
-
-    if (!streamUrl && !error) {
-      error = "Could not determine stream URL.";
-    } else if (streamUrl) {
+      isLoading = true;
       error = null;
-    }
-    isLoading = false;
+      const config = get(appState).activeServer;
+      if (!config) {
+        error = "No active server config.";
+        isLoading = false;
+        return;
+      }
+
+      let newStreamUrl: string | null = null;
+      let newStreamType: "hls" | "mjpeg" | null = null;
+
+      // Check for HLS stream source (e.g., from RTSP to WebRTC integration)
+      if (entity.attributes?.stream_source) {
+        newStreamType = "hls";
+        newStreamUrl = entity.attributes.stream_source;
+      } else {
+        // Fallback to MJPEG stream via Home Assistant API
+        newStreamType = "mjpeg";
+        const relativePath = `/api/camera_proxy_stream/${entity.entity_id}`;
+        try {
+          const signedPath = await getSignedPath(relativePath);
+          const baseUrl = new URL(config.url);
+          newStreamUrl = `${baseUrl.origin}${signedPath}`;
+        } catch (e: any) {
+          console.error("Failed to get signed path for camera", e);
+          error = `Auth Error: ${e.message}`;
+          newStreamUrl = null;
+        }
+      }
+
+      streamUrl = newStreamUrl;
+      streamType = newStreamType;
+
+      if (!streamUrl && !error) {
+        error = "Could not determine stream URL.";
+      } else if (streamUrl) {
+        error = null;
+      }
+      isLoading = false;
+    })();
   });
 
   // --- Effect 2: Initialize HLS player (inspired by ha-fusion) ---

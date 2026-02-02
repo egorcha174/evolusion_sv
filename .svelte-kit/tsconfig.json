@@ -1,6 +1,12 @@
 {
 	"compilerOptions": {
 		"paths": {
+			"$domains": [
+				"../src/domains"
+			],
+			"$domains/*": [
+				"../src/domains/*"
+			],
 			"$lib": [
 				"../src/lib"
 			],

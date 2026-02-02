@@ -1,4 +1,4 @@
-<script module>
+<script module lang="ts">
   // Helper for cubic-bezier in transition
   function cubicUtil(a: number, b: number, c: number, d: number) {
     return (t: number) => {
@@ -11,7 +11,7 @@
 </script>
 
 <script lang="ts">
-  import { fly, scale } from "svelte/transition";
+  import { fly } from "svelte/transition";
   import { t } from "svelte-i18n";
   import { isSettingsOpen } from "../store";
   import { usePersistedWidth } from "../composables/usePersistedWidth.svelte";
@@ -20,8 +20,9 @@
   import ConnectionSettings from "./sections/ConnectionSettings.svelte";
   import SecuritySettings from "./sections/SecuritySettings.svelte";
   import ThemeSettings from "./sections/ThemeSettings.svelte";
+  import WeatherSettings from "./sections/WeatherSettings.svelte";
   import WidgetSettings from "./sections/WidgetSettings.svelte";
-  import CameraSettings from "./sections/CameraSettings.svelte";
+  import BackgroundSettings from "./BackgroundSettings.svelte";
   import DataManagement from "./sections/DataManagement.svelte";
 
   import "iconify-icon";
@@ -41,27 +42,19 @@
 </script>
 
 {#if $isSettingsOpen}
-  <!-- Backdrop -->
-  <!-- svelte-ignore a11y_click_events_have_key_events -->
-  <!-- svelte-ignore a11y_no_static_element_interactions -->
-  <div
-    class="backdrop"
-    onclick={close}
-    transition:fly={{ duration: 300, opacity: 0 }}
-  ></div>
-
-  <!-- Immersive Floating Panel -->
+  <!-- Removed Backdrop to allow interaction with dashboard while settings are open -->
+  <!-- Immersive Floating Panel - Side Drawer -->
   <aside
     class="settings-panel glass-panel"
     style="width: {resizer.width}px"
-    transition:scale={{
-      start: 0.95,
+    transition:fly={{
+      x: 300,
       duration: 300,
-      opacity: 0,
-      easing: cubicUtil(0.34, 1.56, 0.64, 1),
+      opacity: 1,
+      easing: cubicUtil(0.25, 1, 0.5, 1),
     }}
   >
-    <!-- Resize Handle (Right Side) -->
+    <!-- Resize Handle (Left Side for Right Drawer) -->
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div
       class="resize-handle"
@@ -85,7 +78,6 @@
         <SecuritySettings />
         <ThemeSettings />
         <WidgetSettings />
-        <CameraSettings />
         <DataManagement />
       </div>
     </div>
@@ -93,42 +85,29 @@
 {/if}
 
 <style>
-  .backdrop {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(4px);
-    z-index: var(--z-modal);
-  }
+  /* Removed .backdrop style */
 
   .settings-panel {
     position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    top: 0;
+    right: 0;
+    /* Removed transform centering */
 
-    height: 85vh;
-    max-height: 800px;
-    max-width: 95vw;
+    height: 100vh;
+    box-sizing: border-box;
+    /* Max width limiting might not be needed if user resizes, but keeps sanity */
+    max-width: 90vw;
 
-    /* Variable Override only for this panel if needed, but inheriting is better */
-    /* We use the glass-panel class from app.css for the main background */
-
-    /* Extra Glass Override for "Heavy" panel */
+    /* Glass Effect */
     background: var(--bg-panel, rgba(255, 255, 255, 0.85));
+    border-left: 1px solid var(--border-primary, rgba(255, 255, 255, 0.1));
+    /* Removed border-radius for side panel feel */
+    border-radius: 0;
 
-    /* If dark mode is active in the app, let it flow. 
-       We removed the forced white theme variables here. */
-
-    border-radius: 24px;
     display: flex;
     flex-direction: column;
     z-index: calc(var(--z-modal) + 1);
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-    border: 1px solid var(--border-primary, rgba(255, 255, 255, 0.1));
+    box-shadow: -5px 0 25px rgba(0, 0, 0, 0.15); /* Shadow on the left */
     overflow: hidden;
   }
 
@@ -136,14 +115,14 @@
   :global(.settings-panel) {
     /* Re-establish some baselines if the parent theme is transparent */
     --bg-card: rgba(255, 255, 255, 0.05);
-    --bg-input: rgba(0, 0, 0, 0.05);
+    --bg-input: rgba(40, 40, 40, 0.05);
   }
 
   .resize-handle {
     position: absolute;
     top: 0;
-    right: 0;
-    width: 16px;
+    left: 0; /* Changed from right to left */
+    width: 6px; /* Thinner visual handle, maybe increase touch area if needed */
     height: 100%;
     cursor: col-resize;
     z-index: 2005;
@@ -152,19 +131,14 @@
 
   .resize-handle:hover,
   .resize-handle.active {
-    background: linear-gradient(
-      to right,
-      transparent 0%,
-      rgba(255, 255, 255, 0.1) 50%,
-      transparent 100%
-    );
+    background: var(--accent-primary, rgba(33, 150, 243, 0.5));
   }
 
   .panel-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1.5rem 2rem;
+    padding: 1.5rem 1.5rem;
     border-bottom: 1px solid var(--border-divider, rgba(255, 255, 255, 0.1));
     flex-shrink: 0;
 
@@ -180,8 +154,8 @@
 
   .panel-header h2 {
     margin: 0;
-    font-size: 1.5rem;
-    font-weight: 700;
+    font-size: 1.25rem;
+    font-weight: 600;
     letter-spacing: -0.5px;
     color: var(--text-primary);
   }
@@ -200,8 +174,8 @@
     border: none;
     cursor: pointer;
     color: var(--text-secondary);
-    width: 36px;
-    height: 36px;
+    width: 32px; /* Slightly smaller */
+    height: 32px;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -218,7 +192,7 @@
     flex: 1 1 auto;
     overflow-y: auto;
     overflow-x: hidden;
-    height: 100%; /* Important for centering content if little */
+    height: 100%;
   }
 
   /* Custom scrollbar for the panel */
@@ -234,7 +208,7 @@
   }
 
   .scroll-inner {
-    padding: 2rem;
+    padding: 1.5rem;
     display: flex;
     flex-direction: column;
     gap: 2rem;
@@ -246,7 +220,8 @@
       height: 100vh;
       max-height: none;
       max-width: none;
-      border-radius: 0;
+      border-right: none;
+      border-left: none;
     }
     .resize-handle {
       display: none;

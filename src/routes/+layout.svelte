@@ -11,10 +11,12 @@
   import { initializeHAConnection, disconnectHA } from "../domains/ha/store";
   import { themeStore } from "../domains/ui/theme/store";
   import { editorStore } from "../domains/ui/editor/store";
+  import { backgroundStore } from "../domains/ui/background/store";
   import { initClientI18n } from "../lib/i18n";
   import { initWeather, destroyWeather } from "../lib/weather/store";
   import { isLoading } from "svelte-i18n";
   import BackgroundRenderer from "../domains/theme/BackgroundRenderer.svelte";
+  import BackgroundEngine from "../domains/ui/background/BackgroundEngine.svelte";
   import Sidebar from "../domains/ui/Sidebar.svelte";
   import DashboardHeader from "../domains/ui/DashboardHeader.svelte";
   import TemplateManager from "../domains/ui/editor/templates/TemplateManager.svelte";
@@ -34,26 +36,28 @@
   let isSessionActive = $derived($session.state === "active");
   let isSessionLoading = $derived($session.state === "loading");
 
-  onMount(async () => {
-    // 0. Init Theme first
-    themeStore.init();
+  onMount(() => {
+    const init = async () => {
+      // 0. Init Theme and Background
+      themeStore.init();
+      backgroundStore.init();
 
-    // 1. Setup Client I18n
-    await initClientI18n();
+      // 1. Setup Client I18n
+      await initClientI18n();
 
-    // Safety timeout
-    const timer = setTimeout(() => {
-      forcedReady = true;
-    }, 2000);
+      // Safety timeout
+      const timer = setTimeout(() => {
+        forcedReady = true;
+      }, 2000);
 
-    // 2. Init Session (Check for lock)
-    await session.init();
+      // 2. Init Session (Check for lock)
+      await session.init();
 
-    // If already active (unlikely on mount unless dev), load data.
-    // Usually we wait for user to unlock.
+      // Clear timeout if loaded
+      clearTimeout(timer);
+    };
 
-    // Clear timeout if loaded
-    clearTimeout(timer);
+    init();
 
     return () => {
       destroyWeather();
@@ -85,6 +89,7 @@
 </script>
 
 <BackgroundRenderer />
+<BackgroundEngine />
 
 {#if ($isLoading && !forcedReady) || isSessionLoading}
   <div class="loading-screen">

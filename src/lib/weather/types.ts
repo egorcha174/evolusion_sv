@@ -28,7 +28,7 @@ export interface Coordinates {
   name: string;
 }
 
-export type WeatherProviderType = 'openmeteo' | 'openweathermap' | 'weatherapi';
+export type WeatherProviderType = 'openmeteo' | 'openweathermap' | 'weatherapi' | 'yandex' | 'homeassistant';
 export type WeatherIconPack = 'default' | 'outline' | 'filled';
 export type ForecastLayout = 'vertical' | 'horizontal';
 
@@ -36,18 +36,16 @@ export interface WeatherSettings {
   provider: WeatherProviderType;
   apiKey?: string; // Optional, as OpenMeteo doesn't need it
   useCustomLocation: boolean;
-  customLocation?: {
-    lat: number;
-    lon: number;
-    name?: string;
-  };
+  latitude?: number;
+  longitude?: number;
+  locationName?: string;
   refreshIntervalMinutes: number;
   // Forecast settings
   showForecast: boolean;
   forecastDays: number; // 1-7
   iconPack: WeatherIconPack;
   forecastLayout: ForecastLayout;
-  
+
   // Visual Configuration (Global)
   currentIconSize: number;
   currentTempSize: number;

@@ -44,7 +44,7 @@ declare module '$env/static/private' {
 	export const DISPLAY: string;
 	export const DriverData: string;
 	export const EDITOR: string;
-	export const EFC_15996_1592913036: string;
+	export const EFC_5244_1592913036: string;
 	export const EXEPATH: string;
 	export const GEMINI_API_KEY: string;
 	export const GIT_ASKPASS: string;
@@ -185,7 +185,7 @@ declare module '$env/dynamic/private' {
 		DISPLAY: string;
 		DriverData: string;
 		EDITOR: string;
-		EFC_15996_1592913036: string;
+		EFC_5244_1592913036: string;
 		EXEPATH: string;
 		GEMINI_API_KEY: string;
 		GIT_ASKPASS: string;

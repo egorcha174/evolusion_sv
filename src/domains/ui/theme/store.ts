@@ -38,7 +38,7 @@ function createThemeStore() {
 
   return {
     subscribe,
-    
+
     init: () => {
       if (!browser) return;
 
@@ -52,15 +52,15 @@ function createThemeStore() {
       update(s => {
         // MERGE LOGIC: User themes override built-ins with same ID
         const themeMap = new Map<string, ThemeFile>();
-        
+
         // 1. Add Built-ins
         BUILTIN_THEMES.forEach(t => themeMap.set(t.theme.id, t));
-        
+
         // 2. Add Customs (Shadowing built-ins if IDs match)
         customThemes.forEach(t => themeMap.set(t.theme.id, t));
 
         const allThemes = Array.from(themeMap.values());
-        
+
         // Validate active ID
         let activeId = savedActiveId || s.activeThemeId;
         if (!themeMap.has(activeId)) {
@@ -99,7 +99,7 @@ function createThemeStore() {
     saveTheme: (themeFile: ThemeFile) => {
       // Use the new store for persistence
       upsertUserTheme(themeFile);
-      
+
       // Update local state
       update(s => {
         const themeMap = new Map(s.themes.map(t => [t.theme.id, t]));
@@ -114,7 +114,7 @@ function createThemeStore() {
 
       update(s => {
         const isBuiltIn = BUILTIN_THEMES.some(b => b.theme.id === id);
-        
+
         let newThemes: ThemeFile[];
 
         if (isBuiltIn) {
@@ -126,7 +126,7 @@ function createThemeStore() {
           // Completely remove custom theme
           newThemes = s.themes.filter(t => t.theme.id !== id);
         }
-        
+
         // Handle Active Theme
         let newActive = s.activeThemeId;
         if (s.activeThemeId === id && !isBuiltIn) {
@@ -145,17 +145,23 @@ export const themeStore = createThemeStore();
 // Derived store for the active color scheme
 export const activeScheme = derived([themeStore, systemPrefersDark], ([$s, $sysDark]) => {
   const themeFile = $s.themes.find(t => t.theme.id === $s.activeThemeId) || defaultTheme;
-  
+
   if (!themeFile || !themeFile.theme || !themeFile.theme.scheme) {
-     return defaultTheme.theme.scheme.light;
+    return defaultTheme.theme.scheme.light;
   }
 
   const isDark = $s.mode === 'dark' || ($s.mode === 'auto' && $sysDark);
   return isDark ? themeFile.theme.scheme.dark : themeFile.theme.scheme.light;
 });
 
+
 if (browser) {
   activeScheme.subscribe(scheme => {
     if (scheme) applyThemeCSS(scheme);
   });
 }
+
+// Helper to check if we are effectively in dark mode
+export const isDarkMode = derived([themeStore, systemPrefersDark], ([$s, $sysDark]) => {
+  return $s.mode === 'dark' || ($s.mode === 'auto' && $sysDark);
+});

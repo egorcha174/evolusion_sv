@@ -140,3 +140,27 @@ export interface ThemeFile {
 }
 
 export type ThemeMode = 'auto' | 'light' | 'dark';
+
+export interface GradientStop {
+  color: string;
+  position: number;
+}
+
+export interface GradientConfig {
+  angle: number;
+  stops: GradientStop[];
+}
+
+export interface ImageConfig {
+  url: string;
+  size?: string;
+  position?: string;
+  repeat?: string;
+  opacity?: number;
+  blur?: number;
+}
+
+export interface AnimationConfig {
+  effect: string;
+  config?: Record<string, any>;
+}

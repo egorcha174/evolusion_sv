@@ -41,7 +41,18 @@
     "search": "Search devices...",
     "all": "All",
     "added": "Added",
-    "add": "Add"
+    "add": "Add",
+    "entities": "Devices",
+    "cameras": "Cameras",
+    "noCameras": "No cameras configured",
+    "noCamerasHint": "Configure cameras in go2rtc"
+  },
+  "camera": {
+    "fullscreen": {
+      "title": "Camera",
+      "hint": "Press Escape to close"
+    },
+    "notFound": "Camera not found"
   },
   "sidebar": {
     "connected": "Connected",
@@ -158,23 +169,56 @@
       "autoLoginDesc": "Saves PIN locally to skip the lock screen. Not recommended for shared devices.",
       "confirmPin": "Confirm PIN to enable auto-login:"
     },
-    "weather": "Weather Widget",
-    "weatherDesc": "Configure weather widget provider",
-    "weatherProvider": "Data Provider",
-    "weatherKey": "API Key",
-    "weatherKeyPlaceholder": "Paste API key here",
-    "weatherShowForecast": "Show Forecast",
-    "forecast": {
-      "daysLabel": "Forecast days"
+    "weather": {
+      "title": "Weather Widget",
+      "description": "Configure weather widget provider",
+      "provider": "Data Provider",
+      "provider_type": "Provider Type",
+      "key": "API Key",
+      "key_placeholder": "Paste API key here",
+      "location": "Location",
+      "use_custom_location": "Use Custom Coordinates",
+      "latitude": "Latitude",
+      "longitude": "Longitude",
+      "display": "Display",
+      "refresh_interval": "Refresh Interval (min)",
+      "show_forecast": "Show Forecast",
+      "forecast_days": "Forecast Days",
+      "layout": "Forecast Layout",
+      "layout_vertical": "Vertical",
+      "layout_horizontal": "Horizontal",
+      "appearance": "Appearance",
+      "icon_size": "Icon Size",
+      "temp_size": "Temperature Size"
     },
-    "weatherLayout": "Forecast Layout",
-    "layoutVertical": "Vertical",
-    "layoutHorizontal": "Horizontal",
-    "weatherIconPack": "Icon Pack",
-    "useCustomLocation": "Use Custom Coordinates",
-    "latitude": "Latitude",
-    "longitude": "Longitude",
-    "locationFromHA": "Location from Home Assistant (zone.home):",
+    "background": {
+      "title": "Background Effect",
+      "type": "Effect Type",
+      "effects": {
+        "none": "None",
+        "aurora": "Aurora",
+        "snow": "Snow",
+        "rain": "Rain",
+        "clouds": "Clouds",
+        "river": "River Waves",
+        "thunderstorm": "Thunderstorm",
+        "tron": "Tron (Digital Grid)",
+        "sun-glare": "Sunny Day",
+        "sun-clouds": "Sun + Clouds"
+      },
+      "aurora": {
+        "title": "Aurora Settings",
+        "color1": "Color 1",
+        "color2": "Color 2",
+        "color3": "Color 3",
+        "speed": "Speed",
+        "intensity": "Intensity",
+        "blur": "Blur",
+        "saturation": "Saturation",
+        "show_stars": "Show Stars",
+        "star_speed": "Star Speed"
+      }
+    },
     "updateWeather": "Update Weather",
     "theme": "Theme",
     "themeMode": "Mode",

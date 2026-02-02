@@ -11,10 +11,20 @@
     import { onMount } from "svelte";
     import { _ } from "svelte-i18n";
 
+    interface Props {
+        go2rtcUrl?: string;
+        autoConnect?: boolean;
+    }
+
+    let {
+        go2rtcUrl: initialUrl = "http://192.168.0.97:1984",
+        autoConnect: initialAutoConnect = true,
+    }: Props = $props();
+
     // Settings loaded from localStorage
-    let go2rtcUrl = $state("http://192.168.0.97:1984");
+    let go2rtcUrl = $state(initialUrl);
     let columns = $state(0); // 0 = auto
-    let autoConnect = $state(true);
+    let autoConnect = $state(initialAutoConnect);
 
     // Load settings from localStorage
     function loadSettings() {

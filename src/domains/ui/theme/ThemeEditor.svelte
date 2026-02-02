@@ -52,7 +52,14 @@
   }
 </script>
 
-{#snippet sliderRow(label, key, min, max, step, unit = "")}
+{#snippet sliderRow(
+  label: string,
+  key: keyof ColorScheme,
+  min: number,
+  max: number,
+  step: number,
+  unit: string = "",
+)}
   <div class="control-row slider-row">
     <div class="slider-header">
       <span class="label">{label}</span>
@@ -74,7 +81,12 @@
   </div>
 {/snippet}
 
-{#snippet selectRow(label, key, options, onChange)}
+{#snippet selectRow(
+  label: string,
+  key: keyof ColorScheme,
+  options: { value: any; label: string }[],
+  onChange?: (e: any) => void,
+)}
   <div class="control-row select-row">
     <span class="label">{label}</span>
     <div class="select-wrapper">
@@ -96,7 +108,7 @@
   </div>
 {/snippet}
 
-{#snippet sectionTitle(title)}
+{#snippet sectionTitle(title: string)}
   <div class="section-title">{title}</div>
 {/snippet}
 

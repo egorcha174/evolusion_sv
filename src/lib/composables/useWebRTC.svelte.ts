@@ -34,10 +34,10 @@ export interface UseWebRTCReturn {
 /**
  * Create WebRTC connection to Go2rtc camera stream
  * 
- * @param signalUrl - WebSocket URL for Go2rtc signaling (e.g., ws://192.168.0.98:1984/api/ws?src=front_door)
+ * @param getSignalUrl - Function that returns the current WebSocket URL for Go2rtc signaling
  * @returns Reactive WebRTC state and controls
  */
-export function useWebRTC(signalUrl: string): UseWebRTCReturn {
+export function useWebRTC(getSignalUrl: () => string): UseWebRTCReturn {
     // Reactive state
     let pc: RTCPeerConnection | null = $state(null);
     let ws: WebSocket | null = $state(null);
@@ -114,10 +114,14 @@ export function useWebRTC(signalUrl: string): UseWebRTCReturn {
             console.log('[WebRTC] Created SDP offer');
 
             // Connect to Go2rtc WebSocket
-            ws = new WebSocket(signalUrl);
+            const currentSignalUrl = getSignalUrl();
+            if (!currentSignalUrl) {
+                throw new Error('No signal URL configured');
+            }
+            ws = new WebSocket(currentSignalUrl);
 
             ws.onopen = () => {
-                console.log('[WebRTC] WebSocket connected to:', signalUrl);
+                console.log('[WebRTC] WebSocket connected to:', currentSignalUrl);
                 // Send our SDP offer to Go2rtc - value should be an object
                 const offerPayload = {
                     type: 'webrtc',

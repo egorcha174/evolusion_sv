@@ -12,10 +12,10 @@ export const layoutAdapter = {
   loadLayout(tabId: TabId) {
     const state = get(dashboardStore);
     const tab = state.tabs[tabId];
-    
+
     const cards = new Map<CardId, GridRect>();
     const entities = new Map<CardId, string>();
-    
+
     // Default grid size if not configured
     const cols = tab?.gridColumns ?? 8;
     const rows = tab?.gridRows ?? 6;
@@ -28,7 +28,12 @@ export const layoutAdapter = {
           w: c.position.w,
           h: c.position.h
         });
-        entities.set(c.id, c.entityId);
+        // For entity cards, store entityId; for camera cards, store cameraId with prefix
+        if (c.widgetType === 'camera' && c.cameraId) {
+          entities.set(c.id, `camera:${c.cameraId}`);
+        } else if (c.entityId) {
+          entities.set(c.id, c.entityId);
+        }
       });
     }
 
@@ -36,8 +41,8 @@ export const layoutAdapter = {
   },
 
   saveLayout(
-    tabId: TabId, 
-    drafts: Map<CardId, GridRect>, 
+    tabId: TabId,
+    drafts: Map<CardId, GridRect>,
     cardEntities: Map<CardId, string>,
     templateOverrides?: Map<CardId, string | undefined>
   ) {
@@ -47,32 +52,50 @@ export const layoutAdapter = {
     const existingMap = new Map<string, DashboardCardConfig>(existingCards.map(c => [c.id, c]));
 
     const newCards: DashboardCardConfig[] = [];
-    
+
     drafts.forEach((rect, id) => {
-      const entityId = cardEntities.get(id);
-      if (entityId) {
+      const entityValue = cardEntities.get(id);
+      if (entityValue) {
         const existing = existingMap.get(id);
-        
+
         // Determine template ID:
         // 1. Override from editor session (highest priority)
         // 2. Existing persistent value
         // 3. undefined
         let templateId = existing?.templateId;
         if (templateOverrides && templateOverrides.has(id)) {
-           templateId = templateOverrides.get(id);
+          templateId = templateOverrides.get(id);
         }
 
-        newCards.push({
-          id: id,
-          entityId: entityId,
-          position: {
-             x: rect.col,
-             y: rect.row,
-             w: rect.w,
-             h: rect.h
-          },
-          templateId: templateId
-        });
+        // Check if this is a camera widget
+        if (entityValue.startsWith('camera:')) {
+          const cameraId = entityValue.slice(7); // Remove 'camera:' prefix
+          newCards.push({
+            ...(existing || {}), // Preserve existing props (including cameraSourceConfig)
+            id: id,
+            widgetType: 'camera',
+            cameraId: cameraId,
+            position: {
+              x: rect.col,
+              y: rect.row,
+              w: rect.w,
+              h: rect.h
+            }
+          });
+        } else {
+          newCards.push({
+            ...(existing || {}), // Preserve existing props (including settings)
+            id: id,
+            entityId: entityValue,
+            position: {
+              x: rect.col,
+              y: rect.row,
+              w: rect.w,
+              h: rect.h
+            },
+            templateId: templateId
+          });
+        }
       }
     });
 

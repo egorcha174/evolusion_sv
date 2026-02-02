@@ -15,6 +15,7 @@
   import Section from "../Section.svelte";
   import ThemeEditor from "../../theme/ThemeEditor.svelte";
   import ThemeAutoGenerator from "../../theme/ThemeAutoGenerator.svelte";
+  import BackgroundSettings from "../BackgroundSettings.svelte";
   import "iconify-icon";
 
   let isEditingTheme = $state(false);
@@ -274,11 +275,19 @@
       />
     </div>
   {/if}
+
+  <div class="divider"></div>
+  <BackgroundSettings />
 </Section>
 
 <style>
   .control-row {
     margin-bottom: 1rem;
+  }
+  .divider {
+    height: 1px;
+    background: var(--border-divider);
+    margin: 1.5rem 0;
   }
   label {
     display: flex;

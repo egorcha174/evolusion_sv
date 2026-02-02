@@ -10,4 +10,10 @@ declare global {
 	}
 }
 
-export {};
+declare module 'svelte/elements' {
+	export interface HTMLAttributes<T> {
+		onenter?: (event: CustomEvent<any> | Event) => void;
+	}
+}
+
+export { };

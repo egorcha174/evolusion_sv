@@ -41,7 +41,18 @@
     "search": "Поиск устройств...",
     "all": "Все",
     "added": "Добавлено",
-    "add": "Добавить"
+    "add": "Добавить",
+    "entities": "Устройства",
+    "cameras": "Камеры",
+    "noCameras": "Камеры не настроены",
+    "noCamerasHint": "Настройте камеры в go2rtc"
+  },
+  "camera": {
+    "fullscreen": {
+      "title": "Камера",
+      "hint": "Нажмите Escape для закрытия"
+    },
+    "notFound": "Камера не найдена"
   },
   "sidebar": {
     "connected": "Подключено",
@@ -158,23 +169,56 @@
       "autoLoginDesc": "Сохраняет PIN локально для пропуска экрана блокировки. Не рекомендуется для общих устройств.",
       "confirmPin": "Введите PIN для включения авто-входа:"
     },
-    "weather": "Погода",
-    "weatherDesc": "Настройка провайдера данных",
-    "weatherProvider": "Источник данных",
-    "weatherKey": "API Ключ",
-    "weatherKeyPlaceholder": "Вставьте API ключ",
-    "weatherShowForecast": "Показывать прогноз",
-    "forecast": {
-      "daysLabel": "Количество дней прогноза"
+    "weather": {
+      "title": "Виджет погоды",
+      "description": "Настройка провайдера данных",
+      "provider": "Источник данных",
+      "provider_type": "Тип провайдера",
+      "key": "API Ключ",
+      "key_placeholder": "Вставьте API ключ",
+      "location": "Местоположение",
+      "use_custom_location": "Использовать свои координаты",
+      "latitude": "Широта",
+      "longitude": "Долгота",
+      "display": "Отображение",
+      "refresh_interval": "Интервал обновления (мин)",
+      "show_forecast": "Показывать прогноз",
+      "forecast_days": "Количество дней",
+      "layout": "Ориентация прогноза",
+      "layout_vertical": "Вертикальная",
+      "layout_horizontal": "Горизонтальная",
+      "appearance": "Внешний вид",
+      "icon_size": "Размер иконки",
+      "temp_size": "Размер температуры"
     },
-    "weatherLayout": "Ориентация прогноза",
-    "layoutVertical": "Вертикальная",
-    "layoutHorizontal": "Горизонтальная",
-    "weatherIconPack": "Набор иконок",
-    "useCustomLocation": "Использовать свои координаты",
-    "latitude": "Широта",
-    "longitude": "Долгота",
-    "locationFromHA": "Координаты из Home Assistant (zone.home):",
+    "background": {
+      "title": "Фоновый эффект",
+      "type": "Тип эффекта",
+      "effects": {
+        "none": "Нет",
+        "aurora": "Северное сияние",
+        "snow": "Снег",
+        "rain": "Дождь",
+        "clouds": "Облака",
+        "river": "Волны (Река)",
+        "thunderstorm": "Гроза",
+        "tron": "Трон (Цифровая сетка)",
+        "sun-glare": "Солнечный день",
+        "sun-clouds": "Солнце + Облака"
+      },
+      "aurora": {
+        "title": "Настройки сияния",
+        "color1": "Цвет 1",
+        "color2": "Цвет 2",
+        "color3": "Цвет 3",
+        "speed": "Скорость",
+        "intensity": "Интенсивность",
+        "blur": "Размытие",
+        "saturation": "Насыщенность",
+        "show_stars": "Показывать звёзды",
+        "star_speed": "Скорость звёзд"
+      }
+    },
     "updateWeather": "Обновить погоду",
     "theme": "Тема оформления",
     "themeMode": "Режим переключения",

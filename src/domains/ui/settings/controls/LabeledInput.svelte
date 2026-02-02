@@ -1,27 +1,37 @@
 <script lang="ts">
-  let { label, value = $bindable(), type = 'text', placeholder = '', hint = '', disabled = false } = $props<{
+  let {
+    label,
+    value = $bindable(),
+    type = "text",
+    placeholder = "",
+    hint = "",
+    disabled = false,
+    ...rest
+  } = $props<{
     label: string;
-    value: string | number;
+    value: string | number | undefined;
     type?: string;
     placeholder?: string;
     hint?: string;
     disabled?: boolean;
+    [key: string]: any;
   }>();
 
   // Generate unique ID for accessibility association
-  const id = 'input-' + Math.random().toString(36).substr(2, 9);
+  const id = "input-" + Math.random().toString(36).substr(2, 9);
 </script>
 
 <div class="control-group">
   <label class="label" for={id}>
     {label}
   </label>
-  <input 
+  <input
     {id}
-    {type} 
-    bind:value 
-    {placeholder} 
+    {type}
+    bind:value
+    {placeholder}
     {disabled}
+    {...rest}
     class="input"
   />
   {#if hint}
@@ -50,6 +60,27 @@
     font-size: 1rem;
     transition: border-color 0.2s;
   }
+
+  .input[type="color"] {
+    height: 50px;
+    padding: 0.25rem;
+    cursor: pointer;
+  }
+
+  .input[type="color"]::-webkit-color-swatch-wrapper {
+    padding: 0;
+  }
+
+  .input[type="color"]::-webkit-color-swatch {
+    border: none;
+    border-radius: 6px;
+  }
+
+  .input[type="color"]::-moz-color-swatch {
+    border: none;
+    border-radius: 6px;
+  }
+
   .input:focus {
     outline: none;
     border-color: var(--accent-primary);
