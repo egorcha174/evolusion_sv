@@ -13,7 +13,8 @@
   import { editorStore } from "../domains/ui/editor/store";
   import { backgroundStore } from "../domains/ui/background/store";
   import { initClientI18n } from "../lib/i18n";
-  import { initWeather, destroyWeather } from "../lib/weather/store";
+  import { initWeather, destroyWeather } from "../lib/weather/store"; // Keep weather store init
+  import WeatherEffects from "../domains/app/WeatherEffects.svelte"; // New component for weather effects
   import { isLoading } from "svelte-i18n";
   import BackgroundRenderer from "../domains/theme/BackgroundRenderer.svelte";
   import BackgroundEngine from "../domains/ui/background/BackgroundEngine.svelte";
@@ -37,23 +38,29 @@
   let isSessionLoading = $derived($session.state === "loading");
 
   onMount(() => {
+    // 0. Safety timeout - Start IMMEDIATELY to guarantee loading screen removal
+    const timer = setTimeout(() => {
+      forcedReady = true;
+    }, 2000);
+
     const init = async () => {
-      // 0. Init Theme and Background
+      // 1. Init Theme and Background
       themeStore.init();
       backgroundStore.init();
 
-      // 1. Setup Client I18n
-      await initClientI18n();
-
-      // Safety timeout
-      const timer = setTimeout(() => {
-        forcedReady = true;
-      }, 2000);
-
-      // 2. Init Session (Check for lock)
+      // 2. Init Session (Critical for security & state)
+      // We prioritize this to ensure authentication state is known early
       await session.init();
 
-      // Clear timeout if loaded
+      // 3. Setup Client I18n
+      // We do this after session or concurrently, but importantly AFTER the timer is set
+      try {
+        await initClientI18n();
+      } catch (e) {
+        console.error("i18n init failed", e);
+      }
+
+      // Clear timeout if everything loaded fast
       clearTimeout(timer);
     };
 
@@ -61,6 +68,7 @@
 
     return () => {
       destroyWeather();
+      clearTimeout(timer);
     };
   });
 
@@ -90,6 +98,7 @@
 
 <BackgroundRenderer />
 <BackgroundEngine />
+<WeatherEffects />
 
 {#if ($isLoading && !forcedReady) || isSessionLoading}
   <div class="loading-screen">
