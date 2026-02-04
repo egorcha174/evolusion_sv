@@ -1,5 +1,10 @@
 <script lang="ts">
-  let { label, description, id }: { label: string; description?: string; id: string } = $props(); // id is now required
+  const { label, description = undefined, children, id = undefined } = $props<{
+    label: string;
+    description?: string;
+    children: any; // For slot content
+    id?: string;
+  }>();
 </script>
 
 <div class="grid grid-cols-2 items-center gap-4">
@@ -10,6 +15,6 @@
     {/if}
   </div>
   <div class="flex justify-end">
-    <slot />
+    <slot>{children}</slot>
   </div>
 </div>

@@ -5,7 +5,7 @@
 	import { DeviceType } from '$lib/types';
 	import { getIconForDeviceType, icons } from '$lib/utils/ha-data-mapper';
 	import DeviceIcon from './DeviceIcon.svelte';
-	import { Icon } from 'iconify-svelte';
+	import Icon from '@iconify/svelte';
 
 	let { device, onClose }: { device: Device; onClose: () => void } = $props();
 
@@ -26,7 +26,7 @@
 	$effect(() => {
 		name = customization.name ?? device.name;
 		type = customization.type ?? device.type;
-		icon = customization.icon ?? getIconForDeviceType(type, false);
+		icon = customization.icon ?? getIconForDeviceType(type, undefined);
 		isHidden = customization.isHidden ?? false;
 		templateId = customization.templateId ?? '';
 		iconAnimation = customization.iconAnimation ?? 'none';
@@ -36,7 +36,7 @@
 
 	function handleTypeChange(newType: DeviceType) {
 		type = newType;
-		icon = getIconForDeviceType(newType, false);
+		icon = getIconForDeviceType(newType, undefined);
 	}
 
 	function handleSave() {
@@ -95,7 +95,7 @@
 					class="w-full bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-600 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
 				>
 					{#each Object.keys(DeviceType).filter((key) => !isNaN(Number(key))) as key}
-						<option value={key}>{DeviceType[key]}</option>
+						<option value={key}>{DeviceType[key as any]}</option>
 					{/each}
 				</select>
 			</div>

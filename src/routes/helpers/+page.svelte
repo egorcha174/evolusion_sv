@@ -6,7 +6,7 @@
 	import DeviceIcon from '../../domains/ui/DeviceIcon.svelte';
 	import AddToTabButton from '../../domains/ui/AddToTabButton.svelte';
 	import ConfirmDialog from '../../domains/ui/ConfirmDialog.svelte';
-	import { Icon } from 'iconify-svelte';
+	import Icon from '@iconify/svelte';
 
 	let deletingItem = $state<EventTimerWidget | CustomCardWidget | null>(null);
 
@@ -93,7 +93,7 @@
 					>
 						<div class="flex items-center gap-4 overflow-hidden">
 							<div class="w-8 h-8 flex-shrink-0 text-gray-500 dark:text-gray-400">
-								<DeviceIcon icon={displayType} isOn={false} class="!w-full !h-full !m-0" />
+								<DeviceIcon icon={String(displayType)} class="!w-full !h-full !m-0" />
 							</div>
 							<div class="flex-1 overflow-hidden">
 								<p class="font-medium text-gray-900 dark:text-gray-100 text-sm truncate">
@@ -142,7 +142,7 @@
 						>
 							<div class="flex items-center gap-4 overflow-hidden">
 								<div class="w-8 h-8 flex-shrink-0 text-gray-500 dark:text-gray-400">
-									<DeviceIcon icon={scene.type} isOn={scene.state === 'on'} class="!w-full !h-full !m-0" />
+									<DeviceIcon icon={String(scene.type)} class="!w-full !h-full !m-0" />
 								</div>
 								<div class="flex-1 overflow-hidden">
 									<p class="font-medium text-gray-900 dark:text-gray-100 text-sm truncate">
@@ -182,8 +182,7 @@
 							<div class="flex items-center gap-4 overflow-hidden">
 								<div class="w-8 h-8 flex-shrink-0 text-gray-500 dark:text-gray-400">
 									<DeviceIcon
-										icon={automation.type}
-										isOn={automation.state === 'on'}
+										icon={String(automation.type)}
 										class="!w-full !h-full !m-0"
 									/>
 								</div>
@@ -224,7 +223,7 @@
 						>
 							<div class="flex items-center gap-4 overflow-hidden">
 								<div class="w-8 h-8 flex-shrink-0 text-gray-500 dark:text-gray-400">
-									<DeviceIcon icon={script.type} isOn={script.state === 'on'} class="!w-full !h-full !m-0" />
+									<DeviceIcon icon={String(script.type)} class="!w-full !h-full !m-0" />
 								</div>
 								<div class="flex-1 overflow-hidden">
 									<p class="font-medium text-gray-900 dark:text-gray-100 text-sm truncate">

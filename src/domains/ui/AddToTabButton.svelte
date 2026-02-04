@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Icon } from 'iconify-svelte';
+	import Icon from '@iconify/svelte';
 	import type { Tab } from '$lib/types';
 
 	let {

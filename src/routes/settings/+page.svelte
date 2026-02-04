@@ -7,7 +7,7 @@
 	import RangeInput from '../../domains/ui/settings-controls/RangeInput.svelte';
 	import ThemeEditor from '../../domains/ui/settings-controls/ThemeEditor.svelte';
 	import ConfirmDialog from '../../domains/ui/ConfirmDialog.svelte';
-	import { Icon } from 'iconify-svelte';
+	import Icon from '@iconify/svelte';
 	import type { ThemeDefinition, AuroraSettings, ServerConfig } from '$lib/types';
 	import { nanoid } from 'nanoid';
 
@@ -16,7 +16,7 @@
 	let activeEditorTab = $state<'light' | 'dark'>('light');
 	let confirmingResetTemplates = $state(false);
 	
-	let selectedServerId = $state(app.activeServerId);
+	let selectedServerId = $state(app.state.activeServerId);
 	let editingServer = $state<Partial<ServerConfig> | null>(null);
 	let serverToDelete = $state<ServerConfig | null>(null);
 
@@ -29,7 +29,7 @@
 	function handleConnect() {
         const server = app.state.servers.find(s => s.id === selectedServerId);
         if (server) {
-            ha.initialize(server.url, server.token);
+            ha.initialize();
             app.setActiveServerId(server.id);
         }
     }

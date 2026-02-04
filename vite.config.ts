@@ -13,4 +13,7 @@ export default defineConfig({
       plugins: [nodeResolve()],
     },
   },
+  ssr: {
+    noExternal: ['@dnd-kit/core', '@dnd-kit/dom', '@dnd-kit-svelte/svelte']
+  },
 });

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Icon } from 'iconify-svelte';
+	import Icon from '@iconify/svelte';
 	import type { PhysicalDevice, Tab } from '$lib/types';
 	import DeviceIcon from './DeviceIcon.svelte';
 	import AddToTabButton from './AddToTabButton.svelte';
@@ -68,7 +68,7 @@
 				>
 					<div class="flex items-center gap-3 overflow-hidden">
 						<div class={`w-8 h-8 flex-shrink-0 ${isOn ? 'text-blue-500' : 'text-gray-400'}`}>
-							<DeviceIcon icon={entity.icon ?? entity.type} {isOn} class="!w-full !h-full !m-0" />
+							<DeviceIcon icon={entity.icon ?? String(entity.type)} class="!w-full !h-full !m-0" />
 						</div>
 						<div class="flex-1 overflow-hidden">
 							<p class="font-medium text-gray-900 dark:text-gray-100 text-sm truncate">

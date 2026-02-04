@@ -1,15 +1,19 @@
 <script lang="ts">
-  import { Icon } from 'iconify-svelte';
+  import Icon from '@iconify/svelte';
   import type { ColorScheme } from '$lib/types';
-  import Section from './Section.svelte';
-  import LabeledInput from './LabeledInput.svelte';
+  import Section from './Section.svelte'; // Assuming Section is a separate component now
+  import LabeledInput from './LabeledInput.svelte'; // Assuming LabeledInput is a separate component now
   import ColorInput from './ColorInput.svelte';
   import RangeInput from './RangeInput.svelte';
 
-  let { themeType, colorScheme, onUpdate }: { themeType: 'light' | 'dark'; colorScheme: ColorScheme; onUpdate: (path: string, value: any) => void } = $props();
+  const { themeType, colorScheme, onUpdate } = $props<{
+    themeType: 'light' | 'dark';
+    colorScheme: ColorScheme;
+    onUpdate: (path: string, value: any) => void;
+  }>();
 
-  let scheme = $derived(colorScheme[themeType]);
-  let pathPrefix = $derived(themeType);
+  const scheme = $derived(colorScheme[themeType]);
+  const pathPrefix = $derived(themeType);
 
   function handleImageUpload(e: Event) {
     const target = e.target as HTMLInputElement;
@@ -19,7 +23,7 @@
     const reader = new FileReader();
     reader.onloadend = () => {
       if (typeof reader.result === 'string') {
-        onUpdate(`${themeType}.dashboardBackgroundImage`, reader.result);
+        onUpdate(`${pathPrefix}.dashboardBackgroundImage`, reader.result);
       }
     };
     reader.readAsDataURL(file);
@@ -27,15 +31,15 @@
 </script>
 
 <Section title="Фон дашборда" defaultOpen={true}>
-  <LabeledInput label="Тип фона" id="dashboardBackgroundTypeSelect">
-    <select id="dashboardBackgroundTypeSelect" value={scheme.dashboardBackgroundType} onchange={(e) => onUpdate(`${pathPrefix}.dashboardBackgroundType`, e.currentTarget.value)} class="w-full bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+  <LabeledInput label="Тип фона">
+    <select value={scheme.dashboardBackgroundType} on:change={(e) => onUpdate(`${pathPrefix}.dashboardBackgroundType`, e.currentTarget.value)} class="w-full bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-gray-100 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none">
       <option value="color">Сплошной цвет</option>
       <option value="gradient">Градиент</option>
       <option value="image">Изображение</option>
     </select>
   </LabeledInput>
   {#if scheme.dashboardBackgroundType === 'image'}
-    <LabeledInput label="Загрузить фон" id="dashboardBackgroundImageUpload"><input id="dashboardBackgroundImageUpload" type="file" accept="image/*" onchange={handleImageUpload} class="text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 text-gray-500 dark:text-gray-400"/></LabeledInput>
+    <LabeledInput label="Загрузить фон"><input type="file" accept="image/*" on:change={handleImageUpload} class="text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 text-gray-500 dark:text-gray-400"/></LabeledInput>
     <RangeInput onUpdate={onUpdate} label="Размытие" path={`${pathPrefix}.dashboardBackgroundImageBlur`} value={scheme.dashboardBackgroundImageBlur || 0} min={0} max={50} step={1} unit="px" />
     <RangeInput onUpdate={onUpdate} label="Яркость" path={`${pathPrefix}.dashboardBackgroundImageBrightness`} value={scheme.dashboardBackgroundImageBrightness || 100} min={0} max={200} step={5} unit="%" />
   {:else}
@@ -59,8 +63,8 @@
   <ColorInput onUpdate={onUpdate} label="Цвет рамки (Вкл)" path={`${pathPrefix}.cardBorderColorOn`} value={scheme.cardBorderColorOn || '#ffffff'} />
    <div class="pt-4 mt-4 border-t border-gray-200 dark:border-gray-700">
     <h4 class="text-sm font-semibold text-gray-800 dark:text-gray-200 mb-2">Иконки</h4>
-    <LabeledInput label="Форма фона" id="iconBackgroundShapeSelect">
-      <select id="iconBackgroundShapeSelect" value={scheme.iconBackgroundShape || 'circle'} onchange={e => onUpdate(`${pathPrefix}.iconBackgroundShape`, e.currentTarget.value)} class="w-full bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm">
+    <LabeledInput label="Форма фона">
+      <select value={scheme.iconBackgroundShape || 'circle'} on:change={e => onUpdate(`${pathPrefix}.iconBackgroundShape`, e.currentTarget.value)} class="w-full bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 text-sm">
         <option value="circle">Круг</option>
         <option value="rounded-square">Скругленный квадрат</option>
       </select>

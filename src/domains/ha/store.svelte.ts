@@ -280,6 +280,38 @@ function triggerScript(entityId: string) {
     }
 }
 
+function toggle(entityId: string) {
+    const entity = state.entities.get(entityId);
+    if (!entity) return;
+
+    const domain = entity.entity_id.split('.')[0];
+    const isOn = ['on', 'active', 'home', 'open', 'playing'].includes(entity.state);
+    
+    let service = 'toggle';
+    if (domain === 'scene') service = 'turn_on';
+    if (domain === 'lock') service = isOn ? 'unlock' : 'lock';
+
+    callService(domain, service, { entity_id: entityId });
+}
+
+function setHvacMode(entityId: string, mode: string) {
+    callService('climate', 'set_hvac_mode', { entity_id: entityId, hvac_mode: mode });
+}
+
+function setPreset(entityId: string, preset: string) {
+    callService('climate', 'set_preset_mode', { entity_id: entityId, preset_mode: preset });
+}
+
+function setFanSpeed(entityId: string, speed: string | number) {
+    callService('fan', 'set_speed', { entity_id: entityId, speed: speed });
+}
+
+function callService(domain: string, service: string, data: { entity_id: string; [key: string]: any }) {
+    if (state.connection) {
+        state.connection.callService(domain, service, data);
+    }
+}
+
 const allKnownDevices = $derived.by<Map<string, Device>>(() => {
 	const deviceMap = new Map<string, Device>();
 	for (const entity of state.entities.values()) {
@@ -373,5 +405,10 @@ export const ha = {
 	setTemperature,
 	triggerScene,
 	triggerAutomation,
-	triggerScript
+	triggerScript,
+	toggle,
+	setHvacMode,
+	setPreset,
+	setFanSpeed,
+	callService
 };

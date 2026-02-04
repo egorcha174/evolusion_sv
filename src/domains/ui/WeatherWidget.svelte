@@ -18,7 +18,7 @@
 		</div>
 	</div>
 {:else}
-	<div class={className}>
+	<div class="{className} weather-widget-container">
 		<!-- Current weather -->
 		<div class="flex flex-col">
 			<div class="flex items-center gap-2">
@@ -26,11 +26,14 @@
 					iconCode={weatherData.current.icon}
 					iconPack={weatherSettings.iconPack}
 					class="w-24 h-24 flex-shrink-0"
+					style="width: var(--weather-icon-size); height: var(--weather-icon-size);"
 				/>
-				<p class="text-4xl font-bold">{Math.round(weatherData.current.temp)}°C</p>
+				<p class="text-4xl font-bold" style="color: var(--text-value); font-size: var(--weather-current-temp-size);">
+					{Math.round(weatherData.current.temp)}°C
+				</p>
 			</div>
 			<div class="w-24 text-center -mt-2">
-				<p class="text-sm capitalize" title={weatherData.current.desc}>
+				<p class="text-sm capitalize" title={weatherData.current.desc} style="color: var(--text-status); font-size: var(--weather-current-desc-size);">
 					{weatherData.current.desc}
 				</p>
 			</div>
@@ -47,21 +50,28 @@
 			>
 				{#each weatherData.forecast.slice(0, weatherSettings.forecastDays) as day, index (index)}
 					<div class="flex flex-col items-center space-y-1">
-						<p class="text-xs font-medium capitalize">{day.day}</p>
+						<p class="text-xs font-medium capitalize" style="color: var(--text-name); font-size: var(--weather-forecast-day-size);">
+							{day.day}
+						</p>
 						<AnimatedWeatherIcon
 							iconCode={day.icon}
 							iconPack={weatherSettings.iconPack}
 							class="w-12 h-12"
+							style="width: var(--weather-forecast-icon-size); height: var(--weather-forecast-icon-size);"
 						/>
 						<div>
-							<p class="text-lg font-semibold">{Math.round(day.tempMax)}°</p>
-							<p class="text-sm -mt-1">{Math.round(day.tempMin)}°</p>
+							<p class="text-lg font-semibold" style="color: var(--text-value); font-size: var(--weather-forecast-max-temp-size);">
+								{Math.round(day.tempMax)}°
+							</p>
+							<p class="text-sm -mt-1" style="color: var(--text-status); font-size: var(--weather-forecast-min-temp-size);">
+								{Math.round(day.tempMin)}°
+							</p>
 						</div>
 					</div>
 				{/each}
 			</div>
 		{:else}
-			<div class="mt-4 text-center text-sm opacity-60 py-2">Forecast not available</div>
+			<div class="mt-4 text-center text-sm opacity-60 py-2" style="color: var(--text-status);">Forecast not available</div>
 		{/if}
 	</div>
 {/if}

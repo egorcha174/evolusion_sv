@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { app } from '../app/store.svelte';
-	import type { CardTemplate, CardElement, CardElementId } from '$lib/types';
+	import type { CardTemplate, CardElement, CardElementId, ThemeColors } from '$lib/types';
 	import { nanoid } from 'nanoid';
 	import Icon from '@iconify/svelte';
 	import DeviceCard from './DeviceCard.svelte';
@@ -12,6 +12,18 @@
 		template: CardTemplate | null;
 		onClose: () => void;
 	}>();
+
+	let currentColorScheme: ThemeColors = $state(
+        app.state.themeMode === 'night' || (app.state.themeMode === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches)
+            ? app.state.colorScheme.dark
+            : app.state.colorScheme.light
+    );
+
+    $effect(() => {
+        currentColorScheme = app.state.themeMode === 'night' || (app.state.themeMode === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches)
+            ? app.state.colorScheme.dark
+            : app.state.colorScheme.light;
+    });
 
 	let template = $state<CardTemplate>({
 		id: nanoid(),
@@ -164,7 +176,7 @@
 				class="flex-1 bg-gray-200 dark:bg-gray-950 p-12 flex items-center justify-center overflow-auto"
 			>
 				<div class="relative w-80 h-40 shadow-2xl rounded-xl">
-					<DeviceCard entityId="" isPreview={true} {template} />
+					<DeviceCard entityId="" isPreview={true} {template} colorScheme={currentColorScheme} />
 				</div>
 			</div>
 
