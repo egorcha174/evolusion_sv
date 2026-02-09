@@ -20,6 +20,18 @@ const FALLBACK_THEME: ThemeFile = {
     id: "default",
     name: "Default",
     isCustom: false,
+    layout: {
+      cardBorderRadius: 12,
+      cardBorderWidth: 0,
+      iconBackgroundShape: "circle",
+      weatherIconSize: 96,
+      weatherForecastIconSize: 48,
+      weatherCurrentTempFontSize: 36,
+      weatherCurrentDescFontSize: 14,
+      weatherForecastDayFontSize: 12,
+      weatherForecastMaxTempFontSize: 18,
+      weatherForecastMinTempFontSize: 14
+    },
     scheme: {
       light: {
         dashboardBackgroundType: "color",
@@ -33,8 +45,6 @@ const FALLBACK_THEME: ThemeFile = {
         scrollbarThumb: "#ccc",
         scrollbarTrack: "transparent",
         cardOpacity: 1,
-        cardBorderRadius: 12,
-        cardBorderWidth: 0,
         cardBorderColor: "transparent",
         cardBorderColorOn: "#2196f3",
         cardBackground: "#ffffff",
@@ -43,7 +53,6 @@ const FALLBACK_THEME: ThemeFile = {
         tabTextColor: "#65676b",
         activeTabTextColor: "#2196f3",
         tabIndicatorColor: "#2196f3",
-        iconBackgroundShape: "circle",
         iconBackgroundColorOn: "#2196f3",
         iconBackgroundColorOff: "#e4e6eb",
         nameTextColor: "#1a1d21",
@@ -81,8 +90,6 @@ const FALLBACK_THEME: ThemeFile = {
         scrollbarThumb: "#555",
         scrollbarTrack: "transparent",
         cardOpacity: 1,
-        cardBorderRadius: 12,
-        cardBorderWidth: 0,
         cardBorderColor: "transparent",
         cardBorderColorOn: "#64b5f6",
         cardBackground: "#1e2023",
@@ -91,7 +98,6 @@ const FALLBACK_THEME: ThemeFile = {
         tabTextColor: "#b0b3b8",
         activeTabTextColor: "#64b5f6",
         tabIndicatorColor: "#64b5f6",
-        iconBackgroundShape: "circle",
         iconBackgroundColorOn: "#64b5f6",
         iconBackgroundColorOff: "#2d3035",
         nameTextColor: "#e4e6eb",
@@ -145,14 +151,14 @@ export type AvailableTheme = ThemeManifest & { isCustom: boolean };
 
 export function getAvailableThemes(): AvailableTheme[] {
   const themes: AvailableTheme[] = [];
-  
+
   // 1. Built-in (Presets)
   for (const file of builtInThemes) {
     if (file && file.manifest) {
       themes.push({ ...file.manifest, isCustom: false });
     }
   }
-  
+
   // 2. Custom Files
   for (const path in customThemes) {
     const file = customThemes[path].default;
@@ -161,17 +167,17 @@ export function getAvailableThemes(): AvailableTheme[] {
       themes.push({ ...file.manifest, isCustom: true });
     }
   }
-  
+
   // 3. LocalStorage
   if (typeof localStorage !== 'undefined') {
-      try {
-        const stored = JSON.parse(localStorage.getItem('evolusion-custom-themes') || '{}');
-        Object.values(stored).forEach((t: any) => {
-            if (t && t.manifest) themes.push({ ...t.manifest, isCustom: true });
-        });
-      } catch (e) { /* ignore */ }
+    try {
+      const stored = JSON.parse(localStorage.getItem('evolusion-custom-themes') || '{}');
+      Object.values(stored).forEach((t: any) => {
+        if (t && t.manifest) themes.push({ ...t.manifest, isCustom: true });
+      });
+    } catch (e) { /* ignore */ }
   }
-  
+
   return themes;
 }
 
@@ -179,7 +185,7 @@ export async function loadTheme(themeId: string): Promise<Theme | null> {
   // 1. Built-ins
   const builtIn = builtInThemes.find(t => t.theme.id === themeId);
   if (builtIn) return builtIn.theme;
-  
+
   // 2. Custom Files
   for (const path in customThemes) {
     const file = customThemes[path].default;
@@ -187,15 +193,15 @@ export async function loadTheme(themeId: string): Promise<Theme | null> {
       return file.theme;
     }
   }
-  
+
   // 3. LocalStorage
   if (typeof localStorage !== 'undefined') {
-      try {
-        const stored = JSON.parse(localStorage.getItem('evolusion-custom-themes') || '{}');
-        if (stored[themeId] && stored[themeId].theme) return stored[themeId].theme;
-      } catch (e) { /* ignore */ }
+    try {
+      const stored = JSON.parse(localStorage.getItem('evolusion-custom-themes') || '{}');
+      if (stored[themeId] && stored[themeId].theme) return stored[themeId].theme;
+    } catch (e) { /* ignore */ }
   }
-  
+
   return null;
 }
 

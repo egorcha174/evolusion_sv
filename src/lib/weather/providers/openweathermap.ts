@@ -35,7 +35,8 @@ export const openWeatherMapProvider: WeatherProvider = {
       icon: getWeatherIcon(currentCode, settings.iconPack),
       location: currentData.name || coords.name,
       updatedAt: new Date(),
-      forecast
+      forecast,
+      weatherCode: currentCode,
     };
   }
 };

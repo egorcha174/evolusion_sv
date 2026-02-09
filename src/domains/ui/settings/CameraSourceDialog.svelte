@@ -2,58 +2,29 @@
     /**
      * Camera Source Configuration Dialog
      *
-     * Allows configuring individual camera stream sources:
-     * - Go2rtc (go2rtcUrl + streamName)
-     * - Direct URL (HLS/MJPEG/WebRTC)
-     * - Home Assistant Entity
+     * Wrapper for CameraSourceSettings in a modal dialog.
      */
     import { t } from "svelte-i18n";
     import type { CameraSourceConfig } from "$lib/types";
     import "iconify-icon";
+    import CameraSourceSettings from "./CameraSourceSettings.svelte";
 
-    interface Props {
+    let {
+        currentConfig = undefined,
+        onSave,
+        onClose,
+    } = $props<{
         currentConfig?: CameraSourceConfig;
         onSave: (config: CameraSourceConfig) => void;
         onClose: () => void;
-    }
+    }>();
 
-    let { currentConfig = undefined, onSave, onClose }: Props = $props();
-
-    // Form state initialized from currentConfig prop
-    let sourceType = $state<"go2rtc" | "url" | "ha_entity">(
-        currentConfig?.sourceType ?? "go2rtc",
-    );
-    let go2rtcUrl = $state(currentConfig?.go2rtcUrl ?? "");
-    let streamName = $state(currentConfig?.streamName ?? "");
-    let url = $state(currentConfig?.url ?? "");
-    let streamType = $state<"hls" | "mjpeg" | "webrtc">(
-        currentConfig?.streamType ?? "hls",
-    );
-    let entityId = $state(currentConfig?.entityId ?? "");
-
-    // Validate URL - RTSP cannot work in browsers
-    const isRtspUrl = $derived(url.toLowerCase().startsWith("rtsp://"));
-    const urlError = $derived(
-        isRtspUrl
-            ? "RTSP не поддерживается браузерами. Используйте go2rtc или MJPEG URL камеры."
-            : null,
+    // Initialize config state
+    let config = $state<CameraSourceConfig>(
+        currentConfig ? { ...currentConfig } : { sourceType: "go2rtc" },
     );
 
     function handleSave() {
-        const config: CameraSourceConfig = {
-            sourceType,
-        };
-
-        if (sourceType === "go2rtc") {
-            config.go2rtcUrl = go2rtcUrl;
-            config.streamName = streamName;
-        } else if (sourceType === "url") {
-            config.url = url;
-            config.streamType = streamType;
-        } else if (sourceType === "ha_entity") {
-            config.entityId = entityId;
-        }
-
         onSave(config);
     }
 
@@ -82,165 +53,7 @@
         </header>
 
         <div class="dialog-content">
-            <!-- Source Type Selection -->
-            <div class="form-group">
-                <label class="label-block">
-                    {$t("camera.source_type", { default: "Source Type" })}
-                </label>
-                <div class="radio-group">
-                    <label class="radio-label">
-                        <input
-                            type="radio"
-                            name="sourceType"
-                            value="go2rtc"
-                            bind:group={sourceType}
-                        />
-                        <span>Go2rtc</span>
-                    </label>
-                    <label class="radio-label">
-                        <input
-                            type="radio"
-                            name="sourceType"
-                            value="url"
-                            bind:group={sourceType}
-                        />
-                        <span
-                            >{$t("camera.direct_url", {
-                                default: "Direct URL",
-                            })}</span
-                        >
-                    </label>
-                    <label class="radio-label">
-                        <input
-                            type="radio"
-                            name="sourceType"
-                            value="ha_entity"
-                            bind:group={sourceType}
-                        />
-                        <span
-                            >{$t("camera.ha_entity", {
-                                default: "HA Entity",
-                            })}</span
-                        >
-                    </label>
-                </div>
-            </div>
-
-            <!-- Go2rtc Settings -->
-            {#if sourceType === "go2rtc"}
-                <div class="form-group">
-                    <label for="go2rtc-url" class="label-block">
-                        {$t("camera.go2rtc_url", { default: "Go2rtc URL" })}
-                    </label>
-                    <input
-                        id="go2rtc-url"
-                        type="text"
-                        class="input"
-                        bind:value={go2rtcUrl}
-                        placeholder="http://192.168.0.98:1984"
-                    />
-                    <span class="hint">
-                        {$t("camera.go2rtc_url_hint", {
-                            default: "Example: http://192.168.0.98:1984",
-                        })}
-                    </span>
-                </div>
-
-                <div class="form-group">
-                    <label for="stream-name" class="label-block">
-                        {$t("camera.stream_name", { default: "Stream Name" })}
-                    </label>
-                    <input
-                        id="stream-name"
-                        type="text"
-                        class="input"
-                        bind:value={streamName}
-                        placeholder="camera1"
-                    />
-                    <span class="hint">
-                        {$t("camera.stream_name_hint", {
-                            default: "Stream name configured in go2rtc",
-                        })}
-                    </span>
-                </div>
-            {/if}
-
-            <!-- Direct URL Settings -->
-            {#if sourceType === "url"}
-                <div class="form-group">
-                    <label for="stream-url" class="label-block">
-                        {$t("camera.stream_url", { default: "Stream URL" })}
-                    </label>
-                    <input
-                        id="stream-url"
-                        type="text"
-                        class="input"
-                        class:input-error={isRtspUrl}
-                        bind:value={url}
-                        placeholder="http://..."
-                    />
-                    {#if urlError}
-                        <span class="error-hint">
-                            <iconify-icon icon="mdi:alert" width="16"
-                            ></iconify-icon>
-                            {urlError}
-                        </span>
-                    {:else}
-                        <span class="hint">
-                            Примеры: HLS (.m3u8), MJPEG (http://ip/stream.mjpeg)
-                        </span>
-                    {/if}
-                </div>
-
-                <div class="form-group">
-                    <label class="label-block">
-                        {$t("camera.stream_type_label", {
-                            default: "Stream Type",
-                        })}
-                    </label>
-                    <div class="radio-group">
-                        <label class="radio-label">
-                            <input
-                                type="radio"
-                                name="streamType"
-                                value="hls"
-                                bind:group={streamType}
-                            />
-                            <span>HLS (.m3u8)</span>
-                        </label>
-                        <label class="radio-label">
-                            <input
-                                type="radio"
-                                name="streamType"
-                                value="mjpeg"
-                                bind:group={streamType}
-                            />
-                            <span>MJPEG</span>
-                        </label>
-                    </div>
-                </div>
-            {/if}
-
-            <!-- HA Entity Settings -->
-            {#if sourceType === "ha_entity"}
-                <div class="form-group">
-                    <label for="entity-id" class="label-block">
-                        {$t("camera.entity_id", { default: "Entity ID" })}
-                    </label>
-                    <input
-                        id="entity-id"
-                        type="text"
-                        class="input"
-                        bind:value={entityId}
-                        placeholder="camera.front_door"
-                    />
-                    <span class="hint">
-                        {$t("camera.entity_id_hint", {
-                            default: "Home Assistant camera entity ID",
-                        })}
-                    </span>
-                </div>
-            {/if}
+            <CameraSourceSettings bind:config />
         </div>
 
         <footer class="dialog-footer">
@@ -314,7 +127,6 @@
         padding: 1.5rem;
         display: flex;
         flex-direction: column;
-        gap: 1.25rem;
     }
 
     .dialog-footer {
@@ -323,69 +135,6 @@
         gap: 12px;
         padding: 1rem 1.5rem;
         border-top: 1px solid var(--border-divider);
-    }
-
-    .form-group {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-
-    .label-block {
-        font-weight: 500;
-        font-size: 0.95rem;
-        color: var(--text-primary);
-    }
-
-    .input {
-        width: 100%;
-        padding: 0.75rem;
-        border: 1px solid var(--border-input);
-        border-radius: 8px;
-        background: var(--bg-input);
-        color: var(--text-primary);
-        font-size: 0.95rem;
-        transition: border-color 0.2s;
-    }
-
-    .input:focus {
-        outline: none;
-        border-color: var(--accent-primary);
-    }
-
-    .hint {
-        font-size: 0.8rem;
-        color: var(--text-muted);
-    }
-
-    .radio-group {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-
-    .radio-label {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        padding: 0.75rem;
-        border: 1px solid var(--border-input);
-        border-radius: 8px;
-        cursor: pointer;
-        transition: all 0.2s;
-    }
-
-    .radio-label:hover {
-        background: var(--bg-card-hover);
-    }
-
-    .radio-label input[type="radio"] {
-        cursor: pointer;
-    }
-
-    .radio-label span {
-        color: var(--text-primary);
-        font-size: 0.95rem;
     }
 
     .btn {
@@ -415,20 +164,5 @@
 
     .btn-secondary:hover {
         background: var(--bg-chip-active);
-    }
-
-    .input-error {
-        border-color: var(--accent-error, #ef4444);
-    }
-
-    .error-hint {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-size: 0.8rem;
-        color: var(--accent-error, #ef4444);
-        padding: 0.5rem;
-        background: rgba(239, 68, 68, 0.1);
-        border-radius: 6px;
     }
 </style>

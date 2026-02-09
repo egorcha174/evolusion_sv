@@ -10,6 +10,10 @@
 
    let { onClose } = $props<{ onClose: () => void }>();
 
+   $effect(() => {
+      console.log("ServerManager mounted/active");
+   });
+
    // State
    let servers = $derived($appState.savedServers || []);
    let selectedId = $state<string | null>(null);
@@ -47,7 +51,7 @@
    function handleAdd() {
       draft = {
          id: generateId(),
-         name: "New Server",
+         name: $t("common.newServer"),
          url: "http://homeassistant.local:8123",
          token: "",
       };
@@ -147,11 +151,13 @@
                   onclick={() => handleSelect(s.id)}
                >
                   <div class="item-info">
-                     <div class="item-name">{s.name || "Unnamed"}</div>
+                     <div class="item-name">
+                        {s.name || $t("common.unnamed")}
+                     </div>
                      <div class="item-url">{s.url}</div>
                   </div>
                   {#if isActiveConnected(s.id)}
-                     <div class="active-dot" title="Active"></div>
+                     <div class="active-dot" title={$t("common.active")}></div>
                   {/if}
                </button>
             {/each}

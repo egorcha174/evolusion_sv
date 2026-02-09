@@ -10,6 +10,24 @@ export interface ThemeManifest {
   preview?: string;
 }
 
+export interface ThemeLayout {
+  // Card
+  cardBorderRadius: number;
+  cardBorderWidth: number;
+
+  // Icon
+  iconBackgroundShape: 'circle' | 'rounded-square' | 'square';
+
+  // Weather (Layout/Size)
+  weatherIconSize?: number;
+  weatherForecastIconSize?: number;
+  weatherCurrentTempFontSize?: number;
+  weatherCurrentDescFontSize?: number;
+  weatherForecastDayFontSize?: number;
+  weatherForecastMaxTempFontSize?: number;
+  weatherForecastMinTempFontSize?: number;
+}
+
 export interface ColorScheme {
   // Dashboard
   dashboardBackgroundType: 'color' | 'gradient' | 'image';
@@ -20,41 +38,40 @@ export interface ColorScheme {
   dashboardBackgroundImageBlur?: number;
   dashboardBackgroundImageBrightness?: number;
 
-  // Global UI (New)
+  // Global UI
   bgSidebar: string;
-  sidebarOpacity?: number; // New
+  sidebarOpacity?: number;
 
   bgChip: string;
   bgCardHover: string;
-  bgDropdown?: string; // Optional, falls back to panel
+  bgDropdown?: string;
   bgInput?: string;
 
   bgHeader?: string;
-  headerOpacity?: number; // New
+  headerOpacity?: number;
 
-  // Borders & Inputs (New)
+  // Borders & Inputs
   borderInput: string;
   borderFocus: string;
   borderDivider: string;
   borderPrimary?: string;
 
-  // Text Global (New)
+  // Text Global
   textPrimary?: string;
   textSecondary?: string;
   textMuted?: string;
 
-  // Scrollbars (New)
+  // Scrollbars
   scrollbarThumb: string;
   scrollbarTrack: string;
 
-  // Grid Editor (New)
+  // Grid Editor
   gridCellBg?: string;
   gridCellBorder?: string;
 
   // Card
   cardOpacity: number;
-  cardBorderRadius: number;
-  cardBorderWidth: number;
+  // REMOVED: cardBorderRadius, cardBorderWidth (moved to layout)
   cardBorderColor: string;
   cardBorderColorOn: string;
   cardBackground: string;
@@ -63,7 +80,7 @@ export interface ColorScheme {
 
   // Panel
   panelOpacity: number;
-  bgPanel?: string; // Often derived, but explicit is better. Not strictly new but ensuring typing.
+  bgPanel?: string;
 
   // Tabs
   tabTextColor: string;
@@ -71,10 +88,10 @@ export interface ColorScheme {
   tabIndicatorColor: string;
 
   // Icon
-  iconBackgroundShape: 'circle' | 'rounded-square' | 'square';
+  // REMOVED: iconBackgroundShape (moved to layout)
   iconBackgroundColorOn: string;
   iconBackgroundColorOff: string;
-  iconColorOn?: string; // New: To fix contrast issues (e.g. black icon on yellow bg)
+  iconColorOn?: string;
 
   // Thermostat
   thermostatHandleColor: string;
@@ -111,14 +128,7 @@ export interface ColorScheme {
   // Specific Widgets
   widgetSwitchOn?: string;
 
-  // Weather (Layout/Size - Optional)
-  weatherIconSize?: number;
-  weatherForecastIconSize?: number;
-  weatherCurrentTempFontSize?: number;
-  weatherCurrentDescFontSize?: number;
-  weatherForecastDayFontSize?: number;
-  weatherForecastMaxTempFontSize?: number;
-  weatherForecastMinTempFontSize?: number;
+  // REMOVED: Weather sizes (moved to layout)
 }
 
 export interface ThemeScheme {
@@ -130,6 +140,8 @@ export interface Theme {
   id: string;
   name: string;
   isCustom: boolean;
+  foundation?: Record<string, string>; // NEW: Raw values
+  layout: ThemeLayout;
   scheme: ThemeScheme;
 }
 

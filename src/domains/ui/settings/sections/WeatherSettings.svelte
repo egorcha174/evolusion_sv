@@ -26,12 +26,21 @@
         { label: "Default (Material)", value: "default" },
         { label: "Outline", value: "outline" },
         { label: "Filled", value: "filled" },
+        { label: "Meteocons (Animated SVG)", value: "meteocons" },
+        { label: "Weather Icons", value: "weather-icons" },
+        { label: "Material Symbols", value: "material-symbols" },
     ];
 
-    const layoutOptions = [
-        { label: "Vertical", value: "vertical" }, // TODO: Translate
-        { label: "Horizontal", value: "horizontal" },
-    ];
+    let layoutOptions = $derived([
+        {
+            label: $t("settings.weather.layout_options.vertical"),
+            value: "vertical",
+        },
+        {
+            label: $t("settings.weather.layout_options.horizontal"),
+            value: "horizontal",
+        },
+    ]);
 
     function handleRefresh() {
         refreshWeatherConfig();
@@ -104,7 +113,7 @@
                 "Refresh Interval (min)"}
             bind:value={$weatherSettings.refreshIntervalMinutes}
             type="number"
-            hint="Min: 1, Max: 60"
+            hint={$t("settings.weather.refresh_hint") || "Min: 1, Max: 60"}
         />
         <!-- We trigger refresh on interval change? Maybe not needed immediately -->
     </div>
@@ -158,7 +167,7 @@
     </div>
 
     <Select
-        label={$t("settings.weatherIconPack") || "Icon Pack"}
+        label={$t("settings.weather.weatherIconPack") || "Icon Pack"}
         bind:value={$weatherSettings.iconPack}
         options={iconPackOptions}
     />
@@ -206,6 +215,53 @@
         min={20}
         max={96}
         unit="px"
+    />
+
+    <RangeInput
+        label={$t("settings.weather.iconSizeForecast") || "Forecast Icon Size"}
+        bind:value={$weatherSettings.forecastIconSize}
+        min={16}
+        max={64}
+        unit="px"
+    />
+
+    <RangeInput
+        label={$t("settings.weather.tempSizeForecast") || "Forecast Temp Size"}
+        bind:value={$weatherSettings.forecastTempSize}
+        min={10}
+        max={32}
+        unit="px"
+    />
+
+    <div class="divider"></div>
+
+    <!-- FORECAST ITEMS SECTION -->
+    <div class="subsection-title">
+        {$t("settings.weather.forecastItems") || "Forecast Items"}
+    </div>
+
+    <RangeInput
+        label={$t("settings.weather.forecastItemBgOpacity") ||
+            "Background Opacity"}
+        bind:value={$weatherSettings.forecastItemBgOpacity}
+        min={0}
+        max={100}
+        unit="%"
+    />
+
+    <RangeInput
+        label={$t("settings.weather.forecastItemBorderRadius") ||
+            "Corner Radius"}
+        bind:value={$weatherSettings.forecastItemBorderRadius}
+        min={0}
+        max={24}
+        unit="px"
+    />
+
+    <Switch
+        label={$t("settings.weather.enableIconAnimation") ||
+            "Animate Weather Icons"}
+        bind:checked={$weatherSettings.enableIconAnimation}
     />
 
     <div class="actions">

@@ -94,6 +94,7 @@
       ? previewTheme.theme.scheme.dark
       : previewTheme.theme.scheme.light,
   );
+  let previewLayout = $derived(previewTheme.theme.layout);
 
   function handleSave() {
     if (!validation.ok) return;
@@ -344,8 +345,8 @@
           <div
             class="preview-card"
             style:background-color={previewScheme.cardBackground}
-            style:border-radius="{previewScheme.cardBorderRadius}px"
-            style:border="{previewScheme.cardBorderWidth}px solid {previewScheme.cardBorderColor}"
+            style:border-radius="{previewLayout.cardBorderRadius}px"
+            style:border="{previewLayout.cardBorderWidth}px solid {previewScheme.cardBorderColor}"
             style:box-shadow={previewScheme.shadowCard}
           >
             <div class="p-header">
@@ -371,8 +372,8 @@
           <div
             class="preview-card active"
             style:background-color={previewScheme.cardBackgroundOn}
-            style:border-radius="{previewScheme.cardBorderRadius}px"
-            style:border="{previewScheme.cardBorderWidth}px solid {previewScheme.cardBorderColorOn}"
+            style:border-radius="{previewLayout.cardBorderRadius}px"
+            style:border="{previewLayout.cardBorderWidth}px solid {previewScheme.cardBorderColorOn}"
             style:box-shadow={previewScheme.shadowCard}
           >
             <div class="p-header">

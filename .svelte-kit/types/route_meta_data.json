@@ -9,9 +9,6 @@
 	"/api/streams": [
 		"src/routes/api/streams/+server.ts"
 	],
-	"/cameras": [
-		"src/routes/+layout.ts"
-	],
 	"/entities": [
 		"src/routes/+layout.ts"
 	],

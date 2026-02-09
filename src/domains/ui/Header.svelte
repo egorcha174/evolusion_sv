@@ -82,7 +82,8 @@
       {#if $isEditMode}
         <button
           class="tab-btn add-btn"
-          onclick={() => dashboardStore.addTab("New Tab")}
+          onclick={() => dashboardStore.addTab($t("common.newTab"))}
+          aria-label={$t("common.newTab")}
         >
           <iconify-icon icon="mdi:plus" width="20"></iconify-icon>
         </button>
@@ -105,7 +106,11 @@
     </div>
 
     <div class="menu-container">
-      <button class="icon-btn" onclick={toggleKebabMenu}>
+      <button
+        class="icon-btn"
+        onclick={toggleKebabMenu}
+        aria-label={$t("dashboard.menu.appearance")}
+      >
         <iconify-icon icon="mdi:dots-vertical" width="24"></iconify-icon>
       </button>
 
@@ -129,7 +134,8 @@
           </a>
           <div class="divider"></div>
           <button class="menu-item" onclick={handleRefresh}>
-            <iconify-icon icon="mdi:refresh"></iconify-icon> Refresh Page
+            <iconify-icon icon="mdi:refresh"></iconify-icon>
+            {$t("dashboard.menu.refresh")}
           </button>
           <div class="divider"></div>
           <button

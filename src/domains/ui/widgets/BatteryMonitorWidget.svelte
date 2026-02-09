@@ -1,161 +1,216 @@
 <script lang="ts">
-    import "iconify-icon";
-    import { haStore } from "../../ha/store";
+    import type { HAEntity } from "$lib/types";
+    import { LOW_BATTERY_THRESHOLD } from "$domains/ha/virtual-devices";
 
     interface Props {
-        settings?: any;
+        entity: HAEntity;
     }
 
-    let { settings = {} }: Props = $props();
+    let { entity }: Props = $props();
 
-    let entities = $derived(settings.entities || []);
-
-    function getBatteryLevel(id: string): number | null {
-        const entity = $haStore.entities.get(id);
-        if (
-            !entity ||
-            entity.state === "unavailable" ||
-            entity.state === "unknown"
-        )
-            return null;
-        return parseInt(entity.state, 10);
+    interface BatteryDevice {
+        id: string;
+        name: string;
+        level: number;
     }
 
-    function getName(id: string): string {
-        const entity = $haStore.entities.get(id);
-        return entity?.attributes.friendly_name || id;
+    let devices = $derived(
+        (entity?.attributes?.battery_devices as BatteryDevice[]) || [],
+    );
+    let isExpanded = $state(false);
+
+    let devicesToShow = $derived(isExpanded ? devices : devices.slice(0, 4));
+
+    function getBatteryIcon(level: number) {
+        if (level <= LOW_BATTERY_THRESHOLD)
+            return "mdi:battery-alert-variant-outline";
+        if (level <= 10) return "mdi:battery-10";
+        if (level <= 20) return "mdi:battery-20";
+        if (level <= 30) return "mdi:battery-30";
+        if (level <= 40) return "mdi:battery-40";
+        if (level <= 50) return "mdi:battery-50";
+        if (level <= 60) return "mdi:battery-60";
+        if (level <= 70) return "mdi:battery-70";
+        if (level <= 80) return "mdi:battery-80";
+        if (level <= 90) return "mdi:battery-90";
+        return "mdi:battery";
     }
 
-    function getIcon(level: number | null): string {
-        if (level === null) return "mdi:battery-unknown";
-        if (level >= 95) return "mdi:battery";
-        if (level >= 90) return "mdi:battery-90";
-        if (level >= 80) return "mdi:battery-80";
-        if (level >= 70) return "mdi:battery-70";
-        if (level >= 60) return "mdi:battery-60";
-        if (level >= 50) return "mdi:battery-50";
-        if (level >= 40) return "mdi:battery-40";
-        if (level >= 30) return "mdi:battery-30";
-        if (level >= 20) return "mdi:battery-20";
-        if (level >= 10) return "mdi:battery-10";
-        return "mdi:battery-alert";
-    }
-
-    function getColorClass(level: number | null): string {
-        if (level === null) return "unknown";
-        if (level <= 20) return "critical";
-        if (level <= 40) return "low";
-        return "good";
+    function toggleExpand(e: MouseEvent) {
+        e.stopPropagation();
+        isExpanded = !isExpanded;
     }
 </script>
 
 <div class="battery-widget">
     <div class="header">
-        <span class="title">Battery Levels</span>
-        <iconify-icon icon="mdi:battery-charging-high" width="20"
+        <iconify-icon
+            icon="mdi:battery-heart-variant-outline"
+            width="24"
+            class="header-icon"
         ></iconify-icon>
+        <h3>Уровень заряда</h3>
     </div>
 
-    <div class="battery-list">
-        {#if entities.length === 0}
-            <div class="empty">No devices selected</div>
-        {:else}
-            {#each entities as id}
-                {@const level = getBatteryLevel(id)}
-                {@const colorClass = getColorClass(level)}
-                <div class="battery-row">
-                    <div class="name-col" title={getName(id)}>
-                        {getName(id)}
-                    </div>
-                    <div class="val-col {colorClass}">
-                        <span>{level !== null ? `${level}%` : "?"}</span>
-                        <iconify-icon icon={getIcon(level)}></iconify-icon>
-                    </div>
-                </div>
-            {/each}
+    <div class="list">
+        {#if devices.length === 0}
+            <div class="empty">
+                <iconify-icon
+                    icon="mdi:battery-off-outline"
+                    width="40"
+                    style="color: var(--text-secondary);"
+                ></iconify-icon>
+                <p class="empty-title">Нет устройств с батареей</p>
+                <p class="empty-subtitle">
+                    Не найдено устройств с уровнем заряда.
+                </p>
+            </div>
         {/if}
+
+        {#each devicesToShow as device (device.id)}
+            {@const isLow = device.level <= LOW_BATTERY_THRESHOLD}
+            <div class="device-row">
+                <div
+                    class="device-info"
+                    style:color={isLow
+                        ? "var(--accent-error, #ef4444)"
+                        : "var(--text-primary)"}
+                >
+                    <iconify-icon icon={getBatteryIcon(device.level)} width="20"
+                    ></iconify-icon>
+                    <span class="name" title={device.name}>{device.name}</span>
+                </div>
+                <span
+                    class="level"
+                    style:color={isLow
+                        ? "var(--accent-error, #ef4444)"
+                        : "var(--text-secondary)"}>{device.level}%</span
+                >
+            </div>
+        {/each}
     </div>
+
+    {#if devices.length > 4}
+        <button class="expand-btn" onclick={toggleExpand}>
+            {isExpanded ? "Свернуть" : `Показать еще ${devices.length - 4}`}
+        </button>
+    {/if}
 </div>
 
 <style>
     .battery-widget {
         width: 100%;
         height: 100%;
-        background: var(--bg-card);
-        border-radius: var(--radius-lg, 16px);
-        box-shadow: var(--shadow-sm);
-        border: 1px solid var(--border-primary, rgba(0, 0, 0, 0.05));
         display: flex;
         flex-direction: column;
+        padding: 1rem;
+        /* background-color: transparent via previous edit, ensuring it fills parent */
+        color: var(--text-primary);
         overflow: hidden;
+        border-radius: var(--card-border-radius, 16px);
     }
 
     .header {
-        padding: 0.75rem 1rem;
-        border-bottom: 1px solid var(--border-divider, rgba(255, 255, 255, 0.1));
         display: flex;
-        justify-content: space-between;
         align-items: center;
-        background: var(--bg-header, rgba(0, 0, 0, 0.02));
-        color: var(--text-primary);
-        font-weight: 600;
-        font-size: 0.95rem;
+        gap: 0.75rem;
+        margin-bottom: 0.75rem;
+        flex-shrink: 0;
     }
 
-    .battery-list {
+    .header-icon {
+        color: var(--text-secondary);
+    }
+
+    h3 {
+        font-weight: 500;
+        font-size: 0.95rem;
+        margin: 0;
+        color: var(--text-primary);
+    }
+
+    .list {
         flex: 1;
         overflow-y: auto;
-        padding: 0.5rem 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        padding-right: 0.25rem;
     }
 
-    .battery-row {
+    /* Hide scrollbars (Fusion behavior) */
+    .list::-webkit-scrollbar {
+        display: none;
+    }
+    .list {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+
+    .device-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.875rem;
+    }
+
+    .device-info {
         display: flex;
         align-items: center;
-        justify-content: space-between;
-        padding: 0.5rem 1rem;
-        border-bottom: 1px solid
-            var(--border-divider, rgba(255, 255, 255, 0.05));
+        gap: 0.5rem;
+        overflow: hidden;
     }
 
-    .battery-row:last-child {
-        border-bottom: none;
-    }
-
-    .name-col {
-        font-size: 0.9rem;
-        color: var(--text-primary);
+    .name {
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        flex: 1;
-        margin-right: 1rem;
     }
 
-    .val-col {
-        display: flex;
-        align-items: center;
-        gap: 0.25rem;
+    .level {
         font-weight: 600;
-        font-size: 0.9rem;
+        flex-shrink: 0;
+        margin-left: 0.5rem;
     }
 
-    .val-col.good {
-        color: var(--color-success, #22c55e);
+    .expand-btn {
+        margin-top: 0.5rem;
+        background: none;
+        border: none;
+        color: var(--accent-info, #3b82f6);
+        font-size: 0.75rem;
+        font-weight: 600;
+        cursor: pointer;
+        padding: 0.25rem;
+        width: 100%;
+        text-align: center;
+        flex-shrink: 0;
     }
-    .val-col.low {
-        color: var(--color-warning, #eab308);
-    }
-    .val-col.critical {
-        color: var(--color-error, #ef4444);
-    }
-    .val-col.unknown {
-        color: var(--text-muted);
+
+    .expand-btn:hover {
+        text-decoration: underline;
     }
 
     .empty {
-        padding: 2rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        color: var(--text-secondary);
+        gap: 0.5rem;
         text-align: center;
-        color: var(--text-muted);
-        font-size: 0.85rem;
+    }
+
+    .empty-title {
+        margin: 0;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    .empty-subtitle {
+        margin: 0;
+        font-size: 0.8rem;
+        color: var(--text-secondary);
     }
 </style>

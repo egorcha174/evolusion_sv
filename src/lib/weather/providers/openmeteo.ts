@@ -23,7 +23,7 @@ export const openMeteoProvider: WeatherProvider = {
 
     const data = await res.json();
     const current = data.current_weather;
-    
+
     if (!current) {
       throw new Error('No weather data received from OpenMeteo');
     }
@@ -32,7 +32,7 @@ export const openMeteoProvider: WeatherProvider = {
     const forecast: WeatherForecastDay[] = [];
     if (data.daily && data.daily.time) {
       const days = Math.min(settings.forecastDays, data.daily.time.length);
-      
+
       // Skip today (index 0) usually, or include? 
       // Usually forecast implies "upcoming", but users often want "Rest of today + Future".
       // OpenMeteo daily includes today. Let's start from index 1 (tomorrow) if we want "future", 
@@ -40,9 +40,9 @@ export const openMeteoProvider: WeatherProvider = {
       // NOTE: Requirement says "future days". Let's verify standard UI. 
       // Usually widget shows current, then list of *upcoming* days.
       // Let's start from index 1 (tomorrow).
-      
+
       const count = Math.min(days, data.daily.time.length - 1);
-      
+
       for (let i = 1; i <= count; i++) {
         forecast.push({
           date: new Date(data.daily.time[i]),
@@ -60,7 +60,9 @@ export const openMeteoProvider: WeatherProvider = {
       icon: getWeatherIcon(current.weathercode, settings.iconPack),
       location: coords.name,
       updatedAt: new Date(),
-      forecast
+      forecast,
+      weatherCode: current.weathercode,
+      isDay: current.is_day === 1 // OpenMeteo returns 1 for day, 0 for night
     };
   }
 };

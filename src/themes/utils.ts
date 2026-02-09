@@ -1,18 +1,32 @@
 
-import type { ColorScheme, Theme } from './types';
-import { ThemeFileSchema } from './schemas';
+import type { ColorScheme, Theme, ThemeLayout } from './types';
+import { ThemeFileSchema, ColorSchemeSchema, ThemeLayoutSchema } from './schemas';
 
 export function camelToKebab(str: string): string {
   return str.replace(/([A-Z])/g, '-$1').toLowerCase();
 }
 
-// Helper to convert HEX to RGBA
-export function hexToRgba(hex: string, alpha: number): string {
-  if (!hex) return hex;
-  let c = hex.trim();
+// ... existing helpers ...
+
+// Helper to convert HEX to RGBA or use color-mix for vars
+export function hexToRgba(value: string, alpha: number): string {
+  if (!value) return value;
+  let c = value.trim();
 
   // If already rgba, just return it (simplistic check)
   if (c.startsWith('rgb')) return c;
+
+  // Handle CSS variables using color-mix (modern browser support required)
+  if (c.startsWith('var(')) {
+    // color-mix(in srgb, var(--color), 0% alpha) doesn't work directly like rgba.
+    // Instead we use: color-mix(in srgb, var(--color), transparent (1-alpha)%)
+    // But color-mix syntax is: color-mix(in srgb, color percentage, color percentage)
+    // Actually standard way to opacity a variable without calc is complex.
+    // The most robust way with modern CSS is `color-mix(in srgb, var(--color) <alpha>%, transparent)`
+    // where alpha is 0-100%.
+    const percentage = Math.round(alpha * 100);
+    return `color-mix(in srgb, ${c} ${percentage}%, transparent)`;
+  }
 
   if (c.startsWith('#')) {
     c = c.substring(1);
@@ -24,14 +38,14 @@ export function hexToRgba(hex: string, alpha: number): string {
   }
 
   // Invalid hex length? Return original
-  if (c.length !== 6) return hex;
+  if (c.length !== 6) return value;
 
   const r = parseInt(c.substring(0, 2), 16);
   const g = parseInt(c.substring(2, 4), 16);
   const b = parseInt(c.substring(4, 6), 16);
 
   // Sanity check for valid parsing
-  if (isNaN(r) || isNaN(g) || isNaN(b)) return hex;
+  if (isNaN(r) || isNaN(g) || isNaN(b)) return value;
 
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
@@ -50,10 +64,23 @@ const PIXEL_PROPERTIES = new Set([
   'weatherForecastMinTempFontSize',
 ]);
 
-export function generateCSSVariables(scheme: ColorScheme): Record<string, string> {
+// Derived keys not in schema but used in CSS
+const DERIVED_CSS_VARS = [
+  '--dashboard-background',
+  '--icon-border-radius'
+];
+
+export function generateCSSVariables(scheme: ColorScheme, layout?: ThemeLayout, foundation?: Record<string, string>): Record<string, string> {
   const vars: Record<string, string> = {};
 
-  // Helper to flatten the object
+  // 1. Foundation Tokens (Raw values)
+  if (foundation) {
+    for (const [key, value] of Object.entries(foundation)) {
+      vars[`--${key}`] = String(value);
+    }
+  }
+
+  // 2. Iterate over Scheme parameters
   for (const [key, value] of Object.entries(scheme)) {
     if (value !== undefined && value !== null) {
       const varName = `--${camelToKebab(key)}`;
@@ -86,20 +113,34 @@ export function generateCSSVariables(scheme: ColorScheme): Record<string, string
         }
       }
 
-      // Logic for Icon Shape
-      if (key === 'iconBackgroundShape') {
-        const shape = value as string;
-        let radius = '50%';
-        if (shape === 'rounded-square') radius = '8px';
-        if (shape === 'square') radius = '0px';
-        vars['--icon-border-radius'] = radius;
-      }
+      vars[varName] = String(value);
 
-      // Check if we need to append 'px'
-      if (typeof value === 'number' && PIXEL_PROPERTIES.has(key)) {
-        vars[varName] = `${value}px`;
-      } else {
-        vars[varName] = String(value);
+    } else {
+      // Do nothing for undefined/null
+    }
+  }
+
+  // 3. Iterate over Layout parameters
+  if (layout) {
+    for (const [key, value] of Object.entries(layout)) {
+      if (value !== undefined && value !== null) {
+        const varName = `--${camelToKebab(key)}`;
+
+        // Logic for Icon Shape
+        if (key === 'iconBackgroundShape') {
+          const shape = value as string;
+          let radius = '50%';
+          if (shape === 'rounded-square') radius = '8px';
+          if (shape === 'square') radius = '0px';
+          vars['--icon-border-radius'] = radius;
+        }
+
+        // Check if we need to append 'px'
+        if (typeof value === 'number' && PIXEL_PROPERTIES.has(key)) {
+          vars[varName] = `${value}px`;
+        } else {
+          vars[varName] = String(value);
+        }
       }
     }
   }
@@ -119,33 +160,36 @@ export function generateCSSVariables(scheme: ColorScheme): Record<string, string
   return vars;
 }
 
-export function applyThemeCSS(scheme: ColorScheme) {
+export function applyThemeCSS(scheme: ColorScheme, layout?: ThemeLayout, foundation?: Record<string, string>) {
   if (typeof document === 'undefined') return;
 
-  const vars = generateCSSVariables(scheme);
   const root = document.documentElement;
 
-  // 1. Reset: We iterate over keys that we KNOW we might have set previously.
-  // Ideally, we would track previously set vars, but iterating the NEW vars acts as a replacement.
-  // To handle "removal" of keys that don't exist in the new theme (fallbacking to default/css),
-  // we can either clear all style properties (dangerous) or maintain a list.
+  // CLEANUP: Remove old theme variables to prevent state leak
+  // We use the Schema keys to know what *could* have been set.
 
-  // Strategy: Clear all --* properties on :root that look like theme variables? 
-  // Too broad. 
-  // Better: We assume the stored theme object is authoritative. 
-  // If the new theme misses a key, it should ideally have been filled by defaults before reaching here.
-  // But to be safe against "leftover" variables from a previous theme that had EXTRA keys:
+  // 1. Cleanup Scheme Keys
+  const schemeKeys = Object.keys(ColorSchemeSchema.shape);
+  for (const key of schemeKeys) {
+    root.style.removeProperty(`--${camelToKebab(key)}`);
+  }
 
-  // We will assume that `vars` contains EVERYTHING needed. 
-  // If we want to support "unsetting", we'd need to know what to unset.
+  // 2. Cleanup Layout Keys
+  const layoutKeys = Object.keys(ThemeLayoutSchema.shape);
+  for (const key of layoutKeys) {
+    root.style.removeProperty(`--${camelToKebab(key)}`);
+  }
 
-  // Practical Fix for "Partial Updates":
-  // We will iterate over the `style` object and remove any property starting with `--` 
-  // that IS NOT in the new `vars`? No, that's slow and might kill other libs.
+  // 3. Cleanup Derived Vars
+  for (const v of DERIVED_CSS_VARS) {
+    root.style.removeProperty(v);
+  }
 
-  // Fix: Just overwrite. The issue described by user ("part of previous theme default") 
-  // implies the new theme didn't set something the old one did.
-  // The Solution is ensuring the NEW theme has ALL keys.
+  // NOTE: Foundation keys are dynamic, so we cannot easily clean them up 
+  // without tracking state or scanning all styles. 
+  // Assuming foundation keys are additive or consistent for now.
+
+  const vars = generateCSSVariables(scheme, layout, foundation);
 
   for (const [key, value] of Object.entries(vars)) {
     root.style.setProperty(key, value);

@@ -61,6 +61,18 @@ class MockWebSocket {
 // Inject mock
 (globalThis as any).WebSocket = MockWebSocket;
 
+// Mock requestAnimationFrame for Node.js test environment
+test.beforeAll(() => {
+  (globalThis as any).requestAnimationFrame = (callback: FrameRequestCallback) => {
+    // In a test environment, we don't actually need to wait for a frame.
+    // Just execute the callback immediately or with a small delay.
+    return setTimeout(() => callback(performance.now()), 0);
+  };
+  (globalThis as any).cancelAnimationFrame = (handle: number) => {
+    clearTimeout(handle);
+  };
+});
+
 test.describe('HA Store', () => {
   const URL = 'http://localhost:8123';
   const TOKEN = 'abc';
@@ -106,6 +118,9 @@ test.describe('HA Store', () => {
     };
     
     updateEntity('light.living_room', newEntity);
+    
+    // Wait for the next event loop tick to allow requestAnimationFrame's callback to run
+    await new Promise(resolve => setTimeout(resolve, 0));
     
     const state = get(haStore);
     expect(state.entities.get('light.living_room')?.state).toBe('off');

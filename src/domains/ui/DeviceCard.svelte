@@ -2,19 +2,25 @@
   import { t } from "svelte-i18n";
   import type { HAEntity, CardTemplate, CardElement } from "$lib/types";
   import { toggleEntity } from "../ha/store";
+  import { dashboardStore } from "../app/dashboardStore";
+  import ConfirmModal from "./ConfirmModal.svelte";
   import { extractDomain } from "$lib/utils";
   import { getIcon } from "$lib/icons";
   import { lazyLoad } from "$lib/actions";
   import { getTemplateCssVariables } from "./editor/templates/style";
+  import EventTimerWidget from "./widgets/EventTimerWidget.svelte";
+  import BatteryMonitorWidget from "./widgets/BatteryMonitorWidget.svelte";
 
   let {
     entity,
     template,
     onAddToTab,
+    onTimerReset,
   }: {
     entity: HAEntity;
     template?: CardTemplate;
     onAddToTab?: () => void;
+    onTimerReset?: () => void;
   } = $props();
 
   let isToggling = $state(false);
@@ -63,6 +69,14 @@
     return entity.state;
   });
 
+  // Widget Detection
+  let widgetType = $derived(
+    entity.attributes.widget_type as string | undefined,
+  );
+  let isTimer = $derived(widgetType === "timer");
+  let isBattery = $derived(widgetType === "battery");
+  let isWidget = $derived(!!widgetType);
+
   // Calculate overridden styles if template exists
   let customStyle = $derived(
     template ? getTemplateCssVariables(template.style) : "",
@@ -72,6 +86,14 @@
   let isVisualMode = $derived(
     template && template.elements && template.elements.length > 0,
   );
+
+  // For widgets, we might want to strip standard padding
+  // so they can control their own layout (e.g. liquid fill)
+  let noPadding = $derived(isTimer || isBattery);
+  let timerConfigId = $derived(
+    (entity.attributes as any)?.config?.id as string | undefined,
+  );
+  let showResetConfirm = $state(false);
 
   // Helper for elements style
   function getElementStyle(el: CardElement): string {
@@ -94,18 +116,34 @@
 
     return parts.join(";");
   }
+
+  function handleTimerReset() {
+    if (onTimerReset) {
+      onTimerReset();
+      return;
+    }
+    if (!timerConfigId) return;
+    dashboardStore.resetTimerCard(timerConfigId);
+  }
+
+  function handleTimerDblClick(e: MouseEvent) {
+    e.stopPropagation();
+    showResetConfirm = true;
+  }
 </script>
 
 <div
   class="device-card"
   class:active={isOn}
   class:visual-mode={isVisualMode}
+  class:p-0={noPadding}
   data-domain={domain}
   use:lazyLoad
   onenter={handleEnter}
   role="button"
   tabindex="0"
   onclick={isToggleable ? handleToggle : undefined}
+  ondblclick={isTimer ? handleTimerDblClick : undefined}
   onkeydown={(e) =>
     isToggleable && (e.key === "Enter" || e.key === " ") && handleToggle()}
   style={customStyle}
@@ -113,7 +151,11 @@
   {#if !isLoaded}
     <div class="skeleton"></div>
   {:else}
-    {#if isVisualMode && template}
+    {#if isTimer}
+      <EventTimerWidget {entity} />
+    {:else if isBattery}
+      <BatteryMonitorWidget {entity} />
+    {:else if isVisualMode && template}
       <!-- Visual Mode: Render Elements -->
       {#each template.elements as el (el.id)}
         <div class="card-element type-{el.type}" style={getElementStyle(el)}>
@@ -180,6 +222,27 @@
     {/if}
   {/if}
 </div>
+
+{#if showResetConfirm}
+  <ConfirmModal
+    title={$t("widgets.eventTimer.resetConfirmTitle", {
+      default: "Reset Timer?",
+    })}
+    message={$t("widgets.eventTimer.resetConfirmMessage", {
+      default: "Reset the timer now? This will restart the countdown.",
+    })}
+    confirmLabel={$t("widgets.eventTimer.resetConfirmAction", {
+      default: "Reset",
+    })}
+    cancelLabel={$t("common.cancel")}
+    isDestructive={true}
+    onConfirm={() => {
+      handleTimerReset();
+      showResetConfirm = false;
+    }}
+    onCancel={() => (showResetConfirm = false)}
+  />
+{/if}
 
 <style>
   .device-card {
@@ -476,5 +539,9 @@
     .device-card:not(.visual-mode) .attribute {
       display: none;
     }
+  }
+
+  .p-0 {
+    padding: 0 !important;
   }
 </style>

@@ -8,6 +8,9 @@
     import Lightning from "./effects/Lightning.svelte";
     import Tron from "./effects/Tron.svelte";
     import Sun from "./effects/Sun.svelte";
+    import Life from "./effects/Life.svelte";
+    import Matrix from "./effects/Matrix.svelte";
+    import Hyperspace from "./effects/Hyperspace.svelte";
 </script>
 
 {#if $backgroundStore.effectType === "aurora"}
@@ -27,6 +30,12 @@
     <Lightning />
 {:else if $backgroundStore.effectType === "tron"}
     <Tron settings={$backgroundStore.settings.tron} />
+{:else if $backgroundStore.effectType === "life"}
+    <Life settings={$backgroundStore.settings.life} />
+{:else if $backgroundStore.effectType === "matrix"}
+    <Matrix settings={$backgroundStore.settings.matrix} />
+{:else if $backgroundStore.effectType === "hyperspace"}
+    <Hyperspace settings={$backgroundStore.settings.hyperspace} />
 {:else if $backgroundStore.effectType === "sun-glare"}
     <Sun />
 {:else if $backgroundStore.effectType === "sun-clouds"}

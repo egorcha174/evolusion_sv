@@ -1,4 +1,5 @@
 
+
 export type BackgroundEffectType =
     | 'none'
     | 'snow'
@@ -10,7 +11,12 @@ export type BackgroundEffectType =
     | 'leaves'
     | 'river'
     | 'tron'
-    | 'sun-clouds';
+    | 'sun-clouds'
+    | 'life'
+    | 'matrix'
+    | 'hyperspace'
+    | 'auto';
+
 
 export interface AuroraSettings {
     color1: string;
@@ -28,14 +34,45 @@ export interface TronSettings {
     backgroundColor: string;
     maxBeams: number;
     beamSpeed: number;
+    beamColors: string[];
+}
+
+export interface LifeSettings {
+    backgroundColor: string;
+    cellColor: string;
+    cellSize: number;
+    updateInterval: number;
+}
+
+export interface MatrixSettings {
+    backgroundColor: string;
+    glyphColor: string;
+    glowColor: string;
+    fontSize: number;
+    speed: number;
+    fadeStrength: number;
+    density: number;
+}
+
+export interface HyperspaceSettings {
+    backgroundColor: string;
+    starColor: string;
+    starSpeed: number;
+    starDensity: number;
+    starTrailLength: number;
+    fov: number;
 }
 
 export interface BackgroundSettings {
     aurora: AuroraSettings;
     tron: TronSettings;
+    life: LifeSettings;
+    matrix: MatrixSettings;
+    hyperspace: HyperspaceSettings;
 }
 
 export interface BackgroundState {
     effectType: BackgroundEffectType;
+    userSelectedEffect: BackgroundEffectType;
     settings: BackgroundSettings;
 }

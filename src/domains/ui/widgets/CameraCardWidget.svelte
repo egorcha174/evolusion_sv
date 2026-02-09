@@ -33,10 +33,14 @@
     let error = $state<string | null>(null);
     let isLoading = $state(true);
 
-    // Video/Image elements (non-reactive DOM refs)
-    let videoElement: HTMLVideoElement | undefined;
-    let imgElement: HTMLImageElement | undefined;
+    // Video/Image elements (reactive DOM refs for effects)
+    let videoElement = $state<HTMLVideoElement>();
+    let imgElement = $state<HTMLImageElement>();
     let hlsInstance: Hls | null = null;
+    let hlsRetryTimer: any;
+    let mjpegRefreshTimer: any;
+    let mjpegUrl = $state<string | null>(null);
+    let connectionTimeout: any;
 
     // WebRTC signal URL - derived from config
     let signalUrl = $state<string>("");
@@ -56,14 +60,12 @@
 
         // Skip if config hasn't actually changed (using untrack to avoid reactivity)
         if (configHash === lastConfigHash) {
-            console.log("[CameraCardWidget] Config unchanged, skipping");
             return;
         }
         // Update hash (non-reactive, won't trigger effect)
         lastConfigHash = configHash;
 
         if (!cameraSourceConfig) {
-            console.log("[CameraCardWidget] No config");
             error = null;
             isLoading = false;
             streamUrl = null;
@@ -73,12 +75,16 @@
             return;
         }
 
-        console.log("[CameraCardWidget] Config changed:", cameraSourceConfig);
-
         // Cleanup previous connections
         if (hlsInstance) {
             hlsInstance.destroy();
             hlsInstance = null;
+        }
+
+        // Clear any pending WebRTC connection
+        if (connectionTimeout) {
+            clearTimeout(connectionTimeout);
+            connectionTimeout = undefined;
         }
 
         (async () => {
@@ -90,14 +96,28 @@
                     // Go2rtc WebRTC stream
                     const { go2rtcUrl, streamName } = cameraSourceConfig;
                     if (!go2rtcUrl || !streamName) {
-                        error = "Go2rtc URL or stream name missing";
+                        // Don't show error immediately (might be fresh manual card)
+                        // Just show "Not Configured" state via return
+                        // Clear any previous error to show "Not Configured" state if relevant
+                        // Actually, if we return here, we need to ensure 'error' is set if we want error state,
+                        // or left null if we want "Not Configured" state.
+                        // The template checks !cameraSourceConfig for "Not Configured".
+                        // If we have an object but it's empty, we might want "Not Configured".
+                        // Let's set error for now so user knows what's missing, OR better:
+                        // Treat empty manual config as "Not Configured".
+                        if (!go2rtcUrl && !streamName) {
+                            // Treats as not configured
+                            // cameraSourceConfig = undefined; // Prop is read-only
+                            error = null; // Let template handle it via check
+                        } else {
+                            // If one is missing but not both, we might ideally show partial config error,
+                            // BUT for "Manual" default case (defaults URL), streamName is missing.
+                            // So effectively, if streamName is missing, we treat as not configured.
+                            error = null; // Let template handle it
+                        }
                         isLoading = false;
                         return;
                     }
-
-                    console.log(
-                        "[CameraCardWidget] Setting up WebRTC for go2rtc",
-                    );
 
                     // Update signal URL (will trigger webrtc reconnect)
                     const newSignalUrl = buildGo2rtcSignalUrl(
@@ -110,11 +130,7 @@
                     isLoading = false;
 
                     // Connect after signal URL is set
-                    setTimeout(() => {
-                        console.log(
-                            "[CameraCardWidget] Connecting to:",
-                            signalUrl,
-                        );
+                    connectionTimeout = setTimeout(() => {
                         webrtc.connect();
                     }, 100);
                 } else if (cameraSourceConfig.sourceType === "url") {
@@ -123,10 +139,6 @@
                     webrtc.disconnect();
                     streamUrl = cameraSourceConfig.url || null;
                     streamType = cameraSourceConfig.streamType || "hls";
-                    console.log(
-                        "[CameraCardWidget] Using direct URL:",
-                        streamUrl,
-                    );
                     isLoading = false;
                 } else if (cameraSourceConfig.sourceType === "ha_entity") {
                     // Home Assistant entity
@@ -151,7 +163,30 @@
 
                     // Check for HLS stream
                     if (entity.attributes?.stream_source) {
-                        streamUrl = entity.attributes.stream_source;
+                        const baseUrl = new URL(config.url);
+                        const rawSource = entity.attributes
+                            .stream_source as string;
+                        try {
+                            if (rawSource.startsWith("http")) {
+                                const parsed = new URL(rawSource);
+                                const signedPath = await getSignedPath(
+                                    `${parsed.pathname}${parsed.search}`,
+                                );
+                                streamUrl = `${baseUrl.origin}${signedPath}`;
+                            } else if (rawSource.startsWith("/")) {
+                                const signedPath =
+                                    await getSignedPath(rawSource);
+                                streamUrl = `${baseUrl.origin}${signedPath}`;
+                            } else {
+                                streamUrl = rawSource;
+                            }
+                        } catch (e) {
+                            console.warn(
+                                "[CameraCardWidget] Failed to sign HLS path, using raw source",
+                                e,
+                            );
+                            streamUrl = rawSource;
+                        }
                         streamType = "hls";
                     } else {
                         // Fallback to MJPEG
@@ -161,18 +196,9 @@
                         streamUrl = `${baseUrl.origin}${signedPath}`;
                         streamType = "mjpeg";
                     }
-                    console.log(
-                        "[CameraCardWidget] Resolved HA entity stream URL:",
-                        streamUrl,
-                    );
+
                     isLoading = false;
                 }
-
-                console.log("[CameraCardWidget] Stream configured:", {
-                    streamType,
-                    streamUrl,
-                    signalUrl,
-                });
             } catch (e: any) {
                 console.error(
                     "[CameraCardWidget] Failed to configure stream:",
@@ -185,60 +211,167 @@
         })();
     });
 
-    // Removed: srcObject binding moved to Svelte Action in template
-
-    // HLS player setup
+    // Stream Watchdog
     $effect(() => {
-        if (streamType === "hls" && streamUrl && videoElement) {
-            // Cleanup old instance
+        if (!streamUrl || isLoading || !videoElement || error) return;
+
+        let lastTime = 0;
+        let sameTimeCount = 0;
+        const CHECK_INTERVAL = 1000;
+        const MAX_STALL_SECONDS = 10;
+
+        const interval = setInterval(() => {
+            if (videoElement && !videoElement.paused && !videoElement.ended) {
+                const currentTime = videoElement.currentTime;
+                if (currentTime === lastTime) {
+                    sameTimeCount++;
+                    console.warn(
+                        `[CameraCardWidget] Stream stalled for ${sameTimeCount}s`,
+                    );
+                } else {
+                    sameTimeCount = 0;
+                    lastTime = currentTime;
+                }
+
+                if (sameTimeCount >= MAX_STALL_SECONDS) {
+                    console.error(
+                        "[CameraCardWidget] Stream frozen, forcing reconnect...",
+                    );
+                    // Force reconnect by toggling streamUrl or calling a reconnect method
+                    // For now, simple reload of the component state
+                    const savedConfig = cameraSourceConfig;
+                    // Trigger effect by clearing and resetting (hacky but effective for hls/webrtc teardown)
+                    lastConfigHash = ""; // Reset hash to allow re-run
+                    // We need to trigger the main effect.
+                    // Since cameraSourceConfig is a prop, we can't change it.
+                    // But we can reset internal state?
+                    // Best way: Destroy and re-create player
+
+                    if (hlsInstance) {
+                        hlsInstance.destroy();
+                        hlsInstance = null;
+                        // Re-trigger HLS setup
+                        // We can toggle streamType or similar
+                        const currentType = streamType;
+                        streamType = null;
+                        setTimeout(() => {
+                            streamType = currentType;
+                        }, 100);
+                    } else if (streamType === "webrtc") {
+                        webrtc.disconnect();
+                        setTimeout(() => {
+                            webrtc.connect();
+                        }, 500);
+                    }
+
+                    sameTimeCount = 0;
+                }
+            }
+        }, CHECK_INTERVAL);
+
+        return () => clearInterval(interval);
+    });
+
+    // HLS Setup / Teardown
+    $effect(() => {
+        if (streamType !== "hls" || !streamUrl || !videoElement || error)
+            return;
+
+        // Always clean old instance before re-creating
+        if (hlsInstance) {
+            hlsInstance.destroy();
+            hlsInstance = null;
+        }
+
+        if (Hls.isSupported()) {
+            const hls = new Hls({
+                lowLatencyMode: true,
+                backBufferLength: 30,
+            });
+            hlsInstance = hls;
+
+            hls.attachMedia(videoElement);
+            hls.on(Hls.Events.MEDIA_ATTACHED, () => {
+                hls.loadSource(streamUrl);
+            });
+
+            hls.on(Hls.Events.ERROR, (_event, data) => {
+                if (!data?.fatal) return;
+
+                console.warn("[CameraCardWidget] HLS fatal error:", data);
+                if (data.type === Hls.ErrorTypes.NETWORK_ERROR) {
+                    hls.startLoad();
+                } else if (data.type === Hls.ErrorTypes.MEDIA_ERROR) {
+                    hls.recoverMediaError();
+                } else {
+                    // Recreate instance on unrecoverable error
+                    hls.destroy();
+                    hlsInstance = null;
+                    if (hlsRetryTimer) clearTimeout(hlsRetryTimer);
+                    hlsRetryTimer = setTimeout(() => {
+                        const currentType = streamType;
+                        streamType = null;
+                        setTimeout(() => {
+                            streamType = currentType;
+                        }, 100);
+                    }, 500);
+                }
+            });
+        } else if (
+            streamUrl &&
+            videoElement.canPlayType("application/vnd.apple.mpegurl")
+        ) {
+            // Native HLS (Safari)
+            videoElement.src = streamUrl;
+            videoElement.play().catch(() => {});
+        }
+
+        return () => {
+            if (hlsRetryTimer) {
+                clearTimeout(hlsRetryTimer);
+                hlsRetryTimer = undefined;
+            }
             if (hlsInstance) {
                 hlsInstance.destroy();
                 hlsInstance = null;
             }
+        };
+    });
 
-            console.log(
-                "[CameraCardWidget] Setting up HLS player for:",
-                streamUrl,
-            );
-
-            if (Hls.isSupported()) {
-                hlsInstance = new Hls({
-                    lowLatencyMode: true,
-                    backBufferLength: 60,
-                });
-                hlsInstance.loadSource(streamUrl);
-                hlsInstance.attachMedia(videoElement);
-
-                hlsInstance.on(Hls.Events.MANIFEST_PARSED, () => {
-                    console.log("[CameraCardWidget] HLS manifest parsed");
-                    videoElement?.play().catch(() => {
-                        // Autoplay blocked
-                    });
-                });
-
-                hlsInstance.on(Hls.Events.ERROR, (_event, data) => {
-                    if (data.fatal) {
-                        console.error("[CameraCardWidget] HLS error:", data);
-                        error = "Stream error";
-                        hlsInstance?.destroy();
-                        hlsInstance = null;
-                    }
-                });
-            } else if (
-                videoElement.canPlayType("application/vnd.apple.mpegurl")
-            ) {
-                // Native HLS (Safari)
-                videoElement.src = streamUrl;
-                videoElement.play().catch(() => {});
-            } else {
-                error = "HLS not supported";
+    // MJPEG Refresh (prevents long-lived connection freeze)
+    $effect(() => {
+        if (streamType !== "mjpeg" || !streamUrl || error) {
+            mjpegUrl = null;
+            if (mjpegRefreshTimer) {
+                clearInterval(mjpegRefreshTimer);
+                mjpegRefreshTimer = undefined;
             }
+            return;
         }
+
+        const refresh = () => {
+            if (!streamUrl) return;
+            const separator = streamUrl.includes("?") ? "&" : "?";
+            mjpegUrl = `${streamUrl}${separator}t=${Date.now()}`;
+        };
+
+        refresh();
+        if (mjpegRefreshTimer) clearInterval(mjpegRefreshTimer);
+        mjpegRefreshTimer = setInterval(refresh, 60000);
+
+        return () => {
+            if (mjpegRefreshTimer) {
+                clearInterval(mjpegRefreshTimer);
+                mjpegRefreshTimer = undefined;
+            }
+        };
     });
 
     // Cleanup on destroy
     onDestroy(() => {
-        console.log("[CameraCardWidget] Destroying");
+        if (connectionTimeout) clearTimeout(connectionTimeout);
+        if (hlsRetryTimer) clearTimeout(hlsRetryTimer);
+        if (mjpegRefreshTimer) clearInterval(mjpegRefreshTimer);
         if (hlsInstance) {
             hlsInstance.destroy();
             hlsInstance = null;
@@ -246,10 +379,26 @@
         webrtc.disconnect();
     });
 
-    function handleClick() {
-        if (onFullscreen && !error) {
-            onFullscreen();
+    function handleClick(e: MouseEvent) {
+        // Prevent default if necessary, though div onclick usually doesn't have default
+        // e.preventDefault();
+
+        if (error || !cameraSourceConfig) {
+            // Maybe allow clicking to configure if in edit mode?
+            // But edit mode handling is usually upstream (GridItem).
+            return;
         }
+
+        const mode = cameraSourceConfig.interactionMode ?? "modal";
+
+        if (mode === "modal") {
+            if (onFullscreen) onFullscreen();
+        } else if (mode === "link") {
+            if (cameraSourceConfig.interactionUrl) {
+                window.location.href = cameraSourceConfig.interactionUrl;
+            }
+        }
+        // mode === 'none' -> do nothing
     }
 
     // Svelte Action for srcObject binding (avoids black screen issue)
@@ -285,7 +434,7 @@
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div class="camera-card-widget" onclick={handleClick}>
-    {#if !cameraSourceConfig}
+    {#if !cameraSourceConfig || (cameraSourceConfig.sourceType === "go2rtc" && !cameraSourceConfig.streamName)}
         <div class="no-config">
             <iconify-icon icon="mdi:cctv" width="32"></iconify-icon>
             <span
@@ -344,13 +493,33 @@
                     playsinline
                     controls={false}
                     class="video-player"
+                    oncanplay={() => (isLoading = false)}
+                    onerror={(e) => {
+                        console.error(
+                            "[CameraCardWidget] Video element error",
+                            e,
+                        );
+                        if (!hlsInstance) error = "Video error";
+                        isLoading = false;
+                    }}
                 ></video>
             {:else if streamType === "mjpeg"}
                 <img
                     bind:this={imgElement}
-                    src={streamUrl}
+                    src={mjpegUrl || streamUrl}
                     alt="Camera Stream"
                     class="mjpeg-player"
+                    onload={() => {
+                        isLoading = false;
+                    }}
+                    onerror={() => {
+                        console.error(
+                            "[CameraCardWidget] MJPEG load error:",
+                            streamUrl,
+                        );
+                        error = "Stream connection failed";
+                        isLoading = false;
+                    }}
                 />
             {/if}
 
@@ -375,31 +544,50 @@
         width: 100%;
         height: 100%;
         cursor: pointer;
-        border-radius: var(--card-border-radius, 12px);
+
+        /* Glassmorphism & Theme Base */
+        background: var(
+            --card-background,
+            var(--glass-surface, rgba(255, 255, 255, 0.6))
+        );
+        backdrop-filter: var(--glass-blur, blur(12px));
+        -webkit-backdrop-filter: var(--glass-blur, blur(12px));
+        border: 1px solid
+            var(
+                --card-border-color,
+                var(--glass-border, rgba(255, 255, 255, 0.2))
+            );
+        box-shadow: var(--shadow-card, 0 4px 12px rgba(0, 0, 0, 0.05));
+        border-radius: var(--card-border-radius);
+
         overflow: hidden;
-        background: var(--bg-input, #000);
         position: relative;
         display: flex;
         align-items: center;
         justify-content: center;
-        transition:
-            transform 0.2s,
-            box-shadow 0.2s;
+        transition: all 0.4s
+            var(--spring-bounce, cubic-bezier(0.34, 1.56, 0.64, 1));
+        z-index: var(--z-card, 1);
     }
 
     .camera-card-widget:hover {
-        transform: scale(1.01);
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+        transform: translateY(-6px) scale(1.03);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+        background: var(--glass-surface-hover, rgba(255, 255, 255, 0.8));
+        border-color: var(--accent-primary, #007aff);
+        z-index: 10;
     }
 
     .stream-wrapper {
         width: 100%;
         height: 100%;
         position: relative;
-        background: #000;
+        background: transparent;
         display: flex;
         align-items: center;
         justify-content: center;
+        border-radius: inherit;
+        overflow: hidden;
     }
 
     .video-player,
@@ -408,6 +596,10 @@
         height: 100%;
         object-fit: cover;
         display: block;
+        border-radius: inherit;
+        /* Fix for video elements not respecting border-radius clipping */
+        mask-image: radial-gradient(white, black);
+        mask-mode: alpha;
     }
 
     .loader {
@@ -445,6 +637,9 @@
         padding: 1rem;
         text-align: center;
         color: var(--text-muted);
+        width: 100%;
+        height: 100%;
+        border-radius: inherit;
     }
 
     .no-config {

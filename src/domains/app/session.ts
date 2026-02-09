@@ -26,14 +26,14 @@ function createSessionStore() {
 
   return {
     subscribe,
-    
+
     init: async () => {
       if (!browser) {
         // On server, we can't be locked, so default to setup
         update(s => ({ ...s, state: 'setup' }));
         return;
       }
-      
+
       try {
         const salt = localStorage.getItem(SALT_KEY);
         const verifier = localStorage.getItem(VERIFIER_KEY);
@@ -45,7 +45,7 @@ function createSessionStore() {
               const pin = atob(autoPin);
               const key = await deriveKey(pin, salt);
               const isValid = await checkVerifier(verifier, key);
-              
+
               if (isValid) {
                 update(s => ({ ...s, state: 'active', key, isAutoLogin: true }));
                 return; // Exit early on success
@@ -58,7 +58,7 @@ function createSessionStore() {
               localStorage.removeItem(AUTO_LOGIN_KEY);
             }
           }
-          
+
           const hasAutoPin = !!localStorage.getItem(AUTO_LOGIN_KEY);
           update(s => ({ ...s, state: 'locked', isAutoLogin: hasAutoPin }));
         } else {
@@ -72,7 +72,7 @@ function createSessionStore() {
 
     verifyPin: async (pin: string): Promise<boolean> => {
       if (!browser) return false;
-      
+
       const salt = localStorage.getItem(SALT_KEY);
       const verifier = localStorage.getItem(VERIFIER_KEY);
 
@@ -89,7 +89,7 @@ function createSessionStore() {
 
     unlock: async (pin: string) => {
       update(s => ({ ...s, error: null }));
-      
+
       const salt = localStorage.getItem(SALT_KEY);
       const verifier = localStorage.getItem(VERIFIER_KEY);
 
@@ -129,7 +129,7 @@ function createSessionStore() {
         localStorage.removeItem(AUTO_LOGIN_KEY); // Clear any old auto-login
 
         localStorage.removeItem('app_server_config_encrypted');
-        
+
         update(s => ({ ...s, state: 'active', key, error: null, isAutoLogin: false }));
         return true;
       } catch (e) {
@@ -147,12 +147,12 @@ function createSessionStore() {
 
         localStorage.setItem(SALT_KEY, salt);
         localStorage.setItem(VERIFIER_KEY, verifier);
-        
+
         // If auto-login was enabled, update the stored PIN
         if (localStorage.getItem(AUTO_LOGIN_KEY)) {
-           localStorage.setItem(AUTO_LOGIN_KEY, btoa(newPin));
+          localStorage.setItem(AUTO_LOGIN_KEY, btoa(newPin));
         }
-        
+
         update(s => ({ ...s, key, error: null }));
         return true;
       } catch (e) {
@@ -161,22 +161,28 @@ function createSessionStore() {
         return false;
       }
     },
-    
+
     lock: () => {
-        update(s => ({ ...s, state: 'locked', key: null }));
+      update(s => ({ ...s, state: 'locked', key: null }));
     },
 
     enableAutoLogin: (pin: string) => {
-        if (!browser) return;
-        // Simple obfuscation (Base64) just to not store plain text visually
-        localStorage.setItem(AUTO_LOGIN_KEY, btoa(pin));
-        update(s => ({ ...s, isAutoLogin: true }));
+      if (!browser) return;
+      // SECURITY NOTE: PIN is stored as Base64 for visual obfuscation only.
+      // This is NOT encryption. The PIN must be recoverable to derive the
+      // encryption key on auto-login. True hashing (SHA-256) is not possible
+      // here because we need the original PIN value for key derivation.
+      // 
+      // Risk: XSS attacks can read and decode this value.
+      // Mitigation: Auto-login should only be enabled on trusted, single-user devices.
+      localStorage.setItem(AUTO_LOGIN_KEY, btoa(pin));
+      update(s => ({ ...s, isAutoLogin: true }));
     },
 
     disableAutoLogin: () => {
-        if (!browser) return;
-        localStorage.removeItem(AUTO_LOGIN_KEY);
-        update(s => ({ ...s, isAutoLogin: false }));
+      if (!browser) return;
+      localStorage.removeItem(AUTO_LOGIN_KEY);
+      update(s => ({ ...s, isAutoLogin: false }));
     }
   };
 }

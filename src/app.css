@@ -150,6 +150,67 @@ textarea:focus {
   }
 }
 
+@keyframes matrix-flicker {
+  0% {
+    opacity: 0.08;
+  }
+  50% {
+    opacity: 0.14;
+  }
+  100% {
+    opacity: 0.1;
+  }
+}
+
+@keyframes matrix-scan {
+  0% {
+    background-position: 0 0, 0 0, 0 0;
+  }
+  100% {
+    background-position: 0 0, 0 100%, 60px 60px;
+  }
+}
+
+/* --- Event Timer Animations (Fusion parity) --- */
+@keyframes wave-animation {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes bubble-rise {
+  0% {
+    transform: translateY(0);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translateX(var(--bubble-wobble, 10px));
+  }
+  100% {
+    transform: translateY(-150%) scale(0.5);
+    opacity: 0;
+  }
+}
+
+@keyframes bubble-pop {
+  0% {
+    transform: translateY(0) scale(0.5);
+    opacity: 0;
+  }
+  50% {
+    transform: translateY(-30px) scale(1.1)
+      translateX(var(--bubble-wobble, 10px));
+    opacity: 0.9;
+  }
+  100% {
+    transform: translateY(-40px) scale(0);
+    opacity: 0;
+  }
+}
+
 /* Utility Class for Glass */
 .glass-panel {
   background: var(--glass-surface);
@@ -157,4 +218,37 @@ textarea:focus {
   -webkit-backdrop-filter: var(--glass-blur);
   border: 1px solid var(--glass-border);
   box-shadow: var(--glass-shadow);
+}
+
+/* --- Matrix CRT Overlay --- */
+:global(body[data-theme-id="matrix"])::before,
+:global(body[data-theme-id="matrix"])::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+}
+
+:global(body[data-theme-id="matrix"])::before {
+  background-image:
+    radial-gradient(circle at center, rgba(0, 255, 102, 0.12), transparent 62%),
+    linear-gradient(rgba(0, 255, 102, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 102, 0.05) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 3px, 60px 60px;
+  mix-blend-mode: screen;
+  opacity: 0.35;
+  animation: matrix-scan 10s linear infinite;
+}
+
+:global(body[data-theme-id="matrix"])::after {
+  background-image: radial-gradient(rgba(0, 255, 102, 0.2) 1px, transparent 1px);
+  background-size: 4px 4px;
+  mix-blend-mode: screen;
+  opacity: 0.1;
+  animation: matrix-flicker 2.6s steps(2) infinite;
+}
+
+:global(body[data-theme-id="matrix"]) {
+  text-shadow: 0 0 8px rgba(0, 255, 102, 0.18);
 }

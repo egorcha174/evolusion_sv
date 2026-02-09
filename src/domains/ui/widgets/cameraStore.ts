@@ -1,8 +1,11 @@
 import { writable } from 'svelte/store';
 import { browser } from '$app/environment';
 
+import type { CameraSourceConfig } from '$lib/types';
+
 export interface CameraSettings {
   selectedEntityId: string | null;
+  cameraSourceConfig?: CameraSourceConfig;
 }
 
 const STORAGE_KEY = 'evolusion_camera_settings';
@@ -12,16 +15,17 @@ function createCameraSettingsStore() {
     selectedEntityId: null
   };
 
-  const { subscribe, set, update } = writable<CameraSettings>(initial);
+  const { subscribe, set, update: writable_update } = writable<CameraSettings>(initial);
 
   function load() {
     if (!browser) return;
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
       try {
-        set(JSON.parse(stored));
+        const parsed = JSON.parse(stored);
+        set(parsed);
       } catch (e) {
-        console.error("Failed to parse camera settings", e);
+        console.error("[cameraStore] Failed to parse camera settings", e);
         localStorage.removeItem(STORAGE_KEY);
       }
     }
@@ -35,21 +39,27 @@ function createCameraSettingsStore() {
   // Load initial settings on creation
   load();
 
+  // Custom update that auto-saves
+  function updateAndSave(updater: (settings: CameraSettings) => CameraSettings) {
+    writable_update(settings => {
+      const newSettings = updater(settings);
+      save(newSettings);
+      return newSettings;
+    });
+  }
+
   return {
     subscribe,
     set: (settings: CameraSettings) => {
       set(settings);
       save(settings);
     },
-    update: (updater: (settings: CameraSettings) => CameraSettings) => {
-      update(settings => {
-        const newSettings = updater(settings);
-        save(newSettings);
-        return newSettings;
-      });
-    },
+    update: updateAndSave,
     selectCamera: (entityId: string | null) => {
-      update(settings => ({ ...settings, selectedEntityId: entityId }));
+      updateAndSave(settings => ({ ...settings, selectedEntityId: entityId }));
+    },
+    updateSourceConfig: (config: CameraSourceConfig) => {
+      updateAndSave(settings => ({ ...settings, cameraSourceConfig: config }));
     }
   };
 }

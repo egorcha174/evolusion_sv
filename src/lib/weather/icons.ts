@@ -82,6 +82,57 @@ const PACKS: Record<WeatherIconPack, Record<string, string>> = {
     'lightning': 'mdi:weather-lightning',
     'lightning-rainy': 'mdi:weather-lightning-rainy',
     'unknown': 'mdi:cloud'
+  },
+  // Meteocons - animated SVG weather icons (bas.dev)
+  'meteocons': {
+    'sunny': 'meteocons:clear-day',
+    'partly-cloudy': 'meteocons:partly-cloudy-day',
+    'cloudy': 'meteocons:cloudy',
+    'fog': 'meteocons:mist',
+    'rain-light': 'meteocons:drizzle',
+    'rain': 'meteocons:rain',
+    'rain-heavy': 'meteocons:rain',
+    'rain-snow': 'meteocons:sleet',
+    'snow-light': 'meteocons:snow',
+    'snow': 'meteocons:snow',
+    'snow-heavy': 'meteocons:snow',
+    'lightning': 'meteocons:thunderstorms',
+    'lightning-rainy': 'meteocons:thunderstorms-rain',
+    'unknown': 'meteocons:not-available'
+  },
+  // Weather Icons - classic weather icon set
+  'weather-icons': {
+    'sunny': 'wi:day-sunny',
+    'partly-cloudy': 'wi:day-cloudy',
+    'cloudy': 'wi:cloudy',
+    'fog': 'wi:fog',
+    'rain-light': 'wi:showers',
+    'rain': 'wi:rain',
+    'rain-heavy': 'wi:rain-wind',
+    'rain-snow': 'wi:rain-mix',
+    'snow-light': 'wi:snow',
+    'snow': 'wi:snow',
+    'snow-heavy': 'wi:snow-wind',
+    'lightning': 'wi:lightning',
+    'lightning-rainy': 'wi:storm-showers',
+    'unknown': 'wi:na'
+  },
+  // Material Symbols Light
+  'material-symbols': {
+    'sunny': 'material-symbols-light:sunny',
+    'partly-cloudy': 'material-symbols-light:partly-cloudy-day',
+    'cloudy': 'material-symbols-light:cloud',
+    'fog': 'material-symbols-light:foggy',
+    'rain-light': 'material-symbols-light:rainy',
+    'rain': 'material-symbols-light:rainy',
+    'rain-heavy': 'material-symbols-light:rainy-heavy',
+    'rain-snow': 'material-symbols-light:weather-mix',
+    'snow-light': 'material-symbols-light:weather-snowy',
+    'snow': 'material-symbols-light:weather-snowy',
+    'snow-heavy': 'material-symbols-light:cloudy-snowing',
+    'lightning': 'material-symbols-light:thunderstorm',
+    'lightning-rainy': 'material-symbols-light:thunderstorm',
+    'unknown': 'material-symbols-light:cloud'
   }
 };
 

@@ -12,6 +12,9 @@
     "test": "playwright test"
   },
   "devDependencies": {
+    "@iconify-json/material-symbols-light": "^1.2.54",
+    "@iconify-json/meteocons": "^1.2.4",
+    "@iconify-json/wi": "^1.2.1",
     "@playwright/test": "^1.40.0",
     "@sveltejs/adapter-auto": "^3.0.0",
     "@sveltejs/kit": "^2.0.0",

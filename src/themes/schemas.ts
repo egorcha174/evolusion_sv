@@ -2,7 +2,26 @@
 
 import { z } from 'zod';
 
-export const ColorSchema = z.string().regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$|^rgba?\(.+\)$|^transparent$/, "Invalid color format");
+// Update ColorSchema to allow var() references
+export const ColorSchema = z.string().regex(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$|^rgba?\(.+\)$|^transparent$|^var\(--[a-zA-Z0-9-]+\)$/, "Invalid color format");
+
+export const ThemeLayoutSchema = z.object({
+  // Card
+  cardBorderRadius: z.number().min(0),
+  cardBorderWidth: z.number().min(0),
+
+  // Icon
+  iconBackgroundShape: z.enum(['circle', 'rounded-square', 'square']),
+
+  // Weather Sizes
+  weatherIconSize: z.number().optional(),
+  weatherForecastIconSize: z.number().optional(),
+  weatherCurrentTempFontSize: z.number().optional(),
+  weatherCurrentDescFontSize: z.number().optional(),
+  weatherForecastDayFontSize: z.number().optional(),
+  weatherForecastMaxTempFontSize: z.number().optional(),
+  weatherForecastMinTempFontSize: z.number().optional(),
+});
 
 export const ColorSchemeSchema = z.object({
   // Dashboard
@@ -17,18 +36,20 @@ export const ColorSchemeSchema = z.object({
   // Global UI
   bgSidebar: ColorSchema.optional().default('#f0f2f5'),
   sidebarOpacity: z.number().min(0).max(1).optional().default(1),
-  
+
   bgChip: ColorSchema.optional().default('#e4e6eb'),
   bgCardHover: ColorSchema.optional().default('rgba(0,0,0,0.05)'),
   bgDropdown: ColorSchema.optional(),
   bgInput: ColorSchema.optional(),
-  
+
   bgHeader: ColorSchema.optional(),
   headerOpacity: z.number().min(0).max(1).optional().default(1),
-  
+
   borderInput: ColorSchema.optional().default('#ccc'),
   borderFocus: ColorSchema.optional().default('#2196f3'),
   borderDivider: ColorSchema.optional().default('rgba(0,0,0,0.1)'),
+
+  borderPrimary: ColorSchema.optional().default('#2196f3'), // Found missing in previous read but seemingly used in utils, added for safety
 
   scrollbarThumb: ColorSchema.optional().default('#ccc'),
   scrollbarTrack: ColorSchema.optional().default('transparent'),
@@ -38,8 +59,7 @@ export const ColorSchemeSchema = z.object({
 
   // Card
   cardOpacity: z.number().min(0).max(1),
-  cardBorderRadius: z.number().min(0),
-  cardBorderWidth: z.number().min(0),
+  // Moved to Layout: cardBorderRadius, cardBorderWidth
   cardBorderColor: ColorSchema,
   cardBorderColorOn: ColorSchema,
   cardBackground: ColorSchema,
@@ -56,7 +76,7 @@ export const ColorSchemeSchema = z.object({
   tabIndicatorColor: ColorSchema,
 
   // Icon
-  iconBackgroundShape: z.enum(['circle', 'rounded-square', 'square']),
+  // Moved to Layout: iconBackgroundShape
   iconBackgroundColorOn: ColorSchema,
   iconBackgroundColorOff: ColorSchema,
   iconColorOn: ColorSchema.optional().default('#ffffff'),
@@ -72,7 +92,7 @@ export const ColorSchemeSchema = z.object({
   clockTextColor: ColorSchema,
 
   // Weather (Colors)
-  weatherPrimaryColor: ColorSchema.optional().default('#000000'), 
+  weatherPrimaryColor: ColorSchema.optional().default('#000000'),
   weatherSecondaryColor: ColorSchema.optional().default('#888888'),
 
   // Widget Text
@@ -96,14 +116,7 @@ export const ColorSchemeSchema = z.object({
   // Widgets
   widgetSwitchOn: ColorSchema.optional(),
 
-  // Weather Sizes
-  weatherIconSize: z.number().optional(),
-  weatherForecastIconSize: z.number().optional(),
-  weatherCurrentTempFontSize: z.number().optional(),
-  weatherCurrentDescFontSize: z.number().optional(),
-  weatherForecastDayFontSize: z.number().optional(),
-  weatherForecastMaxTempFontSize: z.number().optional(),
-  weatherForecastMinTempFontSize: z.number().optional(),
+  // Moved to Layout: Weather sizes
 });
 
 export const ThemeManifestSchema = z.object({
@@ -120,6 +133,8 @@ export const ThemeSchema = z.object({
   id: z.string(),
   name: z.string(),
   isCustom: z.boolean(),
+  foundation: z.record(z.string()).optional(),
+  layout: ThemeLayoutSchema,
   scheme: z.object({
     light: ColorSchemeSchema,
     dark: ColorSchemeSchema,

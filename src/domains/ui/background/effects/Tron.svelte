@@ -3,21 +3,23 @@
     import type { TronSettings } from "../types";
 
     let {
-        settings = { backgroundColor: "#000000", maxBeams: 8, beamSpeed: 3 },
+        settings = {
+            backgroundColor: "#000000",
+            maxBeams: 8,
+            beamSpeed: 3,
+            beamColors: [
+                "#00ffff",
+                "#ff00ff",
+                "#ffff00",
+                "#00ff00",
+                "#ff0000",
+                "#0088ff",
+            ],
+        },
     }: { settings?: TronSettings } = $props();
 
     let canvas: HTMLCanvasElement;
     let animationFrameId: number;
-
-    // Predefined neon colors for beams
-    const NEON_COLORS = [
-        "#00ffff", // Cyan
-        "#ff00ff", // Magenta
-        "#ffff00", // Yellow
-        "#00ff00", // Green
-        "#ff0000", // Red
-        "#0088ff", // Blue
-    ];
 
     interface Point {
         x: number;
@@ -37,13 +39,20 @@
         maxLength: number = 2000;
         lastTurnDirection: number = 0; // 1 for clockwise, -1 for counterclockwise, 0 for no turn yet
         extraLives: number = 0; // Bonus lives earned from winning collisions
+        colors: string[];
 
-        constructor(width: number, height: number, speed: number) {
+        constructor(
+            width: number,
+            height: number,
+            speed: number,
+            colors: string[],
+        ) {
             this.speed = speed;
+            this.colors = colors || ["#00ffff"];
 
             // Random color
-            this.colorIndex = Math.floor(Math.random() * NEON_COLORS.length);
-            this.color = NEON_COLORS[this.colorIndex];
+            this.colorIndex = Math.floor(Math.random() * this.colors.length);
+            this.color = this.colors[this.colorIndex];
 
             // Start from random edge with ONLY horizontal or vertical direction
             const edge = Math.floor(Math.random() * 4); // 0=top, 1=right, 2=bottom, 3=left
@@ -232,11 +241,19 @@
             return Math.sqrt(dx * dx + dy * dy);
         }
 
-        respawn(width: number, height: number, speed: number) {
+        respawn(
+            width: number,
+            height: number,
+            speed: number,
+            colors: string[],
+        ) {
             this.path = [];
             this.speed = speed;
-            this.colorIndex = Math.floor(Math.random() * NEON_COLORS.length);
-            this.color = NEON_COLORS[this.colorIndex];
+            this.colors = colors || ["#00ffff"];
+
+            this.colorIndex = Math.floor(Math.random() * this.colors.length);
+            this.color = this.colors[this.colorIndex];
+
             this.lastTurnDirection = 0; // Reset turn direction
             this.extraLives = 0; // Reset bonus lives
 
@@ -290,28 +307,48 @@
         let beams: TronBeam[] = [];
         const maxBeams = settings?.maxBeams || 8;
         const beamSpeed = settings?.beamSpeed || 3;
+        const beamColors = settings?.beamColors || ["#00ffff"];
 
         for (let i = 0; i < maxBeams; i++) {
-            beams.push(new TronBeam(width, height, beamSpeed));
+            beams.push(new TronBeam(width, height, beamSpeed, beamColors));
         }
 
         // Watch for settings changes and adjust beams
         let lastMaxBeams = maxBeams;
         let lastBeamSpeed = beamSpeed;
 
+        // Visibility-aware pause
+        let isVisible = !document.hidden;
+        const onVisibilityChange = () => {
+            isVisible = !document.hidden;
+        };
+        document.addEventListener("visibilitychange", onVisibilityChange);
+
         const animate = () => {
             if (!ctx || !canvas) return;
+
+            // Skip rendering when tab is hidden to save CPU
+            if (!isVisible) {
+                animationFrameId = requestAnimationFrame(animate);
+                return;
+            }
 
             // Check if maxBeams changed
             const currentMaxBeams = settings?.maxBeams || 8;
             const currentBeamSpeed = settings?.beamSpeed || 3;
+            const currentBeamColors = settings?.beamColors || ["#00ffff"];
 
             if (currentMaxBeams !== lastMaxBeams) {
                 if (currentMaxBeams > lastMaxBeams) {
                     // Add more beams
                     for (let i = lastMaxBeams; i < currentMaxBeams; i++) {
                         beams.push(
-                            new TronBeam(width, height, currentBeamSpeed),
+                            new TronBeam(
+                                width,
+                                height,
+                                currentBeamSpeed,
+                                currentBeamColors,
+                            ),
                         );
                     }
                 } else {
@@ -336,6 +373,12 @@
                 }
                 lastBeamSpeed = currentBeamSpeed;
             }
+
+            // Note: We don't verify color changes for existing beams immediately
+            // effectively allowing them to change color only on respawn or we'd need to force update.
+            // For now, let's leave as is - new colors apply on respawn or new beams.
+            // If we want immediate update:
+            // for (const beam of beams) { beam.colors = currentBeamColors; }
 
             // Clear canvas (transparent so CSS background shows through)
             ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -397,7 +440,12 @@
                     beam.alive = false;
                     setTimeout(
                         () => {
-                            beam.respawn(width, height, currentBeamSpeed);
+                            beam.respawn(
+                                width,
+                                height,
+                                currentBeamSpeed,
+                                currentBeamColors,
+                            );
                         },
                         1000 + Math.random() * 2000,
                     );
@@ -424,6 +472,10 @@
         window.addEventListener("resize", handleResize);
 
         return () => {
+            document.removeEventListener(
+                "visibilitychange",
+                onVisibilityChange,
+            );
             window.removeEventListener("resize", handleResize);
             if (animationFrameId) {
                 cancelAnimationFrame(animationFrameId);

@@ -1,28 +1,28 @@
-
 <script lang="ts">
-  import { haStore } from '../domains/ha/store';
-  import DashboardGrid from '../domains/ui/DashboardGrid.svelte';
+  import { haStore } from "../domains/ha/store";
+  import DashboardGrid from "../domains/ui/DashboardGrid.svelte";
+  import { t } from "svelte-i18n";
 </script>
 
 <div class="dashboard-page">
   {#if $haStore.isLoading}
     <div class="status-message">
       <div class="spinner"></div>
-      <p>Connecting to Home Assistant...</p>
+      <p>{$t("home.connecting")}</p>
     </div>
   {:else if $haStore.error}
     <div class="status-message error">
       <iconify-icon icon="mdi:alert-circle" width="48"></iconify-icon>
-      <h3>Connection Error</h3>
+      <h3>{$t("home.connectionError")}</h3>
       <p>{$haStore.error}</p>
-      <a href="/settings" class="btn">Check Settings</a>
+      <a href="/settings" class="btn">{$t("home.checkSettings")}</a>
     </div>
   {:else if !$haStore.isConnected}
     <div class="status-message warning">
       <iconify-icon icon="mdi:lan-disconnect" width="48"></iconify-icon>
-      <h3>Not Connected</h3>
-      <p>Please configure your server connection in Settings.</p>
-      <a href="/settings" class="btn">Go to Settings</a>
+      <h3>{$t("home.notConnected")}</h3>
+      <p>{$t("home.configureHint")}</p>
+      <a href="/settings" class="btn">{$t("home.goToSettings")}</a>
     </div>
   {:else}
     <DashboardGrid />
@@ -45,12 +45,12 @@
     justify-content: center;
     padding: 4rem 2rem;
     text-align: center;
-    background: white;
+    background: var(--bg-card); /* was white */
     border-radius: 16px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
     margin-top: 2rem;
     min-height: 300px;
-    color: #666;
+    color: var(--text-secondary);
     flex: 1;
     max-width: 600px;
     margin-left: auto;
@@ -58,17 +58,17 @@
   }
 
   .status-message.error {
-    color: #d32f2f;
-    background: #fffafa;
-    border: 1px solid #ffcdd2;
+    color: var(--accent-error);
+    background: var(--bg-chip); /* Generic background */
+    border: 1px solid var(--accent-error);
   }
 
   .status-message.warning {
-    color: #ed6c02;
-    background: #fff8e1;
-    border: 1px solid #ffecb3;
+    color: var(--accent-warning);
+    background: var(--bg-chip);
+    border: 1px solid var(--accent-warning);
   }
-  
+
   .status-message h3 {
     margin: 1rem 0 0.5rem 0;
   }
@@ -77,30 +77,34 @@
     display: inline-block;
     margin-top: 1.5rem;
     padding: 0.75rem 1.5rem;
-    background-color: #2196f3;
+    background-color: var(--accent-primary);
     color: white;
     text-decoration: none;
     border-radius: 8px;
     font-weight: 600;
     transition: background 0.2s;
   }
-  
+
   .btn:hover {
-    background-color: #1976d2;
+    background-color: var(--accent-primary-hover);
   }
 
   .spinner {
     width: 40px;
     height: 40px;
-    border: 3px solid #f3f3f3;
-    border-top: 3px solid #2196f3;
+    border: 3px solid var(--border-divider);
+    border-top: 3px solid var(--accent-primary);
     border-radius: 50%;
     animation: spin 1s linear infinite;
     margin-bottom: 1rem;
   }
 
   @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
   }
 </style>

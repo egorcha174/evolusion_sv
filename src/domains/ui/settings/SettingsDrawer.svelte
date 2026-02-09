@@ -25,6 +25,7 @@
   import BackgroundSettings from "./BackgroundSettings.svelte";
   import DataManagement from "./sections/DataManagement.svelte";
 
+  import { activeScheme } from "../theme/store";
   import "iconify-icon";
 
   $effect(() => {
@@ -46,7 +47,8 @@
   <!-- Immersive Floating Panel - Side Drawer -->
   <aside
     class="settings-panel glass-panel"
-    style="width: {resizer.width}px"
+    style="width: {resizer.width}px; color: {$activeScheme.textPrimary ??
+      'inherit'}"
     transition:fly={{
       x: 300,
       duration: 300,
@@ -67,7 +69,11 @@
         <h2>{$t("settings.title")}</h2>
         <span class="version-badge">v0.0.1</span>
       </div>
-      <button class="close-btn" onclick={close} aria-label="Close settings">
+      <button
+        class="close-btn"
+        onclick={close}
+        aria-label={$t("common.closeSettings")}
+      >
         <iconify-icon icon="mdi:close" width="24"></iconify-icon>
       </button>
     </header>
@@ -109,13 +115,6 @@
     z-index: calc(var(--z-modal) + 1);
     box-shadow: -5px 0 25px rgba(0, 0, 0, 0.15); /* Shadow on the left */
     overflow: hidden;
-  }
-
-  /* Ensure readability on top of glass */
-  :global(.settings-panel) {
-    /* Re-establish some baselines if the parent theme is transparent */
-    --bg-card: rgba(255, 255, 255, 0.05);
-    --bg-input: rgba(40, 40, 40, 0.05);
   }
 
   .resize-handle {

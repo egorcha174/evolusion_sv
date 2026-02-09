@@ -26,11 +26,11 @@ function getProvider(type: WeatherProviderType) {
 // Coordinate Resolution Logic
 export function resolveCoordinates(settings: WeatherSettings): Coordinates {
   // 1. Custom Location
-  if (settings.useCustomLocation && settings.customLocation) {
+  if (settings.useCustomLocation && settings.latitude && settings.longitude) {
     return {
-      lat: settings.customLocation.lat,
-      lon: settings.customLocation.lon,
-      name: settings.customLocation.name || 'Custom Location'
+      lat: settings.latitude,
+      lon: settings.longitude,
+      name: settings.locationName || 'Custom Location'
     };
   }
 

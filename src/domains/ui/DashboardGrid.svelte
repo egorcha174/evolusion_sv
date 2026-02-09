@@ -14,6 +14,10 @@
   import CameraSourceDialog from "./settings/CameraSourceDialog.svelte";
   import EventTimerWidget from "./widgets/EventTimerWidget.svelte";
   import BatteryMonitorWidget from "./widgets/BatteryMonitorWidget.svelte";
+  import {
+    createBatteryWidgetEntity,
+    createTimerWidgetEntity,
+  } from "../ha/virtual-devices";
   import type {
     HAEntity,
     DashboardCardConfig,
@@ -82,6 +86,34 @@
   // промежутки
   let gapX = $state(10);
   let gapY = $state(10);
+
+  // Memoization for widget entities to avoid recreation on every render
+  const widgetEntitiesCache = new Map<string, any>();
+
+  function getWidgetEntity(card: DashboardCardConfig) {
+    if (!card.settings) return null;
+
+    const cacheKey = card.id;
+    const cached = widgetEntitiesCache.get(cacheKey);
+
+    // Check if settings changed (simple reference equality)
+    if (cached && cached.settings === card.settings) {
+      return cached.entity;
+    }
+
+    // Create new entity
+    let entity = null;
+    if (card.widgetType === "event-timer") {
+      const settings = { ...card.settings, id: card.id };
+      entity = createTimerWidgetEntity(settings as any);
+    } else if (card.widgetType === "battery-monitor") {
+      entity = createBatteryWidgetEntity(card.settings as any);
+    }
+
+    // Cache it
+    widgetEntitiesCache.set(cacheKey, { settings: card.settings, entity });
+    return entity;
+  }
 
   // полушаг для редактора
   let halfStep = $state(0);
@@ -224,7 +256,15 @@
   });
 
   $effect(() => {
-    if (!$isEditMode && $haStore.isConnected && visibleEntities.length > 0) {
+    // Only sync on initial provisioning, not every visibleEntities change
+    const tab = $dashboardStore.tabs[$activeTabId];
+    const needsProvisioning = tab && !tab.provisioned && tab.cards.length === 0;
+    if (
+      !$isEditMode &&
+      $haStore.isConnected &&
+      needsProvisioning &&
+      visibleEntities.length > 0
+    ) {
       dashboardStore.syncEntitiesToGrid($activeTabId, visibleEntities);
     }
   });
@@ -281,17 +321,33 @@
   }
 
   function handleCardContext(e: MouseEvent, cardId: string) {
-    if (!$isEditMode) return;
+    // Allow context menu for widgets even in view mode
+    const card = cards.find((c) => c.id === cardId);
+    const isWidget =
+      card?.widgetType === "event-timer" ||
+      card?.widgetType === "battery-monitor";
+
+    if (!$isEditMode && !isWidget) return;
+
     e.preventDefault();
     e.stopPropagation();
 
     const menuWidth = 200;
+    const menuHeight = 300; // Approximate height
+
+    // Horizontal positioning
     if (e.clientX + menuWidth > window.innerWidth) {
       cmX = e.clientX - menuWidth;
     } else {
       cmX = e.clientX;
     }
-    cmY = e.clientY;
+
+    // Vertical positioning
+    if (e.clientY + menuHeight > window.innerHeight) {
+      cmY = e.clientY - menuHeight;
+    } else {
+      cmY = e.clientY;
+    }
 
     cmCardId = cardId;
     cmOpen = true;
@@ -299,6 +355,10 @@
 
   function handleGlobalClick() {
     cmOpen = false;
+  }
+
+  function handleGlobalContextMenu(e: MouseEvent) {
+    e.preventDefault();
   }
 
   function cmDelete() {
@@ -355,7 +415,10 @@
   }
 </script>
 
-<svelte:window onclick={handleGlobalClick} />
+<svelte:window
+  onclick={handleGlobalClick}
+  oncontextmenu={handleGlobalContextMenu}
+/>
 
 <div class="dashboard-container" bind:this={container}>
   {#if cards.length === 0}
@@ -410,11 +473,23 @@
           </GridItem>
         {:else if card.widgetType === "event-timer"}
           <GridItem {card} oncontextmenu={handleCardContext}>
-            <EventTimerWidget settings={card.settings} />
+            {@const timerEntity = getWidgetEntity(card)}
+            {#if timerEntity}
+              <DeviceCard
+                entity={timerEntity}
+                template={getTemplate(card.templateId)}
+              />
+            {/if}
           </GridItem>
         {:else if card.widgetType === "battery-monitor"}
           <GridItem {card} oncontextmenu={handleCardContext}>
-            <BatteryMonitorWidget settings={card.settings} />
+            {@const batteryEntity = getWidgetEntity(card)}
+            {#if batteryEntity}
+              <DeviceCard
+                entity={batteryEntity}
+                template={getTemplate(card.templateId)}
+              />
+            {/if}
           </GridItem>
         {:else}
           {@const entity = getEntity(card.entityId ?? "")}
@@ -451,48 +526,60 @@
     class="context-menu"
     style="top: {cmY}px; left: {cmX}px"
     onclick={(e) => e.stopPropagation()}
+    onkeydown={(e) => {
+      if (e.key === "Escape") cmOpen = false;
+    }}
     role="menu"
+    tabindex="-1"
   >
-    <button class="menu-item" onclick={cmOpenSettings}>
-      <iconify-icon icon="mdi:palette-swatch-outline"></iconify-icon>
-      {$t("dashboard.menu.appearance")}
-    </button>
+    {#if $isEditMode}
+      <button class="menu-item" onclick={cmOpenSettings}>
+        <iconify-icon icon="mdi:palette-swatch-outline"></iconify-icon>
+        {$t("dashboard.menu.appearance")}
+      </button>
 
-    {#if cmCardId}
-      {@const card = cards.find((c) => c.id === cmCardId)}
-      {#if card && card.widgetType === "camera"}
-        <button class="menu-item" onclick={cmConfigureCamera}>
-          <iconify-icon icon="mdi:cctv"></iconify-icon>
-          {$t("dashboard.menu.configureCameraSource", {
-            default: "Configure Source",
-          })}
-        </button>
+      {#if cmCardId}
+        {@const card = cards.find((c) => c.id === cmCardId)}
+        {#if card && card.widgetType === "camera"}
+          <button class="menu-item" onclick={cmConfigureCamera}>
+            <iconify-icon icon="mdi:cctv"></iconify-icon>
+            {$t("dashboard.menu.configureCameraSource", {
+              default: "Configure Source",
+            })}
+          </button>
+        {/if}
       {/if}
+
+      <div class="divider"></div>
+
+      <button class="menu-item" onclick={cmDuplicate}>
+        <iconify-icon icon="mdi:content-copy"></iconify-icon>
+        {$t("dashboard.menu.duplicateCard")}
+      </button>
+
+      <div class="submenu-label">{$t("dashboard.menu.moveCard")}</div>
+      {#each $tabs as tab}
+        {#if tab.id !== $activeTabId}
+          <button class="menu-item" onclick={() => cmMoveTo(tab.id)}>
+            <iconify-icon icon="mdi:arrow-right"></iconify-icon>
+            {tab.title}
+          </button>
+        {/if}
+      {/each}
+
+      <div class="divider"></div>
+
+      <button class="menu-item danger" onclick={cmDelete}>
+        <iconify-icon icon="mdi:delete"></iconify-icon>
+        {$t("dashboard.menu.deleteCard")}
+      </button>
+    {:else}
+      <!-- View Mode: Only Configure for Widgets -->
+      <button class="menu-item" onclick={cmOpenSettings}>
+        <iconify-icon icon="mdi:cog"></iconify-icon>
+        {$t("dashboard.menu.configure", { default: "Configure" })}
+      </button>
     {/if}
-
-    <div class="divider"></div>
-
-    <button class="menu-item" onclick={cmDuplicate}>
-      <iconify-icon icon="mdi:content-copy"></iconify-icon>
-      {$t("dashboard.menu.duplicateCard")}
-    </button>
-
-    <div class="submenu-label">{$t("dashboard.menu.moveCard")}</div>
-    {#each $tabs as tab}
-      {#if tab.id !== $activeTabId}
-        <button class="menu-item" onclick={() => cmMoveTo(tab.id)}>
-          <iconify-icon icon="mdi:arrow-right"></iconify-icon>
-          {tab.title}
-        </button>
-      {/if}
-    {/each}
-
-    <div class="divider"></div>
-
-    <button class="menu-item danger" onclick={cmDelete}>
-      <iconify-icon icon="mdi:delete"></iconify-icon>
-      {$t("dashboard.menu.deleteCard")}
-    </button>
   </div>
 {/if}
 

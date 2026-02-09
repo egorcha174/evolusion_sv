@@ -38,7 +38,7 @@ const initialState: DashboardConfig = {
   tabs: {
     'welcome': {
       id: 'welcome',
-      title: 'Welcome',
+      title: 'Overview',
       icon: 'mdi:hand-wave',
       gridColumns: DEFAULT_COLS,
       gridRows: DEFAULT_ROWS,
@@ -338,7 +338,7 @@ function createDashboardStore() {
       this.save();
     },
 
-    addCameraWidget(tabId: string, cameraId: string) {
+    addCameraWidget(tabId: string, cameraId: string, sourceConfig?: any) {
       update(state => {
         const tab = state.tabs[tabId];
         if (!tab) return state;
@@ -406,7 +406,8 @@ function createDashboardStore() {
         const newCard: DashboardCardConfig = {
           id: `camera_${Date.now()}`,
           widgetType: 'camera',
-          cameraId,
+          cameraId, // Kept for legacy/tracking
+          cameraSourceConfig: sourceConfig, // Store the decoupled config
           position: { x, y, w: found ? defaultW : 1, h: found ? defaultH : 1 }
         };
 
@@ -478,11 +479,33 @@ function createDashboardStore() {
 
         if (!found) { x = 0; y = rows; }
 
+        // Generate unique ID and default settings for timer widgets to ensure each timer is independent
+        const finalSettings = { ...settings };
+        if (widgetType === 'event-timer') {
+          if (!finalSettings.id) {
+            finalSettings.id = crypto.randomUUID();
+          }
+          // Initialize all required default settings so widget displays immediately
+          if (!finalSettings.name) finalSettings.name = 'Maintenance';
+          if (finalSettings.cycleValue === undefined) finalSettings.cycleValue = 30;
+          if (!finalSettings.unit) finalSettings.unit = 'day';
+          if (!finalSettings.lastResetDate) finalSettings.lastResetDate = new Date().toISOString();
+          if (!finalSettings.animation) finalSettings.animation = 'smooth';
+          if (finalSettings.showName === undefined) finalSettings.showName = true;
+          if (finalSettings.showUnit === undefined) finalSettings.showUnit = true;
+          if (finalSettings.fillOpacity === undefined) finalSettings.fillOpacity = 1;
+          if (!finalSettings.fillDirection) finalSettings.fillDirection = 'bottom-to-top';
+          if (!finalSettings.fillColors) finalSettings.fillColors = ['#22c55e', '#f59e0b', '#ef4444'];
+          if (!finalSettings.namePosition) finalSettings.namePosition = { x: 50, y: 15 };
+          if (!finalSettings.daysRemainingPosition) finalSettings.daysRemainingPosition = { x: 50, y: 50 };
+          if (!finalSettings.unitPosition) finalSettings.unitPosition = { x: 68, y: 52 };
+        }
+
         const newCard: DashboardCardConfig = {
           id: `widget_${Date.now()}`,
           // @ts-ignore
           widgetType,
-          settings,
+          settings: finalSettings,
           position: { x, y, w: found ? 2 : 1, h: found ? 2 : 1 }
         };
 
@@ -512,6 +535,35 @@ function createDashboardStore() {
             }
           }
         };
+      });
+      this.save();
+    },
+
+    // Reset timer widget by updating its lastResetDate
+    resetTimerCard(cardId: string) {
+      const now = new Date().toISOString();
+      update(state => {
+        // Find the tab containing this card
+        for (const tabId of Object.keys(state.tabs)) {
+          const tab = state.tabs[tabId];
+          const cardIndex = tab.cards.findIndex(c => c.id === cardId);
+          if (cardIndex !== -1) {
+            const card = tab.cards[cardIndex];
+            if (card.widgetType === 'event-timer' && card.settings) {
+              const updatedSettings = { ...card.settings, lastResetDate: now };
+              const updatedCards = [...tab.cards];
+              updatedCards[cardIndex] = { ...card, settings: updatedSettings };
+              return {
+                ...state,
+                tabs: {
+                  ...state.tabs,
+                  [tabId]: { ...tab, cards: updatedCards, provisioned: true }
+                }
+              };
+            }
+          }
+        }
+        return state;
       });
       this.save();
     },
@@ -570,6 +622,36 @@ function createDashboardStore() {
           tabs: {
             ...state.tabs,
             [tabId]: { ...tab, cards: tab.cards.filter(c => c.id !== cardId), provisioned: true }
+          }
+        };
+      });
+      this.save();
+    },
+
+    // Convert existing card to Camera Widget
+    convertCardToCamera(tabId: string, cardId: string, sourceConfig: any) {
+      update(state => {
+        const tab = state.tabs[tabId];
+        if (!tab) return state;
+
+        const updatedCards = tab.cards.map(c => {
+          if (c.id === cardId) {
+            return {
+              ...c,
+              widgetType: 'camera',
+              cameraSourceConfig: sourceConfig,
+              entityId: undefined, // Clear entity ID if it was set
+              // Preserve position, id, settings
+            } as DashboardCardConfig;
+          }
+          return c;
+        });
+
+        return {
+          ...state,
+          tabs: {
+            ...state.tabs,
+            [tabId]: { ...tab, cards: updatedCards, provisioned: true }
           }
         };
       });

@@ -1,26 +1,43 @@
-
-
 <script lang="ts">
-  import { onMount } from 'svelte';
-  import { t, locale } from 'svelte-i18n';
-  import { haStore } from '../ha/store';
-  import { sidebarWidth, loadUIState, saveUIState, isSettingsOpen } from './store';
-  import { time } from '../app/time';
-  import { clockSettings } from './widgets/clockStore';
-  import { cameraSettings } from './widgets/cameraStore';
-  import WeatherWidget from './widgets/WeatherWidget.svelte';
-  import CameraWidget from './widgets/CameraWidget.svelte';
-  
+  import { onMount } from "svelte";
+  import { t, locale } from "svelte-i18n";
+  import { haStore } from "../ha/store";
+  import {
+    sidebarWidth,
+    loadUIState,
+    saveUIState,
+    isSettingsOpen,
+    sidebarWidgets,
+  } from "./store";
+  import { time } from "../app/time";
+  import { clockSettings } from "./widgets/clockStore";
+  import { cameraSettings } from "./widgets/cameraStore";
+  import WeatherWidget from "./widgets/WeatherWidget.svelte";
+  import CameraWidget from "./widgets/CameraCardWidget.svelte";
+  import CameraFullscreenModal from "./widgets/CameraFullscreenModal.svelte";
+  import { dndzone, type DndEvent } from "svelte-dnd-action";
+  import { activeScheme } from "./theme/store";
+  import { flip } from "svelte/animate";
+
   // Resizing state
   let width = $state(280);
   let isResizing = $state(false);
   let isCollapsed = $state(false);
+  let isFullscreen = $state(false);
+
+  function handleDndConsider(e: CustomEvent<DndEvent<any>>) {
+    sidebarWidgets.set(e.detail.items);
+  }
+
+  function handleDndFinalize(e: CustomEvent<DndEvent<any>>) {
+    sidebarWidgets.set(e.detail.items);
+  }
 
   onMount(() => {
     loadUIState();
-    
+
     // Subscribe to store updates
-    const unsub = sidebarWidth.subscribe(w => width = w);
+    const unsub = sidebarWidth.subscribe((w) => (width = w));
     return () => {
       unsub();
     };
@@ -29,59 +46,63 @@
   function startResize(e: MouseEvent) {
     e.preventDefault();
     isResizing = true;
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseup', stopResize);
-    document.body.style.cursor = 'col-resize';
-    document.body.style.userSelect = 'none';
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", stopResize);
+    document.body.style.cursor = "col-resize";
+    document.body.style.userSelect = "none";
   }
 
   function handleMouseMove(e: MouseEvent) {
     if (!isResizing) return;
-    
+
     let newWidth;
-    if (document.dir === 'rtl') {
-       newWidth = window.innerWidth - e.clientX;
+    if (document.dir === "rtl") {
+      newWidth = window.innerWidth - e.clientX;
     } else {
-       newWidth = e.clientX;
+      newWidth = e.clientX;
     }
 
     // Constraints
     if (newWidth < 240) newWidth = 240;
     if (newWidth > 480) newWidth = 480;
-    
+
     width = newWidth;
   }
 
   function stopResize() {
     if (isResizing) {
       isResizing = false;
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', stopResize);
-      document.body.style.cursor = '';
-      document.body.style.userSelect = '';
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("mouseup", stopResize);
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
       saveUIState(width);
     }
   }
 
   function getLatencyColor(ms: number | undefined): string {
-    if (ms === undefined) return 'var(--text-muted)';
-    if (ms < 50) return 'var(--accent-success)';
-    if (ms < 150) return 'var(--accent-warning)';
-    return 'var(--accent-error)';
+    if (ms === undefined) return "var(--text-muted)";
+    if (ms < 50) return "var(--accent-success)";
+    if (ms < 150) return "var(--accent-warning)";
+    return "var(--accent-error)";
   }
 
   // Clock Derived State
-  let timeStr = $derived($time.toLocaleTimeString('ru-RU', { 
-      hour: '2-digit', 
-      minute: '2-digit',
-      second: $clockSettings.showSeconds ? '2-digit' : undefined
-  }));
-  
-  let dateStr = $derived($time.toLocaleDateString($locale || 'en', { 
-      weekday: 'long', 
-      month: 'short', 
-      day: 'numeric' 
-  }));
+  let timeStr = $derived(
+    $time.toLocaleTimeString("ru-RU", {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: $clockSettings.showSeconds ? "2-digit" : undefined,
+    }),
+  );
+
+  let dateStr = $derived(
+    $time.toLocaleDateString($locale || "en", {
+      weekday: "long",
+      month: "short",
+      day: "numeric",
+    }),
+  );
 
   // Find the selected camera entity from the main store
   let selectedCamera = $derived(
@@ -91,58 +112,106 @@
   );
 </script>
 
-<aside class="sidebar" style="width: {width}px" class:collapsed={isCollapsed}>
+<aside
+  class="sidebar"
+  style="width: {width}px; color: {$activeScheme.textPrimary ?? 'inherit'}"
+  class:collapsed={isCollapsed}
+>
   <!-- Resize Handle -->
   <!-- svelte-ignore a11y_no_static_element_interactions -->
-  <div 
-    class="resize-handle" 
+  <div
+    class="resize-handle"
     class:active={isResizing}
     onmousedown={startResize}
   ></div>
 
   <div class="sidebar-content">
-    <!-- Widget: Clock -->
-    <div class="widget clock-widget">
-      <div class="time">{timeStr}</div>
-      {#if $clockSettings.showDate}
-        <div class="date">{dateStr}</div>
-      {/if}
-    </div>
+    <!-- Widget: Clock (extracted for dnd) -->
+    {#snippet clockWidget()}
+      <div class="widget clock-widget">
+        <div class="time">{timeStr}</div>
+        {#if $clockSettings.showDate}
+          <div class="date">{dateStr}</div>
+        {/if}
+      </div>
+    {/snippet}
 
-    <!-- Widget: Weather -->
-    <WeatherWidget />
+    <!-- Widget: Weather (extracted for dnd) -->
+    {#snippet weatherWidget()}
+      <WeatherWidget />
+    {/snippet}
 
-    <!-- Widget: Camera -->
-    <div class="widget camera-widget">
-      <CameraWidget entity={selectedCamera} />
-    </div>
+    <!-- Widget: Camera (extracted for dnd) -->
+    {#snippet cameraWidget()}
+      <div class="widget camera-widget">
+        <CameraWidget
+          cameraSourceConfig={$cameraSettings.cameraSourceConfig}
+          onFullscreen={() => (isFullscreen = true)}
+        />
+      </div>
+    {/snippet}
+
+    <section
+      use:dndzone={{
+        items: $sidebarWidgets,
+        flipDurationMs: 300,
+        dropTargetStyle: {},
+      }}
+      onconsider={handleDndConsider}
+      onfinalize={handleDndFinalize}
+      class="widgets-container"
+    >
+      {#each $sidebarWidgets as widget (widget.id)}
+        <div class="widget-wrapper" animate:flip={{ duration: 300 }}>
+          {#if widget.type === "clock"}
+            {@render clockWidget()}
+          {:else if widget.type === "weather"}
+            {@render weatherWidget()}
+          {:else if widget.type === "camera"}
+            {@render cameraWidget()}
+          {/if}
+        </div>
+      {/each}
+    </section>
+
+    <!-- Fullscreen Camera Modal -->
+    {#if isFullscreen && $cameraSettings.cameraSourceConfig}
+      <CameraFullscreenModal
+        cameraId="sidebar-camera"
+        cameraSourceConfig={$cameraSettings.cameraSourceConfig}
+        onClose={() => (isFullscreen = false)}
+      />
+    {/if}
 
     <!-- Status Info (Bottom) -->
     <div class="status-info">
       <div class="status-row">
         {#if $haStore.isConnected}
-            <div class="status-dot connected"></div>
-            <span class="status-text">{$t('sidebar.connected')}</span>
-            {#if $haStore.latency !== undefined}
-              <span class="latency" style="color: {getLatencyColor($haStore.latency)}">
-                ({$haStore.latency}ms)
-              </span>
-            {/if}
+          <div class="status-dot connected"></div>
+          <span class="status-text">{$t("sidebar.connected")}</span>
+          {#if $haStore.latency !== undefined}
+            <span
+              class="latency"
+              style="color: {getLatencyColor($haStore.latency)}"
+            >
+              ({$haStore.latency}ms)
+            </span>
+          {/if}
         {:else if $haStore.isLoading}
-            <div class="status-dot loading"></div>
-            <span class="status-text">{$t('sidebar.connecting')}</span>
+          <div class="status-dot loading"></div>
+          <span class="status-text">{$t("sidebar.connecting")}</span>
         {:else}
-            <div class="status-dot disconnected"></div>
-            <span class="status-text">{$t('sidebar.offline')}</span>
+          <div class="status-dot disconnected"></div>
+          <span class="status-text">{$t("sidebar.offline")}</span>
         {/if}
       </div>
     </div>
-      <!-- Footer -->
+    <!-- Footer -->
     <div class="sidebar-footer">
       <button
         class="footer-btn"
         onclick={() => {
-          console.log('Sidebar: Settings button clicked!');
+          console.log("Sidebar: Settings button clicked!");
           isSettingsOpen.set(true);
         }}
         title={$t("settings.title")}
@@ -157,7 +226,7 @@
         class="footer-btn"
         id="collapse-btn"
         onclick={() => (isCollapsed = !isCollapsed)}
-        title="Collapse"
+        title={$t("sidebar.collapse")}
       >
         <iconify-icon icon="mdi:chevron-left"></iconify-icon>
       </button>
@@ -178,12 +247,12 @@
     overflow-y: auto;
     z-index: 50;
     color: var(--text-secondary);
-    box-shadow: 2px 0 10px rgba(0,0,0,0.02);
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.02);
     flex-shrink: 0;
     transition: width 0.05s linear;
     overflow-x: hidden;
   }
-  
+
   :global(body.rtl) .sidebar {
     border-right: none;
     border-left: 1px solid var(--border-primary);
@@ -220,15 +289,22 @@
     background: transparent;
     transition: background 0.2s;
   }
-  
+
   :global(body.rtl) .resize-handle {
     right: auto;
     left: -6px;
   }
-  
+
   /* Show line on hover/active to guide user */
-  .resize-handle:hover, .resize-handle.active {
-    background: linear-gradient(to right, transparent 45%, var(--accent-primary) 45%, var(--accent-primary) 55%, transparent 55%);
+  .resize-handle:hover,
+  .resize-handle.active {
+    background: linear-gradient(
+      to right,
+      transparent 45%,
+      var(--accent-primary) 45%,
+      var(--accent-primary) 55%,
+      transparent 55%
+    );
   }
 
   /* Widgets General */
@@ -240,12 +316,17 @@
   }
 
   /* Clock */
-  .clock-widget { text-align: center; }
+  .clock-widget {
+    text-align: center;
+  }
   .time {
     font-size: 3.5rem;
     font-weight: 200;
     line-height: 1;
-    color: var(--clock-text-color, var(--text-primary)); /* Updated with fallback */
+    color: var(
+      --clock-text-color,
+      var(--text-primary)
+    ); /* Updated with fallback */
     font-variant-numeric: tabular-nums;
     margin-bottom: 0.25rem;
     white-space: nowrap;
@@ -263,8 +344,7 @@
   .camera-widget {
     width: 100%;
     aspect-ratio: 16/9;
-    background: #000;
-    border-radius: 12px;
+    border-radius: var(--card-border-radius);
     overflow: hidden;
     position: relative;
     border: 1px solid var(--border-primary);
@@ -292,24 +372,49 @@
     border-radius: 8px;
     white-space: nowrap;
   }
-  .status-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-  .status-dot.connected { background-color: var(--accent-success); }
-  .status-dot.loading { background-color: var(--accent-warning); animation: blink 0.5s infinite; }
-  .status-dot.disconnected { background-color: var(--accent-error); }
-  .status-text { font-weight: 500; color: var(--text-primary); }
-  
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .status-dot.connected {
+    background-color: var(--accent-success);
+  }
+  .status-dot.loading {
+    background-color: var(--accent-warning);
+    animation: blink 0.5s infinite;
+  }
+  .status-dot.disconnected {
+    background-color: var(--accent-error);
+  }
+  .status-text {
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+
   .latency {
     font-size: 0.75rem;
     font-weight: 600;
     margin-left: 4px;
   }
-  
+
   :global(body.rtl) .latency {
-     margin-left: 0;
-     margin-right: 4px;
+    margin-left: 0;
+    margin-right: 4px;
   }
 
-  @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+  @keyframes blink {
+    0% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.4;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
 
   /* Footer */
   .sidebar-footer {
@@ -347,5 +452,9 @@
     flex: 0;
   }
 
-  @media (max-width: 768px) { .sidebar { display: none; } }
+  @media (max-width: 768px) {
+    .sidebar {
+      display: none;
+    }
+  }
 </style>

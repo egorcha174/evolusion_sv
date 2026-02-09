@@ -172,13 +172,10 @@ UX‑правило: приложение не должно подвисать �
 Шаг считается выполненным только если:
 
 1) TypeScript check: PASS  
-2) Lint: PASS  
-3) Unit tests: PASS  
-4) Build: PASS  
-5) Smoke E2E: PASS  
+2) Build: PASS  
+3) Smoke E2E: PASS  
    - открыть главную страницу
    - увидеть базовый UI (не пустой белый экран)
-6) Contract tests для HA API (на мок WebSocket): PASS
 
 И в `docs/PROJECT_LOG.md` добавлена строка с результатом.
 

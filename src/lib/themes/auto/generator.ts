@@ -1,6 +1,6 @@
 
 import type { BaseThemeSettings } from './types';
-import type { ThemeFile, ColorScheme } from '../../../themes/types';
+import type { ThemeFile, ColorScheme, ThemeLayout } from '../../../themes/types';
 import { toRgba, adjustHsl, getLuminance, getContrastText } from './colorUtils';
 
 function getRadius(preset: BaseThemeSettings['radius']): number {
@@ -28,35 +28,35 @@ const ACCENTS_DARK = { error: '#FF453A', success: '#30D158', warning: '#FF9F0A' 
 
 export function generateThemePreset(s: BaseThemeSettings): ThemeFile {
   const radius = getRadius(s.radius);
-  
+
   // Logic Branch based on Color Role
   let accentColor: string;
   let darkBg: string;
   let lightBg: string;
-  
+
   if (s.colorRole === 'background') {
     // 60% Rule: User input IS the background (for Dark Mode usually, as dashboards are dark-first)
     // If input is dark, use it as Dark BG. If light, use it as Light BG? 
     // To stay consistent with "One Theme, Two Modes", we will derive based on input luminance.
-    
+
     if (getLuminance(s.primary) < 0.5) {
-       // User picked a DARK color -> Set as Dark Mode BG
-       darkBg = s.primary;
-       lightBg = adjustHsl(s.primary, 0, 10, 95); // Derived light version
+      // User picked a DARK color -> Set as Dark Mode BG
+      darkBg = s.primary;
+      lightBg = adjustHsl(s.primary, 0, 10, 95); // Derived light version
     } else {
-       // User picked a LIGHT color -> Set as Light Mode BG
-       lightBg = s.primary;
-       darkBg = adjustHsl(s.primary, 0, 20, 10); // Derived dark version
+      // User picked a LIGHT color -> Set as Light Mode BG
+      lightBg = s.primary;
+      darkBg = adjustHsl(s.primary, 0, 20, 10); // Derived dark version
     }
-    
+
     // 10% Rule: Calculate Accent from Harmony relative to the Background
     accentColor = getSecondaryColor(s.primary, s.harmony);
-    
+
   } else {
     // Role = 'accent' (Standard 10% Rule)
     // User input IS the Accent.
     accentColor = s.primary;
-    
+
     // 60% Rule: Background is derived neutral/tinted
     const secondary = getSecondaryColor(s.primary, s.harmony);
     darkBg = adjustHsl(secondary, 0, 30, 10); // Very dark tint of secondary
@@ -68,32 +68,45 @@ export function generateThemePreset(s: BaseThemeSettings): ThemeFile {
   const lightBg2 = adjustHsl(lightBg, 10, null, null);
 
   // Cards
-  const darkCardBg = adjustHsl(darkBg, 0, null, (getLuminance(darkBg) * 100) + 5); 
+  const darkCardBg = adjustHsl(darkBg, 0, null, (getLuminance(darkBg) * 100) + 5);
   const lightCardBg = '#FFFFFF';
 
   // Text Contrast Check
   const darkText = getContrastText(darkBg);
   const lightText = getContrastText(lightBg);
 
+  const layout: ThemeLayout = {
+    cardBorderRadius: radius,
+    cardBorderWidth: 1,
+    iconBackgroundShape: 'circle',
+    weatherIconSize: 96,
+    weatherForecastIconSize: 48,
+    weatherCurrentTempFontSize: 36,
+    weatherCurrentDescFontSize: 14,
+    weatherForecastDayFontSize: 12,
+    weatherForecastMaxTempFontSize: 18,
+    weatherForecastMinTempFontSize: 14
+  };
+
   const darkScheme: ColorScheme = {
     dashboardBackgroundType: 'gradient',
     dashboardBackgroundColor1: darkBg,
     dashboardBackgroundColor2: darkBg2,
     dashboardGradientAngle: 135,
-    
+
     cardOpacity: s.cardOpacity,
-    cardBorderRadius: radius,
-    cardBorderWidth: 1,
+    // cardBorderRadius moved to layout
+    // cardBorderWidth moved to layout
     cardBorderColor: toRgba(darkText, 0.1),
     cardBorderColorOn: toRgba(accentColor, 0.5),
-    cardBackground: toRgba(darkCardBg, 0.4), 
+    cardBackground: toRgba(darkCardBg, 0.4),
     cardBackgroundOn: toRgba(darkCardBg, 0.6),
     shadowCard: '0 8px 32px rgba(0, 0, 0, 0.2)',
-    
+
     panelOpacity: s.panelOpacity,
     bgPanel: toRgba(darkBg, 0.9),
     bgInput: toRgba(darkText, 0.1),
-    
+
     bgHeader: darkBg,
     headerOpacity: 0.8,
     bgSidebar: darkBg,
@@ -110,32 +123,32 @@ export function generateThemePreset(s: BaseThemeSettings): ThemeFile {
     tabTextColor: toRgba(darkText, 0.6),
     activeTabTextColor: accentColor,
     tabIndicatorColor: accentColor,
-    
-    iconBackgroundShape: 'circle',
+
+    // iconBackgroundShape moved to layout
     iconBackgroundColorOn: accentColor,
     iconBackgroundColorOff: toRgba(darkText, 0.1),
     iconColorOn: getContrastText(accentColor),
-    
+
     nameTextColor: darkText,
     statusTextColor: toRgba(darkText, 0.7),
     valueTextColor: accentColor,
     unitTextColor: toRgba(darkText, 0.7),
-    
+
     nameTextColorOn: darkText,
     statusTextColorOn: accentColor,
     valueTextColorOn: accentColor,
     unitTextColorOn: accentColor,
-    
+
     clockTextColor: darkText,
     weatherPrimaryColor: darkText,
     weatherSecondaryColor: toRgba(darkText, 0.7),
-    
+
     thermostatHandleColor: darkText,
     thermostatDialTextColor: darkText,
     thermostatDialLabelColor: toRgba(darkText, 0.7),
     thermostatHeatingColor: accentColor,
     thermostatCoolingColor: accentColor,
-    
+
     accentPrimary: accentColor,
     accentError: ACCENTS_DARK.error,
     accentSuccess: ACCENTS_DARK.success,
@@ -149,25 +162,25 @@ export function generateThemePreset(s: BaseThemeSettings): ThemeFile {
     dashboardBackgroundColor1: lightBg,
     dashboardBackgroundColor2: lightBg2,
     dashboardGradientAngle: 135,
-    
+
     cardOpacity: s.cardOpacity,
-    cardBorderRadius: radius,
-    cardBorderWidth: 0,
+    // cardBorderRadius moved to layout
+    // cardBorderWidth moved to layout
     cardBorderColor: 'transparent',
     cardBorderColorOn: accentColor,
     cardBackground: lightCardBg,
     cardBackgroundOn: lightCardBg,
     shadowCard: `0 4px 16px ${toRgba(accentColor, 0.15)}`,
-    
+
     panelOpacity: s.panelOpacity,
     bgPanel: toRgba(lightBg, 0.9),
     bgInput: toRgba(lightText, 0.05),
-    
+
     bgHeader: lightBg,
     headerOpacity: 0.8,
     bgSidebar: lightBg,
     sidebarOpacity: 1,
-    
+
     bgChip: toRgba(accentColor, 0.1),
     bgCardHover: toRgba(lightText, 0.03),
     borderInput: toRgba(lightText, 0.1),
@@ -179,32 +192,32 @@ export function generateThemePreset(s: BaseThemeSettings): ThemeFile {
     tabTextColor: toRgba(lightText, 0.6),
     activeTabTextColor: accentColor,
     tabIndicatorColor: accentColor,
-    
-    iconBackgroundShape: 'circle',
+
+    // iconBackgroundShape moved to layout
     iconBackgroundColorOn: accentColor,
     iconBackgroundColorOff: toRgba(lightText, 0.1),
     iconColorOn: getContrastText(accentColor),
-    
+
     nameTextColor: lightText,
     statusTextColor: toRgba(lightText, 0.6),
     valueTextColor: accentColor,
     unitTextColor: toRgba(lightText, 0.6),
-    
+
     nameTextColorOn: accentColor,
     statusTextColorOn: accentColor,
     valueTextColorOn: accentColor,
     unitTextColorOn: accentColor,
-    
+
     clockTextColor: accentColor,
     weatherPrimaryColor: accentColor,
     weatherSecondaryColor: toRgba(lightText, 0.6),
-    
+
     thermostatHandleColor: lightText,
     thermostatDialTextColor: accentColor,
     thermostatDialLabelColor: toRgba(lightText, 0.6),
     thermostatHeatingColor: accentColor,
     thermostatCoolingColor: accentColor,
-    
+
     accentPrimary: accentColor,
     accentError: ACCENTS_LIGHT.error,
     accentSuccess: ACCENTS_LIGHT.success,
@@ -226,6 +239,7 @@ export function generateThemePreset(s: BaseThemeSettings): ThemeFile {
       id: s.themeId,
       name: s.themeName,
       isCustom: true,
+      layout: layout,
       scheme: {
         light: lightScheme,
         dark: darkScheme

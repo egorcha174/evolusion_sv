@@ -9,15 +9,32 @@
     "off": "Off",
     "on": "On",
     "close": "Close",
-    "unknown": "Unknown"
+    "unknown": "Unknown",
+    "appName": "Evolusion",
+    "newTab": "New Tab",
+    "unnamed": "Unnamed",
+    "active": "Active",
+    "closeSettings": "Close Settings",
+    "newServer": "New Server"
+  },
+  "home": {
+    "connecting": "Connecting to Home Assistant...",
+    "connectionError": "Connection Error",
+    "checkSettings": "Check Settings",
+    "notConnected": "Not Connected",
+    "configureHint": "Please configure your server connection in Settings.",
+    "goToSettings": "Go to Settings"
   },
   "dashboard": {
     "title": "Dashboard",
+    "defaultTabTitle": "Overview",
     "edit": "Edit Dashboard",
     "done": "Done",
     "noDevices": "No dashboard devices found.",
     "noDevicesTab": "No devices found for \"{tab}\".",
     "addWidget": "Add Widget",
+    "addEmptyCard": "Add Empty Card",
+    "selectDevice": "Select Device",
     "layoutSaved": "Layout saved",
     "menu": {
       "renameTab": "Rename Tab",
@@ -28,13 +45,20 @@
       "duplicateCard": "Duplicate",
       "moveCard": "Move to...",
       "appearance": "Appearance",
+      "configure": "Configure Device",
+      "configureCameraSource": "Configure Source",
       "refresh": "Refresh Page"
     },
     "grid": {
       "columns": "Columns",
       "rows": "Rows",
       "hint": "Drag to move. Drag corner to resize."
-    }
+    },
+    "welcome": {
+      "title": "Welcome!",
+      "subtitle": "Your dashboard is ready."
+    },
+    "loadingApp": "Loading Evolusion..."
   },
   "addDevice": {
     "title": "Add Device",
@@ -52,7 +76,24 @@
       "title": "Camera",
       "hint": "Press Escape to close"
     },
-    "notFound": "Camera not found"
+    "notFound": "Camera not found",
+    "not_configured": "Not Configured",
+    "configure_hint": "Edit Mode > Right Click",
+    "configureBase": "Configure Source",
+    "configure_source": "Configure Camera Source",
+    "source_type": "Source Type",
+    "direct_url": "Direct URL",
+    "ha_entity": "HA Entity",
+    "go2rtc_url": "Go2rtc URL",
+    "go2rtc_url_hint": "Example: http://192.168.0.98:1984",
+    "stream_name": "Stream Name",
+    "stream_name_hint": "Stream name configured in go2rtc",
+    "stream_url": "Stream URL",
+    "stream_type_label": "Stream Type",
+    "entity_id": "Entity ID",
+    "entity_id_hint": "Home Assistant camera entity ID",
+    "rtsp_error": "RTSP is not supported by browsers. Use go2rtc or MJPEG camera URL.",
+    "url_examples": "Examples: HLS (.m3u8), MJPEG (http://ip/stream.mjpeg)"
   },
   "sidebar": {
     "connected": "Connected",
@@ -61,13 +102,65 @@
     "camera": "Camera",
     "cameraPlaceholder": "Camera Feed (TODO)",
     "weather": "Weather",
-    "latency": "Latency"
+    "latency": "Latency",
+    "collapse": "Collapse Sidebar"
   },
   "cardSettings": {
     "title": "Card Settings",
     "template": "Template",
     "noTemplate": "(No Template)",
-    "manageHint": "Use the main menu to create or edit templates."
+    "manageHint": "Use the main menu to create or edit templates.",
+    "tab_settings": "Settings",
+    "tab_devices": "Devices",
+    "tab_widgets": "Widgets",
+    "preview": "Preview"
+  },
+  "widgets": {
+    "eventTimer": {
+      "name": "Name",
+      "namePlaceholder": "e.g. Change Filter",
+      "defaultName": "Maintenance",
+      "cycleValue": "Cycle Value",
+      "unit": "Unit",
+      "animation": "Animation",
+      "colors": "Fill Colors",
+      "fillDirection": "Fill Direction",
+      "opacity": "Fill Opacity",
+      "lastReset": "Last Reset",
+      "resetNow": "Reset Now",
+      "never": "Never",
+      "showName": "Show Name",
+      "showUnit": "Show Unit",
+      "positions": "Text Positions",
+      "positionName": "Name",
+      "positionValue": "Value",
+      "positionUnit": "Unit",
+      "posX": "X",
+      "posY": "Y",
+      "fontSize": "Font (px)",
+      "animations": {
+        "smooth": "Smooth",
+        "wave": "Wave",
+        "bubbles": "Bubbles",
+        "none": "None"
+      },
+      "fillDirections": {
+        "bottomToTop": "bottom-to-top",
+        "topToBottom": "top-to-bottom"
+      },
+      "units": {
+        "sec": "sec",
+        "min": "min",
+        "hour": "h",
+        "day": "d",
+        "month": "mo"
+      }
+    },
+    "batteryMonitor": {
+      "selectDevices": "Select Devices",
+      "empty": "No battery sensors found",
+      "selected": "Selected"
+    }
   },
   "templates": {
     "manager": {
@@ -126,6 +219,7 @@
       "clock": "Clock",
       "showDate": "Show Date",
       "showSeconds": "Show Seconds",
+      "configureCamera": "Configure Source",
       "weatherStyle": "Weather Style",
       "iconSizeCurrent": "Icon Size (Current)",
       "tempSizeCurrent": "Temp Size (Current)",
@@ -170,31 +264,40 @@
       "confirmPin": "Confirm PIN to enable auto-login:"
     },
     "weather": {
-      "title": "Weather Widget",
-      "description": "Configure weather widget provider",
-      "provider": "Data Provider",
+      "title": "Weather Settings",
+      "desc": "Configure weather provider and display",
+      "provider": "Provider",
       "provider_type": "Provider Type",
-      "key": "API Key",
-      "key_placeholder": "Paste API key here",
-      "location": "Location",
-      "use_custom_location": "Use Custom Coordinates",
-      "latitude": "Latitude",
-      "longitude": "Longitude",
-      "display": "Display",
+      "api_key": "API Key",
       "refresh_interval": "Refresh Interval (min)",
+      "refresh_hint": "Min: 1, Max: 60",
+      "location": "Location",
+      "use_custom_location": "Use custom location",
+      "display": "Display",
+      "weatherIconPack": "Icon Pack",
       "show_forecast": "Show Forecast",
       "forecast_days": "Forecast Days",
-      "layout": "Forecast Layout",
-      "layout_vertical": "Vertical",
-      "layout_horizontal": "Horizontal",
+      "layout": "Layout",
+      "layout_options": {
+        "vertical": "Vertical",
+        "horizontal": "Horizontal"
+      },
       "appearance": "Appearance",
       "icon_size": "Icon Size",
-      "temp_size": "Temperature Size"
+      "temp_size": "Temperature Size",
+      "iconSizeForecast": "Icon Size (Forecast)",
+      "tempSizeForecast": "Temperature Size (Forecast)",
+      "forecastItems": "Forecast Items",
+      "forecastItemBgOpacity": "Background Opacity",
+      "forecastItemBorderRadius": "Corner Radius",
+      "enableIconAnimation": "Animate Weather Icons"
     },
     "background": {
       "title": "Background Effect",
+      "description": "Customize dashboard background effects",
       "type": "Effect Type",
       "effects": {
+        "auto": "Auto (by weather)",
         "none": "None",
         "aurora": "Aurora",
         "snow": "Snow",
@@ -203,6 +306,9 @@
         "river": "River Waves",
         "thunderstorm": "Thunderstorm",
         "tron": "Tron (Digital Grid)",
+        "life": "Game of Life",
+        "matrix": "Matrix Rain",
+        "hyperspace": "Hyperspace",
         "sun-glare": "Sunny Day",
         "sun-clouds": "Sun + Clouds"
       },
@@ -217,6 +323,23 @@
         "saturation": "Saturation",
         "show_stars": "Show Stars",
         "star_speed": "Star Speed"
+      },
+      "life": {
+        "title": "Life Settings",
+        "background_color": "Background Color",
+        "cell_color": "Cell Color",
+        "cell_size": "Cell Size",
+        "update_interval": "Update Interval"
+      },
+      "matrix": {
+        "title": "Matrix Settings",
+        "background_color": "Background Color",
+        "glyph_color": "Glyph Color",
+        "glow_color": "Glow Color",
+        "font_size": "Font Size",
+        "speed": "Speed",
+        "fade_strength": "Fade Strength",
+        "density": "Density"
       }
     },
     "updateWeather": "Update Weather",

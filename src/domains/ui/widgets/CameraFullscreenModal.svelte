@@ -5,23 +5,21 @@
      * Displays camera stream in full-screen modal with close functionality.
      */
     import { onMount, onDestroy } from "svelte";
-    import CameraCard from "./CameraCard.svelte";
+    import CameraCardWidget from "./CameraCardWidget.svelte";
     import { cameraStore } from "$lib/stores/camera.store.svelte";
     import { _ } from "svelte-i18n";
+    import type { CameraSourceConfig } from "$lib/types";
 
     interface Props {
         cameraId: string;
-        go2rtcUrl?: string;
+        cameraSourceConfig?: CameraSourceConfig;
         onClose: () => void;
     }
 
-    let {
-        cameraId,
-        go2rtcUrl = "http://192.168.0.98:1984",
-        onClose,
-    }: Props = $props();
+    let { cameraId, cameraSourceConfig, onClose }: Props = $props();
 
-    // Get camera from store
+    // Get camera from store (optional, for name/metadata)
+    // Note: cameraStore might strictly rely on entities, but cameraSourceConfig is the source of truth for the stream
     let camera = $derived(cameraStore.getCameraById(cameraId));
 
     // Handle escape key
@@ -59,6 +57,7 @@
             <h2 class="camera-title">
                 <iconify-icon icon="mdi:video" width="24"></iconify-icon>
                 {camera?.name ||
+                    cameraSourceConfig?.streamName ||
                     $_("camera.fullscreen.title", { default: "Camera" })}
             </h2>
             <button
@@ -72,24 +71,7 @@
 
         <!-- Video Container -->
         <div class="video-wrapper">
-            {#if camera}
-                <CameraCard
-                    {camera}
-                    {go2rtcUrl}
-                    autoConnect={true}
-                    showControls={true}
-                />
-            {:else}
-                <div class="no-camera">
-                    <iconify-icon icon="mdi:camera-off" width="48"
-                    ></iconify-icon>
-                    <span
-                        >{$_("camera.notFound", {
-                            default: "Camera not found",
-                        })}</span
-                    >
-                </div>
-            {/if}
+            <CameraCardWidget {cameraSourceConfig} onFullscreen={undefined} />
         </div>
 
         <!-- Footer hint -->
@@ -131,7 +113,7 @@
         display: flex;
         flex-direction: column;
         background: var(--bg-panel, #1a1a1a);
-        border-radius: 16px;
+        border-radius: var(--card-border-radius);
         overflow: hidden;
         box-shadow: 0 24px 48px rgba(0, 0, 0, 0.4);
         animation: slideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -191,7 +173,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        background: #000;
+        background: transparent;
         overflow: hidden;
     }
 
@@ -214,16 +196,6 @@
 
     .video-wrapper :global(.info-bar) {
         display: none;
-    }
-
-    .no-camera {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 16px;
-        color: var(--text-muted, #666);
-        font-size: 16px;
     }
 
     .modal-footer {

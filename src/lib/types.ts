@@ -9,12 +9,11 @@ export type {
 
 export type {
   WeatherProvider,
-  WeatherConfig,
-  WeatherCondition,
-  WeatherForecastDay,
-  WeatherForecast,
+  WeatherSettings as WeatherConfig, // Alias for backward compatibility if needed
+  WeatherData,
+  WeatherForecastDay as WeatherForecast, // Alias
   WeatherState
-} from '../domains/weather/types';
+} from './weather/types';
 
 // Re-export HA contracts
 export * from '../domains/ha/contracts/messages';
@@ -81,6 +80,9 @@ export interface CameraSourceConfig {
   streamType?: "hls" | "mjpeg" | "webrtc";
   // For HA entity
   entityId?: string;
+  // Interaction
+  interactionMode?: "modal" | "link" | "none"; // Default: "modal"
+  interactionUrl?: string;
 }
 
 export interface DashboardCardConfig {

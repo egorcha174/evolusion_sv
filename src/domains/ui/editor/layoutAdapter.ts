@@ -28,9 +28,16 @@ export const layoutAdapter = {
           w: c.position.w,
           h: c.position.h
         });
-        // For entity cards, store entityId; for camera cards, store cameraId with prefix
+
+        // Handle different card types
         if (c.widgetType === 'camera' && c.cameraId) {
           entities.set(c.id, `camera:${c.cameraId}`);
+        } else if (c.widgetType === 'event-timer') {
+          // Event timer widgets don't have entityId, use special marker
+          entities.set(c.id, `widget:event-timer:${c.id}`);
+        } else if (c.widgetType === 'battery-monitor') {
+          // Battery monitor widgets don't have entityId, use special marker
+          entities.set(c.id, `widget:battery-monitor:${c.id}`);
         } else if (c.entityId) {
           entities.set(c.id, c.entityId);
         }
@@ -75,6 +82,33 @@ export const layoutAdapter = {
             id: id,
             widgetType: 'camera',
             cameraId: cameraId,
+            position: {
+              x: rect.col,
+              y: rect.row,
+              w: rect.w,
+              h: rect.h
+            }
+          });
+        } else if (entityValue.startsWith('widget:event-timer:')) {
+          // Event timer widget - preserve all settings
+          newCards.push({
+            ...(existing || {}), // Preserve existing props including settings
+            id: id,
+            widgetType: 'event-timer',
+            position: {
+              x: rect.col,
+              y: rect.row,
+              w: rect.w,
+              h: rect.h
+            }
+            // settings are preserved via spread operator from existing
+          });
+        } else if (entityValue.startsWith('widget:battery-monitor:')) {
+          // Battery monitor widget - preserve all settings
+          newCards.push({
+            ...(existing || {}), // Preserve existing props including settings
+            id: id,
+            widgetType: 'battery-monitor',
             position: {
               x: rect.col,
               y: rect.row,

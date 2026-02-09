@@ -16,13 +16,15 @@ export async function exportAllSettings() {
 
   const zip = new JSZip();
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-  
+
   // Collect data
   const data = {
     meta: {
       version: 1,
       exportedAt: new Date().toISOString(),
-      app: 'evolusion'
+      app: 'evolusion',
+      // Security warning for users who inspect the file
+      securityNotice: 'This backup contains encrypted credentials. Do not share this file. Handle with care.'
     },
     settings: {
       server: localStorage.getItem(KEYS.server),
@@ -47,7 +49,7 @@ export async function importAllSettings(file: File): Promise<boolean> {
 
     const zip = await JSZip.loadAsync(file);
     const configFile = zip.file('evolusion-settings.json');
-    
+
     if (!configFile) {
       throw new Error('Invalid backup archive: missing configuration file');
     }
@@ -70,7 +72,7 @@ export async function importAllSettings(file: File): Promise<boolean> {
 
     // Force reload to apply changes (simplest way to re-init all stores)
     window.location.reload();
-    
+
     return true;
   } catch (e) {
     console.error('Import failed', e);

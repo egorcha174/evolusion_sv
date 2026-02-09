@@ -1,20 +1,33 @@
 <script lang="ts">
   import { t } from "svelte-i18n";
   import { slide } from "svelte/transition";
-  import type { ThemeFile, ColorScheme } from "../../../themes/types";
+  import type {
+    ThemeFile,
+    ColorScheme,
+    ThemeLayout,
+  } from "../../../themes/types";
   import { applyThemeCSS } from "../../../themes/utils";
   import ColorPicker from "../settings/controls/ColorPicker.svelte";
   import "iconify-icon";
 
-  let {
-    draft = $bindable(),
-    onSave,
-    onCancel,
-  } = $props<{
-    draft: ThemeFile;
-    onSave: (theme: ThemeFile) => void;
-    onCancel: () => void;
-  }>();
+  import { themeEditorStore } from "./editorStore";
+
+  // Derived from store
+  let draft = $state($themeEditorStore.draft!);
+
+  // Ensure we close if draft is missing (safety)
+  $effect(() => {
+    if (!draft && $themeEditorStore.isOpen) {
+      themeEditorStore.close();
+    }
+  });
+
+  function doSave() {
+    if (draft) {
+      // Update the draft in store just in case
+      themeEditorStore.save();
+    }
+  }
 
   let activeTab = $state<"light" | "dark">("light");
   let activeSection = $state<
@@ -22,11 +35,18 @@
   >("main");
 
   let currentScheme = $derived(draft.theme.scheme[activeTab]);
+  let currentLayout = $derived(draft.theme.layout);
 
   function updateField(key: keyof ColorScheme, value: any) {
     // @ts-ignore - Dynamic assignment
     draft.theme.scheme[activeTab][key] = value;
-    applyThemeCSS(draft.theme.scheme[activeTab]);
+    applyThemeCSS(draft.theme.scheme[activeTab], draft.theme.layout);
+  }
+
+  function updateLayout(key: keyof ThemeLayout, value: any) {
+    // @ts-ignore
+    draft.theme.layout[key] = value;
+    applyThemeCSS(draft.theme.scheme[activeTab], draft.theme.layout);
   }
 
   function handleBackgroundTypeChange(type: string) {
@@ -50,20 +70,60 @@
       updateField("dashboardGradientAngle", 135);
     }
   }
+
+  // Resizing Logic
+  let width = $state(360);
+  let isResizing = $state(false);
+
+  function startResize(e: MouseEvent) {
+    e.preventDefault();
+    isResizing = true;
+    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mouseup", stopResize);
+    document.body.style.cursor = "col-resize";
+    document.body.style.userSelect = "none";
+  }
+
+  function handleMouseMove(e: MouseEvent) {
+    if (!isResizing) return;
+    // Right panel: Width = (Window - 20px offset) - MouseX
+    // e.g. Window 1000, Offset 20 -> Right Edge at 980. Mouse at 600 -> Width 380.
+    let newWidth = window.innerWidth - 20 - e.clientX;
+
+    // Constraints
+    if (newWidth < 360) newWidth = 360;
+    if (newWidth > 800) newWidth = 800; // sensible max
+    if (newWidth > window.innerWidth - 40) newWidth = window.innerWidth - 40;
+
+    width = newWidth;
+  }
+
+  function stopResize() {
+    isResizing = false;
+    window.removeEventListener("mousemove", handleMouseMove);
+    window.removeEventListener("mouseup", stopResize);
+    document.body.style.cursor = "";
+    document.body.style.userSelect = "";
+  }
 </script>
 
 {#snippet sliderRow(
   label: string,
-  key: keyof ColorScheme,
+  key: keyof ColorScheme | keyof ThemeLayout,
   min: number,
   max: number,
   step: number,
   unit: string = "",
+  isLayout: boolean = false,
 )}
   <div class="control-row slider-row">
     <div class="slider-header">
       <span class="label">{label}</span>
-      <span class="value">{currentScheme[key] ?? min}{unit}</span>
+      <span class="value"
+        >{(isLayout
+          ? currentLayout[key as keyof ThemeLayout]
+          : currentScheme[key as keyof ColorScheme]) ?? min}{unit}</span
+      >
     </div>
     <input
       type="range"
@@ -71,9 +131,22 @@
       {min}
       {max}
       {step}
-      value={(currentScheme[key] as number) ?? min}
-      oninput={(e) => updateField(key, parseFloat(e.currentTarget.value))}
-      style="background-size: {((((currentScheme[key] as number) ?? min) -
+      value={((isLayout
+        ? currentLayout[key as keyof ThemeLayout]
+        : currentScheme[key as keyof ColorScheme]) as number) ?? min}
+      oninput={(e) =>
+        isLayout
+          ? updateLayout(
+              key as keyof ThemeLayout,
+              parseFloat(e.currentTarget.value),
+            )
+          : updateField(
+              key as keyof ColorScheme,
+              parseFloat(e.currentTarget.value),
+            )}
+      style="background-size: {(((((isLayout
+        ? currentLayout[key as keyof ThemeLayout]
+        : currentScheme[key as keyof ColorScheme]) as number) ?? min) -
         min) *
         100) /
         (max - min)}% 100%"
@@ -83,7 +156,7 @@
 
 {#snippet selectRow(
   label: string,
-  key: keyof ColorScheme,
+  key: keyof ColorScheme | keyof ThemeLayout,
   options: { value: any; label: string }[],
   onChange?: (e: any) => void,
 )}
@@ -92,10 +165,11 @@
     <div class="select-wrapper">
       <select
         class="modern-select"
-        value={currentScheme[key]}
+        value={currentScheme[key as keyof ColorScheme] ??
+          currentLayout[key as keyof ThemeLayout]}
         onchange={onChange
           ? onChange
-          : (e) => updateField(key, e.currentTarget.value)}
+          : (e) => updateField(key as keyof ColorScheme, e.currentTarget.value)}
       >
         {#each options as opt}
           <option value={opt.value}>{opt.label}</option>
@@ -112,11 +186,19 @@
   <div class="section-title">{title}</div>
 {/snippet}
 
-<div class="theme-editor-container">
+<div class="theme-editor-container" style="width: {width}px">
+  <!-- Resize Handle (Left) -->
+  <!-- svelte-ignore a11y_no_static_element_interactions -->
+  <div class="resize-handle" onmousedown={startResize}></div>
+
   <!-- Header with Name Input -->
   <header class="editor-header">
     <div class="header-left">
-      <button class="icon-btn close" onclick={onCancel}>
+      <button
+        class="icon-btn close"
+        onclick={themeEditorStore.close}
+        aria-label={$t("common.close")}
+      >
         <iconify-icon icon="mdi:close"></iconify-icon>
       </button>
 
@@ -134,7 +216,7 @@
       </div>
     </div>
     <div class="header-right">
-      <button class="btn primary small" onclick={() => onSave(draft)}>
+      <button class="btn primary small" onclick={doSave}>
         {$t("common.save")}
       </button>
     </div>
@@ -400,6 +482,7 @@
             32,
             1,
             "px",
+            true,
           )}
 
           <ColorPicker
@@ -422,6 +505,7 @@
             10,
             1,
             "px",
+            true,
           )}
           <ColorPicker
             label={$t("settings.themeEditor.labels.color") +
@@ -450,6 +534,7 @@
               { value: "rounded-square", label: "Rounded Square" },
               { value: "square", label: "Square" },
             ],
+            (e) => updateLayout("iconBackgroundShape", e.currentTarget.value),
           )}
           <ColorPicker
             label={$t("settings.themeEditor.labels.iconBgOff")}
@@ -601,17 +686,16 @@
     position: fixed;
     top: 80px;
     right: 20px;
-    width: 360px;
-    max-height: calc(100vh - 100px);
+    /* width handled in template via JS */
+    bottom: 20px; /* Stretch to bottom */
+    /* max-height removed to force fill */
 
-    /* Glass Effect */
-    background: var(--bg-panel, rgba(30, 30, 30, 0.9));
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    /* Solid Background - No Glass */
+    background: #333333; /* Neutral Gray */
 
-    border-radius: 20px;
-    box-shadow: 0 16px 40px -8px rgba(0, 0, 0, 0.4);
-    border: 1px solid var(--border-primary, rgba(255, 255, 255, 0.1));
+    border-radius: 16px;
+    box-shadow: -10px 0 40px rgba(0, 0, 0, 0.5);
+    border: 1px solid var(--border-divider, rgba(255, 255, 255, 0.1));
 
     z-index: 3000; /* Above most things, below modals */
 
@@ -622,6 +706,20 @@
       sans-serif;
 
     animation: slideInRight 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  .resize-handle {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 6px;
+    height: 100%;
+    cursor: col-resize;
+    z-index: 10;
+    background: transparent;
+  }
+  .resize-handle:hover {
+    background: rgba(255, 255, 255, 0.1);
   }
 
   @keyframes slideInRight {
@@ -644,6 +742,7 @@
     border-bottom: 1px solid var(--border-divider, rgba(255, 255, 255, 0.05));
     flex-shrink: 0;
     cursor: grab; /* Suggest dragging (TODO: Implement drag logic) */
+    direction: ltr; /* Reset text direction */
   }
   .header-left {
     display: flex;
@@ -728,6 +827,7 @@
     display: flex;
     flex-direction: column;
     background: transparent; /* Let glass from container show */
+    direction: ltr; /* Reset text direction */
   }
 
   .meta-section {
@@ -795,25 +895,27 @@
   }
 
   .pill {
-    padding: 4px 12px;
-    border-radius: 16px;
-    border: 1px solid transparent;
-    background: transparent;
+    padding: 8px 16px;
+    border-radius: 12px; /* Slightly squarer than round pills */
+    border: none;
+    background: rgba(255, 255, 255, 0.05);
     cursor: pointer;
-    font-size: 0.85rem;
+    font-size: 0.9rem;
     color: var(--text-secondary);
-    font-weight: 500;
+    font-weight: 600;
     white-space: nowrap;
-    transition: 0.2s;
+    transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+    flex-shrink: 0;
   }
   .pill:hover {
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+    transform: translateY(-1px);
   }
   .pill.active {
-    background: rgba(var(--accent-rgb), 0.15);
-    border-color: rgba(var(--accent-rgb), 0.3);
-    color: var(--accent-primary);
-    font-weight: 600;
+    background: var(--accent-primary);
+    color: #ffffff; /* Always white on accent */
+    box-shadow: 0 4px 12px rgba(var(--accent-rgb), 0.3);
   }
 
   /* SCROLL CONTENT */

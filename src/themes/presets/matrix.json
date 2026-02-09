@@ -1,0 +1,91 @@
+{
+    "schemaVersion": 1,
+    "manifest": {
+        "name": "Matrix",
+        "version": "1.0.0",
+        "author": "Evolusion",
+        "description": "Green-on-black cyber theme inspired by digital rain.",
+        "generatedAt": "2026-02-06T00:00:00.000Z",
+        "tags": [
+            "matrix",
+            "cyber",
+            "green"
+        ]
+    },
+    "theme": {
+        "id": "matrix",
+        "name": "Matrix",
+        "isCustom": false,
+        "foundation": {
+            "matrix-green": "#00ff66",
+            "matrix-green-soft": "rgba(0,255,102,0.18)",
+            "matrix-bg": "#030703"
+        },
+        "layout": {
+            "cardBorderRadius": 4,
+            "cardBorderWidth": 1,
+            "iconBackgroundShape": "square"
+        },
+        "scheme": {
+            "dark": {
+                "dashboardBackgroundType": "gradient",
+                "dashboardBackgroundColor1": "#0b1a10",
+                "dashboardBackgroundColor2": "#050d08",
+                "dashboardGradientAngle": 180,
+                "bgSidebar": "rgba(2,8,4,0.9)",
+                "sidebarOpacity": 1,
+                "bgHeader": "rgba(2,8,4,0.85)",
+                "headerOpacity": 1,
+                "bgChip": "rgba(0,255,102,0.12)",
+                "bgCardHover": "rgba(0,255,102,0.12)",
+                "bgDropdown": "#0a140c",
+                "bgInput": "rgba(0,255,102,0.08)",
+                "textPrimary": "#e8fff2",
+                "textSecondary": "#7cffb0",
+                "textMuted": "#57d88f",
+                "borderInput": "rgba(0,255,102,0.2)",
+                "borderFocus": "var(--matrix-green)",
+                "borderDivider": "rgba(0,255,102,0.12)",
+                "borderPrimary": "var(--matrix-green)",
+                "scrollbarThumb": "rgba(0,255,102,0.5)",
+                "scrollbarTrack": "transparent",
+                "cardOpacity": 1,
+                "cardBorderColor": "rgba(0,255,102,0.15)",
+                "cardBorderColorOn": "var(--matrix-green)",
+                "cardBackground": "rgba(0,255,102,0.06)",
+                "cardBackgroundOn": "rgba(0,255,102,0.18)",
+                "shadowCard": "0 10px 24px rgba(0,0,0,0.45)",
+                "panelOpacity": 0.85,
+                "bgPanel": "#0a140c",
+                "tabTextColor": "#7cffb0",
+                "activeTabTextColor": "var(--matrix-green)",
+                "tabIndicatorColor": "var(--matrix-green)",
+                "iconBackgroundColorOn": "var(--matrix-green)",
+                "iconBackgroundColorOff": "rgba(0,255,102,0.08)",
+                "iconColorOn": "#021a0a",
+                "nameTextColor": "#e8fff2",
+                "statusTextColor": "#7cffb0",
+                "valueTextColor": "var(--matrix-green)",
+                "unitTextColor": "#7cffb0",
+                "nameTextColorOn": "#e8fff2",
+                "statusTextColorOn": "#e8fff2",
+                "valueTextColorOn": "var(--matrix-green)",
+                "unitTextColorOn": "var(--matrix-green)",
+                "clockTextColor": "var(--matrix-green)",
+                "weatherPrimaryColor": "var(--matrix-green)",
+                "weatherSecondaryColor": "#7cffb0",
+                "thermostatHandleColor": "#e8fff2",
+                "thermostatDialTextColor": "var(--matrix-green)",
+                "thermostatDialLabelColor": "#7cffb0",
+                "thermostatHeatingColor": "#00ff99",
+                "thermostatCoolingColor": "#00cc66",
+                "accentPrimary": "var(--matrix-green)",
+                "accentError": "#ff3366",
+                "accentSuccess": "#00ff99",
+                "accentWarning": "#ffd166",
+                "accentInfo": "#00ffcc",
+                "widgetSwitchOn": "var(--matrix-green)"
+            }
+        }
+    }
+}

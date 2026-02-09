@@ -97,8 +97,46 @@
   }
 
   function handleAddCamera(cameraId: string) {
+    let sourceConfig;
+
+    if (cameraId === "__MANUAL__") {
+      // Create empty config for manual setup
+      sourceConfig = {
+        sourceType: "go2rtc",
+        // Default placeholder values? No, leave empty so user must configure.
+        // Maybe default URL if we can guess localhost?
+        go2rtcUrl:
+          window.location.protocol + "//" + window.location.hostname + ":1984",
+        streamName: "",
+      };
+    } else {
+      // Find camera in store to copy config
+      const camera = cameraStore.getCameraById(cameraId);
+      if (camera) {
+        if (camera.source === "go2rtc") {
+          sourceConfig = {
+            sourceType: "go2rtc",
+            // We assume the global go2rtc URL is default if not specified elsewhere.
+            // Ideally this comes from settings, but for now we default to expected port
+            go2rtcUrl:
+              window.location.protocol +
+              "//" +
+              window.location.hostname +
+              ":1984",
+            streamName: camera.go2rtc_name || camera.name,
+          };
+        } else if (camera.source === "direct") {
+          sourceConfig = {
+            sourceType: "url",
+            url: camera.streamUrl,
+            streamType: "hls", // Default or determine from URL ext?
+          };
+        }
+      }
+    }
+
     // Always persist camera widget immediately
-    dashboardStore.addCameraWidget($activeTabId, cameraId);
+    dashboardStore.addCameraWidget($activeTabId, cameraId, sourceConfig);
 
     // If in edit mode, reinit editor session to pick up the new card
     if ($isEditMode && $editorStore.enabled) {
@@ -248,6 +286,28 @@
     {:else}
       <!-- Camera List -->
       <div class="device-list">
+        <button
+          class="camera-item"
+          onclick={() => handleAddCamera("__MANUAL__")}
+        >
+          <div class="camera-info">
+            <iconify-icon icon="mdi:cctv" width="24"></iconify-icon>
+            <div class="camera-details">
+              <span class="camera-name"
+                >{$t("camera.manual", {
+                  default: "Manual Configuration",
+                })}</span
+              >
+              <span class="camera-source"
+                >{$t("camera.manual_hint", {
+                  default: "Configure custom source",
+                })}</span
+              >
+            </div>
+          </div>
+          <iconify-icon icon="mdi:plus" width="20"></iconify-icon>
+        </button>
+
         {#if cameraStore.isLoading}
           <div class="empty">
             <iconify-icon icon="mdi:loading" width="48" class="spinning"

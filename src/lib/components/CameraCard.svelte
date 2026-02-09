@@ -110,8 +110,22 @@
         position: relative;
         width: 100%;
         aspect-ratio: var(--aspect-ratio);
-        background: var(--color-surface, #202124);
-        border-radius: var(--radius-lg, 12px);
+
+        /* Glassmorphism & Theme Base */
+        background: var(
+            --card-background,
+            var(--glass-surface, rgba(255, 255, 255, 0.6))
+        );
+        backdrop-filter: var(--glass-blur, blur(12px));
+        -webkit-backdrop-filter: var(--glass-blur, blur(12px));
+        border: 1px solid
+            var(
+                --card-border-color,
+                var(--glass-border, rgba(255, 255, 255, 0.2))
+            );
+        box-shadow: var(--shadow-card, 0 4px 12px rgba(0, 0, 0, 0.05));
+        border-radius: var(--card-border-radius, 20px);
+
         overflow: hidden;
     }
 

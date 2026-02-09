@@ -1,40 +1,16 @@
 
+> evolusion@0.0.1 check
+> svelte-kit sync && svelte-check --tsconfig ./tsconfig.json
+
+
 ====================================
 Loading svelte-check in workspace: c:\CODE\evolusion_sv
 Getting Svelte diagnostics...
 
-15:47:02 [vite-plugin-svelte] You are using Svelte 5.48.0 with vite-plugin-svelte@3. Active Svelte 5 support has moved to vite-plugin-svelte@4.
+15:19:57 [vite-plugin-svelte] You are using Svelte 5.48.0 with vite-plugin-svelte@3. Active Svelte 5 support has moved to vite-plugin-svelte@4.
 	To receive bug fixes and new features update your devDependencies to "@sveltejs/vite-plugin-svelte": "^4.0.0-next.6" and install.
 	For framework integrations that depend on it, you might have to add an override:
 	"overrides": {"@sveltejs/vite-plugin-svelte": "^4.0.0-next.6"}
-c:\CODE\evolusion_sv\[32msrc\lib\weather\service.ts[39m:29:46
-[31mError[39m: Property 'customLocation' does not exist on type 'WeatherSettings'. Did you mean 'useCustomLocation'? 
-[36m  // 1. Custom Location
-  if (settings.useCustomLocation && settings.[35mcustomLocation[36m) {
-    return {
-[39m
-
-c:\CODE\evolusion_sv\[32msrc\lib\weather\service.ts[39m:31:21
-[31mError[39m: Property 'customLocation' does not exist on type 'WeatherSettings'. Did you mean 'useCustomLocation'? 
-[36m    return {
-      lat: settings.[35mcustomLocation[36m.lat,
-      lon: settings.customLocation.lon,
-[39m
-
-c:\CODE\evolusion_sv\[32msrc\lib\weather\service.ts[39m:32:21
-[31mError[39m: Property 'customLocation' does not exist on type 'WeatherSettings'. Did you mean 'useCustomLocation'? 
-[36m      lat: settings.customLocation.lat,
-      lon: settings.[35mcustomLocation[36m.lon,
-      name: settings.customLocation.name || 'Custom Location'
-[39m
-
-c:\CODE\evolusion_sv\[32msrc\lib\weather\service.ts[39m:33:22
-[31mError[39m: Property 'customLocation' does not exist on type 'WeatherSettings'. Did you mean 'useCustomLocation'? 
-[36m      lon: settings.customLocation.lon,
-      name: settings.[35mcustomLocation[36m.name || 'Custom Location'
-    };
-[39m
-
 c:\CODE\evolusion_sv\[32msrc\domains\ui\widgets\settings\BatteryMonitorSettings.svelte[39m:38:9
 [33mWarn[39m: A form label must be associated with a control
 https://svelte.dev/e/a11y_label_has_associated_control (svelte)
@@ -47,7 +23,63 @@ https://svelte.dev/e/a11y_label_has_associated_control (svelte)
 
 [39m
 
-c:\CODE\evolusion_sv\[32msrc\domains\ui\CardSettingsDialog.svelte[39m:30:5
+c:\CODE\evolusion_sv\[32msrc\domains\ui\editor\components\DeviceSelector.svelte[39m:22:29
+[33mWarn[39m: This reference only captures the initial value of `activeTab`. Did you mean to reference it inside a closure instead?
+https://svelte.dev/e/state_referenced_locally (svelte)
+[36m    // Creating a local reactive state that defaults to prop:
+    let currentTab = $state([35mactiveTab[36m);
+
+[39m
+
+c:\CODE\evolusion_sv\[32msrc\domains\ui\editor\components\DeviceSelector.svelte[39m:132:21
+[33mWarn[39m: Buttons and links should either contain text or have an `aria-label`, `aria-labelledby` or `title` attribute
+https://svelte.dev/e/a11y_consider_explicit_label (svelte)
+[36m                {#if searchQuery}
+                    [35m<button
+                        class="clear-btn"
+                        onclick={() => (searchQuery = "")}
+                    >
+                        <iconify-icon icon="mdi:close-circle" width="16"
+                        ></iconify-icon>
+                    </button>[36m
+                {/if}
+[39m
+
+c:\CODE\evolusion_sv\[32msrc\domains\ui\settings\CameraSourceSettings.svelte[39m:126:9
+[33mWarn[39m: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+[36m    <div class="form-group">
+        [35m<label class="label-block">
+            {$t("camera.source_type", { default: "Source Type" })}
+        </label>[36m
+        <div class="radio-group">
+[39m
+
+c:\CODE\evolusion_sv\[32msrc\domains\ui\settings\CameraSourceSettings.svelte[39m:243:13
+[33mWarn[39m: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+[36m        <div class="form-group">
+            [35m<label class="label-block">
+                {$t("camera.stream_type_label", {
+                    default: "Stream Type",
+                })}
+            </label>[36m
+            <div class="radio-group">
+[39m
+
+c:\CODE\evolusion_sv\[32msrc\domains\ui\settings\CameraSourceSettings.svelte[39m:298:9
+[33mWarn[39m: A form label must be associated with a control
+https://svelte.dev/e/a11y_label_has_associated_control (svelte)
+[36m    <div class="form-group">
+        [35m<label class="label-block">
+            {$t("camera.interaction_action", {
+                default: "Click Action",
+            })}
+        </label>[36m
+        <div class="radio-group">
+[39m
+
+c:\CODE\evolusion_sv\[32msrc\domains\ui\CardSettingsDialog.svelte[39m:38:5
 [33mWarn[39m: This reference only captures the initial value of `card`. Did you mean to reference it inside a derived instead?
 https://svelte.dev/e/state_referenced_locally (svelte)
 [36m  let tempSettings = $state(
@@ -55,12 +87,248 @@ https://svelte.dev/e/state_referenced_locally (svelte)
   );
 [39m
 
-c:\CODE\evolusion_sv\[32msrc\domains\ui\CardSettingsDialog.svelte[39m:30:47
+c:\CODE\evolusion_sv\[32msrc\domains\ui\CardSettingsDialog.svelte[39m:38:47
 [33mWarn[39m: This reference only captures the initial value of `card`. Did you mean to reference it inside a derived instead?
 https://svelte.dev/e/state_referenced_locally (svelte)
 [36m  let tempSettings = $state(
     card.settings ? JSON.parse(JSON.stringify([35m[36mcard.settings)) : {},
   );
+[39m
+
+c:\CODE\evolusion_sv\[32msrc\domains\ui\CardSettingsDialog.svelte[39m:43:5
+[33mWarn[39m: This reference only captures the initial value of `card`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally (svelte)
+[36m  let tempCameraConfig = $state<CameraSourceConfig | undefined>(
+    [35m[36mcard.cameraSourceConfig
+      ? JSON.parse(JSON.stringify(card.cameraSourceConfig))
+[39m
+
+c:\CODE\evolusion_sv\[32msrc\domains\ui\CardSettingsDialog.svelte[39m:44:35
+[33mWarn[39m: This reference only captures the initial value of `card`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally (svelte)
+[36m    card.cameraSourceConfig
+      ? JSON.parse(JSON.stringify([35m[36mcard.cameraSourceConfig))
+      : card.widgetType === "camera"
+[39m
+
+c:\CODE\evolusion_sv\[32msrc\domains\ui\CardSettingsDialog.svelte[39m:45:9
+[33mWarn[39m: This reference only captures the initial value of `card`. Did you mean to reference it inside a derived instead?
+https://svelte.dev/e/state_referenced_locally (svelte)
+[36m      ? JSON.parse(JSON.stringify(card.cameraSourceConfig))
+      : [35m[36mcard.widgetType === "camera"
+        ? { sourceType: "go2rtc" }
+[39m
+
+c:\CODE\evolusion_sv\[32msrc\domains\ui\CardSettingsDialog.svelte[39m:188:1
+[33mWarn[39m: Visible, non-interactive elements with a click event must be accompanied by a keyboard event handler. Consider whether an interactive element such as `<button type="button">` or `<a>` might be more appropriate
+https://svelte.dev/e/a11y_click_events_have_key_events (svelte)
+[36m
+[35m<div class="card-settings-overlay" onclick={handleBackdropClick}>
+  <div class="card-settings-modal wide">
+    <!-- Header -->
+    <div class="modal-header">
+      <h3>{$t("cardSettings.title", { default: "Card Settings" })}</h3>
+      <button class="close-btn" onclick={onClose}>
+        <iconify-icon icon="mdi:close"></iconify-icon>
+      </button>
+    </div>
+
+    <!-- Tabs -->
+    <div class="modal-tabs">
+      <button
+        class="modal-tab"
+        class:active={mode === "settings"}
+        onclick={() => setMode("settings")}
+      >
+        {$t("cardSettings.tab_settings", { default: "Settings" })}
+      </button>
+      <button
+        class="modal-tab"
+        class:active={mode === "devices"}
+        onclick={() => setMode("devices")}
+      >
+        {$t("cardSettings.tab_devices", { default: "Devices" })}
+      </button>
+      <button
+        class="modal-tab"
+        class:active={mode === "widgets"}
+        onclick={() => setMode("widgets")}
+      >
+        {$t("cardSettings.tab_widgets", { default: "Widgets" })}
+      </button>
+    </div>
+
+    <!-- Content -->
+    <div class="modal-content">
+      {#if mode === "settings"}
+        <div class="settings-panel">
+          {#if tempWidgetType === "event-timer"}
+            <EventTimerSettings bind:settings={tempSettings} />
+          {:else if tempWidgetType === "battery-monitor"}
+            <BatteryMonitorSettings bind:settings={tempSettings} />
+          {:else if tempWidgetType === "camera"}
+            <!-- Camera Settings -->
+            {#if tempCameraConfig}
+              <CameraSourceSettings bind:config={tempCameraConfig} />
+            {/if}
+          {:else}
+            <!-- Template Selection for Entity Cards -->
+            <div class="form-group">
+              <label for="tpl-select">{$t("cardSettings.template")}</label>
+              <select id="tpl-select" bind:value={selectedTemplateId}>
+                <option value={undefined}
+                  >{$t("cardSettings.noTemplate")}</option
+                >
+                {#each templates as t}
+                  <option value={t.id}>{t.name}</option>
+                {/each}
+              </select>
+              <p class="hint">{$t("cardSettings.manageHint")}</p>
+            </div>
+          {/if}
+        </div>
+      {:else if mode === "devices"}
+        <div class="selector-panel">
+          <DeviceSelector
+            showTabs={false}
+            activeTab="entities"
+            onSelect={handleDeviceSelect}
+          />
+        </div>
+      {:else if mode === "widgets"}
+        <div class="selector-panel">
+          <DeviceSelector
+            showTabs={false}
+            activeTab="widgets"
+            onSelect={handleDeviceSelect}
+          />
+        </div>
+      {/if}
+    </div>
+
+    <!-- Footer -->
+    <div class="modal-footer">
+      <button class="btn text" onclick={onClose} type="button">
+        {$t("common.cancel")}
+      </button>
+      <button class="btn primary" onclick={handleSave} type="button">
+        {$t("common.save")}
+      </button>
+    </div>
+  </div>
+</div>[36m
+
+[39m
+
+c:\CODE\evolusion_sv\[32msrc\domains\ui\CardSettingsDialog.svelte[39m:188:1
+[33mWarn[39m: `<div>` with a click handler must have an ARIA role
+https://svelte.dev/e/a11y_no_static_element_interactions (svelte)
+[36m
+[35m<div class="card-settings-overlay" onclick={handleBackdropClick}>
+  <div class="card-settings-modal wide">
+    <!-- Header -->
+    <div class="modal-header">
+      <h3>{$t("cardSettings.title", { default: "Card Settings" })}</h3>
+      <button class="close-btn" onclick={onClose}>
+        <iconify-icon icon="mdi:close"></iconify-icon>
+      </button>
+    </div>
+
+    <!-- Tabs -->
+    <div class="modal-tabs">
+      <button
+        class="modal-tab"
+        class:active={mode === "settings"}
+        onclick={() => setMode("settings")}
+      >
+        {$t("cardSettings.tab_settings", { default: "Settings" })}
+      </button>
+      <button
+        class="modal-tab"
+        class:active={mode === "devices"}
+        onclick={() => setMode("devices")}
+      >
+        {$t("cardSettings.tab_devices", { default: "Devices" })}
+      </button>
+      <button
+        class="modal-tab"
+        class:active={mode === "widgets"}
+        onclick={() => setMode("widgets")}
+      >
+        {$t("cardSettings.tab_widgets", { default: "Widgets" })}
+      </button>
+    </div>
+
+    <!-- Content -->
+    <div class="modal-content">
+      {#if mode === "settings"}
+        <div class="settings-panel">
+          {#if tempWidgetType === "event-timer"}
+            <EventTimerSettings bind:settings={tempSettings} />
+          {:else if tempWidgetType === "battery-monitor"}
+            <BatteryMonitorSettings bind:settings={tempSettings} />
+          {:else if tempWidgetType === "camera"}
+            <!-- Camera Settings -->
+            {#if tempCameraConfig}
+              <CameraSourceSettings bind:config={tempCameraConfig} />
+            {/if}
+          {:else}
+            <!-- Template Selection for Entity Cards -->
+            <div class="form-group">
+              <label for="tpl-select">{$t("cardSettings.template")}</label>
+              <select id="tpl-select" bind:value={selectedTemplateId}>
+                <option value={undefined}
+                  >{$t("cardSettings.noTemplate")}</option
+                >
+                {#each templates as t}
+                  <option value={t.id}>{t.name}</option>
+                {/each}
+              </select>
+              <p class="hint">{$t("cardSettings.manageHint")}</p>
+            </div>
+          {/if}
+        </div>
+      {:else if mode === "devices"}
+        <div class="selector-panel">
+          <DeviceSelector
+            showTabs={false}
+            activeTab="entities"
+            onSelect={handleDeviceSelect}
+          />
+        </div>
+      {:else if mode === "widgets"}
+        <div class="selector-panel">
+          <DeviceSelector
+            showTabs={false}
+            activeTab="widgets"
+            onSelect={handleDeviceSelect}
+          />
+        </div>
+      {/if}
+    </div>
+
+    <!-- Footer -->
+    <div class="modal-footer">
+      <button class="btn text" onclick={onClose} type="button">
+        {$t("common.cancel")}
+      </button>
+      <button class="btn primary" onclick={handleSave} type="button">
+        {$t("common.save")}
+      </button>
+    </div>
+  </div>
+</div>[36m
+
+[39m
+
+c:\CODE\evolusion_sv\[32msrc\domains\ui\CardSettingsDialog.svelte[39m:193:7
+[33mWarn[39m: Buttons and links should either contain text or have an `aria-label`, `aria-labelledby` or `title` attribute
+https://svelte.dev/e/a11y_consider_explicit_label (svelte)
+[36m      <h3>{$t("cardSettings.title", { default: "Card Settings" })}</h3>
+      [35m<button class="close-btn" onclick={onClose}>
+        <iconify-icon icon="mdi:close"></iconify-icon>
+      </button>[36m
+    </div>
 [39m
 
 c:\CODE\evolusion_sv\[32msrc\domains\ui\ConfirmModal.svelte[39m:41:5
@@ -135,6 +403,27 @@ https://svelte.dev/e/a11y_click_events_have_key_events (svelte)
 </div>
 [39m
 
+c:\CODE\evolusion_sv\[32msrc\domains\ui\DeviceCard.svelte[39m:111:24
+[31mError[39m: Expected token >
+https://svelte.dev/e/expected_token
+
+If you expect this syntax to work, here are some suggestions: 
+If you use typescript with `svelte-preprocess`, did you add `lang="ts"` to your `script` tag? 
+Did you setup a `svelte.config.js`? 
+See https://github.com/sveltejs/language-tools/tree/master/docs#using-with-preprocessors for more info. (svelte)
+[36m  class:visual-mode={isVisualMode}
+  class:p-0={isTimer} /[35m[36m* Remove padding for Timer to allow full flush fill */
+  data-domain={domain}
+[39m
+
+c:\CODE\evolusion_sv\[32msrc\domains\ui\DeviceCard.svelte[39m:111:24
+[31mError[39m: Expected token >
+https://svelte.dev/e/expected_token (ts)
+[36m  class:visual-mode={isVisualMode}
+  class:p-0={isTimer} /[35m[36m* Remove padding for Timer to allow full flush fill */
+  data-domain={domain}
+[39m
+
 c:\CODE\evolusion_sv\[32msrc\domains\ui\GridSettings.svelte[39m:8:26
 [33mWarn[39m: This reference only captures the initial value of `cols`. Did you mean to reference it inside a closure instead?
 https://svelte.dev/e/state_referenced_locally (svelte)
@@ -151,109 +440,23 @@ https://svelte.dev/e/state_referenced_locally (svelte)
   
 [39m
 
-c:\CODE\evolusion_sv\[32msrc\domains\ui\widgets\CameraCardWidget.svelte[39m:45:30
-[33mWarn[39m: This reference only captures the initial value of `signalUrl`. Did you mean to reference it inside a closure instead?
-https://svelte.dev/e/state_referenced_locally (svelte)
-[36m    // Create WebRTC instance once
-    const webrtc = useWebRTC([35msignalUrl[36m);
-
-[39m
-
-c:\CODE\evolusion_sv\[32msrc\domains\ui\widgets\CameraCardWidget.svelte[39m:37:9
-[33mWarn[39m: `videoElement` is updated, but is not declared with `$state(...)`. Changing its value will not correctly trigger updates
-https://svelte.dev/e/non_reactive_update (svelte)
-[36m    // Video/Image elements (non-reactive DOM refs)
-    let [35m[36mvideoElement: HTMLVideoElement | undefined;
-    let imgElement: HTMLImageElement | undefined;
-[39m
-
-c:\CODE\evolusion_sv\[32msrc\domains\ui\widgets\CameraCardWidget.svelte[39m:38:9
-[33mWarn[39m: `imgElement` is updated, but is not declared with `$state(...)`. Changing its value will not correctly trigger updates
-https://svelte.dev/e/non_reactive_update (svelte)
-[36m    let videoElement: HTMLVideoElement | undefined;
-    let [35m[36mimgElement: HTMLImageElement | undefined;
-    let hlsInstance: Hls | null = null;
-[39m
-
-c:\CODE\evolusion_sv\[32msrc\domains\ui\widgets\CameraCard.svelte[39m:47:30
-[33mWarn[39m: This reference only captures the initial value of `signalUrl`. Did you mean to reference it inside a closure instead?
-https://svelte.dev/e/state_referenced_locally (svelte)
-[36m    // WebRTC connection
-    const webrtc = useWebRTC([35m[36msignalUrl());
-
-[39m
-
 c:\CODE\evolusion_sv\[32msrc\domains\ui\settings\CameraSourceDialog.svelte[39m:24:9
 [33mWarn[39m: This reference only captures the initial value of `currentConfig`. Did you mean to reference it inside a derived instead?
 https://svelte.dev/e/state_referenced_locally (svelte)
-[36m    let sourceType = $state<"go2rtc" | "url" | "ha_entity">(
-        [35m[36mcurrentConfig?.sourceType ?? "go2rtc",
+[36m    let config = $state<CameraSourceConfig>(
+        [35m[36mcurrentConfig ? { ...currentConfig } : { sourceType: "go2rtc" },
     );
 [39m
 
-c:\CODE\evolusion_sv\[32msrc\domains\ui\settings\CameraSourceDialog.svelte[39m:26:28
+c:\CODE\evolusion_sv\[32msrc\domains\ui\settings\CameraSourceDialog.svelte[39m:24:30
 [33mWarn[39m: This reference only captures the initial value of `currentConfig`. Did you mean to reference it inside a derived instead?
 https://svelte.dev/e/state_referenced_locally (svelte)
-[36m    );
-    let go2rtcUrl = $state([35m[36mcurrentConfig?.go2rtcUrl ?? "");
-    let streamName = $state(currentConfig?.streamName ?? "");
-[39m
-
-c:\CODE\evolusion_sv\[32msrc\domains\ui\settings\CameraSourceDialog.svelte[39m:27:29
-[33mWarn[39m: This reference only captures the initial value of `currentConfig`. Did you mean to reference it inside a derived instead?
-https://svelte.dev/e/state_referenced_locally (svelte)
-[36m    let go2rtcUrl = $state(currentConfig?.go2rtcUrl ?? "");
-    let streamName = $state([35m[36mcurrentConfig?.streamName ?? "");
-    let url = $state(currentConfig?.url ?? "");
-[39m
-
-c:\CODE\evolusion_sv\[32msrc\domains\ui\settings\CameraSourceDialog.svelte[39m:28:22
-[33mWarn[39m: This reference only captures the initial value of `currentConfig`. Did you mean to reference it inside a derived instead?
-https://svelte.dev/e/state_referenced_locally (svelte)
-[36m    let streamName = $state(currentConfig?.streamName ?? "");
-    let url = $state([35m[36mcurrentConfig?.url ?? "");
-    let streamType = $state<"hls" | "mjpeg" | "webrtc">(
-[39m
-
-c:\CODE\evolusion_sv\[32msrc\domains\ui\settings\CameraSourceDialog.svelte[39m:30:9
-[33mWarn[39m: This reference only captures the initial value of `currentConfig`. Did you mean to reference it inside a derived instead?
-https://svelte.dev/e/state_referenced_locally (svelte)
-[36m    let streamType = $state<"hls" | "mjpeg" | "webrtc">(
-        [35m[36mcurrentConfig?.streamType ?? "hls",
+[36m    let config = $state<CameraSourceConfig>(
+        currentConfig ? { ...[35m[36mcurrentConfig } : { sourceType: "go2rtc" },
     );
 [39m
 
-c:\CODE\evolusion_sv\[32msrc\domains\ui\settings\CameraSourceDialog.svelte[39m:32:27
-[33mWarn[39m: This reference only captures the initial value of `currentConfig`. Did you mean to reference it inside a derived instead?
-https://svelte.dev/e/state_referenced_locally (svelte)
-[36m    );
-    let entityId = $state([35m[36mcurrentConfig?.entityId ?? "");
-
-[39m
-
-c:\CODE\evolusion_sv\[32msrc\domains\ui\settings\CameraSourceDialog.svelte[39m:79:17
-[33mWarn[39m: A form label must be associated with a control
-https://svelte.dev/e/a11y_label_has_associated_control (svelte)
-[36m            <div class="form-group">
-                [35m<label class="label-block">
-                    {$t("camera.source_type", { default: "Source Type" })}
-                </label>[36m
-                <div class="radio-group">
-[39m
-
-c:\CODE\evolusion_sv\[32msrc\domains\ui\settings\CameraSourceDialog.svelte[39m:176:21
-[33mWarn[39m: A form label must be associated with a control
-https://svelte.dev/e/a11y_label_has_associated_control (svelte)
-[36m                <div class="form-group">
-                    [35m<label class="label-block">
-                        {$t("camera.stream_type_label", {
-                            default: "Stream Type",
-                        })}
-                    </label>[36m
-                    <div class="radio-group">
-[39m
-
-c:\CODE\evolusion_sv\[32msrc\domains\ui\DashboardGrid.svelte[39m:450:3
+c:\CODE\evolusion_sv\[32msrc\domains\ui\DashboardGrid.svelte[39m:457:3
 [33mWarn[39m: Elements with the 'menu' interactive role must have a tabindex value
 https://svelte.dev/e/a11y_interactive_supports_focus (svelte)
 [36m{#if cmOpen}
@@ -263,22 +466,10 @@ https://svelte.dev/e/a11y_interactive_supports_focus (svelte)
     onclick={(e) => e.stopPropagation()}
     role="menu"
   >
-    <button class="menu-item" onclick={cmOpenSettings}>
-      <iconify-icon icon="mdi:palette-swatch-outline"></iconify-icon>
-      {$t("dashboard.menu.appearance")}
+    <button class="menu-item highlight" onclick={cmOpenSettings}>
+      <iconify-icon icon="mdi:cog"></iconify-icon>
+      {$t("dashboard.menu.configure", { default: "Configure" })}
     </button>
-
-    {#if cmCardId}
-      {@const card = cards.find((c) => c.id === cmCardId)}
-      {#if card && card.widgetType === "camera"}
-        <button class="menu-item" onclick={cmConfigureCamera}>
-          <iconify-icon icon="mdi:cctv"></iconify-icon>
-          {$t("dashboard.menu.configureCameraSource", {
-            default: "Configure Source",
-          })}
-        </button>
-      {/if}
-    {/if}
 
     <div class="divider"></div>
 
@@ -307,7 +498,7 @@ https://svelte.dev/e/a11y_interactive_supports_focus (svelte)
 {/if}
 [39m
 
-c:\CODE\evolusion_sv\[32msrc\domains\ui\DashboardGrid.svelte[39m:450:3
+c:\CODE\evolusion_sv\[32msrc\domains\ui\DashboardGrid.svelte[39m:457:3
 [33mWarn[39m: Visible, non-interactive elements with a click event must be accompanied by a keyboard event handler. Consider whether an interactive element such as `<button type="button">` or `<a>` might be more appropriate
 https://svelte.dev/e/a11y_click_events_have_key_events (svelte)
 [36m{#if cmOpen}
@@ -317,22 +508,10 @@ https://svelte.dev/e/a11y_click_events_have_key_events (svelte)
     onclick={(e) => e.stopPropagation()}
     role="menu"
   >
-    <button class="menu-item" onclick={cmOpenSettings}>
-      <iconify-icon icon="mdi:palette-swatch-outline"></iconify-icon>
-      {$t("dashboard.menu.appearance")}
+    <button class="menu-item highlight" onclick={cmOpenSettings}>
+      <iconify-icon icon="mdi:cog"></iconify-icon>
+      {$t("dashboard.menu.configure", { default: "Configure" })}
     </button>
-
-    {#if cmCardId}
-      {@const card = cards.find((c) => c.id === cmCardId)}
-      {#if card && card.widgetType === "camera"}
-        <button class="menu-item" onclick={cmConfigureCamera}>
-          <iconify-icon icon="mdi:cctv"></iconify-icon>
-          {$t("dashboard.menu.configureCameraSource", {
-            default: "Configure Source",
-          })}
-        </button>
-      {/if}
-    {/if}
 
     <div class="divider"></div>
 
@@ -359,6 +538,27 @@ https://svelte.dev/e/a11y_click_events_have_key_events (svelte)
     </button>
   </div>[36m
 {/if}
+[39m
+
+c:\CODE\evolusion_sv\[32msrc\domains\ui\DashboardGrid.svelte[39m:8:10
+[31mError[39m: Module '"c:/CODE/evolusion_sv/src/domains/ui/DeviceCard.svelte"' has no default export. (ts)
+[36m  import { haStore } from "../ha/store";
+  import [35mDeviceCard[36m from "./DeviceCard.svelte";
+  import GridItem from "./GridItem.svelte";
+[39m
+
+c:\CODE\evolusion_sv\[32msrc\domains\ui\DashboardGrid.svelte[39m:417:31
+[31mError[39m: Object literal may only specify known properties, and '"settings"' does not exist in type 'Props'. (ts)
+[36m          <GridItem {card} oncontextmenu={handleCardContext}>
+            <EventTimerWidget [35msettings[36m={card.settings} />
+          </GridItem>
+[39m
+
+c:\CODE\evolusion_sv\[32msrc\domains\ui\DashboardGrid.svelte[39m:421:35
+[31mError[39m: Object literal may only specify known properties, and '"settings"' does not exist in type 'Props'. (ts)
+[36m          <GridItem {card} oncontextmenu={handleCardContext}>
+            <BatteryMonitorWidget [35msettings[36m={card.settings} />
+          </GridItem>
 [39m
 
 c:\CODE\evolusion_sv\[32msrc\domains\ui\InputModal.svelte[39m:27:29
@@ -586,14 +786,6 @@ https://svelte.dev/e/a11y_click_events_have_key_events (svelte)
             <iconify-icon icon="mdi:format-list-bulleted"></iconify-icon>
             <span>{$t("entities.title")}</span>
           </a>
-          <a
-            href="/cameras"
-            class="menu-item"
-            onclick={() => (isKebabMenuOpen = false)}
-          >
-            <iconify-icon icon="mdi:cctv"></iconify-icon>
-            <span>{$t("cameras.title", { default: "Камеры" })}</span>
-          </a>
 
           {#if $isEditMode}
             <button
@@ -651,14 +843,6 @@ https://svelte.dev/e/a11y_no_static_element_interactions (svelte)
             <iconify-icon icon="mdi:format-list-bulleted"></iconify-icon>
             <span>{$t("entities.title")}</span>
           </a>
-          <a
-            href="/cameras"
-            class="menu-item"
-            onclick={() => (isKebabMenuOpen = false)}
-          >
-            <iconify-icon icon="mdi:cctv"></iconify-icon>
-            <span>{$t("cameras.title", { default: "Камеры" })}</span>
-          </a>
 
           {#if $isEditMode}
             <button
@@ -699,7 +883,7 @@ https://svelte.dev/e/a11y_no_static_element_interactions (svelte)
       {/if}
 [39m
 
-c:\CODE\evolusion_sv\[32msrc\domains\ui\DashboardHeader.svelte[39m:317:3
+c:\CODE\evolusion_sv\[32msrc\domains\ui\DashboardHeader.svelte[39m:309:3
 [33mWarn[39m: Visible, non-interactive elements with a click event must be accompanied by a keyboard event handler. Consider whether an interactive element such as `<button type="button">` or `<a>` might be more appropriate
 https://svelte.dev/e/a11y_click_events_have_key_events (svelte)
 [36m{#if contextMenuOpen}
@@ -737,7 +921,7 @@ https://svelte.dev/e/a11y_click_events_have_key_events (svelte)
 {/if}
 [39m
 
-c:\CODE\evolusion_sv\[32msrc\domains\ui\DashboardHeader.svelte[39m:317:3
+c:\CODE\evolusion_sv\[32msrc\domains\ui\DashboardHeader.svelte[39m:309:3
 [33mWarn[39m: `<div>` with a click handler must have an ARIA role
 https://svelte.dev/e/a11y_no_static_element_interactions (svelte)
 [36m{#if contextMenuOpen}
@@ -773,6 +957,13 @@ https://svelte.dev/e/a11y_no_static_element_interactions (svelte)
     </button>
   </div>[36m
 {/if}
+[39m
+
+c:\CODE\evolusion_sv\[32msrc\domains\ui\EntityList.svelte[39m:4:10
+[31mError[39m: Module '"c:/CODE/evolusion_sv/src/domains/ui/DeviceCard.svelte"' has no default export. (ts)
+[36m  import EntityRow from "./EntityRow.svelte";
+  import [35mDeviceCard[36m from "./DeviceCard.svelte";
+  import VirtualList from "./VirtualList.svelte";
 [39m
 
 c:\CODE\evolusion_sv\[32msrc\domains\ui\Header.svelte[39m:51:5
@@ -902,108 +1093,7 @@ https://svelte.dev/e/a11y_no_static_element_interactions (svelte)
       {/if}
 [39m
 
-c:\CODE\evolusion_sv\[32msrc\domains\ui\widgets\CameraWidget.svelte[39m:293:9
-[33mWarn[39m: Self-closing HTML tags for non-void elements are ambiguous — use `<video ...></video>` rather than `<video ... />`
-https://svelte.dev/e/element_invalid_self_closing_tag (svelte)
-[36m      {#if streamType === "hls"}
-        [35m<video
-          bind:this={videoElement}
-          autoplay
-          muted
-          playsinline
-          controls={false}
-          class="video-player"
-        />[36m
-      {:else if streamType === "mjpeg"}
-[39m
-
-c:\CODE\evolusion_sv\[32msrc\domains\ui\widgets\CameraWidget.svelte[39m:314:11
-[33mWarn[39m: Self-closing HTML tags for non-void elements are ambiguous — use `<iconify-icon ...></iconify-icon>` rather than `<iconify-icon ... />`
-https://svelte.dev/e/element_invalid_self_closing_tag (svelte)
-[36m        <div class="loader">
-          [35m<iconify-icon icon="mdi:loading" width="32" class="spinning" />[36m
-          <span class="loading-text">
-[39m
-
-c:\CODE\evolusion_sv\[32msrc\domains\ui\widgets\CameraWidget.svelte[39m:324:7
-[33mWarn[39m: Visible, non-interactive elements with a click event must be accompanied by a keyboard event handler. Consider whether an interactive element such as `<button type="button">` or `<a>` might be more appropriate
-https://svelte.dev/e/a11y_click_events_have_key_events (svelte)
-[36m
-      [35m<div class="info-overlay" onclick={() => (showUrl = !showUrl)}>
-        <iconify-icon icon="mdi:camera" />
-        <span>{entity.attributes?.friendly_name || "Camera"}</span>
-      </div>[36m
-
-[39m
-
-c:\CODE\evolusion_sv\[32msrc\domains\ui\widgets\CameraWidget.svelte[39m:324:7
-[33mWarn[39m: `<div>` with a click handler must have an ARIA role
-https://svelte.dev/e/a11y_no_static_element_interactions (svelte)
-[36m
-      [35m<div class="info-overlay" onclick={() => (showUrl = !showUrl)}>
-        <iconify-icon icon="mdi:camera" />
-        <span>{entity.attributes?.friendly_name || "Camera"}</span>
-      </div>[36m
-
-[39m
-
-c:\CODE\evolusion_sv\[32msrc\domains\ui\widgets\CameraWidget.svelte[39m:325:9
-[33mWarn[39m: Self-closing HTML tags for non-void elements are ambiguous — use `<iconify-icon ...></iconify-icon>` rather than `<iconify-icon ... />`
-https://svelte.dev/e/element_invalid_self_closing_tag (svelte)
-[36m      <div class="info-overlay" onclick={() => (showUrl = !showUrl)}>
-        [35m<iconify-icon icon="mdi:camera" />[36m
-        <span>{entity.attributes?.friendly_name || "Camera"}</span>
-[39m
-
-c:\CODE\evolusion_sv\[32msrc\domains\ui\widgets\CameraWidget.svelte[39m:335:7
-[33mWarn[39m: Self-closing HTML tags for non-void elements are ambiguous — use `<iconify-icon ...></iconify-icon>` rather than `<iconify-icon ... />`
-https://svelte.dev/e/element_invalid_self_closing_tag (svelte)
-[36m    <div class="error-state">
-      [35m<iconify-icon icon="mdi:alert-circle-outline" width="32" />[36m
-      <span class="error-title">{$t("settings.widgets.cameraError")}</span>
-[39m
-
-c:\CODE\evolusion_sv\[32msrc\domains\ui\widgets\CameraWidget.svelte[39m:339:9
-[33mWarn[39m: Self-closing HTML tags for non-void elements are ambiguous — use `<iconify-icon ...></iconify-icon>` rather than `<iconify-icon ... />`
-https://svelte.dev/e/element_invalid_self_closing_tag (svelte)
-[36m      <button class="retry-btn" onclick={handleRetry}>
-        [35m<iconify-icon icon="mdi:refresh" />[36m
-        {$t("settings.widgets.cameraRetry")}
-[39m
-
-c:\CODE\evolusion_sv\[32msrc\domains\ui\widgets\CameraWidget.svelte[39m:345:7
-[33mWarn[39m: Self-closing HTML tags for non-void elements are ambiguous — use `<iconify-icon ...></iconify-icon>` rather than `<iconify-icon ... />`
-https://svelte.dev/e/element_invalid_self_closing_tag (svelte)
-[36m    <div class="placeholder">
-      [35m<iconify-icon icon="mdi:camera-off-outline" width="32" />[36m
-      <span>{$t("settings.widgets.cameraNoSelection")}</span>
-[39m
-
-c:\CODE\evolusion_sv\[32msrc\domains\ui\widgets\CameraWidget.svelte[39m:350:7
-[33mWarn[39m: Self-closing HTML tags for non-void elements are ambiguous — use `<iconify-icon ...></iconify-icon>` rather than `<iconify-icon ... />`
-https://svelte.dev/e/element_invalid_self_closing_tag (svelte)
-[36m    <div class="placeholder">
-      [35m<iconify-icon icon="mdi:loading" width="32" class="spinning" />[36m
-      <span>{$t("common.loading")}</span>
-[39m
-
-c:\CODE\evolusion_sv\[32msrc\domains\ui\widgets\CameraWidget.svelte[39m:13:7
-[33mWarn[39m: `videoElement` is updated, but is not declared with `$state(...)`. Changing its value will not correctly trigger updates
-https://svelte.dev/e/non_reactive_update (svelte)
-[36m
-  let [35m[36mvideoElement: HTMLVideoElement | undefined;
-  let imgElement: HTMLImageElement | undefined;
-[39m
-
-c:\CODE\evolusion_sv\[32msrc\domains\ui\widgets\CameraWidget.svelte[39m:14:7
-[33mWarn[39m: `imgElement` is updated, but is not declared with `$state(...)`. Changing its value will not correctly trigger updates
-https://svelte.dev/e/non_reactive_update (svelte)
-[36m  let videoElement: HTMLVideoElement | undefined;
-  let [35m[36mimgElement: HTMLImageElement | undefined;
-  let hlsInstance: Hls | null = null;
-[39m
-
-c:\CODE\evolusion_sv\[32msrc\domains\ui\add-device\DeviceAddDrawer.svelte[39m:157:7
+c:\CODE\evolusion_sv\[32msrc\domains\ui\add-device\DeviceAddDrawer.svelte[39m:195:7
 [33mWarn[39m: Buttons and links should either contain text or have an `aria-label`, `aria-labelledby` or `title` attribute
 https://svelte.dev/e/a11y_consider_explicit_label (svelte)
 [36m      <h2>{$t("addDevice.title")}</h2>
@@ -1013,7 +1103,7 @@ https://svelte.dev/e/a11y_consider_explicit_label (svelte)
     </header>
 [39m
 
-c:\CODE\evolusion_sv\[32msrc\domains\ui\add-device\DeviceAddDrawer.svelte[39m:202:13
+c:\CODE\evolusion_sv\[32msrc\domains\ui\add-device\DeviceAddDrawer.svelte[39m:240:13
 [33mWarn[39m: Buttons and links should either contain text or have an `aria-label`, `aria-labelledby` or `title` attribute
 https://svelte.dev/e/a11y_consider_explicit_label (svelte)
 [36m          {#if searchQuery}
@@ -1163,7 +1253,7 @@ https://svelte.dev/e/a11y_consider_explicit_label (svelte)
 </div>
 [39m
 
-c:\CODE\evolusion_sv\[32msrc\domains\ui\settings\ServerManager.svelte[39m:208:19
+c:\CODE\evolusion_sv\[32msrc\domains\ui\settings\ServerManager.svelte[39m:212:19
 [33mWarn[39m: A form label must be associated with a control
 https://svelte.dev/e/a11y_label_has_associated_control (svelte)
 [36m               <div class="info-block">
@@ -1171,7 +1261,7 @@ https://svelte.dev/e/a11y_label_has_associated_control (svelte)
                   <div class="token-preview">•••••••••••••••••••••••••</div>
 [39m
 
-c:\CODE\evolusion_sv\[32msrc\domains\ui\theme\ThemeEditor.svelte[39m:119:7
+c:\CODE\evolusion_sv\[32msrc\domains\ui\theme\ThemeEditor.svelte[39m:188:7
 [33mWarn[39m: Buttons and links should either contain text or have an `aria-label`, `aria-labelledby` or `title` attribute
 https://svelte.dev/e/a11y_consider_explicit_label (svelte)
 [36m    <div class="header-left">
@@ -1181,14 +1271,14 @@ https://svelte.dev/e/a11y_consider_explicit_label (svelte)
 
 [39m
 
-c:\CODE\evolusion_sv\[32msrc\domains\ui\theme\ThemeEditor.svelte[39m:916:5
+c:\CODE\evolusion_sv\[32msrc\domains\ui\theme\ThemeEditor.svelte[39m:1005:5
 [33mWarn[39m: Also define the standard property 'appearance' for compatibility (css)
 [36m  .slider {
     [35m-webkit-appearance[36m: none;
     width: 100%;
 [39m
 
-c:\CODE\evolusion_sv\[32msrc\domains\ui\theme\ThemeAutoGenerator.svelte[39m:194:15
+c:\CODE\evolusion_sv\[32msrc\domains\ui\theme\ThemeAutoGenerator.svelte[39m:195:15
 [33mWarn[39m: A form label must be associated with a control
 https://svelte.dev/e/a11y_label_has_associated_control (svelte)
 [36m            <div class="control-group">
@@ -1196,7 +1286,7 @@ https://svelte.dev/e/a11y_label_has_associated_control (svelte)
               <div class="segmented-control">
 [39m
 
-c:\CODE\evolusion_sv\[32msrc\domains\ui\theme\ThemeAutoGenerator.svelte[39m:214:15
+c:\CODE\evolusion_sv\[32msrc\domains\ui\theme\ThemeAutoGenerator.svelte[39m:215:15
 [33mWarn[39m: A form label must be associated with a control
 https://svelte.dev/e/a11y_label_has_associated_control (svelte)
 [36m            <div class="control-group">
@@ -1204,7 +1294,7 @@ https://svelte.dev/e/a11y_label_has_associated_control (svelte)
               <select bind:value={settings.harmony}>
 [39m
 
-c:\CODE\evolusion_sv\[32msrc\domains\ui\theme\ThemeAutoGenerator.svelte[39m:235:15
+c:\CODE\evolusion_sv\[32msrc\domains\ui\theme\ThemeAutoGenerator.svelte[39m:236:15
 [33mWarn[39m: A form label must be associated with a control
 https://svelte.dev/e/a11y_label_has_associated_control (svelte)
 [36m            <div class="control-group">
@@ -1212,60 +1302,14 @@ https://svelte.dev/e/a11y_label_has_associated_control (svelte)
               <select bind:value={settings.radius}>
 [39m
 
-c:\CODE\evolusion_sv\[32msrc\domains\ui\widgets\CameraGrid.svelte[39m:25:28
-[33mWarn[39m: This reference only captures the initial value of `initialUrl`. Did you mean to reference it inside a closure instead?
+c:\CODE\evolusion_sv\[32msrc\domains\ui\widgets\CameraCard.svelte[39m:46:30
+[33mWarn[39m: This reference only captures the initial value of `signalUrl`. Did you mean to reference it inside a closure instead?
 https://svelte.dev/e/state_referenced_locally (svelte)
-[36m    // Settings loaded from localStorage
-    let go2rtcUrl = $state([35minitialUrl[36m);
-    let columns = $state(0); // 0 = auto
-[39m
+[36m    // WebRTC connection - pass the getter function, not its result
+    const webrtc = useWebRTC([35msignalUrl[36m);
 
-c:\CODE\evolusion_sv\[32msrc\domains\ui\widgets\CameraGrid.svelte[39m:27:30
-[33mWarn[39m: This reference only captures the initial value of `initialAutoConnect`. Did you mean to reference it inside a closure instead?
-https://svelte.dev/e/state_referenced_locally (svelte)
-[36m    let columns = $state(0); // 0 = auto
-    let autoConnect = $state([35minitialAutoConnect[36m);
-
-[39m
-
-c:\CODE\evolusion_sv\[32msrc\domains\ui\widgets\CameraGrid.svelte[39m:209:17
-[33mWarn[39m: Visible, non-interactive elements with a click event must be accompanied by a keyboard event handler. Consider whether an interactive element such as `<button type="button">` or `<a>` might be more appropriate
-https://svelte.dev/e/a11y_click_events_have_key_events (svelte)
-[36m            {#each cameraStore.activeCameras as camera (camera.id)}
-                [35m<div
-                    class="grid-item"
-                    class:selected={cameraStore.selectedCameraId === camera.id}
-                    onclick={() => handleCameraClick(camera.id)}
-                >
-                    <CameraCard
-                        {camera}
-                        {go2rtcUrl}
-                        {autoConnect}
-                        showControls={true}
-                    />
-                </div>[36m
-            {/each}
-[39m
-
-c:\CODE\evolusion_sv\[32msrc\domains\ui\widgets\CameraGrid.svelte[39m:209:17
-[33mWarn[39m: `<div>` with a click handler must have an ARIA role
-https://svelte.dev/e/a11y_no_static_element_interactions (svelte)
-[36m            {#each cameraStore.activeCameras as camera (camera.id)}
-                [35m<div
-                    class="grid-item"
-                    class:selected={cameraStore.selectedCameraId === camera.id}
-                    onclick={() => handleCameraClick(camera.id)}
-                >
-                    <CameraCard
-                        {camera}
-                        {go2rtcUrl}
-                        {autoConnect}
-                        showControls={true}
-                    />
-                </div>[36m
-            {/each}
 [39m
 
 ====================================
-[31msvelte-check found 4 errors and 77 warnings in 24 files
+[31msvelte-check found 6 errors and 64 warnings in 24 files
 [39m

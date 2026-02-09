@@ -13,14 +13,13 @@
   import type { ThemeMode, ThemeFile } from "../../../../themes/types";
 
   import Section from "../Section.svelte";
-  import ThemeEditor from "../../theme/ThemeEditor.svelte";
   import ThemeAutoGenerator from "../../theme/ThemeAutoGenerator.svelte";
   import BackgroundSettings from "../BackgroundSettings.svelte";
   import "iconify-icon";
 
-  let isEditingTheme = $state(false);
+  import { themeEditorStore } from "../../theme/editorStore";
+
   // let isAutoGeneratorOpen = $state(false); // Moved to global store
-  let themeDraft = $state<ThemeFile | null>(null);
   let themeFileInput: HTMLInputElement;
 
   // Helper to check if a theme is a built-in (by ID)
@@ -29,10 +28,10 @@
   }
 
   function handleThemeSelect(id: string) {
-    if (isEditingTheme) {
-      if (!confirm($t("common.cancel") + "?")) return;
-      cancelThemeEdit();
-    }
+    // if (isEditingTheme) {
+    //   if (!confirm($t("common.cancel") + "?")) return;
+    //   cancelThemeEdit();
+    // }
     themeStore.setActiveTheme(id);
   }
 
@@ -40,29 +39,27 @@
     const newId = `custom_${Date.now()}`;
     const newName = `${baseTheme.theme.name} (Copy)`;
 
-    themeDraft = JSON.parse(JSON.stringify(baseTheme));
-    if (themeDraft) {
-      themeDraft.manifest.name = newName;
-      themeDraft.theme.id = newId;
-      themeDraft.theme.name = newName;
-      themeDraft.theme.isCustom = true;
-      isEditingTheme = true;
+    const draft = JSON.parse(JSON.stringify(baseTheme));
+    if (draft) {
+      draft.manifest.name = newName;
+      draft.theme.id = newId;
+      draft.theme.name = newName;
+      draft.theme.isCustom = true;
+
+      themeEditorStore.open(draft, saveTheme);
     }
   }
 
   function editTheme(theme: ThemeFile) {
-    themeDraft = JSON.parse(JSON.stringify(theme));
-    if (themeDraft && isBuiltInID(theme.theme.id)) {
-      themeDraft.theme.isCustom = true;
-    }
-    isEditingTheme = true;
+    themeEditorStore.open(theme, saveTheme);
   }
 
   function saveTheme(theme: ThemeFile) {
     themeStore.saveTheme(theme);
     themeStore.setActiveTheme(theme.theme.id);
-    isEditingTheme = false;
-    themeDraft = null;
+    themeStore.saveTheme(theme);
+    themeStore.setActiveTheme(theme.theme.id);
+    themeEditorStore.close();
   }
 
   function deleteTheme(id: string) {
@@ -73,18 +70,19 @@
 
     if (confirm(msg)) {
       themeStore.deleteTheme(id);
-      if (isEditingTheme && themeDraft?.theme.id === id) {
-        isEditingTheme = false;
-        themeDraft = null;
+      // Close editor if we just deleted the theme being edited?
+      // Simplified: Just close if open
+      if ($themeEditorStore.draft?.theme.id === id) {
+        themeEditorStore.close();
       }
     }
   }
 
-  function cancelThemeEdit() {
+  /* function cancelThemeEdit() {
     isEditingTheme = false;
     themeDraft = null;
     themeStore.setActiveTheme($themeStore.activeThemeId);
-  }
+  } */
 
   async function handleThemeImport(e: Event) {
     const file = (e.target as HTMLInputElement).files?.[0];
@@ -159,6 +157,8 @@
     <div class="theme-grid">
       {#each $themeStore.themes as theme (theme.theme.id)}
         {@const isBuiltIn = isBuiltInID(theme.theme.id)}
+        {@const previewScheme =
+          theme.theme.scheme.light || theme.theme.scheme.dark}
         <!-- svelte-ignore a11y_click_events_have_key_events -->
         <!-- svelte-ignore a11y_no_static_element_interactions -->
         <div
@@ -168,16 +168,15 @@
         >
           <div
             class="preview"
-            style:background={theme.theme.scheme.light
-              .dashboardBackgroundColor1}
+            style:background={previewScheme.dashboardBackgroundColor1}
           >
             <div
               class="mini-card"
-              style:background={theme.theme.scheme.light.cardBackground}
+              style:background={previewScheme.cardBackground}
             ></div>
             <div
               class="mini-accent"
-              style:background={theme.theme.scheme.light.accentPrimary}
+              style:background={previewScheme.accentPrimary}
             ></div>
           </div>
           <div class="meta">
@@ -265,16 +264,6 @@
       </button>
     </div>
   </div>
-
-  {#if isEditingTheme && themeDraft}
-    <div class="editor-wrapper" transition:slide>
-      <ThemeEditor
-        draft={themeDraft}
-        onSave={saveTheme}
-        onCancel={cancelThemeEdit}
-      />
-    </div>
-  {/if}
 
   <div class="divider"></div>
   <BackgroundSettings />
@@ -462,12 +451,6 @@
   .create-btn.highlight:hover {
     opacity: 1;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  }
-
-  .editor-wrapper {
-    margin-top: 1rem;
-    border-top: 1px solid var(--border-divider);
-    padding-top: 1rem;
   }
 
   @media (max-width: 480px) {

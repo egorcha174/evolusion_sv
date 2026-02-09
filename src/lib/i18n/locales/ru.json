@@ -9,15 +9,32 @@
     "off": "Выкл",
     "on": "Вкл",
     "close": "Закрыть",
-    "unknown": "Неизвестно"
+    "unknown": "Неизвестно",
+    "appName": "Evolusion",
+    "newTab": "Новая вкладка",
+    "unnamed": "Без названия",
+    "active": "Активен",
+    "closeSettings": "Закрыть настройки",
+    "newServer": "Новый сервер"
+  },
+  "home": {
+    "connecting": "Подключение к Home Assistant...",
+    "connectionError": "Ошибка подключения",
+    "checkSettings": "Проверить настройки",
+    "notConnected": "Не подключено",
+    "configureHint": "Пожалуйста, настройте подключение к серверу в Настройках.",
+    "goToSettings": "Перейти в Настройки"
   },
   "dashboard": {
     "title": "Дашборд",
+    "defaultTabTitle": "Обзор",
     "edit": "Редактировать",
     "done": "Готово",
     "noDevices": "Устройства не найдены.",
     "noDevicesTab": "Устройства для «{tab}» не найдены.",
     "addWidget": "Добавить виджет",
+    "addEmptyCard": "Добавить пустую карточку",
+    "selectDevice": "Выбрать устройство",
     "layoutSaved": "Раскладка сохранена",
     "menu": {
       "renameTab": "Переименовать вкладку",
@@ -28,12 +45,19 @@
       "duplicateCard": "Дублировать",
       "moveCard": "Перенести на...",
       "appearance": "Внешний вид",
+      "configure": "Настроить устройство",
+      "configureCameraSource": "Настроить источник",
       "refresh": "Обновить страницу"
     },
     "grid": {
       "columns": "Колонки",
       "rows": "Ряды",
       "hint": "Тяните для перемещения. Тяните угол для изменения размера."
+    },
+    "loadingApp": "Загрузка Evolusion...",
+    "welcome": {
+      "title": "Добро пожаловать!",
+      "subtitle": "Ваш дашборд готов."
     }
   },
   "addDevice": {
@@ -52,7 +76,24 @@
       "title": "Камера",
       "hint": "Нажмите Escape для закрытия"
     },
-    "notFound": "Камера не найдена"
+    "notFound": "Камера не найдена",
+    "not_configured": "Не настроено",
+    "configure_hint": "Режим редактирования > ПКМ",
+    "configureBase": "Настроить источник",
+    "configure_source": "Настроить источник камеры",
+    "source_type": "Тип источника",
+    "direct_url": "Прямой URL",
+    "ha_entity": "Объект HA",
+    "go2rtc_url": "URL Go2rtc",
+    "go2rtc_url_hint": "Пример: http://192.168.0.98:1984",
+    "stream_name": "Имя потока",
+    "stream_name_hint": "Имя потока в go2rtc",
+    "stream_url": "URL потока",
+    "stream_type_label": "Тип потока",
+    "entity_id": "ID объекта",
+    "entity_id_hint": "ID камеры в Home Assistant",
+    "rtsp_error": "RTSP не поддерживается браузером. Используйте go2rtc или MJPEG.",
+    "url_examples": "Примеры: HLS (.m3u8), MJPEG (http://ip/stream.mjpeg)"
   },
   "sidebar": {
     "connected": "Подключено",
@@ -61,13 +102,65 @@
     "camera": "Камера",
     "cameraPlaceholder": "Видеопоток (TODO)",
     "weather": "Погода",
-    "latency": "Задержка"
+    "latency": "Задержка",
+    "collapse": "Свернуть панель"
   },
   "cardSettings": {
     "title": "Настройки карточки",
     "template": "Шаблон",
     "noTemplate": "(Без шаблона)",
-    "manageHint": "Используйте главное меню для создания или редактирования шаблонов."
+    "manageHint": "Используйте главное меню для создания или редактирования шаблонов.",
+    "tab_settings": "Настройки",
+    "tab_devices": "Устройства",
+    "tab_widgets": "Виджеты",
+    "preview": "Превью"
+  },
+  "widgets": {
+    "eventTimer": {
+      "name": "Название",
+      "namePlaceholder": "напр.: Замена фильтра",
+      "defaultName": "Обслуживание",
+      "cycleValue": "Цикл",
+      "unit": "Единица",
+      "animation": "Анимация",
+      "colors": "Цвета заливки",
+      "fillDirection": "Направление заливки",
+      "opacity": "Прозрачность заливки",
+      "lastReset": "Последний сброс",
+      "resetNow": "Сбросить",
+      "never": "Никогда",
+      "showName": "Показывать название",
+      "showUnit": "Показывать единицу",
+      "positions": "Позиции текста",
+      "positionName": "Название",
+      "positionValue": "Значение",
+      "positionUnit": "Единица",
+      "posX": "X",
+      "posY": "Y",
+      "fontSize": "Размер (px)",
+      "animations": {
+        "smooth": "Плавная",
+        "wave": "Волна",
+        "bubbles": "Пузыри",
+        "none": "Нет"
+      },
+      "fillDirections": {
+        "bottomToTop": "Снизу вверх",
+        "topToBottom": "Сверху вниз"
+      },
+      "units": {
+        "sec": "сек",
+        "min": "мин",
+        "hour": "ч",
+        "day": "дн",
+        "month": "мес"
+      }
+    },
+    "batteryMonitor": {
+      "selectDevices": "Выберите устройства",
+      "empty": "Датчики батареи не найдены",
+      "selected": "Выбрано"
+    }
   },
   "templates": {
     "manager": {
@@ -130,7 +223,8 @@
       "iconSizeCurrent": "Размер иконки (Текущая)",
       "tempSizeCurrent": "Размер температуры (Текущая)",
       "iconSizeForecast": "Размер иконки (Прогноз)",
-      "tempSizeForecast": "Размер температуры (Прогноз)"
+      "tempSizeForecast": "Размер температуры (Прогноз)",
+      "configureCamera": "Настроить источник"
     },
     "appearance": "Внешний вид",
     "appearanceDesc": "Настройки темы и языка",
@@ -171,7 +265,7 @@
     },
     "weather": {
       "title": "Виджет погоды",
-      "description": "Настройка провайдера данных",
+      "desc": "Настройка провайдера данных",
       "provider": "Источник данных",
       "provider_type": "Тип провайдера",
       "key": "API Ключ",
@@ -182,19 +276,31 @@
       "longitude": "Долгота",
       "display": "Отображение",
       "refresh_interval": "Интервал обновления (мин)",
+      "refresh_hint": "Мин: 1, Макс: 60",
+      "weatherIconPack": "Набор иконок",
       "show_forecast": "Показывать прогноз",
       "forecast_days": "Количество дней",
       "layout": "Ориентация прогноза",
-      "layout_vertical": "Вертикальная",
-      "layout_horizontal": "Горизонтальная",
+      "layout_options": {
+        "vertical": "Вертикальная",
+        "horizontal": "Горизонтальная"
+      },
       "appearance": "Внешний вид",
       "icon_size": "Размер иконки",
-      "temp_size": "Размер температуры"
+      "temp_size": "Размер температуры",
+      "iconSizeForecast": "Размер иконки (Прогноз)",
+      "tempSizeForecast": "Размер температуры (Прогноз)",
+      "forecastItems": "Ячейки прогноза",
+      "forecastItemBgOpacity": "Прозрачность фона",
+      "forecastItemBorderRadius": "Скругление углов",
+      "enableIconAnimation": "Анимировать иконки погоды"
     },
     "background": {
       "title": "Фоновый эффект",
+      "description": "Настройка фоновых эффектов дашборда",
       "type": "Тип эффекта",
       "effects": {
+        "auto": "Авто (по погоде)",
         "none": "Нет",
         "aurora": "Северное сияние",
         "snow": "Снег",
@@ -203,6 +309,9 @@
         "river": "Волны (Река)",
         "thunderstorm": "Гроза",
         "tron": "Трон (Цифровая сетка)",
+        "life": "Игра «Жизнь»",
+        "matrix": "Матрица",
+        "hyperspace": "Гиперпространство",
         "sun-glare": "Солнечный день",
         "sun-clouds": "Солнце + Облака"
       },
@@ -217,6 +326,16 @@
         "saturation": "Насыщенность",
         "show_stars": "Показывать звёзды",
         "star_speed": "Скорость звёзд"
+      },
+      "matrix": {
+        "title": "Настройки матрицы",
+        "background_color": "Цвет фона",
+        "glyph_color": "Цвет символов",
+        "glow_color": "Цвет свечения",
+        "font_size": "Размер шрифта",
+        "speed": "Скорость",
+        "fade_strength": "Интенсивность затухания",
+        "density": "Плотность"
       }
     },
     "updateWeather": "Обновить погоду",

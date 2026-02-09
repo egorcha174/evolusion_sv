@@ -9,23 +9,30 @@
   import { dashboardStore } from "../domains/app/dashboardStore";
   import { session } from "../domains/app/session";
   import { initializeHAConnection, disconnectHA } from "../domains/ha/store";
-  import { themeStore } from "../domains/ui/theme/store";
+  import { themeStore, isDarkMode } from "../domains/ui/theme/store";
   import { editorStore } from "../domains/ui/editor/store";
   import { backgroundStore } from "../domains/ui/background/store";
   import { initClientI18n } from "../lib/i18n";
   import { initWeather, destroyWeather } from "../lib/weather/store"; // Keep weather store init
   import WeatherEffects from "../domains/app/WeatherEffects.svelte"; // New component for weather effects
-  import { isLoading } from "svelte-i18n";
+  import { isLoading, t } from "svelte-i18n";
   import BackgroundRenderer from "../domains/theme/BackgroundRenderer.svelte";
   import BackgroundEngine from "../domains/ui/background/BackgroundEngine.svelte";
   import Sidebar from "../domains/ui/Sidebar.svelte";
   import DashboardHeader from "../domains/ui/DashboardHeader.svelte";
   import TemplateManager from "../domains/ui/editor/templates/TemplateManager.svelte";
   import SettingsDrawer from "../domains/ui/settings/SettingsDrawer.svelte";
+  import ServerManager from "../domains/ui/settings/ServerManager.svelte";
   import ThemeAutoGenerator from "../domains/ui/theme/ThemeAutoGenerator.svelte";
+  import ThemeEditor from "../domains/ui/theme/ThemeEditor.svelte";
+  import { themeEditorStore } from "../domains/ui/theme/editorStore";
   import DeviceAddDrawer from "../domains/ui/add-device/DeviceAddDrawer.svelte";
   import PinScreen from "../domains/ui/lock/PinScreen.svelte";
-  import { isThemeGeneratorOpen } from "../domains/ui/store";
+  import {
+    isThemeGeneratorOpen,
+    isServerManagerOpen,
+  } from "../domains/ui/store";
+
   import "iconify-icon";
   import "../app.css";
 
@@ -94,6 +101,17 @@
       disconnectHA();
     }
   });
+
+  // Expose active theme info for CSS hooks
+  $effect(() => {
+    if (typeof document === "undefined") return;
+    const themeId = $themeStore.activeThemeId || "default";
+    const mode = $isDarkMode ? "dark" : "light";
+    document.documentElement.setAttribute("data-theme-id", themeId);
+    document.documentElement.setAttribute("data-theme", mode);
+    document.body?.setAttribute("data-theme-id", themeId);
+    document.body?.setAttribute("data-theme", mode);
+  });
 </script>
 
 <BackgroundRenderer />
@@ -103,7 +121,7 @@
 {#if ($isLoading && !forcedReady) || isSessionLoading}
   <div class="loading-screen">
     <div class="spinner"></div>
-    <p>Loading Evolusion...</p>
+    <p>{$t("dashboard.loadingApp")}</p>
   </div>
 {:else if !isSessionActive}
   <!-- Security Layer: Blocks everything else -->
@@ -126,6 +144,14 @@
 
   {#if $isThemeGeneratorOpen}
     <ThemeAutoGenerator onClose={() => isThemeGeneratorOpen.set(false)} />
+  {/if}
+
+  {#if $isServerManagerOpen}
+    <ServerManager onClose={() => isServerManagerOpen.set(false)} />
+  {/if}
+
+  {#if $themeEditorStore.isOpen}
+    <ThemeEditor />
   {/if}
 
   {#if $editorStore.isTemplateManagerOpen}

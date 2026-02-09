@@ -49,7 +49,8 @@ export const weatherApiProvider: WeatherProvider = {
       icon: getWeatherIcon(currentCode, settings.iconPack),
       location: data.location.name || coords.name,
       updatedAt: new Date(),
-      forecast
+      forecast,
+      weatherCode: currentCode,
     };
   }
 };

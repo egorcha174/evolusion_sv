@@ -177,5 +177,6 @@
         height: 100%;
         display: block;
         background: black;
+        border-radius: inherit;
     }
 </style>

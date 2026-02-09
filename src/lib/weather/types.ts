@@ -14,6 +14,8 @@ export interface WeatherData {
   location: string;
   updatedAt: Date;
   forecast: WeatherForecastDay[];
+  weatherCode: number;
+  isDay: boolean; // NEW
 }
 
 export interface WeatherState {
@@ -29,7 +31,7 @@ export interface Coordinates {
 }
 
 export type WeatherProviderType = 'openmeteo' | 'openweathermap' | 'weatherapi' | 'yandex' | 'homeassistant';
-export type WeatherIconPack = 'default' | 'outline' | 'filled';
+export type WeatherIconPack = 'default' | 'outline' | 'filled' | 'meteocons' | 'weather-icons' | 'material-symbols';
 export type ForecastLayout = 'vertical' | 'horizontal';
 
 export interface WeatherSettings {
@@ -45,6 +47,11 @@ export interface WeatherSettings {
   forecastDays: number; // 1-7
   iconPack: WeatherIconPack;
   forecastLayout: ForecastLayout;
+
+  // Forecast Item Styling
+  forecastItemBgOpacity: number;     // 0-100
+  forecastItemBorderRadius: number;  // px
+  enableIconAnimation: boolean;
 
   // Visual Configuration (Global)
   currentIconSize: number;

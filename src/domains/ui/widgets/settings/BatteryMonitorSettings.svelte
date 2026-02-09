@@ -35,15 +35,19 @@
 
 <div class="settings-group">
     <div class="field">
-        <label
-            >{$t("widgets.batteryMonitor.selectDevices", {
+        <label>
+            {$t("widgets.batteryMonitor.selectDevices", {
                 default: "Select Devices",
-            })}</label
-        >
+            })}
+        </label>
 
         <div class="list-container">
             {#if batteryEntities.length === 0}
-                <div class="empty">No battery sensors found</div>
+                <div class="empty">
+                    {$t("widgets.batteryMonitor.empty", {
+                        default: "No battery sensors found",
+                    })}
+                </div>
             {:else}
                 {#each batteryEntities as entity (entity.entity_id)}
                     {@const isSelected = settings.entities.includes(
@@ -79,7 +83,11 @@
                 {/each}
             {/if}
         </div>
-        <p class="hint">Selected: {settings.entities.length}</p>
+        <p class="hint">
+            {$t("widgets.batteryMonitor.selected", {
+                default: "Selected",
+            })}: {settings.entities.length}
+        </p>
     </div>
 </div>
 

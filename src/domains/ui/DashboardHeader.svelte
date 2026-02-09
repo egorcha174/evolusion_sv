@@ -222,7 +222,7 @@
           onclick={() => handleTabClick(tab.id)}
           oncontextmenu={(e) => handleTabContext(e, tab.id)}
         >
-          {tab.title}
+          {tab.id === "welcome" ? $t("dashboard.defaultTabTitle") : tab.title}
           {#if $isEditMode}
             <iconify-icon icon="mdi:pencil" width="14" class="edit-icon"
             ></iconify-icon>
@@ -261,14 +261,6 @@
           >
             <iconify-icon icon="mdi:format-list-bulleted"></iconify-icon>
             <span>{$t("entities.title")}</span>
-          </a>
-          <a
-            href="/cameras"
-            class="menu-item"
-            onclick={() => (isKebabMenuOpen = false)}
-          >
-            <iconify-icon icon="mdi:cctv"></iconify-icon>
-            <span>{$t("cameras.title", { default: "Камеры" })}</span>
           </a>
 
           {#if $isEditMode}

@@ -65,8 +65,6 @@ function createCameraStore() {
 
             const data = await response.json();
             cameras = data.cameras ?? data;
-
-            console.log(`[CameraStore] Loaded ${cameras.length} cameras`);
         } catch (err) {
             error = err instanceof Error ? err.message : 'Unknown error loading cameras';
             console.error('[CameraStore] Load error:', err);
@@ -80,7 +78,6 @@ function createCameraStore() {
      */
     function selectCamera(id: string | null): void {
         selectedCameraId = id;
-        console.log(`[CameraStore] Selected camera: ${id}`);
     }
 
     /**

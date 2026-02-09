@@ -1,25 +1,108 @@
 
 import { browser } from '$app/environment';
-import { writable, derived, type Readable } from 'svelte/store';
+import { writable, derived, readable, type Readable } from 'svelte/store';
 import { haStore } from '../ha/store';
 import { activeTabId } from '../app/tabsStore';
 import { layoutConfig } from '../app/store';
 import { selectProblemEntities } from '../ha/selectors';
 import type { HAEntity, HAStoreState, LayoutConfig } from '$lib/types';
 import { extractDomain } from '$lib/utils';
+import { createBatteryWidgetEntity, createTimerWidgetEntity, type TimerConfig } from '../ha/virtual-devices';
 
 // --- UI Persistence (Existing Sidebar Logic) ---
 export const sidebarWidth = writable<number>(280);
 const SIDEBAR_STORAGE_KEY = 'evolusion.sidebar.width';
+const TIMER_CONFIG_STORAGE_KEY = 'evolusion.widgets.timers';
+
+// --- Timer Config Persistence ---
+export const eventTimerConfigs = writable<TimerConfig[]>([]);
+
+// --- Timer Tick (forces timer widgets to re-evaluate) ---
+// Visibility-aware: pauses when tab is hidden to save CPU
+export const timerNow = readable<number>(Date.now(), (set) => {
+  if (!browser) return;
+
+  let intervalId: ReturnType<typeof setInterval> | null = null;
+
+  const tick = () => set(Date.now());
+
+  const start = () => {
+    if (!intervalId) {
+      intervalId = setInterval(tick, 1000);
+    }
+  };
+
+  const stop = () => {
+    if (intervalId) {
+      clearInterval(intervalId);
+      intervalId = null;
+    }
+  };
+
+  const onVisibilityChange = () => {
+    if (document.hidden) {
+      stop();
+    } else {
+      tick(); // Immediate update when becoming visible
+      start();
+    }
+  };
+
+  document.addEventListener('visibilitychange', onVisibilityChange);
+
+  // Start only if visible
+  if (!document.hidden) {
+    start();
+  }
+
+  return () => {
+    stop();
+    document.removeEventListener('visibilitychange', onVisibilityChange);
+  };
+});
+
+// --- Sidebar Widgets Persistence ---
+export const sidebarWidgets = writable<{ id: string, type: 'clock' | 'weather' | 'camera' }[]>([
+  { id: 'widget-clock', type: 'clock' },
+  { id: 'widget-weather', type: 'weather' },
+  { id: 'widget-camera', type: 'camera' }
+]);
+const SIDEBAR_WIDGETS_KEY = 'evolusion.sidebar.widgets';
+
 
 export function loadUIState(): void {
   if (!browser) return;
   try {
-    const stored = localStorage.getItem(SIDEBAR_STORAGE_KEY);
-    if (stored) {
-      const w = parseInt(stored, 10);
+    // Sidebar
+    const storedSidebar = localStorage.getItem(SIDEBAR_STORAGE_KEY);
+    if (storedSidebar) {
+      const w = parseInt(storedSidebar, 10);
       if (!isNaN(w) && w >= 200 && w <= 500) {
         sidebarWidth.set(w);
+      }
+    }
+
+    // Sidebar Widgets
+    const storedWidgets = localStorage.getItem(SIDEBAR_WIDGETS_KEY);
+    if (storedWidgets) {
+      try {
+        const parsed = JSON.parse(storedWidgets);
+        if (Array.isArray(parsed)) sidebarWidgets.set(parsed);
+      } catch (e) {
+        console.warn("Failed to parse sidebar widgets", e);
+      }
+    }
+
+    // Timers
+    const storedTimers = localStorage.getItem(TIMER_CONFIG_STORAGE_KEY);
+    if (storedTimers) {
+      try {
+        const parsed = JSON.parse(storedTimers);
+        if (Array.isArray(parsed)) {
+          eventTimerConfigs.set(parsed);
+        }
+      } catch (e) {
+        console.warn("Failed to parse timers", e);
       }
     }
   } catch (e) {
@@ -28,19 +111,39 @@ export function loadUIState(): void {
 }
 
 export function saveUIState(width: number): void {
-  if (!browser) return;
-  try {
-    localStorage.setItem(SIDEBAR_STORAGE_KEY, width.toString());
-    sidebarWidth.set(width);
-  } catch (e) {
-    console.error('Failed to save UI state', e);
-  }
+  // We only save sidebar here explicitly usually, but let's keep it generic if needed.
+  // Ideally we subscribe to stores to auto-save.
+}
+
+// Auto-save timers
+if (browser) {
+  eventTimerConfigs.subscribe(configs => {
+    try {
+      localStorage.setItem(TIMER_CONFIG_STORAGE_KEY, JSON.stringify(configs));
+    } catch (e) { console.error(e); }
+  });
+
+  sidebarWidgets.subscribe(widgets => {
+    try {
+      localStorage.setItem(SIDEBAR_WIDGETS_KEY, JSON.stringify(widgets));
+    } catch (e) { console.error(e); }
+  });
+}
+
+export function resetEventTimer(timerId: string): void {
+  const now = new Date().toISOString();
+  eventTimerConfigs.update(configs =>
+    configs.map(cfg =>
+      cfg.id === timerId ? { ...cfg, lastResetDate: now } : cfg
+    ),
+  );
 }
 
 // --- Global UI State ---
 export const isSettingsOpen = writable<boolean>(false);
 export const isAddDeviceOpen = writable<boolean>(false);
 export const isThemeGeneratorOpen = writable<boolean>(false);
+export const isServerManagerOpen = writable<boolean>(false);
 
 export function toggleSettings() {
   isSettingsOpen.update(v => !v);
@@ -162,14 +265,36 @@ export type DashboardGridItem = HAEntity & { id: string };
 
 // Selector for DashboardGrid (Cards)
 export const selectVisibleDashboardCards = derived(
-  [haStore, uiDashboardState, activeTabId, layoutConfig],
-  ([$haStore, $uiState, $activeTab, $layout]: [HAStoreState, UIDashboardState, string, LayoutConfig]) => {
+  [haStore, uiDashboardState, activeTabId, layoutConfig, eventTimerConfigs, timerNow],
+  ([
+    $haStore,
+    $uiState,
+    $activeTab,
+    $layout,
+    $timerConfigs,
+    _now,
+  ]: [HAStoreState, UIDashboardState, string, LayoutConfig, TimerConfig[], number]) => {
     const allEntities: HAEntity[] = Array.from($haStore.entities.values());
+
+    // --- INJECT VIRTUAL ENTITIES ---
+    // 1. Battery Widget
+    const batteryWidget = createBatteryWidgetEntity(allEntities);
+    if (batteryWidget) {
+      allEntities.push(batteryWidget);
+    }
+
+    // 2. Timer Widgets
+    $timerConfigs.forEach(config => {
+      const timerEntity = createTimerWidgetEntity(config);
+      allEntities.push(timerEntity);
+    });
+    // -------------------------------
 
     // 1. Initial Domain Filter for Dashboard (Allowlist)
     const RELEVANT_DOMAINS = new Set([
       'light', 'switch', 'climate', 'media_player',
-      'cover', 'lock', 'script', 'input_boolean'
+      'cover', 'lock', 'script', 'input_boolean',
+      'internal' // Allow our virtual domain
     ]);
 
     let relevant: HAEntity[] = allEntities.filter(entity => {

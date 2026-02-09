@@ -155,10 +155,24 @@ export const activeScheme = derived([themeStore, systemPrefersDark], ([$s, $sysD
 });
 
 
+// Helper to get active layout
+export const activeLayout = derived(themeStore, $s => {
+  const themeFile = $s.themes.find(t => t.theme.id === $s.activeThemeId) || defaultTheme;
+  return themeFile?.theme?.layout;
+});
+
+// Helper to get active foundation
+export const activeFoundation = derived(themeStore, $s => {
+  const themeFile = $s.themes.find(t => t.theme.id === $s.activeThemeId) || defaultTheme;
+  return themeFile?.theme?.foundation;
+});
+
 if (browser) {
-  activeScheme.subscribe(scheme => {
-    if (scheme) applyThemeCSS(scheme);
-  });
+  // Subscribe to scheme, layout, and foundation
+  derived([activeScheme, activeLayout, activeFoundation], ([$scheme, $layout, $foundation]) => ({ scheme: $scheme, layout: $layout, foundation: $foundation }))
+    .subscribe(({ scheme, layout, foundation }) => {
+      if (scheme) applyThemeCSS(scheme, layout, foundation);
+    });
 }
 
 // Helper to check if we are effectively in dark mode

@@ -48,6 +48,9 @@ export function useWebRTC(getSignalUrl: () => string): UseWebRTCReturn {
     /**
      * Connect to WebRTC stream via Go2rtc signaling
      */
+    let reconnectTimer: any;
+    let iceDisconnectTimer: any;
+
     async function connect(): Promise<void> {
         // Prevent duplicate connections
         if (status === 'connecting' || status === 'connected') {
@@ -58,108 +61,143 @@ export function useWebRTC(getSignalUrl: () => string): UseWebRTCReturn {
         status = 'connecting';
         error = null;
 
-        try {
-            // Create RTCPeerConnection
-            pc = new RTCPeerConnection(RTC_CONFIG);
-            console.log('[WebRTC] Created RTCPeerConnection');
+        let attempt = 0;
+        const MAX_RETRIES = 3;
 
-            // Add transceivers for receiving media (required for Go2rtc)
-            pc.addTransceiver('video', { direction: 'recvonly' });
-            pc.addTransceiver('audio', { direction: 'recvonly' });
+        while (attempt < MAX_RETRIES) {
+            try {
+                // Create RTCPeerConnection
+                pc = new RTCPeerConnection(RTC_CONFIG);
 
-            // Handle incoming media tracks
-            pc.ontrack = (event) => {
-                console.log('[WebRTC] Track received:', event.track.kind);
-                if (event.streams && event.streams[0]) {
-                    stream = event.streams[0];
-                    status = 'connected';
-                    console.log('[WebRTC] Stream connected');
-                }
-            };
+                // Add transceivers for receiving media (required for Go2rtc)
+                pc.addTransceiver('video', { direction: 'recvonly' });
+                pc.addTransceiver('audio', { direction: 'recvonly' });
 
-            // Handle ICE connection state changes
-            pc.oniceconnectionstatechange = () => {
-                console.log('[WebRTC] ICE state:', pc?.iceConnectionState);
-                if (pc?.iceConnectionState === 'failed' || pc?.iceConnectionState === 'disconnected') {
-                    handleError('ICE connection failed');
-                }
-            };
+                // Handle incoming media tracks
+                pc.ontrack = (event) => {
+                    if (event.streams && event.streams[0]) {
+                        stream = event.streams[0];
+                        status = 'connected';
 
-            // Collect ICE candidates
-            const iceCandidates: RTCIceCandidate[] = [];
-            pc.onicecandidate = (event) => {
-                if (event.candidate) {
-                    iceCandidates.push(event.candidate);
-                }
-            };
-
-            // Wait for ICE gathering to complete
-            await new Promise<void>((resolve) => {
-                if (pc!.iceGatheringState === 'complete') {
-                    resolve();
-                } else {
-                    pc!.onicegatheringstatechange = () => {
-                        if (pc!.iceGatheringState === 'complete') {
-                            resolve();
+                        // Clear any pending disconnect timers on successful connection
+                        if (iceDisconnectTimer) {
+                            clearTimeout(iceDisconnectTimer);
+                            iceDisconnectTimer = null;
                         }
-                    };
-                    // Timeout fallback
-                    setTimeout(resolve, 2000);
-                }
-            });
-
-            // Create SDP offer (client-side)
-            const offer = await pc.createOffer();
-            await pc.setLocalDescription(offer);
-            console.log('[WebRTC] Created SDP offer');
-
-            // Connect to Go2rtc WebSocket
-            const currentSignalUrl = getSignalUrl();
-            if (!currentSignalUrl) {
-                throw new Error('No signal URL configured');
-            }
-            ws = new WebSocket(currentSignalUrl);
-
-            ws.onopen = () => {
-                console.log('[WebRTC] WebSocket connected to:', currentSignalUrl);
-                // Send our SDP offer to Go2rtc - value should be an object
-                const offerPayload = {
-                    type: 'webrtc',
-                    value: {
-                        type: 'offer',
-                        sdp: pc!.localDescription!.sdp
                     }
                 };
-                ws!.send(JSON.stringify(offerPayload));
-                console.log('[WebRTC] Sent SDP offer to server:', offerPayload);
-            };
 
-            ws.onmessage = async (event) => {
-                try {
-                    const message: Go2rtcMessage = JSON.parse(event.data);
-                    await handleSignalingMessage(message);
-                } catch (err) {
-                    console.error('[WebRTC] Message parse error:', err);
-                }
-            };
+                // Handle ICE connection state changes
+                pc.oniceconnectionstatechange = () => {
+                    const iceState = pc?.iceConnectionState;
+                    console.log('[WebRTC] ICE state:', iceState);
 
-            ws.onerror = (event) => {
-                console.error('[WebRTC] WebSocket error:', event);
-                handleError('WebSocket connection error');
-            };
-
-            ws.onclose = (event) => {
-                console.log('[WebRTC] WebSocket closed:', event.code, event.reason);
-                if (status !== 'error' && status !== 'connected') {
-                    // Only error if not already connected or errored
-                    if (event.code !== 1000) {
-                        handleError(`WebSocket closed unexpectedly: ${event.code}`);
+                    if (iceState === 'connected' || iceState === 'completed') {
+                        if (iceDisconnectTimer) {
+                            clearTimeout(iceDisconnectTimer);
+                            iceDisconnectTimer = null;
+                        }
+                    } else if (iceState === 'disconnected') {
+                        // ICE disconnected - wait a bit before declaring failure to allow for temporary reuse
+                        if (status === 'connected' && !iceDisconnectTimer) {
+                            console.warn('[WebRTC] ICE disconnected, waiting for recovery...');
+                            iceDisconnectTimer = setTimeout(() => {
+                                console.error('[WebRTC] ICE recovery timed out');
+                                reconnect();
+                            }, 3000); // 3 seconds grace period
+                        }
+                    } else if (iceState === 'failed') {
+                        // Immediate failure
+                        console.error('[WebRTC] ICE connection failed');
+                        reconnect();
                     }
-                }
-            };
+                };
 
-        } catch (err) {
-            handleError(err instanceof Error ? err.message : 'Connection failed');
+                // Collect ICE candidates
+                const iceCandidates: RTCIceCandidate[] = [];
+                pc.onicecandidate = (event) => {
+                    if (event.candidate) {
+                        iceCandidates.push(event.candidate);
+                    }
+                };
+
+                // Wait for ICE gathering to complete
+                await new Promise<void>((resolve) => {
+                    if (pc!.iceGatheringState === 'complete') {
+                        resolve();
+                    } else {
+                        pc!.onicegatheringstatechange = () => {
+                            if (pc!.iceGatheringState === 'complete') {
+                                resolve();
+                            }
+                        };
+                        // Timeout fallback
+                        setTimeout(resolve, 2000);
+                    }
+                });
+
+                // Create SDP offer (client-side)
+                const offer = await pc.createOffer();
+                await pc.setLocalDescription(offer);
+
+                // Connect to Go2rtc WebSocket
+                const currentSignalUrl = getSignalUrl();
+                if (!currentSignalUrl) {
+                    throw new Error('No signal URL configured');
+                }
+                ws = new WebSocket(currentSignalUrl);
+
+                await new Promise<void>((resolve, reject) => {
+                    ws!.onopen = () => {
+                        // Send our SDP offer to Go2rtc - value should be an object
+                        const offerPayload = {
+                            type: 'webrtc',
+                            value: {
+                                type: 'offer',
+                                sdp: pc!.localDescription!.sdp
+                            }
+                        };
+                        ws!.send(JSON.stringify(offerPayload));
+                        resolve();
+                    };
+                    ws!.onerror = (e) => reject(new Error('WebSocket connection failed'));
+                });
+
+
+                ws!.onmessage = async (event) => {
+                    try {
+                        const message: Go2rtcMessage = JSON.parse(event.data);
+                        await handleSignalingMessage(message);
+                    } catch (err) {
+                        console.error('[WebRTC] Message parse error:', err);
+                    }
+                };
+
+                ws!.onclose = (event) => {
+                    console.log('[WebRTC] WebSocket closed:', event.code, event.reason);
+                    if (status !== 'error' && status !== 'connected') {
+                        // Only error if not already connected or errored
+                        if (event.code !== 1000) {
+                            console.warn(`[WebRTC] WebSocket closed unexpectedly: ${event.code}`);
+                            // Don't kill the stream immediately if we have it, but usually WS close means issues.
+                        }
+                    }
+                };
+
+                // If we got here, connection init was successful
+                return;
+
+            } catch (err) {
+                console.error(`[WebRTC] Connection attempt ${attempt + 1} failed:`, err);
+                cleanup();
+                attempt++;
+                if (attempt >= MAX_RETRIES) {
+                    handleError(err instanceof Error ? err.message : 'Connection failed after retries');
+                    return;
+                }
+                // Wait before retry
+                await new Promise(r => setTimeout(r, 1000));
+            }
         }
     }
 
@@ -169,13 +207,12 @@ export function useWebRTC(getSignalUrl: () => string): UseWebRTCReturn {
     async function handleSignalingMessage(message: Go2rtcMessage): Promise<void> {
         if (!pc) return;
 
-        console.log('[WebRTC] Received message:', message.type);
+
 
         switch (message.type) {
             case 'webrtc':
                 // Go2rtc responds with SDP answer (value could be object or string)
                 if (message.value) {
-                    console.log('[WebRTC] Received SDP answer', message.value);
                     try {
                         let answerData: { type: string; sdp: string };
                         if (typeof message.value === 'string') {
@@ -189,7 +226,6 @@ export function useWebRTC(getSignalUrl: () => string): UseWebRTCReturn {
                             type: answerData.type as RTCSdpType || 'answer',
                             sdp: answerData.sdp
                         }));
-                        console.log('[WebRTC] Remote description set');
                     } catch (err) {
                         console.error('[WebRTC] Failed to set remote description:', err);
                         handleError('Failed to set remote description');
@@ -223,6 +259,22 @@ export function useWebRTC(getSignalUrl: () => string): UseWebRTCReturn {
     }
 
     /**
+     * Attempt to reconnect
+     */
+    function reconnect(): void {
+        console.log('[WebRTC] Attempting to reconnect...');
+        cleanup();
+        status = 'connecting'; // Keep UI in connecting state
+
+        // Slight delay before reconnecting to allow things to settle
+        if (reconnectTimer) clearTimeout(reconnectTimer);
+        reconnectTimer = setTimeout(() => {
+            status = 'idle';
+            connect();
+        }, 500);
+    }
+
+    /**
      * Handle connection errors
      */
     function handleError(message: string): void {
@@ -237,6 +289,8 @@ export function useWebRTC(getSignalUrl: () => string): UseWebRTCReturn {
      */
     function disconnect(): void {
         console.log('[WebRTC] Disconnecting');
+        if (reconnectTimer) clearTimeout(reconnectTimer);
+        if (iceDisconnectTimer) clearTimeout(iceDisconnectTimer);
         cleanup();
         status = 'idle';
         error = null;
@@ -262,7 +316,6 @@ export function useWebRTC(getSignalUrl: () => string): UseWebRTCReturn {
     // Cleanup on destroy (via Svelte 5 $effect)
     $effect(() => {
         return () => {
-            console.log('[WebRTC] Cleanup on destroy');
             cleanup();
         };
     });
