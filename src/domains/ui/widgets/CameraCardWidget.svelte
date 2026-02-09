@@ -429,11 +429,59 @@
     const isWebRTCConnected = $derived(webrtc.status === "connected");
     const isWebRTCConnecting = $derived(webrtc.status === "connecting");
     const webRTCError = $derived(webrtc.error);
+
+    function refreshStream(e: MouseEvent) {
+        e.stopPropagation();
+
+        if (streamType === "mjpeg") {
+            if (!streamUrl) return;
+            const separator = streamUrl.includes("?") ? "&" : "?";
+            mjpegUrl = `${streamUrl}${separator}t=${Date.now()}`;
+            isLoading = true;
+            return;
+        }
+
+        if (streamType === "hls") {
+            if (hlsInstance) {
+                hlsInstance.destroy();
+                hlsInstance = null;
+            }
+            if (videoElement) {
+                videoElement.pause();
+                videoElement.removeAttribute("src");
+                videoElement.load();
+            }
+            const currentType = streamType;
+            streamType = null;
+            setTimeout(() => {
+                streamType = currentType;
+            }, 50);
+            isLoading = true;
+            return;
+        }
+
+        if (streamType === "webrtc") {
+            webrtc.disconnect();
+            setTimeout(() => {
+                webrtc.connect();
+            }, 100);
+        }
+    }
 </script>
 
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div class="camera-card-widget" onclick={handleClick}>
+    {#if cameraSourceConfig && !(error || webRTCError)}
+        <button
+            class="refresh-btn"
+            title={$t("common.refresh", { default: "Refresh" })}
+            aria-label={$t("common.refresh", { default: "Refresh" })}
+            onclick={refreshStream}
+        >
+            <iconify-icon icon="mdi:refresh" width="16"></iconify-icon>
+        </button>
+    {/if}
     {#if !cameraSourceConfig || (cameraSourceConfig.sourceType === "go2rtc" && !cameraSourceConfig.streamName)}
         <div class="no-config">
             <iconify-icon icon="mdi:cctv" width="32"></iconify-icon>
@@ -588,6 +636,36 @@
         justify-content: center;
         border-radius: inherit;
         overflow: hidden;
+    }
+
+    .refresh-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        width: 28px;
+        height: 28px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 999px;
+        border: 1px solid
+            var(
+                --card-border-color,
+                var(--glass-border, rgba(255, 255, 255, 0.25))
+            );
+        background: rgba(0, 0, 0, 0.35);
+        color: #fff;
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        cursor: pointer;
+        z-index: 2;
+        opacity: 0.85;
+        transition: opacity 0.2s ease, transform 0.2s ease;
+    }
+
+    .refresh-btn:hover {
+        opacity: 1;
+        transform: scale(1.05);
     }
 
     .video-player,
