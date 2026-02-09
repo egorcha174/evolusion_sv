@@ -206,31 +206,6 @@
         {/if}
       </div>
     </div>
-    <!-- Footer -->
-    <div class="sidebar-footer">
-      <button
-        class="footer-btn"
-        onclick={() => {
-          console.log("Sidebar: Settings button clicked!");
-          isSettingsOpen.set(true);
-        }}
-        title={$t("settings.title")}
-      >
-        <iconify-icon icon="mdi:cog"></iconify-icon>
-      </button>
-      <div class="divider"></div>
-      <button class="footer-btn" title="Evolusion">
-        <iconify-icon icon="mdi:information-outline"></iconify-icon>
-      </button>
-      <button
-        class="footer-btn"
-        id="collapse-btn"
-        onclick={() => (isCollapsed = !isCollapsed)}
-        title={$t("sidebar.collapse")}
-      >
-        <iconify-icon icon="mdi:chevron-left"></iconify-icon>
-      </button>
-    </div>
   </div>
 </aside>
 
@@ -263,10 +238,6 @@
     padding: 0;
     overflow: hidden;
     border-right-color: transparent;
-  }
-
-  .sidebar.collapsed #collapse-btn iconify-icon {
-    transform: rotate(180deg);
   }
 
   .sidebar-content {
@@ -414,42 +385,6 @@
     100% {
       opacity: 1;
     }
-  }
-
-  /* Footer */
-  .sidebar-footer {
-    padding-top: 12px;
-    border-top: 1px solid var(--border-divider);
-    display: flex;
-    gap: 8px;
-    flex-shrink: 0;
-  }
-  .footer-btn {
-    flex: 1;
-    background: var(--bg-chip);
-    border: none;
-    border-radius: 8px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.2rem;
-    color: var(--text-secondary);
-    cursor: pointer;
-    transition: all 0.2s ease;
-  }
-  .footer-btn:hover {
-    background: var(--bg-chip-active);
-    color: var(--text-primary);
-  }
-  #collapse-btn {
-    flex: 0 0 40px;
-  }
-  .divider {
-    width: 1px;
-    background: var(--border-divider);
-    margin: 8px 0;
-    flex: 0;
   }
 
   @media (max-width: 768px) {
