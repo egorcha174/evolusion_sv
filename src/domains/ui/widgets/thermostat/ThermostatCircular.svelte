@@ -299,6 +299,7 @@
                 cy={handlePos.y}
                 r="8"
                 class="dial-handle"
+                onpointerdown={startDrag}
             />
 
             <path
@@ -457,6 +458,7 @@
         fill: none;
         stroke: rgba(255, 255, 255, 0.001); /* Invisible but hit-testable */
         stroke-width: 40;
+        stroke-linecap: round;
         pointer-events: stroke; /* Only the stroke captures events */
         cursor: pointer;
     }
@@ -464,7 +466,8 @@
     .dial-handle {
         fill: white;
         filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.5));
-        pointer-events: none; /* Pass events to ring-hit */
+        pointer-events: auto; /* Allow direct interaction */
+        cursor: pointer;
         transition:
             cx 0.1s linear,
             cy 0.1s linear; /* Smooth movement matching sliderValue updates */
