@@ -209,15 +209,6 @@
         window.removeEventListener("pointercancel", endDrag);
     });
 
-    function adjustTemp(delta: number) {
-        if (isOff) return;
-        setTemperature(
-            entity.entity_id,
-            thermostatState.targetTemp + delta,
-            onError,
-        );
-    }
-
     function handleToggle() {
         if (isOff) {
             const firstActive =
@@ -260,30 +251,12 @@
         <div class="dial-body">
             <!-- Inner display -->
             <div class="dial-display">
-                <button
-                    class="nav-btn prev"
-                    onclick={() => adjustTemp(-thermostatState.targetTempStep)}
-                    aria-label="Decrease Temperature"
-                >
-                    <iconify-icon icon="mdi:chevron-left" width="24"
-                    ></iconify-icon>
-                </button>
-
                 <div class="temp-readout">
                     <span class="value"
                         >{thermostatState.currentTemp?.toFixed(1) ?? "--"}</span
                     >
                     <span class="degree">°</span>
                 </div>
-
-                <button
-                    class="nav-btn next"
-                    onclick={() => adjustTemp(thermostatState.targetTempStep)}
-                    aria-label="Increase Temperature"
-                >
-                    <iconify-icon icon="mdi:chevron-right" width="24"
-                    ></iconify-icon>
-                </button>
             </div>
 
             <div class="target-label">
@@ -460,22 +433,6 @@
         font-size: 1.2rem;
         margin-top: 4px;
         color: var(--text-secondary);
-    }
-
-    .nav-btn {
-        background: none;
-        border: none;
-        color: var(--text-secondary);
-        cursor: pointer;
-        padding: 0;
-        display: flex;
-        opacity: 0.5;
-        transition: opacity 0.2s;
-        pointer-events: auto; /* Restore interaction */
-    }
-    .nav-btn:hover {
-        opacity: 1;
-        color: var(--text-primary);
     }
 
     .target-label {
