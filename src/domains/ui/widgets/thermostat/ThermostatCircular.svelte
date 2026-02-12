@@ -302,6 +302,15 @@
                 onpointerdown={startDrag}
             />
 
+            <!-- Invisible Hit Target for Handle (Larger) -->
+            <circle
+                cx={handlePos.x}
+                cy={handlePos.y}
+                r="24"
+                class="dial-handle-hit"
+                onpointerdown={startDrag}
+            />
+
             <path
                 d="M 43 157 A 80 80 0 1 1 157 157"
                 class="ring-hit"
@@ -466,11 +475,19 @@
     .dial-handle {
         fill: white;
         filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.5));
-        pointer-events: auto; /* Allow direct interaction */
-        cursor: pointer;
+        pointer-events: none; /* Pass events to hit target */
         transition:
             cx 0.1s linear,
             cy 0.1s linear; /* Smooth movement matching sliderValue updates */
+    }
+
+    .dial-handle-hit {
+        fill: transparent;
+        cursor: pointer;
+        pointer-events: auto;
+        transition:
+            cx 0.1s linear,
+            cy 0.1s linear;
     }
 
     .action-text {
