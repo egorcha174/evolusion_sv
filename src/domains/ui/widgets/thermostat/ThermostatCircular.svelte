@@ -98,6 +98,19 @@
     const arcStart = 135; // degrees
     const arcSweep = 270; // degrees
 
+    let handlePos = $derived.by(() => {
+        const progress = tempToProgress(sliderValue);
+        const angleDeg = arcStart + progress * arcSweep;
+        const angleRad = (angleDeg * Math.PI) / 180;
+        const cx = 100;
+        const cy = 100;
+        // radius = 80 (same as arc)
+        return {
+            x: cx + radius * Math.cos(angleRad),
+            y: cy + radius * Math.sin(angleRad),
+        };
+    });
+
     function angleToProgress(angle: number): number | null {
         const delta = (angle - arcStart + 360) % 360;
         if (delta > arcSweep) return null; // gap area
@@ -279,6 +292,15 @@
                 stroke-dashoffset={377 * (1 - tempToProgress(sliderValue))}
                 class="active-arc"
             />
+
+            <!-- Handle Knob -->
+            <circle
+                cx={handlePos.x}
+                cy={handlePos.y}
+                r="8"
+                class="dial-handle"
+            />
+
             <path
                 d="M 43 157 A 80 80 0 1 1 157 157"
                 class="ring-hit"
@@ -437,6 +459,15 @@
         stroke-width: 40;
         pointer-events: stroke; /* Only the stroke captures events */
         cursor: pointer;
+    }
+
+    .dial-handle {
+        fill: white;
+        filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.5));
+        pointer-events: none; /* Pass events to ring-hit */
+        transition:
+            cx 0.1s linear,
+            cy 0.1s linear; /* Smooth movement matching sliderValue updates */
     }
 
     .action-text {
