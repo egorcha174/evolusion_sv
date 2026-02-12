@@ -255,11 +255,6 @@
 
         <!-- SVG Ring Overlay for Range -->
         <svg class="dial-svg" viewBox="0 0 200 200" bind:this={dialSvg}>
-            <path
-                d="M 43 157 A 80 80 0 1 1 157 157"
-                class="ring-hit"
-                onpointerdown={startDrag}
-            />
             <!-- Background Track (Arc) -->
             <!-- Start at 135 deg, go 270 deg -->
             <path
@@ -283,6 +278,11 @@
                 stroke-dasharray="377"
                 stroke-dashoffset={377 * (1 - tempToProgress(sliderValue))}
                 class="active-arc"
+            />
+            <path
+                d="M 43 157 A 80 80 0 1 1 157 157"
+                class="ring-hit"
+                onpointerdown={startDrag}
             />
         </svg>
     </div>
@@ -422,7 +422,7 @@
         transform: translate(-50%, -50%);
         width: 200px;
         height: 200px;
-        pointer-events: all;
+        pointer-events: none; /* Let clicks pass through empty areas */
         touch-action: none;
         z-index: 1;
     }
@@ -435,7 +435,7 @@
         fill: none;
         stroke: rgba(255, 255, 255, 0.001); /* Invisible but hit-testable */
         stroke-width: 40;
-        pointer-events: stroke;
+        pointer-events: stroke; /* Only the stroke captures events */
         cursor: pointer;
     }
 
