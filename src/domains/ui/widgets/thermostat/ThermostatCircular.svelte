@@ -111,6 +111,31 @@
         };
     });
 
+    let currentTempPos = $derived.by(() => {
+        const current = thermostatState.currentTemp;
+        if (current === null || current === undefined) return null;
+
+        // Clamp for display safety, though usually we want to see it even if out of range?
+        // Let's clamp to visual range so it doesn't disappear.
+        const progress = tempToProgress(current);
+        const range = thermostatState.maxTemp - thermostatState.minTemp;
+
+        // Allow slightly outside 0-1 range?
+        // Standard behavior: clamp to min/max angle
+        const clampedProgress = Math.max(0, Math.min(1, progress));
+
+        const angleDeg = arcStart + clampedProgress * arcSweep;
+        const angleRad = (angleDeg * Math.PI) / 180;
+        const cx = 100;
+        const cy = 100;
+        const currentTempRadius = 96; // 80 (ring) + 12 (width/2) + spacer
+
+        return {
+            x: cx + currentTempRadius * Math.cos(angleRad),
+            y: cy + currentTempRadius * Math.sin(angleRad),
+        };
+    });
+
     function angleToProgress(angle: number): number | null {
         const delta = (angle - arcStart + 360) % 360;
         if (delta > arcSweep) return null; // gap area
@@ -308,6 +333,16 @@
                 onpointerdown={startDrag}
             />
 
+            <!-- Current Temp Indicator (Outside Ring) -->
+            {#if currentTempPos}
+                <circle
+                    cx={currentTempPos.x}
+                    cy={currentTempPos.y}
+                    r="4"
+                    class="current-temp-indicator"
+                />
+            {/if}
+
             <!-- Invisible Hit Target for Handle (Larger) -->
             <circle
                 cx={handlePos.x}
@@ -490,6 +525,15 @@
         transition:
             cx 0.1s linear,
             cy 0.1s linear;
+    }
+
+    .current-temp-indicator {
+        fill: var(--text-secondary);
+        opacity: 0.6;
+        pointer-events: none;
+        transition:
+            cx 0.5s ease-out,
+            cy 0.5s ease-out;
     }
 
     .action-text {
