@@ -26,7 +26,18 @@
   import DataManagement from "./sections/DataManagement.svelte";
 
   import { activeScheme } from "../theme/store";
+  import { demoStore } from "../../app/demoStore";
   import "iconify-icon";
+
+  let isDemoActive = $derived($demoStore.isActive);
+
+  function toggleDemo() {
+    if (isDemoActive) {
+      demoStore.disable();
+    } else {
+      demoStore.enable();
+    }
+  }
 
   $effect(() => {
     console.log("SettingsDrawer: $isSettingsOpen changed to:", $isSettingsOpen);
@@ -84,6 +95,32 @@
         <SecuritySettings />
         <ThemeSettings />
         <WidgetSettings />
+        <!-- TEMP: Demo Mode Toggle (remove after design phase) -->
+        <section class="settings-section demo-section">
+          <div class="section-header">
+            <div class="section-icon demo-icon">
+              <iconify-icon icon="mdi:flask-outline" width="20"></iconify-icon>
+            </div>
+            <div>
+              <h3>Demo Mode <span class="temp-badge">⚠ TEMP</span></h3>
+              <p class="section-desc">
+                Заполнить дашборд фейковыми устройствами
+              </p>
+            </div>
+          </div>
+          <button
+            class="demo-toggle"
+            class:active={isDemoActive}
+            onclick={toggleDemo}
+          >
+            <iconify-icon
+              icon={isDemoActive ? "mdi:stop-circle" : "mdi:play-circle"}
+              width="20"
+            ></iconify-icon>
+            {isDemoActive ? "Выключить демо" : "Включить демо"}
+          </button>
+        </section>
+
         <DataManagement />
       </div>
     </div>
@@ -225,5 +262,80 @@
     .resize-handle {
       display: none;
     }
+  }
+
+  /* TEMP: Demo Mode styles */
+  .demo-section {
+    padding: 1rem;
+    background: var(--glass-surface, rgba(255, 255, 255, 0.05));
+    border-radius: 12px;
+    border: 1px dashed var(--accent-warning, #ff9800);
+  }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+  .section-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-chip, rgba(0, 0, 0, 0.1));
+    color: var(--text-secondary);
+  }
+  .demo-icon {
+    background: rgba(255, 152, 0, 0.15);
+    color: var(--accent-warning, #ff9800);
+  }
+  .section-header h3 {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .section-desc {
+    margin: 2px 0 0;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+  }
+  .temp-badge {
+    font-size: 0.65rem;
+    padding: 1px 6px;
+    background: rgba(255, 152, 0, 0.2);
+    color: var(--accent-warning, #ff9800);
+    border-radius: 4px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  .demo-toggle {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.625rem 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--border-primary, rgba(255, 255, 255, 0.1));
+    background: var(--glass-surface, rgba(255, 255, 255, 0.05));
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .demo-toggle:hover {
+    background: var(--bg-chip, rgba(0, 0, 0, 0.1));
+  }
+  .demo-toggle.active {
+    background: rgba(255, 152, 0, 0.15);
+    border-color: var(--accent-warning, #ff9800);
+    color: var(--accent-warning, #ff9800);
   }
 </style>

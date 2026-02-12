@@ -35,7 +35,7 @@ function flushUpdates() {
 
 		updateBuffer.forEach((state, id) => {
 			newEntities.set(id, state);
-			
+
 			// Update problem index
 			if (state.state === 'unavailable' || state.state === 'unknown') {
 				newProblems.add(id);
@@ -44,20 +44,20 @@ function flushUpdates() {
 			}
 		});
 
-		return { 
-			...s, 
+		return {
+			...s,
 			entities: newEntities,
 			problemEntities: newProblems
 		};
 	});
-	
+
 	updateBuffer.clear();
 	updateFrame = null;
 }
 
 function scheduleUpdate(entityId: string, newState: HAEntity) {
 	updateBuffer.set(entityId, newState);
-	
+
 	if (!updateFrame) {
 		updateFrame = requestAnimationFrame(flushUpdates);
 	}
@@ -77,7 +77,7 @@ export async function initializeHAConnection(url: string, token: string): Promis
 
 		// Initial data fetch
 		const states = await client.getStates();
-		
+
 		// Bulk initial update
 		haStore.update((s) => {
 			const newEntities = new Map<string, HAEntity>();
@@ -130,7 +130,7 @@ export async function initializeHAConnection(url: string, token: string): Promis
 
 function startPingLoop() {
 	if (pingInterval) clearInterval(pingInterval);
-	
+
 	// Initial ping
 	measureLatency();
 
@@ -181,29 +181,37 @@ export function getEntity(entityId: string): HAEntity | undefined {
 // Action Functions
 
 export async function callService(
-  domain: string,
-  service: string,
-  serviceData: Record<string, any>
+	domain: string,
+	service: string,
+	serviceData: Record<string, any>
 ): Promise<void> {
-  if (!client || !client.isConnected()) {
-    throw new Error('Not connected to Home Assistant');
-  }
+	if (!client || !client.isConnected()) {
+		throw new Error('Not connected to Home Assistant');
+	}
 
-  await client.callService(domain, service, serviceData);
+	await client.callService(domain, service, serviceData);
 }
 
 // Strategy map for toggling entities
 const toggleStrategies: Record<string, (client: HAClient, entity: HAEntity) => Promise<void>> = {
-  light: (c, e) => c.callService('light', 'toggle', { entity_id: e.entity_id }),
-  switch: (c, e) => c.callService('switch', 'toggle', { entity_id: e.entity_id }),
-  cover: (c, e) => c.callService('cover', 'toggle', { entity_id: e.entity_id }),
-  input_boolean: (c, e) => c.callService('input_boolean', 'toggle', { entity_id: e.entity_id }),
-  lock: (c, e) => {
-    const service = e.state === 'locked' ? 'unlock' : 'lock';
-    return c.callService('lock', service, { entity_id: e.entity_id });
-  },
-  script: (c, e) => c.callService('script', 'turn_on', { entity_id: e.entity_id }),
-  automation: (c, e) => c.callService('automation', 'trigger', { entity_id: e.entity_id }),
+	light: (c, e) => c.callService('light', 'toggle', { entity_id: e.entity_id }),
+	switch: (c, e) => c.callService('switch', 'toggle', { entity_id: e.entity_id }),
+	cover: (c, e) => c.callService('cover', 'toggle', { entity_id: e.entity_id }),
+	input_boolean: (c, e) => c.callService('input_boolean', 'toggle', { entity_id: e.entity_id }),
+	lock: (c, e) => {
+		const service = e.state === 'locked' ? 'unlock' : 'lock';
+		return c.callService('lock', service, { entity_id: e.entity_id });
+	},
+	script: (c, e) => c.callService('script', 'turn_on', { entity_id: e.entity_id }),
+	automation: (c, e) => c.callService('automation', 'trigger', { entity_id: e.entity_id }),
+	climate: (c, e) => {
+		if (e.state === 'off') {
+			const modes: string[] = e.attributes.hvac_modes || ['heat'];
+			const firstActive = modes.find(m => m !== 'off') || 'heat';
+			return c.callService('climate', 'set_hvac_mode', { entity_id: e.entity_id, hvac_mode: firstActive });
+		}
+		return c.callService('climate', 'set_hvac_mode', { entity_id: e.entity_id, hvac_mode: 'off' });
+	},
 };
 
 export async function toggleEntity(entityId: string): Promise<void> {
@@ -213,13 +221,13 @@ export async function toggleEntity(entityId: string): Promise<void> {
 
 	const state = get(haStore);
 	const entity = state.entities.get(entityId);
-	
+
 	if (!entity) {
 		throw new Error(`Entity ${entityId} not found`);
 	}
 
 	const domain = entityId.split('.')[0];
-  const handler = toggleStrategies[domain];
+	const handler = toggleStrategies[domain];
 
 	if (handler) {
 		await handler(client, entity);
@@ -229,11 +237,11 @@ export async function toggleEntity(entityId: string): Promise<void> {
 }
 
 export async function getSignedPath(path: string): Promise<string> {
-  if (!client || !client.isConnected()) {
-    throw new Error('Home Assistant client not connected');
-  }
-  const result = await client.signPath(path);
-  return result.path;
+	if (!client || !client.isConnected()) {
+		throw new Error('Home Assistant client not connected');
+	}
+	const result = await client.signPath(path);
+	return result.path;
 }
 
 function mapStateToEntity(state: HAState): HAEntity {

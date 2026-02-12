@@ -10,6 +10,7 @@
   import { getTemplateCssVariables } from "./editor/templates/style";
   import EventTimerWidget from "./widgets/EventTimerWidget.svelte";
   import BatteryMonitorWidget from "./widgets/BatteryMonitorWidget.svelte";
+  import ThermostatWidget from "./widgets/ThermostatWidget.svelte";
 
   let {
     entity,
@@ -75,7 +76,8 @@
   );
   let isTimer = $derived(widgetType === "timer");
   let isBattery = $derived(widgetType === "battery");
-  let isWidget = $derived(!!widgetType);
+  let isThermostat = $derived(domain === "climate");
+  let isWidget = $derived(!!widgetType || isThermostat);
 
   // Calculate overridden styles if template exists
   let customStyle = $derived(
@@ -89,7 +91,7 @@
 
   // For widgets, we might want to strip standard padding
   // so they can control their own layout (e.g. liquid fill)
-  let noPadding = $derived(isTimer || isBattery);
+  let noPadding = $derived(isTimer || isBattery || isThermostat);
   let timerConfigId = $derived(
     (entity.attributes as any)?.config?.id as string | undefined,
   );
@@ -142,7 +144,7 @@
   onenter={handleEnter}
   role="button"
   tabindex="0"
-  onclick={isToggleable ? handleToggle : undefined}
+  onclick={isToggleable && !isThermostat ? handleToggle : undefined}
   ondblclick={isTimer ? handleTimerDblClick : undefined}
   onkeydown={(e) =>
     isToggleable && (e.key === "Enter" || e.key === " ") && handleToggle()}
@@ -151,7 +153,9 @@
   {#if !isLoaded}
     <div class="skeleton"></div>
   {:else}
-    {#if isTimer}
+    {#if isThermostat}
+      <ThermostatWidget {entity} />
+    {:else if isTimer}
       <EventTimerWidget {entity} />
     {:else if isBattery}
       <BatteryMonitorWidget {entity} />

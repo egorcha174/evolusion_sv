@@ -323,9 +323,12 @@
   function handleCardContext(e: MouseEvent, cardId: string) {
     // Allow context menu for widgets even in view mode
     const card = cards.find((c) => c.id === cardId);
+    const entityId = card?.entityId ?? "";
+    const isClimate = entityId.startsWith("climate.");
     const isWidget =
       card?.widgetType === "event-timer" ||
-      card?.widgetType === "battery-monitor";
+      card?.widgetType === "battery-monitor" ||
+      isClimate;
 
     if (!$isEditMode && !isWidget) return;
 

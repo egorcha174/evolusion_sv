@@ -548,5 +548,52 @@
       "thunderstormHail": "Гроза с градом",
       "unknown": "Неизвестно"
     }
+  },
+  "onboarding": {
+    "welcome": {
+      "title": "Добро пожаловать в Evolusion",
+      "subtitle": "Ваш красивый дашборд для Home Assistant",
+      "feature1": "Управление устройствами в реальном времени",
+      "feature2": "12 стильных тем оформления",
+      "feature3": "Настройка перетаскиванием",
+      "continue": "Начать",
+      "tryDemo": "Попробовать демо"
+    },
+    "connect": {
+      "title": "Подключение к Home Assistant",
+      "subtitle": "Введите данные вашего сервера",
+      "urlHint": "напр., http://homeassistant.local:8123",
+      "tokenHint": "Профиль → Долгосрочные токены доступа",
+      "connecting": "Подключение...",
+      "success": "Подключено!",
+      "skip": "Пропустить",
+      "continue": "Продолжить"
+    },
+    "devices": {
+      "title": "Выберите устройства",
+      "subtitle": "Выберите устройства для отображения на дашборде",
+      "skip": "Пропустить, добавлю позже",
+      "noDevices": "Устройства не найдены",
+      "selected": "выбрано"
+    },
+    "theme": {
+      "title": "Выберите тему",
+      "subtitle": "Вы сможете изменить её в любое время в Настройках"
+    },
+    "complete": "Завершить настройку",
+    "continue": "Продолжить"
+  },
+  "demo": {
+    "badge": "Демо-режим",
+    "exit": "Выйти из демо",
+    "notice": "Это демо-данные. Подключитесь к Home Assistant для реальных устройств."
+  },
+  "help": {
+    "serverUrl": "URL вашего сервера Home Assistant. Обычно начинается с http:// или https://",
+    "accessToken": "Создайте долгосрочный токен в Home Assistant: Профиль → Долгосрочные токены доступа",
+    "accessTokenLink": "https://www.home-assistant.io/docs/authentication/",
+    "cameraWebrtc": "WebRTC обеспечивает низкую задержку, но требует настройки go2rtc",
+    "cameraHls": "HLS широко поддерживается, но имеет задержку 3-5 секунд",
+    "cameraMjpeg": "MJPEG работает напрямую, но использует больше трафика"
   }
 }

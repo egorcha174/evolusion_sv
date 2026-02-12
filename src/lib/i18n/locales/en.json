@@ -160,6 +160,34 @@
       "selectDevices": "Select Devices",
       "empty": "No battery sensors found",
       "selected": "Selected"
+    },
+    "thermostat": {
+      "currentTemp": "Current",
+      "targetTemp": "Target",
+      "setTemperature": "Set Temperature",
+      "mode": "Mode",
+      "preset": "Preset",
+      "presetNone": "None",
+      "power": "Power",
+      "advanced": "Advanced",
+      "minTemp": "Min Target",
+      "maxTemp": "Max Target",
+      "modes": {
+        "off": "Off",
+        "heat": "Heat",
+        "cool": "Cool",
+        "auto": "Auto",
+        "heat_cool": "Heat/Cool",
+        "dry": "Dry",
+        "fan_only": "Fan"
+      },
+      "actions": {
+        "idle": "Idle",
+        "heating": "Heating",
+        "cooling": "Cooling",
+        "drying": "Drying",
+        "fan": "Fan"
+      }
     }
   },
   "templates": {
@@ -552,5 +580,52 @@
       "thunderstormHail": "Thunderstorm w/ Hail",
       "unknown": "Unknown"
     }
+  },
+  "onboarding": {
+    "welcome": {
+      "title": "Welcome to Evolusion",
+      "subtitle": "Your beautiful Home Assistant dashboard",
+      "feature1": "Real-time device control",
+      "feature2": "12 stunning themes",
+      "feature3": "Drag & drop customization",
+      "continue": "Get Started",
+      "tryDemo": "Try Demo Mode"
+    },
+    "connect": {
+      "title": "Connect to Home Assistant",
+      "subtitle": "Enter your server details to get started",
+      "urlHint": "e.g., http://homeassistant.local:8123",
+      "tokenHint": "Profile → Long-Lived Access Tokens",
+      "connecting": "Connecting...",
+      "success": "Connected!",
+      "skip": "Skip for now",
+      "continue": "Continue"
+    },
+    "devices": {
+      "title": "Choose Your Devices",
+      "subtitle": "Select devices to show on your dashboard",
+      "skip": "Skip, I'll add later",
+      "noDevices": "No devices found",
+      "selected": "selected"
+    },
+    "theme": {
+      "title": "Pick a Theme",
+      "subtitle": "You can change this anytime in Settings"
+    },
+    "complete": "Finish Setup",
+    "continue": "Continue"
+  },
+  "demo": {
+    "badge": "Demo Mode",
+    "exit": "Exit Demo",
+    "notice": "This is demo data. Connect to Home Assistant for real devices."
+  },
+  "help": {
+    "serverUrl": "The URL of your Home Assistant server. Usually starts with http:// or https://",
+    "accessToken": "Create a Long-Lived Access Token in Home Assistant: Profile → Long-Lived Access Tokens",
+    "accessTokenLink": "https://www.home-assistant.io/docs/authentication/",
+    "cameraWebrtc": "WebRTC provides low-latency video but requires go2rtc setup",
+    "cameraHls": "HLS is widely supported but has 3-5 second delay",
+    "cameraMjpeg": "MJPEG works directly but uses more bandwidth"
   }
 }

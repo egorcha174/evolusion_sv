@@ -8,14 +8,23 @@
   } from "../domains/app/store";
   import { dashboardStore } from "../domains/app/dashboardStore";
   import { session } from "../domains/app/session";
-  import { initializeHAConnection, disconnectHA } from "../domains/ha/store";
+  import { onboardingStore } from "../domains/app/onboardingStore";
+  import { demoStore } from "../domains/app/demoStore";
+  import {
+    initializeHAConnection,
+    disconnectHA,
+    haStore,
+  } from "../domains/ha/store";
+  import { DEMO_ENTITIES } from "../domains/app/demoStore";
   import { themeStore, isDarkMode } from "../domains/ui/theme/store";
   import { editorStore } from "../domains/ui/editor/store";
   import { backgroundStore } from "../domains/ui/background/store";
   import { initClientI18n } from "../lib/i18n";
-  import { initWeather, destroyWeather } from "../lib/weather/store"; // Keep weather store init
-  import WeatherEffects from "../domains/app/WeatherEffects.svelte"; // New component for weather effects
+  import { initWeather, destroyWeather } from "../lib/weather/store";
+  import WeatherEffects from "../domains/app/WeatherEffects.svelte";
   import { isLoading, t } from "svelte-i18n";
+  import OnboardingWizard from "../domains/ui/onboarding/OnboardingWizard.svelte";
+  import DemoBadge from "../domains/ui/DemoBadge.svelte";
   import BackgroundRenderer from "../domains/theme/BackgroundRenderer.svelte";
   import BackgroundEngine from "../domains/ui/background/BackgroundEngine.svelte";
   import Sidebar from "../domains/ui/Sidebar.svelte";
@@ -51,9 +60,11 @@
     }, 2000);
 
     const init = async () => {
-      // 1. Init Theme and Background
+      // 1. Init Theme, Background, and Onboarding
       themeStore.init();
       backgroundStore.init();
+      onboardingStore.init();
+      demoStore.init();
 
       // 2. Init Session (Critical for security & state)
       // We prioritize this to ensure authentication state is known early
@@ -126,8 +137,12 @@
 {:else if !isSessionActive}
   <!-- Security Layer: Blocks everything else -->
   <PinScreen />
+{:else if !$onboardingStore.completed && !$demoStore.isActive}
+  <!-- Onboarding Wizard for new users -->
+  <OnboardingWizard />
 {:else}
   <!-- Main App Layout -->
+  <DemoBadge />
   <div class="layout-container">
     <Sidebar />
     <div class="main-content">
