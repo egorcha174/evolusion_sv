@@ -302,18 +302,18 @@
                 onpointerdown={startDrag}
             />
 
+            <path
+                d="M 43 157 A 80 80 0 1 1 157 157"
+                class="ring-hit"
+                onpointerdown={startDrag}
+            />
+
             <!-- Invisible Hit Target for Handle (Larger) -->
             <circle
                 cx={handlePos.x}
                 cy={handlePos.y}
                 r="24"
                 class="dial-handle-hit"
-                onpointerdown={startDrag}
-            />
-
-            <path
-                d="M 43 157 A 80 80 0 1 1 157 157"
-                class="ring-hit"
                 onpointerdown={startDrag}
             />
         </svg>
@@ -403,6 +403,7 @@
         align-items: center;
         justify-content: center;
         z-index: 2;
+        pointer-events: none; /* Allow interaction with ring behind body */
     }
 
     .dial-display {
@@ -435,6 +436,7 @@
         display: flex;
         opacity: 0.5;
         transition: opacity 0.2s;
+        pointer-events: auto; /* Restore interaction */
     }
     .nav-btn:hover {
         opacity: 1;
