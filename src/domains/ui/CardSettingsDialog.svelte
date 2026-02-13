@@ -9,6 +9,7 @@
   import EventTimerSettings from "./widgets/settings/EventTimerSettings.svelte";
   import DeviceSelector from "./editor/components/DeviceSelector.svelte";
   import CameraSourceSettings from "./settings/CameraSourceSettings.svelte";
+  import ThermostatSettings from "./widgets/thermostat/ThermostatSettings.svelte";
   import type { CameraSourceConfig, HAEntity } from "$lib/types";
   import DeviceCard from "./DeviceCard.svelte";
   import {
@@ -334,6 +335,8 @@
               {#if tempCameraConfig}
                 <CameraSourceSettings bind:config={tempCameraConfig} />
               {/if}
+            {:else if tempEntityId?.startsWith("climate.")}
+              <ThermostatSettings bind:config={tempSettings} />
             {:else}
               <!-- Template Selection for Entity Cards -->
               <div class="form-group">

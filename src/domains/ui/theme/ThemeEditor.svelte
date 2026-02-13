@@ -379,7 +379,7 @@
           )}
           <ColorPicker
             label={$t("settings.themeEditor.labels.panelBg")}
-            value={currentScheme.bgPanel}
+            value={currentScheme.bgPanel ?? "#000000"}
             onChange={(v) => updateField("bgPanel", v)}
           />
         </div>
@@ -411,7 +411,7 @@
           )}
           <ColorPicker
             label={$t("templates.style.background")}
-            value={currentScheme.bgHeader}
+            value={currentScheme.bgHeader ?? "#000000"}
             onChange={(v) => updateField("bgHeader", v)}
           />
 
@@ -425,7 +425,7 @@
           />
           <ColorPicker
             label={$t("settings.themeEditor.labels.dropdowns")}
-            value={currentScheme.bgDropdown}
+            value={currentScheme.bgDropdown ?? "#000000"}
             onChange={(v) => updateField("bgDropdown", v)}
           />
           <ColorPicker
@@ -548,7 +548,7 @@
           />
           <ColorPicker
             label={$t("settings.themeEditor.labels.iconSymbol")}
-            value={currentScheme.iconColorOn}
+            value={currentScheme.iconColorOn ?? "#ffffff"}
             onChange={(v) => updateField("iconColorOn", v)}
           />
         </div>
@@ -1015,6 +1015,7 @@
   }
 
   .slider {
+    appearance: none;
     -webkit-appearance: none;
     width: 100%;
     height: 4px;

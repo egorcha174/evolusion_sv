@@ -160,6 +160,24 @@
       "selectDevices": "Select Devices",
       "empty": "No battery sensors found",
       "selected": "Selected"
+    },
+    "thermostat": {
+      "actions": {
+        "idle": "Idle",
+        "heating": "Heating",
+        "cooling": "Cooling",
+        "drying": "Drying",
+        "off": "Off",
+        "fan": "Fan"
+      },
+      "modes": {
+        "heat": "Heat",
+        "cool": "Cool",
+        "auto": "Auto",
+        "off": "Off",
+        "fan_only": "Fan",
+        "dry": "Dry"
+      }
     }
   },
   "templates": {

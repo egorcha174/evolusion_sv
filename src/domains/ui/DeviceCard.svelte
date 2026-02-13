@@ -10,15 +10,18 @@
   import { getTemplateCssVariables } from "./editor/templates/style";
   import EventTimerWidget from "./widgets/EventTimerWidget.svelte";
   import BatteryMonitorWidget from "./widgets/BatteryMonitorWidget.svelte";
+  import ThermostatWidget from "./widgets/ThermostatWidget.svelte";
 
   let {
     entity,
     template,
+    settings, // <--- Added settings prop
     onAddToTab,
     onTimerReset,
   }: {
     entity: HAEntity;
     template?: CardTemplate;
+    settings?: any; // <--- Added settings prop type
     onAddToTab?: () => void;
     onTimerReset?: () => void;
   } = $props();
@@ -50,7 +53,8 @@
   let isOn = $derived(
     entity.state === "on" ||
       entity.state === "open" ||
-      entity.state === "unlocked",
+      entity.state === "unlocked" ||
+      (domain === "climate" && entity.state !== "off"),
   );
   let isToggleable = $derived(
     ["light", "switch", "cover", "lock", "input_boolean", "script"].includes(
@@ -75,7 +79,8 @@
   );
   let isTimer = $derived(widgetType === "timer");
   let isBattery = $derived(widgetType === "battery");
-  let isWidget = $derived(!!widgetType);
+  let isThermostat = $derived(domain === "climate");
+  let isWidget = $derived(!!widgetType || isThermostat);
 
   // Calculate overridden styles if template exists
   let customStyle = $derived(
@@ -89,7 +94,8 @@
 
   // For widgets, we might want to strip standard padding
   // so they can control their own layout (e.g. liquid fill)
-  let noPadding = $derived(isTimer || isBattery);
+  // for thermostats, we want full control
+  let noPadding = $derived(isTimer || isBattery || isThermostat);
   let timerConfigId = $derived(
     (entity.attributes as any)?.config?.id as string | undefined,
   );
@@ -142,7 +148,7 @@
   onenter={handleEnter}
   role="button"
   tabindex="0"
-  onclick={isToggleable ? handleToggle : undefined}
+  onclick={isToggleable && !isThermostat ? handleToggle : undefined}
   ondblclick={isTimer ? handleTimerDblClick : undefined}
   onkeydown={(e) =>
     isToggleable && (e.key === "Enter" || e.key === " ") && handleToggle()}
@@ -155,6 +161,8 @@
       <EventTimerWidget {entity} />
     {:else if isBattery}
       <BatteryMonitorWidget {entity} />
+    {:else if isThermostat}
+      <ThermostatWidget {entity} {settings} />
     {:else if isVisualMode && template}
       <!-- Visual Mode: Render Elements -->
       {#each template.elements as el (el.id)}

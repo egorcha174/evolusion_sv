@@ -114,7 +114,7 @@
 
 <aside
   class="sidebar"
-  style="width: {width}px; color: {$activeScheme.textPrimary ?? 'inherit'}"
+  style="width: {width}px; color: {$activeScheme?.textPrimary ?? 'inherit'}"
   class:collapsed={isCollapsed}
 >
   <!-- Resize Handle -->

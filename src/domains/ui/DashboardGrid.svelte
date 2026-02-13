@@ -495,7 +495,11 @@
           {@const entity = getEntity(card.entityId ?? "")}
           {#if entity}
             <GridItem {card} oncontextmenu={handleCardContext}>
-              <DeviceCard {entity} template={getTemplate(card.templateId)} />
+              <DeviceCard
+                {entity}
+                template={getTemplate(card.templateId)}
+                settings={card.settings}
+              />
             </GridItem>
           {/if}
         {/if}
