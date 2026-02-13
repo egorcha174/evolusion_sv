@@ -1,0 +1,41 @@
+/* Thermostat Design Tokens */
+:root {
+    /* Colors */
+    --ts-accent-heating: #ff9500;
+    --ts-accent-cooling: #007aff;
+    --ts-accent-idle: var(--text-muted, #888);
+    --ts-bg-surface: var(--bg-card, #1c1c1e);
+    --ts-bg-track: rgba(255, 255, 255, 0.1);
+    --ts-text-primary: var(--text-primary, #ffffff);
+    --ts-text-secondary: var(--text-muted, rgba(255, 255, 255, 0.6));
+
+    /* Dimensions & Shapes */
+    --ts-track-width: 24px;
+    --ts-knob-size: 28px;
+    --ts-radius-card: 20px;
+    --ts-radius-inner: 12px;
+
+    /* Shadows & Effects */
+    --ts-shadow-knob: 0 4px 8px rgba(0, 0, 0, 0.3);
+    --ts-glow-soft: 0 0 12px rgba(255, 255, 255, 0.1);
+
+    /* Fonts */
+    --ts-font-xl: 3.5rem;
+    --ts-font-lg: 2.5rem;
+    --ts-font-md: 1.25rem;
+    --ts-font-sm: 0.875rem;
+}
+
+/* Base reset for thermostat widgets */
+.thermostat-root {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    box-sizing: border-box;
+    font-family: var(--font-primary, sans-serif);
+    color: var(--ts-text-primary);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}

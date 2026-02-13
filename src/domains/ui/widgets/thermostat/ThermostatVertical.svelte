@@ -2,64 +2,53 @@
     import { t } from "svelte-i18n";
     import "iconify-icon";
     import type { HAEntity } from "$lib/types";
-    import { type ThermostatController } from "../thermostatStore";
+    import { type ThermostatController } from "./core/thermostat.svelte";
     import ThermostatControls from "./ThermostatControls.svelte";
 
-    let { entity, controller, state } = $props<{
+    let { entity, controller } = $props<{
         entity: HAEntity;
         controller: ThermostatController;
-        state: any;
     }>();
 
-    // Derived state
-    let targetTemp = $derived(state.targetTemp);
-    let hvacMode = $derived(state.hvacMode);
-    let currentPresetMode = $derived(state.presetMode);
-    let isDragging = $derived(state.isDragging);
-
-    // Entity Attributes
-    let minTemp = $derived(entity.attributes.min_temp || 7);
-    let maxTemp = $derived(entity.attributes.max_temp || 35);
-    let step = $derived(entity.attributes.target_temp_step || 0.5);
-    let currentTemp = $derived(entity.attributes.current_temperature);
-
-    // Interaction
-    let sliderHeight = 240;
-
-    // Status Color
-    let statusColor = $derived.by(() => {
-        if (hvacMode === "off") return "var(--text-muted)";
-        const action = entity.attributes.hvac_action;
-        if (action === "heating")
-            return "var(--thermostat-heating-color, #ff9500)";
-        if (action === "cooling")
-            return "var(--thermostat-cooling-color, #007aff)";
-        return "var(--text-primary)";
-    });
-
+    // Visual Helpers
     let statusText = $derived(
-        hvacMode === "off"
+        controller.hvacMode === "off"
             ? $t("common.off")
             : $t(
                   `widgets.thermostat.actions.${entity.attributes.hvac_action || "idle"}`,
               ),
     );
 
+    let statusColor = $derived.by(() => {
+        if (controller.hvacMode === "off") return "var(--ts-accent-idle)";
+        const action = entity.attributes.hvac_action;
+        if (action === "heating") return "var(--ts-accent-heating)";
+        if (action === "cooling") return "var(--ts-accent-cooling)";
+        return "var(--ts-text-primary)";
+    });
+
     // Vertical slider logic
-    // Bottom is minTemp, Top is maxTemp
     function valueToPercent(value: number) {
-        const clamped = Math.max(minTemp, Math.min(maxTemp, value));
-        return ((clamped - minTemp) / (maxTemp - minTemp)) * 100;
+        const min = controller.minTemp;
+        const max = controller.maxTemp;
+        const clamped = Math.max(min, Math.min(max, value));
+        return ((clamped - min) / (max - min)) * 100;
     }
 
     function percentToValue(percent: number) {
         const ratio = Math.max(0, Math.min(100, percent)) / 100;
-        const raw = minTemp + ratio * (maxTemp - minTemp);
-        return Math.round(raw / step) * step;
+        const raw =
+            controller.minTemp +
+            ratio * (controller.maxTemp - controller.minTemp);
+        return Math.round(raw / controller.step) * controller.step;
     }
 
-    let targetPercent = $derived(valueToPercent(targetTemp));
-    let currentPercent = $derived(valueToPercent(currentTemp || minTemp));
+    let targetPercent = $derived(valueToPercent(controller.targetTemp));
+    let currentPercent = $derived(
+        valueToPercent(
+            entity.attributes.current_temperature || controller.minTemp,
+        ),
+    );
 
     let trackElement: HTMLDivElement;
 
@@ -83,7 +72,7 @@
     }
 
     function onMouseMove(e: MouseEvent) {
-        if (isDragging) {
+        if (controller.isDragging) {
             e.preventDefault();
             handleInput(e.clientY);
         }
@@ -95,7 +84,6 @@
         window.removeEventListener("mouseup", onMouseUp);
     }
 
-    // Touch support
     function onTouchStart(e: TouchEvent) {
         if ((e.target as Element).closest(".nav-buttons")) return;
         e.preventDefault();
@@ -105,10 +93,11 @@
     }
 
     function onTouchMove(e: TouchEvent) {
-        if (isDragging) {
+        if (controller.isDragging) {
             e.preventDefault();
             const t = e.touches[0];
-            handleInput(t.clientX);
+            handleInput(t.clientX); // Should be clientY for vertical? Correction below
+            handleInput(t.clientY);
         }
     }
 
@@ -119,17 +108,18 @@
 
 <div class="vertical-skin">
     <div class="main-content">
-        <!-- Status / Current Temp Side -->
+        <!-- Info Side -->
         <div class="info-side">
             <div class="temp-display">
-                {targetTemp.toFixed(1)}<span class="unit">°</span>
+                {controller.targetTemp.toFixed(1)}<span class="unit">°</span>
             </div>
             <div class="status" style:color={statusColor}>
                 {statusText}
             </div>
-            <div class="current-readout">
-                <iconify-icon icon="mdi:thermometer" width="14"></iconify-icon>
-                {currentTemp}°
+
+            <!-- Icon/Mode indicator at top of info -->
+            <div class="mode-icon" style:color={statusColor}>
+                <iconify-icon icon="mdi:thermostat" width="24"></iconify-icon>
             </div>
         </div>
 
@@ -147,9 +137,9 @@
                 <!-- Active Fill -->
                 <div
                     class="slider-fill"
-                    style="height: {targetPercent}%; background: {hvacMode ===
+                    style="height: {targetPercent}%; background: {controller.hvacMode ===
                     'off'
-                        ? 'var(--text-muted)'
+                        ? 'var(--ts-accent-idle)'
                         : statusColor}"
                 ></div>
 
@@ -161,13 +151,16 @@
                     ></div>
                 </div>
 
-                <!-- Current Temp Indicator -->
-                {#if currentTemp != null}
+                <!-- Current Temp Marker -->
+                {#if entity.attributes.current_temperature != null}
                     <div
                         class="current-indicator"
                         style="bottom: {currentPercent}%;"
                     >
-                        <div class="current-dot"></div>
+                        <div class="current-label">
+                            {entity.attributes.current_temperature}°
+                        </div>
+                        <div class="current-line"></div>
                     </div>
                 {/if}
             </div>
@@ -179,8 +172,8 @@
         <ThermostatControls
             {controller}
             {entity}
-            {hvacMode}
-            {currentPresetMode}
+            hvacMode={controller.hvacMode}
+            currentPresetMode={controller.presetMode}
         />
     </div>
 </div>
@@ -193,15 +186,18 @@
         height: 100%;
         position: relative;
         padding: 1rem;
-        gap: 1rem;
+        gap: 0.5rem;
+        background: var(
+            --ts-bg-surface
+        ); /* Optional if widget doesn't set it */
     }
 
     .main-content {
         flex: 1;
         display: flex;
-        gap: 1.5rem;
-        align-items: center;
-        justify-content: center;
+        gap: 1rem;
+        align-items: stretch;
+        justify-content: space-between;
         width: 100%;
         min-height: 0;
     }
@@ -209,44 +205,59 @@
     .info-side {
         display: flex;
         flex-direction: column;
-        align-items: center; /* Change to center since we are side-by-side or stacked */
-        justify-content: center;
-        text-align: center;
+        align-items: flex-start;
+        justify-content: flex-end; /* Bottom align target temp */
+        text-align: left;
+        padding-bottom: 2rem;
+        flex: 1;
     }
 
+    .temp-display {
+        font-size: var(--ts-font-xl);
+        font-weight: 700;
+        line-height: 1;
+        font-variant-numeric: tabular-nums;
+        color: var(--ts-text-primary);
+    }
+
+    .unit {
+        font-size: 0.5em;
+        vertical-align: top;
+        color: var(--ts-text-secondary);
+    }
+
+    .status {
+        font-size: var(--ts-font-md);
+        margin-top: 4px;
+        font-weight: 600;
+    }
+
+    .mode-icon {
+        margin-bottom: auto; /* Push to top */
+        opacity: 0.8;
+        padding-top: 1rem;
+    }
+
+    /* Slider */
     .slider-container {
         height: 100%;
-        max-height: 220px;
-        width: 48px;
-        display: flex;
-        justify-content: center;
+        width: 60px; /* Wider for industrial look */
         position: relative;
+        padding: 10px 0;
     }
 
     .slider-track-bg {
-        width: 12px;
+        width: 100%;
         height: 100%;
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 6px;
+        background: var(--ts-bg-track);
+        border-radius: var(--ts-radius-inner);
         position: relative;
         cursor: pointer;
-        /* Increase hit area */
-    }
-
-    /* Pseudo element for wider hit area */
-    .slider-track-bg::after {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: -18px;
-        right: -18px;
-        bottom: 0;
-        z-index: 1;
+        overflow: hidden; /* Clip fill */
     }
 
     .slider-fill {
         width: 100%;
-        border-radius: 6px;
         position: absolute;
         bottom: 0;
         left: 0;
@@ -254,102 +265,63 @@
             height 0.1s linear,
             background 0.2s;
         pointer-events: none;
+        opacity: 0.3;
     }
 
     .slider-handle {
         position: absolute;
-        left: 50%;
-        transform: translate(
-            -50%,
-            50%
-        ); /* Center on bottom position? No, bottom coords. translate y+50% pushes it down. We want center. */
-        transform: translate(-50%, 50%);
-        width: 32px;
-        height: 32px;
+        left: 0;
+        width: 100%;
+        height: 0; /* Just a position marker */
         pointer-events: none;
         transition: bottom 0.1s linear;
         z-index: 2;
-        display: flex;
-        align-items: center;
-        justify-content: center;
     }
 
     .handle-knob {
-        width: 24px;
-        height: 24px;
+        width: 100%;
+        height: 4px;
+        position: absolute;
+        top: -2px;
         background: #fff;
-        border: 3px solid var(--bg-card);
-        border-radius: 50%;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
     }
 
+    /* Current Temp */
     .current-indicator {
         position: absolute;
-        left: 50%;
-        transform: translate(-50%, 50%);
+        right: 0; /* Align to right edge inside track? Or outside? */
         width: 100%;
         pointer-events: none;
         transition: bottom 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
         z-index: 3;
         display: flex;
-        justify-content: center;
-    }
-
-    .current-dot {
-        width: 8px;
-        height: 8px;
-        background: var(--text-primary);
-        border: 1px solid var(--bg-card);
-        border-radius: 50%;
-        transform: translateX(12px); /* Offset to side */
-    }
-
-    .temp-display {
-        font-size: 3rem;
-        font-weight: 700;
-        line-height: 1;
-        font-variant-numeric: tabular-nums;
-    }
-
-    .unit {
-        font-size: 0.5em;
-        vertical-align: top;
-        color: var(--text-muted);
-    }
-    .status {
-        font-size: 1rem;
-        margin-top: 4px;
-        font-weight: 500;
-    }
-    .current-readout {
-        display: flex;
         align-items: center;
-        gap: 4px;
-        font-size: 0.9rem;
-        color: var(--text-muted);
-        margin-top: 8px;
-        background: rgba(0, 0, 0, 0.1);
-        padding: 2px 8px;
-        border-radius: 12px;
+        justify-content: flex-end;
+        padding-right: 4px;
+    }
+
+    .current-line {
+        width: 50%;
+        height: 2px;
+        background: var(--ts-text-primary);
+        opacity: 0.5;
+    }
+
+    .current-label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--ts-text-primary);
+        background: rgba(0, 0, 0, 0.5);
+        padding: 2px 4px;
+        border-radius: 4px;
+        margin-right: 4px;
     }
 
     .controls-wrapper {
         width: 100%;
         display: flex;
         justify-content: center;
-    }
-
-    @container (aspect-ratio > 1.2) {
-        .vertical-skin {
-            flex-direction: row;
-            align-items: center;
-        }
-        .main-content {
-            flex-direction: row;
-            justify-content: space-evenly;
-        }
-        .controls-wrapper {
-            width: auto;
-        }
+        padding-top: 0.5rem;
     }
 </style>

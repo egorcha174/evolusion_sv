@@ -1,7 +1,7 @@
 <script lang="ts">
     import { t } from "svelte-i18n";
     import "iconify-icon";
-    import type { ThermostatController } from "../thermostatStore";
+    import type { ThermostatController } from "./core/thermostat.svelte";
     import type { HAEntity } from "$lib/types";
 
     let { controller, entity, hvacMode, currentPresetMode } = $props<{

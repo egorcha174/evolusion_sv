@@ -2,45 +2,28 @@
     import { t } from "svelte-i18n";
     import "iconify-icon";
     import type { HAEntity } from "$lib/types";
-    import { type ThermostatController } from "../thermostatStore";
+    import { type ThermostatController } from "./core/thermostat.svelte";
     import ThermostatControls from "./ThermostatControls.svelte";
 
     let {
         entity,
         controller,
-        state,
         size = 260,
     } = $props<{
-        entity: HAEntity;
+        entity: HAEntity; // Still needed for some specific attributes if not in controller
         controller: ThermostatController;
-        state: any;
         size?: number;
     }>();
 
-    // Derived state
-    let targetTemp = $derived(state.targetTemp);
-    let hvacMode = $derived(state.hvacMode);
-    let currentPresetMode = $derived(state.presetMode);
-    let isDragging = $derived(state.isDragging);
-
-    // Entity Attributes
-    let minTemp = $derived(entity.attributes.min_temp || 7);
-    let maxTemp = $derived(entity.attributes.max_temp || 35);
-    let step = $derived(entity.attributes.target_temp_step || 0.5);
-    let currentTemp = $derived(entity.attributes.current_temperature);
-    // let hvacModes = $derived(entity.attributes.hvac_modes || []); // Handled in Controls now
-
-    // --- Circular Slider Logic ---
-    // Geometry
-    /* const size = 260; passed as prop or default */
-    const strokeWidth = 24; // Visual width
+    // Size props/constants
+    const strokeWidth = 24;
     let cx = $derived(size / 2);
     let cy = $derived(size / 2);
-    let r = $derived((size - strokeWidth) / 2); // Radius of the stroke path center
-    const startAngle = 225; // 225 degrees (7:30 clock position)
-    const endAngle = 495; // 495 degrees (4:30 clock position)
+    let r = $derived((size - strokeWidth) / 2);
+    const startAngle = 225;
+    const endAngle = 495;
 
-    // Helper: Polar to Cartesian
+    // --- Helpers (Geometry) ---
     function polarToCartesian(
         centerX: number,
         centerY: number,
@@ -54,7 +37,6 @@
         };
     }
 
-    // Helper: Create SVG Arc Path
     function describeArc(
         x: number,
         y: number,
@@ -80,44 +62,65 @@
         ].join(" ");
     }
 
-    // Value <-> Angle
     function valueToAngle(value: number) {
-        const clamped = Math.max(minTemp, Math.min(maxTemp, value));
-        const ratio = (clamped - minTemp) / (maxTemp - minTemp);
+        const min = controller.minTemp;
+        const max = controller.maxTemp;
+        const clamped = Math.max(min, Math.min(max, value));
+        const ratio = (clamped - min) / (max - min);
         return startAngle + ratio * (endAngle - startAngle);
     }
 
     function angleToValue(angle: number) {
-        // Normalize angle
         let normalized = angle;
         if (normalized < startAngle) normalized += 360;
-
-        // Clamp to range
         if (normalized < startAngle) normalized = startAngle;
         if (normalized > endAngle) normalized = endAngle;
 
+        const min = controller.minTemp;
+        const max = controller.maxTemp;
         const ratio = (normalized - startAngle) / (endAngle - startAngle);
-        const rawValue = minTemp + ratio * (maxTemp - minTemp);
-        // Snap to step
-        return Math.round(rawValue / step) * step;
+        const rawValue = min + ratio * (max - min);
+        return Math.round(rawValue / controller.step) * controller.step;
     }
 
-    // SVG Paths
+    // --- Derived Visuals ---
+    // Background & Active Arc
     let bgPath = $derived(describeArc(cx, cy, r, startAngle, endAngle));
-    let currentAngle = $derived(valueToAngle(targetTemp));
+    let currentAngle = $derived(valueToAngle(controller.targetTemp));
     let activePath = $derived(describeArc(cx, cy, r, startAngle, currentAngle));
-
-    // Current Temp Indicator (Orbiting Dot)
-    let currentTempR = $derived(r + 24); // Orbit outside the ring
-    let currentTempAngle = $derived(valueToAngle(currentTemp || minTemp));
-    let currentTempPos = $derived(
-        polarToCartesian(cx, cy, currentTempR, currentTempAngle),
-    );
 
     // Handle Position
     let handlePos = $derived(polarToCartesian(cx, cy, r, currentAngle));
 
-    // Interaction
+    // Current Temp Indicator (Orbiting Dot)
+    let currentTempR = $derived(r + 24);
+    // Use entity.attributes.current_temperature directly or logic from controller if added
+    let currentTemp = $derived(entity.attributes.current_temperature);
+    let currentTempAngle = $derived(
+        valueToAngle(currentTemp || controller.minTemp),
+    );
+    let currentTempPos = $derived(
+        polarToCartesian(cx, cy, currentTempR, currentTempAngle),
+    );
+
+    // Colors & Status
+    let statusText = $derived(
+        controller.hvacMode === "off"
+            ? $t("common.off")
+            : $t(
+                  `widgets.thermostat.actions.${entity.attributes.hvac_action || "idle"}`,
+              ),
+    );
+
+    let statusColor = $derived.by(() => {
+        if (controller.hvacMode === "off") return "var(--ts-accent-idle)";
+        const action = entity.attributes.hvac_action;
+        if (action === "heating") return "var(--ts-accent-heating)";
+        if (action === "cooling") return "var(--ts-accent-cooling)";
+        return "var(--ts-text-primary)";
+    });
+
+    // --- Interaction ---
     let svgElement: SVGSVGElement;
 
     function handleInput(clientX: number, clientY: number) {
@@ -126,20 +129,16 @@
         const dx = clientX - (rect.left + rect.width / 2);
         const dy = clientY - (rect.top + rect.height / 2);
 
-        // Calculate angle from center
-        let angle = (Math.atan2(dy, dx) * 180) / Math.PI; // -180 to 180
-
-        angle = angle + 90; // 0 at 12 o'clock
+        let angle = (Math.atan2(dy, dx) * 180) / Math.PI;
+        angle = angle + 90;
         if (angle < 0) angle += 360;
 
+        // Gap jumping logic
         let touchAngle = angle;
-
-        // Clamp handling for gap at bottom
-        let newVal = angleToValue(
+        let val = angleToValue(
             touchAngle >= 135 ? touchAngle : touchAngle + 360,
         );
-
-        controller.setTemperature(newVal);
+        controller.setTemperature(val);
     }
 
     function onMouseDown(e: MouseEvent) {
@@ -151,7 +150,7 @@
     }
 
     function onMouseMove(e: MouseEvent) {
-        if (isDragging) {
+        if (controller.isDragging) {
             e.preventDefault();
             handleInput(e.clientX, e.clientY);
         }
@@ -163,7 +162,6 @@
         window.removeEventListener("mouseup", onMouseUp);
     }
 
-    // Touch support
     function onTouchStart(e: TouchEvent) {
         if ((e.target as Element).closest(".nav-buttons")) return;
         e.preventDefault();
@@ -173,7 +171,7 @@
     }
 
     function onTouchMove(e: TouchEvent) {
-        if (isDragging) {
+        if (controller.isDragging) {
             e.preventDefault();
             const t = e.touches[0];
             handleInput(t.clientX, t.clientY);
@@ -183,30 +181,11 @@
     function onTouchEnd() {
         controller.setDragging(false);
     }
-
-    // Formatting
-    let statusText = $derived(
-        hvacMode === "off"
-            ? $t("common.off")
-            : $t(
-                  `widgets.thermostat.actions.${entity.attributes.hvac_action || "idle"}`,
-              ),
-    );
-
-    let statusColor = $derived.by(() => {
-        if (hvacMode === "off") return "var(--text-muted)";
-        const action = entity.attributes.hvac_action;
-        if (action === "heating")
-            return "var(--thermostat-heating-color, #ff9500)";
-        if (action === "cooling")
-            return "var(--thermostat-cooling-color, #007aff)";
-        return "var(--text-primary)";
-    });
 </script>
 
 <div class="ring-skin">
     <div class="dial-container" style="width: {size}px; height: {size}px;">
-        <!-- SVG Dial -->
+        <!-- Dial SVG -->
         <!-- svelte-ignore a11y_no_static_element_interactions -->
         <svg
             class="dial-svg"
@@ -218,24 +197,17 @@
             ontouchend={onTouchEnd}
         >
             <defs>
-                <!-- Gradients -->
                 <linearGradient
-                    id="temp-gradient"
+                    id="ts-gradient"
                     gradientUnits="userSpaceOnUse"
                     x1="0"
                     y1={size}
                     x2={size}
                     y2="0"
                 >
-                    <stop
-                        offset="0%"
-                        stop-color="var(--thermostat-cooling-color, #007aff)"
-                    />
+                    <stop offset="0%" stop-color="var(--ts-accent-cooling)" />
                     <stop offset="50%" stop-color="#ae38ff" />
-                    <stop
-                        offset="100%"
-                        stop-color="var(--thermostat-heating-color, #ff9500)"
-                    />
+                    <stop offset="100%" stop-color="var(--ts-accent-heating)" />
                 </linearGradient>
             </defs>
 
@@ -243,70 +215,67 @@
             <path
                 d={bgPath}
                 fill="none"
-                stroke="var(--track-color, rgba(255,255,255,0.1))"
+                stroke="var(--ts-bg-track)"
                 stroke-width={strokeWidth}
                 stroke-linecap="round"
-                class="dial-track"
             />
 
             <!-- Active Arc -->
             <path
                 d={activePath}
                 fill="none"
-                stroke={hvacMode === "off"
-                    ? "var(--text-muted)"
-                    : "url(#temp-gradient)"}
+                stroke={controller.hvacMode === "off"
+                    ? "var(--ts-accent-idle)"
+                    : "url(#ts-gradient)"}
                 stroke-width={strokeWidth}
                 stroke-linecap="round"
-                class="dial-arc"
             />
 
-            <!-- Invisible Hit Area (wider) -->
+            <!-- Hit Area -->
             <path
                 d={bgPath}
                 fill="none"
-                stroke="rgba(255,255,255,0.001)"
+                stroke="transparent"
                 stroke-width="50"
                 stroke-linecap="round"
-                class="ring-hit"
-                style="pointer-events: stroke; cursor: pointer;"
+                style="cursor: pointer;"
             />
 
             <!-- Handle -->
-            {#if hvacMode !== "off"}
+            {#if controller.hvacMode !== "off"}
                 <g
                     transform={`translate(${handlePos.x}, ${handlePos.y})`}
                     style="pointer-events: none;"
                 >
                     <circle
                         r="12"
-                        fill="#fff"
-                        filter="drop-shadow(0 2px 4px rgba(0,0,0,0.3))"
+                        fill="var(--ts-text-primary)"
+                        filter="drop-shadow(var(--ts-shadow-knob))"
                     />
                     <circle r="4" fill={statusColor} />
                 </g>
             {/if}
 
-            <!-- Current Temp Indicator (Orbiting Dot) -->
+            <!-- Current Temp Dot -->
             {#if currentTemp != null}
                 <g
                     transform={`translate(${currentTempPos.x}, ${currentTempPos.y})`}
-                    style="pointer-events: none; transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);"
+                    style="pointer-events: none; transition: transform 0.5s ease;"
                 >
                     <circle
-                        r="5"
-                        fill="var(--text-primary)"
-                        stroke="var(--bg-card)"
+                        r="6"
+                        fill="var(--ts-text-primary)"
+                        stroke="var(--ts-bg-surface)"
                         stroke-width="2"
                     />
                 </g>
             {/if}
         </svg>
 
-        <!-- Center Content -->
+        <!-- Center Info -->
         <div class="dial-content">
             <div class="temp-display">
-                {targetTemp.toFixed(1)}<span class="unit">°</span>
+                {controller.targetTemp.toFixed(1)}<span class="unit">°</span>
             </div>
             <div class="status" style:color={statusColor}>
                 {statusText}
@@ -318,12 +287,13 @@
         </div>
     </div>
 
+    <!-- Controls (Mode, Preset, etc.) -->
     <div class="controls-wrapper">
         <ThermostatControls
             {controller}
             {entity}
-            {hvacMode}
-            {currentPresetMode}
+            hvacMode={controller.hvacMode}
+            currentPresetMode={controller.presetMode}
         />
     </div>
 </div>
@@ -370,14 +340,14 @@
         justify-content: center;
         text-align: center;
         gap: 0;
-        pointer-events: none; /* Let clicks pass to ring */
+        pointer-events: none;
     }
 
     .temp-display {
-        font-size: 3.5rem;
+        font-size: var(--ts-font-xl);
         font-weight: 700;
         line-height: 1;
-        color: var(--thermostat-dial-text-color, var(--text-primary));
+        color: var(--ts-text-primary);
         font-variant-numeric: tabular-nums;
         transition: font-size 0.2s;
     }
@@ -385,12 +355,12 @@
     .unit {
         font-size: 0.5em;
         vertical-align: top;
-        color: var(--text-muted);
+        color: var(--ts-text-secondary);
         font-weight: 500;
     }
 
     .status {
-        font-size: 1rem;
+        font-size: var(--ts-font-md);
         font-weight: 600;
         text-transform: capitalize;
         min-height: 1.5rem;
@@ -402,8 +372,8 @@
         display: flex;
         align-items: center;
         gap: 4px;
-        font-size: 0.9rem;
-        color: var(--text-muted);
+        font-size: var(--ts-font-sm);
+        color: var(--ts-text-secondary);
         margin-top: 8px;
         background: rgba(0, 0, 0, 0.1);
         padding: 2px 8px;
@@ -426,10 +396,10 @@
             pointer-events: none;
         }
         .temp-display {
-            font-size: 2.5rem;
+            font-size: var(--ts-font-lg);
         }
         .status {
-            font-size: 0.9rem;
+            font-size: var(--ts-font-sm);
             min-height: auto;
         }
     }

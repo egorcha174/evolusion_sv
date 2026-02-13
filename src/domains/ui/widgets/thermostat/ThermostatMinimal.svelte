@@ -8,7 +8,7 @@
     let {
         entity,
         controller,
-        size = 280,
+        size = 260,
     } = $props<{
         entity: HAEntity;
         controller: ThermostatController;
@@ -16,12 +16,12 @@
     }>();
 
     // Size props/constants
-    const strokeWidth = 8;
+    const strokeWidth = 2; // Minimalist thin line
     let cx = $derived(size / 2);
     let cy = $derived(size / 2);
     let r = $derived((size - 40) / 2);
-    const startAngle = 140;
-    const endAngle = 400;
+    const startAngle = 225;
+    const endAngle = 495;
 
     // --- Helpers (Geometry) ---
     function polarToCartesian(
@@ -83,24 +83,29 @@
         return Math.round(rawValue / controller.step) * controller.step;
     }
 
-    // --- Derived Visuals ---
-    // Background Track
+    // --- Visuals ---
+    // Background Track (thin)
     let bgPath = $derived(describeArc(cx, cy, r, startAngle, endAngle));
 
-    // Active Arc
-    let currentAngle = $derived(valueToAngle(controller.targetTemp));
-    let activePath = $derived(describeArc(cx, cy, r, startAngle, currentAngle));
+    // Key Points (Min, Max, Current)
+    let minPos = $derived(polarToCartesian(cx, cy, r + 15, startAngle));
+    let maxPos = $derived(polarToCartesian(cx, cy, r + 15, endAngle));
 
-    // Handle Position
-    let handlePos = $derived(polarToCartesian(cx, cy, r, currentAngle));
+    // Current Temp Marker
+    let currentTemp = $derived(entity.attributes.current_temperature);
+    let currentAngle = $derived(
+        valueToAngle(currentTemp || controller.minTemp),
+    );
+    let currentPos = $derived(polarToCartesian(cx, cy, r, currentAngle));
 
-    // Glow Colors
-    let neonColor = $derived.by(() => {
-        const action = entity.attributes.hvac_action;
-        if (controller.hvacMode === "off") return "#444444";
-        if (action === "heating") return "#ff003c"; // Cyberpunk Red
-        if (action === "cooling") return "#00f0ff"; // Cyberpunk Cyan
-        return "#fcee0a"; // Cyberpunk Yellow (Idle)
+    // Target Marker/Handle
+    let targetAngle = $derived(valueToAngle(controller.targetTemp));
+    let targetPos = $derived(polarToCartesian(cx, cy, r, targetAngle));
+
+    // Colors
+    let statusColor = $derived.by(() => {
+        if (controller.hvacMode === "off") return "var(--ts-text-secondary)";
+        return "var(--ts-text-primary)"; // Monochrome/Minimal
     });
 
     // Interaction
@@ -117,14 +122,8 @@
         if (angle < 0) angle += 360;
 
         let touchAngle = angle;
-        // Gap jumping
-        if (touchAngle < 140 && touchAngle > 40) {
-            if (touchAngle < 90) touchAngle = 40;
-            else touchAngle = 140;
-        }
-
         let val = angleToValue(
-            touchAngle < 140 ? touchAngle + 360 : touchAngle,
+            touchAngle >= 135 ? touchAngle : touchAngle + 360,
         );
         controller.setTemperature(val);
     }
@@ -171,7 +170,7 @@
     }
 </script>
 
-<div class="neon-skin">
+<div class="minimal-skin">
     <div class="dial-container" style="width: {size}px; height: {size}px;">
         <!-- Dial SVG -->
         <!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -184,29 +183,15 @@
             ontouchmove={onTouchMove}
             ontouchend={onTouchEnd}
         >
-            <defs>
-                <filter
-                    id="neon-glow"
-                    x="-50%"
-                    y="-50%"
-                    width="200%"
-                    height="200%"
-                >
-                    <feGaussianBlur stdDeviation="5" result="coloredBlur" />
-                    <feMerge>
-                        <feMergeNode in="coloredBlur" />
-                        <feMergeNode in="SourceGraphic" />
-                    </feMerge>
-                </filter>
-            </defs>
-
             <!-- Background Track -->
             <path
                 d={bgPath}
                 fill="none"
-                stroke="#2a2a2a"
-                stroke-width={strokeWidth}
+                stroke="var(--ts-text-secondary)"
+                stroke-width="1"
+                stroke-dasharray="2 4"
                 stroke-linecap="round"
+                opacity="0.5"
             />
 
             <!-- Hit Area -->
@@ -219,60 +204,73 @@
                 style="cursor: pointer;"
             />
 
-            <!-- Active Arc with Glow -->
-            {#if controller.hvacMode !== "off"}
-                <path
-                    d={activePath}
-                    fill="none"
-                    stroke={neonColor}
-                    stroke-width={strokeWidth}
-                    stroke-linecap="round"
-                    filter="url(#neon-glow)"
-                    opacity="0.8"
+            <!-- Labels (Min/Max) -->
+            <text
+                x={minPos.x}
+                y={minPos.y}
+                text-anchor="middle"
+                dominant-baseline="middle"
+                class="tick-label">{controller.minTemp}</text
+            >
+            <text
+                x={maxPos.x}
+                y={maxPos.y}
+                text-anchor="middle"
+                dominant-baseline="middle"
+                class="tick-label">{controller.maxTemp}</text
+            >
+
+            <!-- Current Temp Marker (Line) -->
+            {#if currentTemp != null}
+                <line
+                    x1={cx}
+                    y1={cy}
+                    x2={currentPos.x}
+                    y2={currentPos.y}
+                    stroke="var(--ts-text-secondary)"
+                    stroke-width="1"
+                    stroke-dasharray="2 2"
                 />
-                <path
-                    d={activePath}
-                    fill="none"
-                    stroke="#fff"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    opacity="0.5"
-                />
+                <text
+                    x={cx}
+                    y={cy + r * 0.4}
+                    text-anchor="middle"
+                    class="current-label"
+                >
+                    Currently {currentTemp}°
+                </text>
             {/if}
 
-            <!-- Handle -->
-            {#if controller.hvacMode !== "off"}
-                <g
-                    transform={`translate(${handlePos.x}, ${handlePos.y})`}
-                    style="pointer-events: none;"
-                >
-                    <circle r="10" fill="#fff" filter="url(#neon-glow)" />
-                    <circle r="15" fill={neonColor} opacity="0.3" />
-                </g>
-            {/if}
+            <!-- Target Handle (Triangle/Arrow) -->
+            <!-- Simple line for minimal look -->
+            <line
+                x1={cx}
+                y1={cy}
+                x2={targetPos.x}
+                y2={targetPos.y}
+                stroke={statusColor}
+                stroke-width="2"
+            />
+            <circle
+                cx={targetPos.x}
+                cy={targetPos.y}
+                r="3"
+                fill={statusColor}
+            />
         </svg>
 
         <!-- Center Info -->
         <div class="dial-content">
-            <div
-                class="temp-display"
-                style:text-shadow={`0 0 20px ${neonColor}`}
-            >
+            <div class="temp-display" style:color={statusColor}>
                 {controller.targetTemp.toFixed(1)}
             </div>
-            <div class="status" style:color={neonColor}>
+            <div class="status">
                 {controller.hvacMode}
             </div>
-
-            {#if entity.attributes.current_temperature}
-                <div class="current-readout">
-                    Current: {entity.attributes.current_temperature}°
-                </div>
-            {/if}
         </div>
     </div>
 
-    <!-- Controls -->
+    <!-- Minimal Controls -->
     <div class="controls-wrapper">
         <ThermostatControls
             {controller}
@@ -284,7 +282,7 @@
 </div>
 
 <style>
-    .neon-skin {
+    .minimal-skin {
         display: flex;
         flex-direction: column;
         align-items: center;
@@ -292,8 +290,8 @@
         height: 100%;
         justify-content: center;
         position: relative;
-        background: #111; /* Dark background enforced */
-        color: #fff;
+        font-family: monospace, sans-serif; /* Matrix style */
+        color: var(--ts-text-primary);
     }
 
     .dial-container {
@@ -330,27 +328,32 @@
     }
 
     .temp-display {
-        font-size: 4rem;
-        font-weight: 800;
+        font-size: 5rem;
+        font-weight: 300;
         line-height: 1;
-        color: #fff;
-        font-variant-numeric: tabular-nums;
-        font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        letter-spacing: -2px;
     }
 
     .status {
-        font-size: 1rem;
+        font-size: 0.8rem;
         text-transform: uppercase;
         letter-spacing: 2px;
-        margin-top: 8px;
-        font-weight: 600;
+        opacity: 0.7;
+        margin-top: 10px;
     }
 
-    .current-readout {
-        font-size: 0.8rem;
-        color: #888;
-        margin-top: 12px;
+    .tick-label {
+        font-size: 0.7rem;
+        fill: var(--ts-text-secondary);
         font-family: monospace;
+    }
+
+    .current-label {
+        font-size: 0.75rem;
+        fill: var(--ts-text-secondary);
+        font-family: monospace;
+        text-transform: uppercase;
+        letter-spacing: 1px;
     }
 
     .controls-wrapper {
@@ -359,5 +362,18 @@
         width: 100%;
         display: flex;
         justify-content: center;
+        opacity: 0.5;
+        transition: opacity 0.2s;
+    }
+
+    .controls-wrapper:hover {
+        opacity: 1;
+    }
+
+    /* Responsive */
+    @container (max-width: 200px) {
+        .temp-display {
+            font-size: 3rem;
+        }
     }
 </style>
