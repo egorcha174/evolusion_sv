@@ -1,72 +1,82 @@
 <script lang="ts">
     import { t } from "svelte-i18n";
     import "iconify-icon";
+    import { fade } from "svelte/transition";
     import type { HAEntity } from "$lib/types";
     import { type ThermostatController } from "./core/thermostat.svelte";
-    import ThermostatControls from "./ThermostatControls.svelte";
+    import Portal from "../../components/Portal.svelte";
 
     let { entity, controller } = $props<{
         entity: HAEntity;
         controller: ThermostatController;
     }>();
 
-    // Visual Helpers
-    let statusText = $derived(
-        controller.hvacMode === "off"
-            ? $t("common.off")
-            : $t(
-                  `widgets.thermostat.actions.${entity.attributes.hvac_action || "idle"}`,
-              ),
-    );
+    // --- State ---
+    let sliderElement = $state<HTMLElement>();
+    let showPresets = $state(false);
+    let presetButton = $state<HTMLElement | null>(null);
+    let menuPosition = $state<{
+        top: number;
+        left: number;
+        width: number;
+    } | null>(null);
+    let isBottom = $state(false);
 
-    let statusColor = $derived.by(() => {
-        if (controller.hvacMode === "off") return "var(--ts-accent-idle)";
-        const action = entity.attributes.hvac_action;
-        if (action === "heating") return "var(--ts-accent-heating)";
-        if (action === "cooling") return "var(--ts-accent-cooling)";
-        return "var(--ts-text-primary)";
+    // --- Derived Values ---
+    let hvacAction = $derived(entity.attributes.hvac_action);
+    let hvacModes = $derived(entity.attributes.hvac_modes || []);
+    let presetModes = $derived(entity.attributes.preset_modes || []);
+    let currentPreset = $derived(controller.presetMode || "None");
+
+    // Theme Colors
+    let activeColor = $derived.by(() => {
+        if (controller.hvacMode === "off") return "var(--text-muted, #555)";
+        if (hvacAction === "heating") return "var(--accent-primary, #ff3d00)";
+        if (hvacAction === "cooling") return "var(--accent-primary, #00b0ff)";
+        if (controller.hvacMode === "heat")
+            return "var(--accent-primary, #ff3d00)";
+        if (controller.hvacMode === "cool")
+            return "var(--accent-primary, #00b0ff)";
+        return "var(--accent-primary, #ffd700)";
     });
 
-    // Vertical slider logic
-    function valueToPercent(value: number) {
+    // Slider Calculations
+    let percentage = $derived.by(() => {
         const min = controller.minTemp;
         const max = controller.maxTemp;
-        const clamped = Math.max(min, Math.min(max, value));
-        return ((clamped - min) / (max - min)) * 100;
-    }
+        const current = Math.max(min, Math.min(max, controller.targetTemp));
+        return ((current - min) / (max - min)) * 100;
+    });
 
-    function percentToValue(percent: number) {
-        const ratio = Math.max(0, Math.min(100, percent)) / 100;
-        const raw =
+    // --- Interaction ---
+    function handleSliderInput(clientY: number) {
+        if (!sliderElement) return;
+        const rect = sliderElement.getBoundingClientRect();
+        const height = rect.height;
+        const bottom = rect.bottom;
+
+        // Calculate raw percentage from bottom
+        let val = (bottom - clientY) / height;
+        val = Math.max(0, Math.min(1, val)); // Clamp 0-1
+
+        // Map to temperature range
+        const rawTemp =
             controller.minTemp +
-            ratio * (controller.maxTemp - controller.minTemp);
-        return Math.round(raw / controller.step) * controller.step;
-    }
+            val * (controller.maxTemp - controller.minTemp);
 
-    let targetPercent = $derived(valueToPercent(controller.targetTemp));
-    let currentPercent = $derived(
-        valueToPercent(
-            entity.attributes.current_temperature || controller.minTemp,
-        ),
-    );
+        // Step rounding
+        const stepping = controller.step || 0.5;
+        const newTemp = Math.round(rawTemp / stepping) * stepping;
 
-    let trackElement: HTMLDivElement;
-
-    function handleInput(clientY: number) {
-        if (!trackElement) return;
-        const rect = trackElement.getBoundingClientRect();
-        // Calculate percent from bottom
-        const relativeY = clientY - rect.top;
-        const percentY = 100 - (relativeY / rect.height) * 100;
-
-        let newVal = percentToValue(percentY);
-        controller.setTemperature(newVal);
+        if (newTemp !== controller.targetTemp) {
+            controller.setTemperature(newTemp);
+        }
     }
 
     function onMouseDown(e: MouseEvent) {
-        if ((e.target as Element).closest(".nav-buttons")) return;
+        if (controller.hvacMode === "off") return;
         controller.setDragging(true);
-        handleInput(e.clientY);
+        handleSliderInput(e.clientY);
         window.addEventListener("mousemove", onMouseMove);
         window.addEventListener("mouseup", onMouseUp);
     }
@@ -74,7 +84,7 @@
     function onMouseMove(e: MouseEvent) {
         if (controller.isDragging) {
             e.preventDefault();
-            handleInput(e.clientY);
+            handleSliderInput(e.clientY);
         }
     }
 
@@ -85,243 +95,341 @@
     }
 
     function onTouchStart(e: TouchEvent) {
-        if ((e.target as Element).closest(".nav-buttons")) return;
+        if (controller.hvacMode === "off") return;
         e.preventDefault();
         controller.setDragging(true);
         const t = e.touches[0];
-        handleInput(t.clientY);
+        handleSliderInput(t.clientY);
     }
 
     function onTouchMove(e: TouchEvent) {
         if (controller.isDragging) {
             e.preventDefault();
             const t = e.touches[0];
-            handleInput(t.clientX); // Should be clientY for vertical? Correction below
-            handleInput(t.clientY);
+            handleSliderInput(t.clientY);
         }
     }
 
     function onTouchEnd() {
         controller.setDragging(false);
     }
+
+    // --- Presets Logic ---
+    function togglePresets() {
+        if (presetModes.length > 0) {
+            if (!showPresets && presetButton) {
+                const rect = presetButton.getBoundingClientRect();
+                const spaceAbove = rect.top;
+
+                if (spaceAbove < 250) {
+                    isBottom = true;
+                    menuPosition = {
+                        top: rect.bottom + 8,
+                        left: rect.left,
+                        width: 140,
+                    };
+                } else {
+                    isBottom = false;
+                    menuPosition = {
+                        top: rect.top - 8,
+                        left: rect.left,
+                        width: 140,
+                    };
+                }
+            }
+            showPresets = !showPresets;
+        }
+    }
+
+    function selectPreset(mode: string) {
+        controller.setPresetMode(mode);
+        showPresets = false;
+    }
+
+    function handleWindowClick(e: MouseEvent) {
+        if (
+            showPresets &&
+            !(e.target as Element).closest(".preset-label-btn") &&
+            !(e.target as Element).closest(".preset-menu-portal")
+        ) {
+            showPresets = false;
+        }
+    }
+
+    // Icons
+    function getStatusIcon() {
+        if (controller.hvacMode === "off") return "mdi:power";
+        if (hvacAction === "heating") return "mdi:fire";
+        if (hvacAction === "cooling") return "mdi:snowflake";
+        if (hvacAction === "drying") return "mdi:water-percent";
+        if (hvacAction === "fan") return "mdi:fan";
+        if (hvacAction === "idle") return "mdi:dots-horizontal";
+        return "mdi:thermostat";
+    }
 </script>
 
-<div class="vertical-skin">
-    <div class="main-content">
-        <!-- Info Side -->
-        <div class="info-side">
-            <div class="temp-display">
-                {controller.targetTemp.toFixed(1)}<span class="unit">°</span>
-            </div>
-            <div class="status" style:color={statusColor}>
-                {statusText}
+<svelte:window onclick={handleWindowClick} />
+
+<div class="skin-vertical" style="--theme-accent: {activeColor}">
+    <!-- Left Column: Info & Controls -->
+    <div class="left-col">
+        <!-- Top Icon -->
+        <div class="status-icon" style:color="var(--theme-accent)">
+            <iconify-icon icon={getStatusIcon()} width="24"></iconify-icon>
+        </div>
+
+        <!-- Middle: Temperatures -->
+        <div class="temp-group">
+            <div class="current-temp box-shadow-text">
+                {entity.attributes.current_temperature?.toFixed(1) ?? "--"}
             </div>
 
-            <!-- Icon/Mode indicator at top of info -->
-            <div class="mode-icon" style:color={statusColor}>
-                <iconify-icon icon="mdi:thermostat" width="24"></iconify-icon>
+            <div class="divider"></div>
+
+            <div class="target-temp">
+                {controller.targetTemp.toFixed(1)}
             </div>
         </div>
 
-        <!-- Slider Side -->
-        <div class="slider-container">
-            <!-- svelte-ignore a11y_no_static_element_interactions -->
+        <!-- Bottom: Menu Button -->
+        <div class="menu-wrapper">
+            {#if presetModes.length > 0}
+                <button
+                    class="preset-label-btn"
+                    bind:this={presetButton}
+                    onclick={togglePresets}
+                    class:active={showPresets}
+                    aria-label="Presets"
+                >
+                    {currentPreset}
+                </button>
+            {/if}
+        </div>
+    </div>
+
+    <!-- Right Column: Vertical Slider -->
+    <div class="right-col">
+        <div
+            class="slider-track"
+            role="slider"
+            tabindex="0"
+            aria-valuemin={controller.minTemp}
+            aria-valuemax={controller.maxTemp}
+            aria-valuenow={controller.targetTemp}
+            aria-label={$t("widgets.thermostat.targetTemp")}
+            bind:this={sliderElement}
+            onmousedown={onMouseDown}
+            ontouchstart={onTouchStart}
+            ontouchmove={onTouchMove}
+            ontouchend={onTouchEnd}
+        >
+            <!-- Background Fill (Greyed out part) -->
+            <div class="slider-bg"></div>
+
+            <!-- Active Fill -->
             <div
-                class="slider-track-bg"
-                bind:this={trackElement}
-                onmousedown={onMouseDown}
-                ontouchstart={onTouchStart}
-                ontouchmove={onTouchMove}
-                ontouchend={onTouchEnd}
+                class="slider-fill"
+                style:height="{percentage}%"
+                style:background="var(--theme-accent)"
             >
-                <!-- Active Fill -->
-                <div
-                    class="slider-fill"
-                    style="height: {targetPercent}%; background: {controller.hvacMode ===
-                    'off'
-                        ? 'var(--ts-accent-idle)'
-                        : statusColor}"
-                ></div>
-
-                <!-- Handle -->
-                <div class="slider-handle" style="bottom: {targetPercent}%;">
-                    <div
-                        class="handle-knob"
-                        style:background={statusColor}
-                    ></div>
-                </div>
-
-                <!-- Current Temp Marker -->
-                {#if entity.attributes.current_temperature != null}
-                    <div
-                        class="current-indicator"
-                        style="bottom: {currentPercent}%;"
-                    >
-                        <div class="current-label">
-                            {entity.attributes.current_temperature}°
-                        </div>
-                        <div class="current-line"></div>
-                    </div>
-                {/if}
+                <!-- Knob/Handle: The white circle at the top of the fill -->
+                <div class="slider-knob"></div>
             </div>
         </div>
     </div>
 
-    <!-- Controls -->
-    <div class="controls-wrapper">
-        <ThermostatControls
-            {controller}
-            {entity}
-            hvacMode={controller.hvacMode}
-            currentPresetMode={controller.presetMode}
-        />
-    </div>
+    <!-- Portal Menu -->
+    {#if showPresets && menuPosition}
+        <Portal>
+            <div
+                class="preset-menu-portal"
+                class:bottom={isBottom}
+                style:top="{menuPosition.top}px"
+                style:left="{menuPosition.left}px"
+                style:width="{menuPosition.width}px"
+                transition:fade={{ duration: 150 }}
+            >
+                {#each presetModes as mode}
+                    <button
+                        class="preset-item"
+                        class:selected={currentPreset === mode}
+                        onclick={() => selectPreset(mode)}
+                    >
+                        {mode}
+                    </button>
+                {/each}
+            </div>
+        </Portal>
+    {/if}
 </div>
 
 <style>
-    .vertical-skin {
+    .skin-vertical {
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
         width: 100%;
         height: 100%;
-        position: relative;
-        padding: 1rem;
-        gap: 0.5rem;
-        background: var(
-            --ts-bg-surface
-        ); /* Optional if widget doesn't set it */
+        padding: 16px;
+        gap: 16px;
+        background: var(--card-background, #222);
+        color: var(--text-primary, #fff);
+        overflow: hidden;
+        container-type: size;
+        box-sizing: border-box;
     }
 
-    .main-content {
+    /* --- Left Column --- */
+    .left-col {
         flex: 1;
         display: flex;
-        gap: 1rem;
-        align-items: stretch;
+        flex-direction: column;
         justify-content: space-between;
-        width: 100%;
-        min-height: 0;
+        align-items: flex-start;
+        min-width: 0;
     }
 
-    .info-side {
+    .status-icon {
+        font-size: 24px;
+        font-size: 8cqmin;
+        filter: drop-shadow(0 0 8px currentColor);
+    }
+
+    .temp-group {
         display: flex;
         flex-direction: column;
-        align-items: flex-start;
-        justify-content: flex-end; /* Bottom align target temp */
-        text-align: left;
-        padding-bottom: 2rem;
-        flex: 1;
+        width: 100%;
+        align-items: center; /* Centered as requested */
     }
 
-    .temp-display {
-        font-size: var(--ts-font-xl);
-        font-weight: 700;
+    .current-temp {
+        font-size: 28cqmin;
+        font-weight: 500;
         line-height: 1;
-        font-variant-numeric: tabular-nums;
-        color: var(--ts-text-primary);
+        color: var(--text-primary, #fff);
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
     }
 
-    .unit {
-        font-size: 0.5em;
-        vertical-align: top;
-        color: var(--ts-text-secondary);
-    }
-
-    .status {
-        font-size: var(--ts-font-md);
-        margin-top: 4px;
-        font-weight: 600;
-    }
-
-    .mode-icon {
-        margin-bottom: auto; /* Push to top */
+    .divider {
+        height: 2px;
+        width: 100%;
+        background: var(--text-primary, #fff);
+        margin: 4px 0;
         opacity: 0.8;
-        padding-top: 1rem;
     }
 
-    /* Slider */
-    .slider-container {
+    .target-temp {
+        font-size: 28cqmin;
+        font-weight: 500;
+        line-height: 1;
+        color: var(--text-secondary, #aaa);
+    }
+
+    .preset-label-btn {
+        background: transparent;
+        border: none;
+        color: var(--text-secondary, #aaa);
+        font-size: 10cqmin; /* Readable text size */
+        font-weight: 500;
+        cursor: pointer;
+        padding: 4px 8px; /* Hit area */
+        margin-left: -8px; /* Align text with left edge visually */
+        text-transform: capitalize;
+        transition: color 0.2s;
+        text-align: left;
+    }
+
+    .preset-label-btn:hover {
+        color: var(--text-primary, #fff);
+    }
+
+    /* --- Right Column (Slider) --- */
+    .right-col {
+        width: 15%;
         height: 100%;
-        width: 60px; /* Wider for industrial look */
-        position: relative;
-        padding: 10px 0;
+        padding: 4px 0;
     }
 
-    .slider-track-bg {
+    .slider-track {
+        position: relative;
         width: 100%;
         height: 100%;
-        background: var(--ts-bg-track);
-        border-radius: var(--ts-radius-inner);
-        position: relative;
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 100px;
+        overflow: visible;
         cursor: pointer;
-        overflow: hidden; /* Clip fill */
+        border: none;
+    }
+
+    .slider-bg {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 100px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        overflow: hidden; /* Clips the fill */
     }
 
     .slider-fill {
-        width: 100%;
         position: absolute;
         bottom: 0;
         left: 0;
-        transition:
-            height 0.1s linear,
-            background 0.2s;
-        pointer-events: none;
-        opacity: 0.3;
+        width: 100%;
+        transition: height 0.1s linear;
+        border-radius: 0 0 100px 100px;
     }
 
-    .slider-handle {
+    .slider-knob {
         position: absolute;
-        left: 0;
+        top: 0;
+        left: 50%;
+        transform: translate(-50%, -50%);
         width: 100%;
-        height: 0; /* Just a position marker */
-        pointer-events: none;
-        transition: bottom 0.1s linear;
+        aspect-ratio: 1;
+        background: #fff;
+        border-radius: 50%;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
         z-index: 2;
     }
 
-    .handle-knob {
-        width: 100%;
-        height: 4px;
-        position: absolute;
-        top: -2px;
-        background: #fff;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-    }
-
-    /* Current Temp */
-    .current-indicator {
-        position: absolute;
-        right: 0; /* Align to right edge inside track? Or outside? */
-        width: 100%;
-        pointer-events: none;
-        transition: bottom 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-        z-index: 3;
+    /* --- Menu Portal --- */
+    .preset-menu-portal {
+        position: fixed;
+        background: var(--card-background, #1e1e1e);
+        border: 1px solid var(--border-primary, #333);
+        border-radius: 8px;
+        padding: 4px;
         display: flex;
-        align-items: center;
-        justify-content: flex-end;
-        padding-right: 4px;
+        flex-direction: column;
+        gap: 2px;
+        z-index: 9999;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
     }
 
-    .current-line {
-        width: 50%;
-        height: 2px;
-        background: var(--ts-text-primary);
-        opacity: 0.5;
-    }
-
-    .current-label {
-        font-size: 0.75rem;
-        font-weight: 600;
-        color: var(--ts-text-primary);
-        background: rgba(0, 0, 0, 0.5);
-        padding: 2px 4px;
+    .preset-item {
+        background: transparent;
+        border: none;
+        color: var(--text-primary);
+        padding: 8px 12px;
+        text-align: left;
+        cursor: pointer;
         border-radius: 4px;
-        margin-right: 4px;
+        text-transform: capitalize;
+        font-size: 14px;
     }
 
-    .controls-wrapper {
-        width: 100%;
-        display: flex;
-        justify-content: center;
-        padding-top: 0.5rem;
+    .preset-item:hover {
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .preset-item.selected {
+        color: var(--theme-accent);
+        font-weight: bold;
+    }
+
+    .box-shadow-text {
+        text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
     }
 </style>

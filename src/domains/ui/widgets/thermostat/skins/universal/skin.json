@@ -1,0 +1,13 @@
+{
+    "name": "Universal",
+    "version": "1.0.0",
+    "supportedSizes": [
+        "1x1",
+        "2x1",
+        "1x2",
+        "2x2"
+    ],
+    "defaultMode": "1x1",
+    "requiresGestures": false,
+    "description": "Adaptive universal skin using global theme variables."
+}

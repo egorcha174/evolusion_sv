@@ -187,10 +187,27 @@
         width: 100%;
         height: 100%;
         position: relative;
-        padding: 1.5rem;
-        gap: 2rem;
+        padding: 5cqmin;
+        gap: 4cqmin;
         align-items: center;
-        background: var(--ts-bg-surface);
+
+        /* Match Device Card 'Off' State */
+        background: var(
+            --card-background,
+            var(--glass-surface, rgba(255, 255, 255, 0.05))
+        );
+        backdrop-filter: var(--glass-blur, blur(12px));
+        -webkit-backdrop-filter: var(--glass-blur, blur(12px));
+        border: 1px solid var(--border-primary, rgba(255, 255, 255, 0.1));
+        border-radius: var(--ts-radius-outer, 24px);
+
+        /* Subtle shadow */
+        box-shadow:
+            0 10px 30px rgba(0, 0, 0, 0.2),
+            inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+
+        container-type: size;
+        overflow: hidden;
     }
 
     /* Info Section */
@@ -200,7 +217,7 @@
         justify-content: center;
         align-items: flex-start;
         flex-shrink: 0;
-        min-width: 120px;
+        min-width: 25cqw;
     }
 
     .temp-readout {
@@ -210,7 +227,7 @@
     }
 
     .main-temp {
-        font-size: 4rem; /* Big number */
+        font-size: 18cqmin; /* Big number */
         font-weight: 700;
         line-height: 0.9;
         font-variant-numeric: tabular-nums;
@@ -225,21 +242,21 @@
     }
 
     .status-sub {
-        font-size: 1rem;
+        font-size: 5cqmin;
         font-weight: 600;
-        margin-top: 0.25rem;
+        margin-top: 0.5cqmin;
         text-transform: capitalize;
     }
 
     .current-mini {
-        margin-top: 1rem;
+        margin-top: 2cqmin;
         display: flex;
         flex-direction: column;
         gap: 2px;
     }
 
     .current-mini .label {
-        font-size: 0.7rem;
+        font-size: 3.5cqmin;
         text-transform: uppercase;
         letter-spacing: 0.5px;
         color: var(--ts-text-secondary);
@@ -249,7 +266,7 @@
         display: flex;
         align-items: center;
         gap: 4px;
-        font-size: 1.1rem;
+        font-size: 5cqmin;
         color: var(--ts-text-primary);
     }
 
@@ -259,7 +276,7 @@
         display: flex;
         flex-direction: column;
         justify-content: center;
-        gap: 1.5rem;
+        gap: 4cqmin;
         height: 100%;
         min-width: 0; /* Flexbox trick */
     }
@@ -267,7 +284,8 @@
     /* Slider */
     .slider-container {
         width: 100%;
-        height: 48px;
+        height: 12cqmin;
+        max-height: 48px;
         display: flex;
         align-items: center;
         position: relative;
@@ -275,18 +293,19 @@
 
     .slider-track-bg {
         width: 100%;
-        height: 16px; /* Slightly thicker */
-        background: var(--ts-bg-track);
-        border-radius: 8px;
+        height: 30%; /* Slightly thicker */
+        background: var(--ts-bg-track, rgba(0, 0, 0, 0.2));
+        border-radius: 999px;
         position: relative;
         cursor: pointer;
+        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
     }
 
     .slider-track-bg::after {
         content: "";
         position: absolute;
-        top: -16px;
-        bottom: -16px;
+        top: -20px;
+        bottom: -20px;
         left: 0;
         right: 0;
         z-index: 1;
@@ -294,7 +313,7 @@
 
     .slider-fill {
         height: 100%;
-        border-radius: 8px;
+        border-radius: 999px;
         position: absolute;
         top: 0;
         left: 0;
@@ -302,14 +321,15 @@
             width 0.1s linear,
             background 0.2s;
         pointer-events: none;
+        opacity: 0.6;
     }
 
     .slider-handle {
         position: absolute;
         top: 50%;
         transform: translate(-50%, -50%);
-        width: 32px;
-        height: 32px;
+        width: 8cqmin;
+        height: 8cqmin;
         pointer-events: none;
         transition: left 0.1s linear;
         z-index: 2;
@@ -319,10 +339,10 @@
     }
 
     .handle-knob {
-        width: 24px;
-        height: 24px;
+        width: 70%;
+        height: 70%;
         background: #fff;
-        border: 3px solid var(--bg-card); /* Should match card bg, or use transparent border with box shadow */
+        border: 2px solid rgba(0, 0, 0, 0.1);
         border-radius: 50%;
         box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
     }
@@ -332,7 +352,7 @@
         position: absolute;
         top: 50%;
         transform: translate(-50%, -50%);
-        height: 24px; /* Taller than track */
+        height: 140%; /* Taller than track */
         pointer-events: none;
         transition: left 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
         z-index: 3;
@@ -347,6 +367,7 @@
         background: var(--ts-text-primary);
         border-radius: 2px;
         opacity: 0.8;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
     }
 
     .controls-wrapper {
@@ -356,17 +377,18 @@
     }
 
     /* Responsive */
-    @container (max-width: 400px) {
+    @container (max-width: 250px) {
         .horizontal-skin {
             flex-direction: column;
             align-items: stretch;
-            padding: 1rem;
-            gap: 1rem;
+            padding: 3cqmin;
+            gap: 2cqmin;
         }
 
         .info-section {
             align-items: center;
             text-align: center;
+            min-width: unset;
         }
 
         .temp-readout,

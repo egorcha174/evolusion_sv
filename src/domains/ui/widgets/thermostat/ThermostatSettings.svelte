@@ -6,20 +6,10 @@
 
     // Available Skins
     const skins = [
-        { id: "ring", icon: "mdi:circle-outline", label: "Ring" },
-        {
-            id: "vertical",
-            icon: "mdi:gesture-swipe-vertical",
-            label: "Vertical",
-        },
-        {
-            id: "horizontal",
-            icon: "mdi:gesture-swipe-horizontal",
-            label: "Horizontal",
-        },
-        { id: "ticks", icon: "mdi:gauge", label: "Ticks" },
         { id: "neon", icon: "mdi:blur", label: "Neon" },
-        { id: "mushroom", icon: "mdi:pill", label: "Mushroom" },
+        { id: "main", icon: "mdi:thermostat", label: "Main" },
+        { id: "minimalist", icon: "mdi:minus", label: "Minimal" },
+        { id: "vertical", icon: "mdi:tune-vertical", label: "Vertical" },
     ];
 
     function selectSkin(id: string) {
@@ -38,7 +28,7 @@
             <button
                 class="skin-option"
                 class:selected={config.skin === skin.id ||
-                    (!config.skin && skin.id === "ring")}
+                    (!config.skin && skin.id === "main")}
                 onclick={() => selectSkin(skin.id)}
                 title={skin.label}
             >

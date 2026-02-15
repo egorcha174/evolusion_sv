@@ -7,12 +7,10 @@
     import "./thermostat/styles/thermostat.css";
 
     // Skins
-    import ThermostatRing from "./thermostat/ThermostatRing.svelte";
-    import ThermostatVertical from "./thermostat/ThermostatVertical.svelte";
-    import ThermostatHorizontal from "./thermostat/ThermostatHorizontal.svelte";
-    import ThermostatMinimal from "./thermostat/ThermostatMinimal.svelte";
     import ThermostatNeon from "./thermostat/ThermostatNeon.svelte";
-    import ThermostatMushroom from "./thermostat/ThermostatMushroom.svelte";
+    import ThermostatMain from "./thermostat/ThermostatMain.svelte";
+    import ThermostatMinimalist from "./thermostat/ThermostatMinimalist.svelte";
+    import ThermostatVertical from "./thermostat/ThermostatVertical.svelte";
 
     let { entity, settings }: { entity: HAEntity; settings?: any } = $props();
 
@@ -33,23 +31,19 @@
     });
 
     // If `settings` prop is passed, use it.
-    let skin = $derived(settings?.skin || "ring"); // ring, vertical, horizontal
+    let skin = $derived(settings?.skin || "main"); // neon, main, minimalist
 </script>
 
 <div class="thermostat-widget skin-{skin} thermostat-root">
     {#if controller}
-        {#if skin === "vertical"}
-            <ThermostatVertical {entity} {controller} />
-        {:else if skin === "horizontal"}
-            <ThermostatHorizontal {entity} {controller} />
-        {:else if skin === "minimal" || skin === "ticks"}
-            <ThermostatMinimal {entity} {controller} />
-        {:else if skin === "neon"}
+        {#if skin === "neon"}
             <ThermostatNeon {entity} {controller} />
-        {:else if skin === "mushroom"}
-            <ThermostatMushroom {entity} {controller} />
+        {:else if skin === "minimalist"}
+            <ThermostatMinimalist {entity} {controller} />
+        {:else if skin === "vertical"}
+            <ThermostatVertical {entity} {controller} />
         {:else}
-            <ThermostatRing {entity} {controller} />
+            <ThermostatMain {entity} {controller} />
         {/if}
     {/if}
 </div>
