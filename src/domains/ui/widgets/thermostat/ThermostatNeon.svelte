@@ -351,7 +351,9 @@
                     class="mode-btn"
                     class:active={controller.hvacMode === mode}
                     onclick={() => controller.setHvacMode(mode)}
-                    aria-label={mode}
+                    aria-label={$t(`widgets.thermostat.modes.${mode}`, {
+                        default: mode,
+                    })}
                 >
                     <iconify-icon icon={getModeIcon(mode)}></iconify-icon>
                 </button>
@@ -367,10 +369,15 @@
                         controller.presetMode !== "none"}
                     bind:this={presetButton}
                     onclick={togglePresets}
+                    aria-label={$t("widgets.thermostat.presets.title")}
                 >
                     <iconify-icon icon="mdi:tune-vertical"></iconify-icon>
                     {#if currentPreset !== "None"}
-                        <span class="preset-label">{currentPreset}</span>
+                        <span class="preset-label"
+                            >{$t(
+                                `widgets.thermostat.presets.${currentPreset.toLowerCase()}`,
+                            ) || currentPreset}</span
+                        >
                     {/if}
                 </button>
 
@@ -391,7 +398,9 @@
                                     class:selected={currentPreset === mode}
                                     onclick={() => selectPreset(mode)}
                                 >
-                                    {mode}
+                                    {$t(
+                                        `widgets.thermostat.presets.${mode.toLowerCase()}`,
+                                    ) || mode}
                                 </button>
                             {/each}
                         </div>

@@ -181,7 +181,8 @@
         <!-- Middle: Temperatures -->
         <div class="temp-group">
             <div class="current-temp box-shadow-text">
-                {entity.attributes.current_temperature?.toFixed(1) ?? "--"}
+                {entity.attributes.current_temperature?.toFixed(1) ??
+                    $t("common.unknown")}
             </div>
 
             <div class="divider"></div>
@@ -199,9 +200,11 @@
                     bind:this={presetButton}
                     onclick={togglePresets}
                     class:active={showPresets}
-                    aria-label="Presets"
+                    aria-label={$t("widgets.thermostat.presets.title")}
                 >
-                    {currentPreset}
+                    {$t(
+                        `widgets.thermostat.presets.${currentPreset.toLowerCase()}`,
+                    ) || currentPreset}
                 </button>
             {/if}
         </div>
@@ -255,7 +258,9 @@
                         class:selected={currentPreset === mode}
                         onclick={() => selectPreset(mode)}
                     >
-                        {mode}
+                        {$t(
+                            `widgets.thermostat.presets.${mode.toLowerCase()}`,
+                        ) || mode}
                     </button>
                 {/each}
             </div>

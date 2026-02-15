@@ -177,7 +177,25 @@
         "off": "Off",
         "fan_only": "Fan",
         "dry": "Dry"
-      }
+      },
+      "skins": {
+        "neon": "Neon",
+        "main": "Main",
+        "vertical": "Vertical"
+      },
+      "presets": {
+        "title": "Presets",
+        "none": "None",
+        "home": "Home",
+        "away": "Away",
+        "eco": "Eco",
+        "sleep": "Sleep",
+        "comfort": "Comfort",
+        "boost": "Boost",
+        "activity": "Activity"
+      },
+      "targetTemp": "Target Temperature",
+      "currentTemp": "Current Temperature"
     }
   },
   "templates": {

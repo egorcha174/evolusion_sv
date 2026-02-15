@@ -6,10 +6,21 @@
 
     // Available Skins
     const skins = [
-        { id: "neon", icon: "mdi:blur", label: "Neon" },
-        { id: "main", icon: "mdi:thermostat", label: "Main" },
-        { id: "minimalist", icon: "mdi:minus", label: "Minimal" },
-        { id: "vertical", icon: "mdi:tune-vertical", label: "Vertical" },
+        {
+            id: "neon",
+            icon: "mdi:blur",
+            label: "widgets.thermostat.skins.neon",
+        },
+        {
+            id: "main",
+            icon: "mdi:thermostat",
+            label: "widgets.thermostat.skins.main",
+        },
+        {
+            id: "vertical",
+            icon: "mdi:tune-vertical",
+            label: "widgets.thermostat.skins.vertical",
+        },
     ];
 
     function selectSkin(id: string) {
@@ -18,10 +29,10 @@
 </script>
 
 <div class="settings-group" role="group" aria-labelledby="skin-label">
-    <label id="skin-label"
+    <span id="skin-label" class="label"
         >{$t("widgets.thermostat.settings.skinLabel", {
             default: "Skin",
-        })}</label
+        })}</span
     >
     <div class="skin-selector">
         {#each skins as skin}
@@ -30,10 +41,10 @@
                 class:selected={config.skin === skin.id ||
                     (!config.skin && skin.id === "main")}
                 onclick={() => selectSkin(skin.id)}
-                title={skin.label}
+                title={$t(skin.label)}
             >
                 <iconify-icon icon={skin.icon} width="24"></iconify-icon>
-                <span>{skin.label}</span>
+                <span>{$t(skin.label)}</span>
             </button>
         {/each}
     </div>
@@ -47,7 +58,7 @@
         margin-bottom: 1rem;
     }
 
-    label {
+    .label {
         font-size: 0.9rem;
         font-weight: 500;
         color: var(--text-secondary);

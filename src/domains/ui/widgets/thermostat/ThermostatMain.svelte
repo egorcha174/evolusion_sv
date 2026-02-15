@@ -103,7 +103,7 @@
         <div class="display-area">
             <!-- Current Temperature (Large Yellow) -->
             <div class="current-temp">
-                {currentTemp ?? "--"}
+                {currentTemp ?? $t("common.unknown")}
             </div>
         </div>
 
@@ -116,7 +116,9 @@
             <button
                 class="adjust-btn"
                 onclick={decreaseTemp}
-                aria-label="Decrease Temperature"
+                aria-label={$t("widgets.thermostat.actions.decrease", {
+                    default: "Decrease Temperature",
+                })}
             >
                 <iconify-icon icon="mdi:minus"></iconify-icon>
             </button>
@@ -130,7 +132,9 @@
             <button
                 class="adjust-btn"
                 onclick={increaseTemp}
-                aria-label="Increase Temperature"
+                aria-label={$t("widgets.thermostat.actions.increase", {
+                    default: "Increase Temperature",
+                })}
             >
                 <iconify-icon icon="mdi:plus"></iconify-icon>
             </button>
@@ -143,9 +147,13 @@
                 bind:this={presetButton}
                 onclick={togglePresets}
                 class:active={showPresets}
-                aria-label="Presets and Status"
+                aria-label={$t("widgets.thermostat.presets.title")}
             >
-                <span class="preset-name">{currentPreset}</span>
+                <span class="preset-name"
+                    >{$t(
+                        `widgets.thermostat.presets.${currentPreset.toLowerCase()}`,
+                    ) || currentPreset}</span
+                >
 
                 {#if isHeating}
                     <span class="status-icon heating" transition:fade>
@@ -173,7 +181,9 @@
                                 class:selected={currentPreset === mode}
                                 onclick={() => selectPreset(mode)}
                             >
-                                {mode}
+                                {$t(
+                                    `widgets.thermostat.presets.${mode.toLowerCase()}`,
+                                ) || mode}
                             </button>
                         {/each}
                     </div>

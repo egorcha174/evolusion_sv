@@ -131,7 +131,11 @@
                                 class:selected={currentPresetMode === mode}
                                 onclick={() => selectPreset(mode)}
                             >
-                                <span>{mode}</span>
+                                <span
+                                    >{$t(
+                                        `widgets.thermostat.presets.${mode.toLowerCase()}`,
+                                    ) || mode}</span
+                                >
                                 {#if currentPresetMode === mode}
                                     <iconify-icon icon="mdi:check" width="16"
                                     ></iconify-icon>

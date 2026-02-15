@@ -9,7 +9,6 @@
     // Skins
     import ThermostatNeon from "./thermostat/ThermostatNeon.svelte";
     import ThermostatMain from "./thermostat/ThermostatMain.svelte";
-    import ThermostatMinimalist from "./thermostat/ThermostatMinimalist.svelte";
     import ThermostatVertical from "./thermostat/ThermostatVertical.svelte";
 
     let { entity, settings }: { entity: HAEntity; settings?: any } = $props();
@@ -38,8 +37,6 @@
     {#if controller}
         {#if skin === "neon"}
             <ThermostatNeon {entity} {controller} />
-        {:else if skin === "minimalist"}
-            <ThermostatMinimalist {entity} {controller} />
         {:else if skin === "vertical"}
             <ThermostatVertical {entity} {controller} />
         {:else}
